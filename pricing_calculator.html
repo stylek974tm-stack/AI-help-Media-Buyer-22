@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>حاسبة التسعير الحقيقية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#090b10;
+    --bg-2:#0d1017;
+    --card:#12151e;
+    --card-2:#161a24;
+    --border:#232838;
+    --border-soft:#1a1e29;
+    --gold:#c9a25c;
+    --gold-soft:#e9cf9c;
+    --text:#eef0f4;
+    --text-dim:#8b93a7;
+    --text-faint:#5b6272;
+    --blue:#5b8def;
+    --green:#3ec98a;
+    --red:#e2635f;
+    --amber:#e0a83e;
+    --radius:16px;
+    /* aliases so the shared Media Buyer Hub sidebar/topbar components render correctly here */
+    --surface:var(--card);
+    --surface-2:var(--card-2);
+    --surface-3:#1b2130;
+    --accent-2:var(--gold);
+    --accent-soft:rgba(201,162,92,.14);
+    --font-ui:'Cairo',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 15% -10%, rgba(201,162,92,.08), transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, rgba(91,141,239,.06), transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Tajawal',sans-serif;
+    min-height:100vh;
+    padding:28px 20px 80px;
+  }
+  .wrap{max-width:1180px;margin:0 auto;}
+
+  /* ---------- header ---------- */
+  .masthead{
+    display:flex;justify-content:space-between;align-items:flex-end;
+    flex-wrap:wrap;gap:16px;
+    margin-bottom:28px;
+    padding-bottom:22px;
+    border-bottom:1px solid var(--border-soft);
+  }
+  .brand-eyebrow{
+    font-family:'Cairo',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;
+    color:var(--gold);text-transform:uppercase;margin-bottom:6px;
+  }
+  .brand-title{
+    font-family:'Cairo',sans-serif;font-weight:900;font-size:30px;color:var(--text);
+    display:flex;align-items:center;gap:10px;
+  }
+  .brand-title small{
+    font-family:'Tajawal',sans-serif;font-weight:400;font-size:13px;color:var(--text-dim);
+  }
+  .masthead-meta{
+    font-size:12.5px;color:var(--text-faint);text-align:left;line-height:1.9;
+    font-family:'Cairo',sans-serif;
+  }
+  .masthead-meta b{color:var(--text-dim);}
+
+  /* ---------- boards grid ---------- */
+  .grid{
+    display:grid;grid-template-columns:repeat(12,1fr);gap:18px;
+  }
+  .board{
+    background:linear-gradient(180deg,var(--card-2),var(--card));
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:22px;
+    position:relative;
+    box-shadow:0 1px 0 rgba(255,255,255,.02) inset, 0 20px 40px -30px rgba(0,0,0,.6);
+  }
+  .board::before{
+    content:'';position:absolute;inset:0;border-radius:var(--radius);
+    padding:1px;pointer-events:none;
+    background:linear-gradient(135deg, rgba(201,162,92,.18), transparent 30%);
+    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor; mask-composite:exclude;
+  }
+  .board-head{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+  .board-num{
+    font-family:'Cairo',sans-serif;font-weight:800;font-size:13px;
+    color:var(--gold);border:1px solid rgba(201,162,92,.35);
+    width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;background:rgba(201,162,92,.06);
+  }
+  .board-titles{display:flex;flex-direction:column;}
+  .board-title{font-family:'Cairo',sans-serif;font-weight:700;font-size:15px;color:var(--text);}
+  .board-sub{font-size:11.5px;color:var(--text-faint);margin-top:2px;}
+
+  /* field rows */
+  .field{margin-bottom:14px;}
+  .field:last-child{margin-bottom:0;}
+  .field label{
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:12px;color:var(--text-dim);margin-bottom:6px;
+  }
+  .field label .hint{font-size:10.5px;color:var(--text-faint);font-weight:400;}
+  .field label .tag{
+    font-size:9.5px;font-family:'Cairo',sans-serif;font-weight:700;letter-spacing:.5px;
+    padding:2px 6px;border-radius:5px;
+  }
+  .tag-input{color:var(--blue);background:rgba(91,141,239,.1);border:1px solid rgba(91,141,239,.25);}
+  .tag-auto{color:var(--text-faint);background:rgba(255,255,255,.03);border:1px solid var(--border);}
+  .tag-result{color:var(--green);background:rgba(62,201,138,.1);border:1px solid rgba(62,201,138,.28);}
+
+  input[type=number], input[type=text], select{
+    width:100%;padding:10px 12px;border-radius:9px;
+    background:var(--bg-2);border:1px solid var(--border);
+    color:var(--text);font-size:14px;font-family:'Tajawal',sans-serif;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  input[type=number]:focus, input[type=text]:focus, select:focus{
+    outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,162,92,.12);
+  }
+  input[readonly]{
+    color:var(--green);font-weight:700;font-family:'Cairo',sans-serif;
+    background:rgba(62,201,138,.05);border-color:rgba(62,201,138,.2);cursor:default;
+  }
+  .computed-row{
+    display:flex;justify-content:space-between;align-items:baseline;
+    padding:9px 0;border-bottom:1px dashed var(--border-soft);
+  }
+  .computed-row:last-child{border-bottom:none;}
+  .computed-row .k{font-size:12.5px;color:var(--text-dim);}
+  .computed-row .v{font-family:'Cairo',sans-serif;font-weight:700;font-size:14px;color:var(--text);}
+  .computed-row .v.green{color:var(--green);}
+  .computed-row .v.red{color:var(--red);}
+
+  /* spans */
+  .s-12{grid-column:span 12;}
+  .s-6{grid-column:span 6;}
+  .s-4{grid-column:span 4;}
+  @media(max-width:900px){.s-6,.s-4{grid-column:span 12;}}
+
+  /* ---------- hero board ---------- */
+  .hero{
+    background:
+      radial-gradient(500px 220px at 85% -20%, rgba(201,162,92,.16), transparent 60%),
+      linear-gradient(180deg,#171a24,#101319);
+    border:1px solid rgba(201,162,92,.28);
+  }
+  .hero-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;margin-bottom:22px;}
+  .hero-product{display:flex;flex-direction:column;gap:6px;}
+  .hero-eyebrow{font-family:'Cairo',sans-serif;font-size:11px;letter-spacing:2px;color:var(--text-faint);text-transform:uppercase;}
+  .hero-product-name{font-family:'Cairo',sans-serif;font-weight:800;font-size:22px;color:var(--text);}
+  .hero-product-name.placeholder{color:var(--text-faint);font-weight:600;}
+  .comp-badge{
+    display:inline-flex;align-items:center;gap:7px;
+    font-family:'Cairo',sans-serif;font-weight:700;font-size:12.5px;
+    padding:7px 14px;border-radius:100px;
+  }
+  .comp-dot{width:8px;height:8px;border-radius:50%;}
+  .comp-weak{color:var(--green);background:rgba(62,201,138,.1);border:1px solid rgba(62,201,138,.3);}
+  .comp-weak .comp-dot{background:var(--green);}
+  .comp-medium{color:var(--amber);background:rgba(224,168,62,.1);border:1px solid rgba(224,168,62,.3);}
+  .comp-medium .comp-dot{background:var(--amber);}
+  .comp-strong{color:var(--red);background:rgba(226,99,95,.1);border:1px solid rgba(226,99,95,.3);}
+  .comp-strong .comp-dot{background:var(--red);}
+
+  .search-links{display:flex;flex-wrap:wrap;gap:8px;}
+  .search-link{
+    display:inline-flex;align-items:center;gap:6px;
+    font-family:'Cairo',sans-serif;font-weight:700;font-size:12px;
+    padding:8px 13px;border-radius:9px;text-decoration:none;
+    background:var(--bg-2);border:1px solid var(--border);color:var(--text-dim);
+    transition:border-color .15s, color .15s;
+  }
+  .search-link:hover{border-color:var(--gold);color:var(--gold-soft);}
+  .search-link.disabled{pointer-events:none;opacity:.4;}
+
+  .hero-numbers{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+  @media(max-width:760px){.hero-numbers{grid-template-columns:repeat(2,1fr);}}
+  .hn{background:rgba(255,255,255,.02);border:1px solid var(--border-soft);border-radius:12px;padding:16px;}
+  .hn .hn-label{font-size:11px;color:var(--text-faint);margin-bottom:8px;font-family:'Cairo',sans-serif;letter-spacing:.3px;}
+  .hn .hn-value{font-family:'Cairo',sans-serif;font-weight:900;font-size:26px;color:var(--gold-soft);line-height:1;}
+  .hn .hn-value.green{color:var(--green);}
+  .hn .hn-value small{font-size:13px;font-weight:700;color:var(--text-dim);}
+  .hero-tip{
+    margin-top:18px;padding:12px 14px;border-radius:10px;
+    background:rgba(201,162,92,.06);border:1px solid rgba(201,162,92,.18);
+    font-size:12.5px;color:var(--gold-soft);line-height:1.8;
+  }
+
+  /* scenarios table */
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{
+    font-family:'Cairo',sans-serif;font-weight:700;font-size:11.5px;color:var(--text-faint);
+    text-align:center;padding:10px 8px;border-bottom:1px solid var(--border);letter-spacing:.3px;
+  }
+  td{text-align:center;padding:12px 8px;border-bottom:1px solid var(--border-soft);color:var(--text-dim);font-family:'Cairo',sans-serif;}
+  tr.match-row td{color:var(--text);background:rgba(201,162,92,.06);}
+  tr.match-row td:first-child{position:relative;}
+  tr.match-row td:first-child::before{
+    content:'الأقرب للواقع';position:absolute;top:2px;right:6px;
+    font-size:8.5px;color:var(--gold);letter-spacing:.3px;
+  }
+  td.profit-pos{color:var(--green);font-weight:700;}
+  td.profit-neg{color:var(--red);font-weight:700;}
+
+  footer{
+    text-align:center;margin-top:36px;color:var(--text-faint);font-size:11.5px;
+    font-family:'Cairo',sans-serif;
+  }
+
+  .topbar{
+    position:sticky; top:0; z-index:120;
+    display:flex; align-items:center; gap:12px;
+    padding:12px clamp(14px,3vw,28px);
+    background:rgba(9,11,15,.86); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border-soft);
+  }
+  .icon-btn{
+    display:flex; align-items:center; justify-content:center;
+    width:38px; height:38px; border-radius:11px; flex-shrink:0;
+    background:var(--surface); border:1px solid var(--border); color:var(--text);
+    cursor:pointer; transition:.15s; text-decoration:none;
+  }
+  .icon-btn:hover{ background:var(--surface-3); border-color:#2c313d; }
+  .icon-btn svg{ width:19px; height:19px; }
+  .brand{ font-weight:800; font-size:15px; letter-spacing:.2px; white-space:nowrap; color:var(--text); }
+  .brand span{ color:var(--accent-2); }
+  .topbar-spacer{ flex:1; }
+
+  /* ---------- Unified navigation (sidebar) ---------- */
+  .backdrop{
+    position:fixed; inset:0; background:rgba(4,5,8,.55); backdrop-filter:blur(2px);
+    z-index:180; opacity:0; pointer-events:none; transition:opacity .2s ease;
+  }
+  .backdrop.show{ opacity:1; pointer-events:auto; }
+  .sidebar{
+    position:fixed; top:0; bottom:0; right:0; width:min(280px,84vw);
+    background:var(--surface); border-left:1px solid var(--border);
+    padding:20px 14px; z-index:190; overflow-y:auto;
+    transform:translateX(100%); transition:transform .25s cubic-bezier(.4,0,.2,1);
+    box-shadow:-20px 0 60px rgba(0,0,0,.4);
+  }
+  .sidebar.open{ transform:translateX(0); }
+  .sidebar-head{
+    display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; padding:0 4px;
+  }
+  .sidebar-head b{ font-size:15px; color:var(--accent-2); letter-spacing:.2px; }
+  .nav-item{
+    display:flex; align-items:center; gap:11px; padding:11px 12px; border-radius:11px;
+    font-size:13.5px; color:var(--text-dim); text-decoration:none; margin-bottom:4px; font-weight:500;
+  }
+  .nav-item svg{ width:17px; height:17px; flex-shrink:0; opacity:.85; }
+  .nav-item:hover{ background:var(--surface-3); color:var(--text); }
+  .nav-item.active{ background:var(--accent-soft); color:#bcd0ff; font-weight:700; }
+  .nav-item.active svg{ opacity:1; }
+  .nav-item.disabled{ color:#454b57; cursor:not-allowed; pointer-events:none; }
+  .nav-divider{ height:1px; background:var(--border-soft); margin:12px 4px; }
+  .nav-tag{ margin-right:auto; font-size:10px; background:var(--surface-3); color:var(--text-faint); padding:2px 7px; border-radius:20px; }
+  .sidebar-foot{ margin-top:16px; padding:10px 12px; font-size:10.5px; color:var(--text-faint); border-top:1px solid var(--border-soft); line-height:1.7; }
+</style>
+</head>
+<body>
+<div class="topbar" style="margin:-28px -20px 24px; background:rgba(9,11,16,.9);">
+  <button class="icon-btn" id="menuBtn" aria-label="القائمة" onclick="toggleSidebar(event)"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg></button>
+  <div class="brand">Media Buyer <span>Hub</span></div>
+  <div class="topbar-spacer"></div>
+</div>
+
+<div class="backdrop" id="backdrop" onclick="closeSidebar()"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-head"><b>Media Buyer Hub</b>
+    <button class="icon-btn" onclick="closeSidebar()" aria-label="إغلاق"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></button>
+  </div>
+  <a class="nav-item" href="index.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>تسجيل الدخول</a>
+  <a class="nav-item" href="account.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18"/></svg>ربط الحسابات الإعلانية</a>
+  <a class="nav-item" href="dashboard.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>تحليل البيانات</a>
+  <a class="nav-item" href="insights.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="4" width="3" height="14"/></svg>الرسوم البيانية</a>
+  <a class="nav-item" href="automation-rules.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>قواعد الأتمتة</a>
+  <a class="nav-item" href="team-quality.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>أداء الموظفين</a>
+  <a class="nav-item" href="subscription.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>الاشتراك والدفع</a>
+  <div class="nav-divider"></div>
+  <a class="nav-item active" href="pricing_calculator.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>التسعير</a>
+  <a class="nav-item disabled"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>الدعم <span class="nav-tag">قريبًا</span></a>
+  <div class="sidebar-foot">جميع البيانات مرتبطة بحسابك ومحمية — لا تتم مشاركتها مع أي طرف تالت.</div>
+</aside>
+<div class="wrap">
+
+  <div class="masthead">
+    <div>
+      <div class="brand-eyebrow">Stylek Store · نظام التسعير</div>
+      <div class="brand-title">حاسبة التسعير الحقيقية <small>— كل الأرقام بتتحسب لحظة بلحظة</small></div>
+    </div>
+    <div class="masthead-meta"><b>الطريقة:</b> تصنيع + مصاريف + شحن ← تكلفة حقيقية ← سعر بيع فوقها هامش ربح مستهدف</div>
+  </div>
+
+  <div class="grid">
+
+    <!-- ============ HERO: نتيجة التسعير ============ -->
+    <div class="board hero s-12">
+      <div class="hero-top">
+        <div class="hero-product">
+          <div class="hero-eyebrow">لوح النتيجة النهائية</div>
+          <div class="hero-product-name placeholder" id="heroProductName">اسم المنتج (اكتبه في لوح بحث السوق)</div>
+        </div>
+        <div class="comp-badge comp-medium" id="heroCompBadge">
+          <span class="comp-dot"></span>
+          <span id="heroCompText">مستوى المنافسة: متوسطة</span>
+        </div>
+      </div>
+      <div class="hero-numbers">
+        <div class="hn">
+          <div class="hn-label">سعر البيع المقترح</div>
+          <div class="hn-value" id="hnPrice">0 <small>ج</small></div>
+        </div>
+        <div class="hn">
+          <div class="hn-label">التكلفة الفعلية الحقيقية</div>
+          <div class="hn-value" id="hnCost">0 <small>ج</small></div>
+        </div>
+        <div class="hn">
+          <div class="hn-label">صافي الربح للقطعة</div>
+          <div class="hn-value green" id="hnProfit">0 <small>ج</small></div>
+        </div>
+        <div class="hn">
+          <div class="hn-label">الربح الشهري المتوقع</div>
+          <div class="hn-value green" id="hnMonthlyProfit">0 <small>ج</small></div>
+        </div>
+      </div>
+      <div class="hero-tip" id="heroTip">أدخل بيانات القطعة في الألواح تحت عشان النتيجة تتحدث تلقائيًا.</div>
+    </div>
+
+    <!-- ============ بحث السوق والمنافسة ============ -->
+    <div class="board s-6">
+      <div class="board-head">
+        <div class="board-num">🔍</div>
+        <div class="board-titles">
+          <div class="board-title">بحث السوق ومستوى المنافسة</div>
+          <div class="board-sub">اسم المنتج وتقييم حجم المنافسة عليه</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>اسم المنتج <span class="tag tag-input">إدخال</span></label>
+        <input type="text" id="productName" placeholder="مثال: حزام دعم الظهر" oninput="renderSearchLinks()">
+      </div>
+      <div class="field">
+        <label>ابحث بنفسك عن المنافسين <span class="hint">مصادر حقيقية — بيانات حية</span></label>
+        <div class="search-links" id="searchLinks"></div>
+      </div>
+      <div class="field">
+        <label>عدد الإعلانات النشطة اللي لقيتها في المكتبة <span class="tag tag-input">إدخال حقيقي</span><span class="hint">اكتب رقم حقيقي شفته بعينك، مش تقدير</span></label>
+        <input type="number" id="adCount" min="0" step="1" placeholder="مثلاً: 4">
+      </div>
+      <div class="field">
+        <label>تقييم المنافسة <span class="tag tag-auto">مبني على رقمك</span></label>
+        <div class="comp-badge comp-medium" id="inlineCompBadge" style="width:fit-content;">
+          <span class="comp-dot"></span>
+          <span id="inlineCompText">اكتب عدد الإعلانات عشان يتقيّم</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ ① تكلفة التصنيع ============ -->
+    <div class="board s-6">
+      <div class="board-head">
+        <div class="board-num">١</div>
+        <div class="board-titles">
+          <div class="board-title">تكلفة التصنيع والاستوك</div>
+          <div class="board-sub">السعر اللي بيتصنّع بيه المنتج</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>تكلفة تصنيع القطعة (ج) <span class="tag tag-input">إدخال</span></label>
+        <input type="number" id="manuCost" value="165" min="0" step="0.5">
+      </div>
+      <div class="field">
+        <label>الكمية المصنعة (قطعة) <span class="tag tag-input">إدخال</span></label>
+        <input type="number" id="manuQty" value="30" min="0" step="1">
+      </div>
+      <div class="field">
+        <label>الاستوك الإجمالي (ج) <span class="tag tag-auto">تلقائي</span></label>
+        <input type="text" id="totalStock" readonly>
+      </div>
+    </div>
+
+    <!-- ============ ② المصاريف الشهرية ============ -->
+    <div class="board s-6">
+      <div class="board-head">
+        <div class="board-num">٢</div>
+        <div class="board-titles">
+          <div class="board-title">المصاريف الشهرية</div>
+          <div class="board-sub">أدز + مصاريف ثابتة على عدد القطع المتوقع بيعها</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>قيمة الإعلانات شهريًا (ج) <span class="tag tag-input">إدخال</span></label>
+        <input type="number" id="adsMonthly" value="1000" min="0" step="10">
+      </div>
+      <div class="field">
+        <label>المصاريف الثابتة شهريًا (ج) <span class="tag tag-input">إدخال</span><span class="hint">إيجار، رواتب، اشتراكات</span></label>
+        <input type="number" id="fixedMonthly" value="450" min="0" step="10">
+      </div>
+      <div class="field">
+        <label>عدد القطع المتوقع بيعها شهريًا <span class="tag tag-input">إدخال</span></label>
+        <input type="number" id="expectedQty" value="50" min="1" step="1">
+      </div>
+      <div class="computed-row"><span class="k">إجمالي المصروف الشهري</span><span class="v" id="totalMonthlyExpense">0 ج</span></div>
+      <div class="computed-row"><span class="k">نسبة المصاريف على القطعة</span><span class="v" id="expensePerUnit">0 ج</span></div>
+    </div>
+
+    <!-- ============ ③ الشحن والمرتجعات ============ -->
+    <div class="board s-6">
+      <div class="board-head">
+        <div class="board-num">٣</div>
+        <div class="board-titles">
+          <div class="board-title">الشحن والمرتجعات</div>
+          <div class="board-sub">تكلفة الشحن موزّعة حسب نسبة التسليم المتوقعة</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>تكلفة شحن الطلب المُسلَّم (ج) <span class="tag tag-input">إدخال</span></label>
+        <input type="number" id="shipDelivered" value="60" min="0" step="5">
+      </div>
+      <div class="field">
+        <label>تكلفة شحن الطلب المرتجع (ج) <span class="tag tag-input">إدخال</span></label>
+        <input type="number" id="shipReturned" value="60" min="0" step="5">
+      </div>
+      <div class="field">
+        <label>نسبة التسليم المتوقعة (%) <span class="tag tag-input">إدخال</span><span class="hint">مثلاً 60 يعني 60 من كل 100 طلب اتسلّموا</span></label>
+        <input type="number" id="deliveryRate" value="60" min="0" max="100" step="1">
+      </div>
+      <div class="computed-row"><span class="k">نسبة الشحن على القطعة</span><span class="v" id="shipPerUnit">0 ج</span></div>
+    </div>
+
+    <!-- ============ ④ التكلفة الفعلية ============ -->
+    <div class="board s-6">
+      <div class="board-head">
+        <div class="board-num">٤</div>
+        <div class="board-titles">
+          <div class="board-title">التكلفة الفعلية الحقيقية للقطعة</div>
+          <div class="board-sub">تصنيع + مصاريف + شحن للقطعة الواحدة</div>
+        </div>
+      </div>
+      <div class="computed-row"><span class="k">تكلفة التصنيع</span><span class="v" id="c4a">0 ج</span></div>
+      <div class="computed-row"><span class="k">نسبة المصاريف على القطعة</span><span class="v" id="c4b">0 ج</span></div>
+      <div class="computed-row"><span class="k">نسبة الشحن على القطعة</span><span class="v" id="c4c">0 ج</span></div>
+      <div class="computed-row"><span class="k">التكلفة الفعلية لخدمة القطعة</span><span class="v green" id="c4total">0 ج</span></div>
+    </div>
+
+    <!-- ============ ⑤ التسعير ============ -->
+    <div class="board s-6">
+      <div class="board-head">
+        <div class="board-num">٥</div>
+        <div class="board-titles">
+          <div class="board-title">التسعير المبني على التكلفة الحقيقية</div>
+          <div class="board-sub">التكلفة الحقيقية × (1 + هامش الربح) — مقرب لأعلى 5</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>هامش الربح المستهدف (%) <span class="tag tag-input">إدخال</span></label>
+        <input type="number" id="targetMargin" value="60" min="0" step="5">
+      </div>
+      <div class="computed-row"><span class="k">سعر البيع المقترح</span><span class="v green" id="c5price">0 ج</span></div>
+      <div class="computed-row"><span class="k">صافي الربح للقطعة</span><span class="v green" id="c5profit">0 ج</span></div>
+      <div class="computed-row"><span class="k">نسبة الربح الفعلية</span><span class="v" id="c5pct">0%</span></div>
+    </div>
+
+    <!-- ============ ⑥ سيناريوهات الربح ============ -->
+    <div class="board s-12">
+      <div class="board-head">
+        <div class="board-num">٦</div>
+        <div class="board-titles">
+          <div class="board-title">سيناريوهات الربح حسب نسبة التسليم</div>
+          <div class="board-sub">الصف اللي بيطابق نسبة التسليم اللي دخلتها في لوح الشحن هو أقرب سيناريو للواقع</div>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>نسبة التسليم</th>
+            <th>شحن القطعة (ج)</th>
+            <th>التكلفة الحقيقية (ج)</th>
+            <th>صافي الربح للقطعة (ج)</th>
+            <th>الربح الشهري المتوقع (ج)</th>
+          </tr>
+        </thead>
+        <tbody id="scenarioBody"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <footer>حاسبة التسعير الحقيقية — نسخة كود من ملف Excel الأصلي، بتتحسب بالكامل في المتصفح من غير أي اتصال خارجي</footer>
+</div>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const fmt = n => {
+    if (!isFinite(n)) n = 0;
+    return n.toLocaleString('ar-EG', {maximumFractionDigits:2, minimumFractionDigits:0});
+  };
+  const ceilTo5 = n => Math.ceil(n/5)*5;
+
+  // تصنيف المنافسة مبني على رقم حقيقي (عدد الإعلانات النشطة) بيدخله المستخدم بنفسه
+  // بعد ما يشوفه فعليًا في مكتبة إعلانات فيسبوك أو TikTok Creative Center — مفيش رقم مُتخيَّل
+  function classifyCompetition(adCount){
+    if (adCount === null) {
+      return {label:'—', cls:'comp-medium', tip:'اكتب اسم المنتج، افتح روابط البحث، وسجّل عدد الإعلانات النشطة الحقيقي اللي شفته.'};
+    }
+    if (adCount <= 3) {
+      return {label:'ضعيفة (' + adCount + ' إعلان نشط)', cls:'comp-weak', tip:'عدد الإعلانات النشطة قليل (' + adCount + ') — منافسة ضعيفة، ممكن تلعب بهامش ربح أعلى وتاخد فرصتك في السوق.'};
+    }
+    if (adCount <= 15) {
+      return {label:'متوسطة (' + adCount + ' إعلان نشط)', cls:'comp-medium', tip:'عدد الإعلانات النشطة متوسط (' + adCount + ') — خليك قريب من متوسط سعر السوق وركّز على جودة العرض والتسليم.'};
+    }
+    return {label:'قوية (' + adCount + ' إعلان نشط)', cls:'comp-strong', tip:'عدد الإعلانات النشطة كبير (' + adCount + ') — منافسة قوية، راقب أسعار المنافسين وفكر في تقليل هامش الربح أو تمييز العرض.'};
+  }
+
+  function renderSearchLinks(){
+    const name = $('productName').value.trim();
+    const box = $('searchLinks');
+    if (!name){
+      box.innerHTML = `
+        <span class="search-link disabled">📘 مكتبة إعلانات فيسبوك</span>
+        <span class="search-link disabled">🎵 TikTok Creative Center</span>
+        <span class="search-link disabled">🔎 بحث جوجل</span>`;
+      return;
+    }
+    const q = encodeURIComponent(name);
+    const fbUrl = `https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=EG&q=${q}`;
+    const ttUrl = `https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en?period=30&search_term=${q}`;
+    const gUrl  = `https://www.google.com/search?q=${q}`;
+    box.innerHTML = `
+      <a class="search-link" href="${fbUrl}" target="_blank" rel="noopener">📘 مكتبة إعلانات فيسبوك</a>
+      <a class="search-link" href="${ttUrl}" target="_blank" rel="noopener">🎵 TikTok Creative Center</a>
+      <a class="search-link" href="${gUrl}" target="_blank" rel="noopener">🔎 بحث جوجل</a>`;
+  }
+  window.renderSearchLinks = renderSearchLinks;
+
+  function calc(){
+    // ---- inputs ----
+    const manuCost   = parseFloat($('manuCost').value) || 0;
+    const manuQty    = parseFloat($('manuQty').value) || 0;
+    const adsMonthly = parseFloat($('adsMonthly').value) || 0;
+    const fixedMonthly = parseFloat($('fixedMonthly').value) || 0;
+    const expectedQty  = parseFloat($('expectedQty').value) || 0;
+    const shipDelivered = parseFloat($('shipDelivered').value) || 0;
+    const shipReturned  = parseFloat($('shipReturned').value) || 0;
+    const deliveryRate  = (parseFloat($('deliveryRate').value) || 0) / 100;
+    const targetMargin  = (parseFloat($('targetMargin').value) || 0) / 100;
+    const productName   = $('productName').value.trim();
+    const adCountRaw    = $('adCount').value;
+    const adCount       = adCountRaw === '' ? null : Math.max(0, parseInt(adCountRaw) || 0);
+
+    // ① stock
+    const totalStock = manuCost * manuQty;
+
+    // ② monthly expenses
+    const totalMonthlyExpense = adsMonthly + fixedMonthly;
+    const expensePerUnit = expectedQty > 0 ? (totalMonthlyExpense / expectedQty) : 0;
+
+    // ③ shipping
+    const shipPerUnit = (shipDelivered * deliveryRate) + (shipReturned * (1 - deliveryRate));
+
+    // ④ true cost
+    const trueCost = manuCost + expensePerUnit + shipPerUnit;
+
+    // ⑤ pricing
+    const sellingPrice = ceilTo5(trueCost * (1 + targetMargin));
+    const netProfit = sellingPrice - trueCost;
+    const profitPct = sellingPrice > 0 ? (netProfit / sellingPrice) : 0;
+    const monthlyProfit = netProfit * expectedQty;
+
+    // ---- write DOM: board 1 ----
+    $('totalStock').value = fmt(totalStock) + ' ج';
+
+    // ---- board 2 ----
+    $('totalMonthlyExpense').textContent = fmt(totalMonthlyExpense) + ' ج';
+    $('expensePerUnit').textContent = fmt(expensePerUnit) + ' ج';
+
+    // ---- board 3 ----
+    $('shipPerUnit').textContent = fmt(shipPerUnit) + ' ج';
+
+    // ---- board 4 ----
+    $('c4a').textContent = fmt(manuCost) + ' ج';
+    $('c4b').textContent = fmt(expensePerUnit) + ' ج';
+    $('c4c').textContent = fmt(shipPerUnit) + ' ج';
+    $('c4total').textContent = fmt(trueCost) + ' ج';
+
+    // ---- board 5 ----
+    $('c5price').textContent = fmt(sellingPrice) + ' ج';
+    $('c5profit').textContent = fmt(netProfit) + ' ج';
+    $('c5pct').textContent = (profitPct*100).toFixed(1) + '%';
+
+    // ---- hero ----
+    const nameEl = $('heroProductName');
+    if (productName) { nameEl.textContent = productName; nameEl.classList.remove('placeholder'); }
+    else { nameEl.textContent = 'اسم المنتج (اكتبه في لوح بحث السوق)'; nameEl.classList.add('placeholder'); }
+
+    const c = classifyCompetition(adCount);
+    const badge = $('heroCompBadge');
+    badge.className = 'comp-badge ' + c.cls;
+    $('heroCompText').textContent = 'مستوى المنافسة: ' + c.label;
+    $('heroTip').textContent = c.tip;
+
+    const inlineBadge = $('inlineCompBadge');
+    inlineBadge.className = 'comp-badge ' + c.cls;
+    $('inlineCompText').textContent = c.label === '—' ? 'اكتب عدد الإعلانات عشان يتقيّم' : c.label;
+
+    $('hnPrice').innerHTML = fmt(sellingPrice) + ' <small>ج</small>';
+    $('hnCost').innerHTML = fmt(trueCost) + ' <small>ج</small>';
+    $('hnProfit').innerHTML = fmt(netProfit) + ' <small>ج</small>';
+    $('hnMonthlyProfit').innerHTML = fmt(monthlyProfit) + ' <small>ج</small>';
+
+    // ---- scenarios ----
+    const rates = [0.5,0.6,0.7,0.8,0.9,1.0];
+    const closestRate = rates.reduce((a,b)=> Math.abs(b-deliveryRate) < Math.abs(a-deliveryRate) ? b : a, rates[0]);
+    let rows = '';
+    rates.forEach(r=>{
+      const su = (shipDelivered*r) + (shipReturned*(1-r));
+      const tc = manuCost + expensePerUnit + su;
+      const np = sellingPrice - tc;
+      const mp = np * expectedQty;
+      const isMatch = r === closestRate;
+      rows += `<tr class="${isMatch?'match-row':''}">
+        <td>${(r*100).toFixed(0)}%</td>
+        <td>${fmt(su)}</td>
+        <td>${fmt(tc)}</td>
+        <td class="${np>=0?'profit-pos':'profit-neg'}">${fmt(np)}</td>
+        <td class="${mp>=0?'profit-pos':'profit-neg'}">${fmt(mp)}</td>
+      </tr>`;
+    });
+    $('scenarioBody').innerHTML = rows;
+  }
+
+  document.querySelectorAll('input, select').forEach(el=>{
+    el.addEventListener('input', calc);
+    el.addEventListener('change', calc);
+  });
+
+  renderSearchLinks();
+  calc();
+})();
+</script>
+<script>
+function openSidebar(){
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('backdrop').classList.add('show');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('backdrop').classList.remove('show');
+}
+function toggleSidebar(e){
+  if (e) e.stopPropagation();
+  document.getElementById('sidebar').classList.contains('open') ? closeSidebar() : openSidebar();
+}
+document.addEventListener('click', (e) => {
+  const sb = document.getElementById('sidebar');
+  if (sb && sb.classList.contains('open') && !sb.contains(e.target) && e.target.id !== 'menuBtn' && !e.target.closest('#menuBtn')) closeSidebar();
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSidebar(); });
+</script>
+</body>
+</html>

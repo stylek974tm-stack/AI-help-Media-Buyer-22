@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>جودة الموظفين - Media Buyer Hub</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#090b0f; --bg-soft:#0d1016;
+    --surface:#12151c; --surface-2:#171b24; --surface-3:#1c2029;
+    --border:#20242e; --border-soft:#191c24;
+    --text:#eef1f6; --text-dim:#98a2b3; --text-faint:#5c6474;
+    --accent:#4f7dfb; --accent-2:#22d3ee; --accent-soft:rgba(79,125,251,.14);
+    --good:#22c55e; --good-bg:rgba(34,197,94,.12); --good-bd:rgba(34,197,94,.4);
+    --mid:#eab308; --mid-bg:rgba(234,179,8,.12); --mid-bd:rgba(234,179,8,.4);
+    --bad:#ef4444; --bad-bg:rgba(239,68,68,.13); --bad-bd:rgba(239,68,68,.45);
+    --radius:16px; --radius-sm:10px;
+    --font-ui:'Cairo',system-ui,sans-serif;
+    --font-num:'JetBrains Mono','Cairo',monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{ font-family:var(--font-ui); background:var(--bg); color:var(--text); min-height:100vh; -webkit-font-smoothing:antialiased; }
+  ::selection{ background:var(--accent-soft); color:#fff; }
+  ::-webkit-scrollbar{ width:8px; height:8px; }
+  ::-webkit-scrollbar-thumb{ background:#242833; border-radius:8px; }
+  a{ color:inherit; }
+  .num{ font-family:var(--font-num); font-variant-numeric:tabular-nums; }
+
+  .topbar{ position:sticky; top:0; z-index:120; display:flex; align-items:center; gap:12px; padding:12px clamp(14px,3vw,28px); background:rgba(9,11,15,.86); backdrop-filter:blur(10px); border-bottom:1px solid var(--border-soft); }
+  .icon-btn{ display:flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:11px; flex-shrink:0; background:var(--surface); border:1px solid var(--border); color:var(--text); cursor:pointer; transition:.15s; text-decoration:none; }
+  .icon-btn:hover{ background:var(--surface-3); border-color:#2c313d; }
+  .icon-btn svg{ width:19px; height:19px; }
+  .brand{ font-weight:800; font-size:15px; letter-spacing:.2px; white-space:nowrap; }
+  .brand span{ color:var(--accent-2); }
+  .topbar-spacer{ flex:1; }
+
+  .content{ padding:20px clamp(14px,3vw,32px) 90px; max-width:1180px; margin:0 auto; }
+  .page-head{ margin-bottom:14px; }
+  .page-head h1{ font-size:clamp(19px,2.4vw,24px); margin:0 0 3px; font-weight:800; }
+  .page-head p{ margin:0; font-size:12.5px; color:var(--text-faint); }
+  .top-status{ font-size:12.5px; color:var(--text-dim); margin:10px 0; min-height:16px; white-space:pre-wrap; }
+  .top-status.error{ color:var(--bad); }
+
+  .filters-bar{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:18px; }
+  .range-btn{ padding:8px 14px; border-radius:20px; border:1px solid var(--border); background:var(--surface); color:var(--text-dim); font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit; }
+  .range-btn.active{ background:var(--accent-soft); border-color:var(--accent); color:#bcd0ff; }
+
+  .role-tabs{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+  .role-tab{ display:flex; align-items:center; gap:7px; padding:9px 15px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--text-dim); font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit; }
+  .role-tab.active{ background:var(--surface-3); border-color:#2c313d; color:var(--text); }
+  .role-tab .dot{ width:7px; height:7px; border-radius:50%; }
+  .role-tab .dot.on{ background:var(--good); } .role-tab .dot.off{ background:var(--text-faint); }
+
+  .section-title{ font-size:14px; color:#d3d8e0; margin:26px 0 12px; display:flex; align-items:center; gap:10px; font-weight:700; }
+  .section-line{ flex:1; height:1px; background:linear-gradient(90deg,#2a2e38,transparent); }
+
+  /* comparison table */
+  .compare-wrap{ overflow-x:auto; border:1px solid var(--border); border-radius:var(--radius); }
+  table.compare{ width:100%; border-collapse:collapse; font-size:12.5px; min-width:560px; }
+  table.compare th{ text-align:right; padding:11px 14px; background:var(--surface-2); color:var(--text-faint); font-size:11px; font-weight:700; border-bottom:1px solid var(--border); white-space:nowrap; }
+  table.compare td{ padding:11px 14px; border-bottom:1px solid var(--border-soft); background:var(--surface); white-space:nowrap; }
+  table.compare tr:last-child td{ border-bottom:none; }
+  .status-chip{ display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:20px; font-size:11.5px; font-weight:700; }
+  .status-chip.good{ background:var(--good-bg); color:var(--good); border:1px solid var(--good-bd); }
+  .status-chip.mid{ background:var(--mid-bg); color:var(--mid); border:1px solid var(--mid-bd); }
+  .status-chip.bad{ background:var(--bad-bg); color:var(--bad); border:1px solid var(--bad-bd); }
+  .trend-txt{ font-size:11.5px; font-weight:700; }
+  .trend-txt.up{ color:var(--good); } .trend-txt.down{ color:var(--bad); } .trend-txt.flat{ color:var(--text-faint); }
+
+  .warn-row{ display:flex; gap:10px; align-items:flex-start; background:var(--bad-bg); border:1px solid var(--bad-bd); border-radius:13px; padding:11px 14px; margin-bottom:9px; font-size:12.5px; line-height:1.7; }
+  .warn-row b{ color:#ffd0d8; }
+
+  /* employee/creative cards */
+  .cards-grid{ display:grid; grid-template-columns:1fr; gap:16px; }
+  @media (min-width:760px){ .cards-grid{ grid-template-columns:1fr 1fr; } }
+  .emp-card{ background:linear-gradient(160deg,#12161f,#0d1017); border:1px solid var(--border); border-radius:20px; padding:18px; box-shadow:0 10px 30px rgba(0,0,0,.25); }
+  .emp-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px; }
+  .emp-name{ font-weight:800; font-size:14.5px; }
+  .emp-role{ font-size:11px; color:var(--text-faint); margin-top:2px; }
+  .emp-badge{ font-size:11px; padding:4px 10px; border-radius:20px; font-weight:700; }
+  .emp-badge.good{ background:var(--good-bg); color:var(--good); border:1px solid var(--good-bd); }
+  .emp-badge.mid{ background:var(--mid-bg); color:var(--mid); border:1px solid var(--mid-bd); }
+  .emp-badge.bad{ background:var(--bad-bg); color:var(--bad); border:1px solid var(--bad-bd); }
+
+  .gauge-wrap{ display:flex; flex-direction:column; align-items:center; margin:6px 0 2px; }
+  .gauge-wrap svg{ width:190px; height:auto; }
+  .gauge-score{ font-size:22px; font-weight:800; font-family:var(--font-num); margin-top:-38px; }
+  .gauge-label{ font-size:12px; font-weight:700; margin-top:2px; }
+  .gauge-label.good{ color:var(--good); } .gauge-label.mid{ color:var(--mid); } .gauge-label.bad{ color:var(--bad); }
+
+  .chips-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px; margin-top:14px; }
+  .chip-box{ border-radius:10px; padding:8px 10px; border:1px solid var(--border-soft); background:var(--bg-soft); display:flex; align-items:center; justify-content:space-between; gap:6px; }
+  .chip-box .cl{ font-size:11px; color:var(--text-dim); }
+  .chip-box .cv{ font-size:12.5px; font-weight:700; font-family:var(--font-num); display:flex; align-items:center; gap:5px; }
+  .cdot{ width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+  .cdot.good{ background:var(--good); } .cdot.mid{ background:var(--mid); } .cdot.bad{ background:var(--bad); } .cdot.na{ background:var(--text-faint); }
+
+  .note-line{ font-size:11px; color:var(--text-faint); margin-top:12px; line-height:1.7; border-top:1px dashed var(--border-soft); padding-top:10px; }
+  .note-line b{ color:var(--text-dim); }
+
+  .placeholder-box{ background:var(--surface); border:1px dashed #2a2e38; border-radius:var(--radius); padding:28px; text-align:center; color:var(--text-faint); font-size:13px; line-height:1.8; }
+  .placeholder-box b{ color:var(--text-dim); }
+
+  /* ---------- Unified navigation (sidebar) ---------- */
+  .backdrop{
+    position:fixed; inset:0; background:rgba(4,5,8,.55); backdrop-filter:blur(2px);
+    z-index:180; opacity:0; pointer-events:none; transition:opacity .2s ease;
+  }
+  .backdrop.show{ opacity:1; pointer-events:auto; }
+  .sidebar{
+    position:fixed; top:0; bottom:0; right:0; width:min(280px,84vw);
+    background:var(--surface); border-left:1px solid var(--border);
+    padding:20px 14px; z-index:190; overflow-y:auto;
+    transform:translateX(100%); transition:transform .25s cubic-bezier(.4,0,.2,1);
+    box-shadow:-20px 0 60px rgba(0,0,0,.4);
+  }
+  .sidebar.open{ transform:translateX(0); }
+  .sidebar-head{
+    display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; padding:0 4px;
+  }
+  .sidebar-head b{ font-size:15px; color:var(--accent-2); letter-spacing:.2px; }
+  .nav-item{
+    display:flex; align-items:center; gap:11px; padding:11px 12px; border-radius:11px;
+    font-size:13.5px; color:var(--text-dim); text-decoration:none; margin-bottom:4px; font-weight:500;
+  }
+  .nav-item svg{ width:17px; height:17px; flex-shrink:0; opacity:.85; }
+  .nav-item:hover{ background:var(--surface-3); color:var(--text); }
+  .nav-item.active{ background:var(--accent-soft); color:#bcd0ff; font-weight:700; }
+  .nav-item.active svg{ opacity:1; }
+  .nav-item.disabled{ color:#454b57; cursor:not-allowed; pointer-events:none; }
+  .nav-divider{ height:1px; background:var(--border-soft); margin:12px 4px; }
+  .nav-tag{ margin-right:auto; font-size:10px; background:var(--surface-3); color:var(--text-faint); padding:2px 7px; border-radius:20px; }
+  .sidebar-foot{ margin-top:16px; padding:10px 12px; font-size:10.5px; color:var(--text-faint); border-top:1px solid var(--border-soft); line-height:1.7; }
+</style>
+</head>
+<body>
+<div class="backdrop" id="backdrop" onclick="closeSidebar()"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-head"><b>Media Buyer Hub</b>
+    <button class="icon-btn" onclick="closeSidebar()" aria-label="إغلاق"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></button>
+  </div>
+  <a class="nav-item" href="#" id="navAuthItem"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>تسجيل خروج</a>
+  <a class="nav-item" href="account.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18"/></svg>ربط الحسابات الإعلانية</a>
+  <a class="nav-item" href="dashboard.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>تحليل البيانات</a>
+  <a class="nav-item" href="insights.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="4" width="3" height="14"/></svg>الرسوم البيانية</a>
+  <a class="nav-item" href="automation-rules.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>قواعد الأتمتة</a>
+  <a class="nav-item active" href="team-quality.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>أداء الموظفين</a>
+  <a class="nav-item" href="subscription.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>الاشتراك والدفع</a>
+  <div class="nav-divider"></div>
+  <a class="nav-item" href="pricing_calculator.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>التسعير</a>
+  <a class="nav-item" href="https://wa.me/201108712091" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>الدعم <span class="nav-tag">9ص - 5م</span></a>
+</aside>
+
+
+<div class="topbar">
+  <button class="icon-btn" id="menuBtn" aria-label="القائمة" onclick="toggleSidebar(event)"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg></button>
+  <div class="brand">Media Buyer <span>Hub</span></div>
+  <div class="topbar-spacer"></div>
+</div>
+
+<main class="content">
+  <div class="page-head">
+    <h1>جودة الموظفين</h1>
+    <p>تقييم تلقائي بالكامل من بيانات حسابك الإعلاني الحقيقية — مفيش تقييم يدوي.</p>
+  </div>
+
+  <div class="top-status" id="topStatus"></div>
+
+  <div class="filters-bar" id="rangeFilters">
+    <button class="range-btn" data-days="7">آخر 7 أيام</button>
+    <button class="range-btn active" data-days="30">آخر 30 يوم</button>
+    <button class="range-btn" data-days="90">آخر 90 يوم</button>
+  </div>
+
+  <div class="role-tabs" id="roleTabs">
+    <button class="role-tab active" data-role="mediabuyer"><span class="dot on"></span> Media Buyer</button>
+    <button class="role-tab" data-role="creative"><span class="dot on"></span> مصمم الإعلان</button>
+    <button class="role-tab" data-role="website"><span class="dot on"></span> مصمم الموقع</button>
+    <button class="role-tab" data-role="mentor"><span class="dot off"></span> Mentor</button>
+  </div>
+
+  <div id="alertsWrap"></div>
+
+  <div class="section-title">مقارنة سريعة<div class="section-line"></div></div>
+  <div class="compare-wrap"><table class="compare" id="compareTable"></table></div>
+
+  <div class="section-title" id="detailTitle">التفاصيل<div class="section-line"></div></div>
+  <div class="cards-grid" id="detailGrid"></div>
+</main>
+
+<script>
+/* ============================================================
+   Real data only. Media Buyer + Creative scores are computed
+   live from the Meta Graph API (same ad_pixels token flow as
+   dashboard.html). Website + Mentor need their own data source
+   connected before they can show a real score — see notes below.
+   ============================================================ */
+const SUPABASE_URL = 'https://zphepebjpxrzpudncuas.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_tIG9XDZeHVZpZjz74e-dBA_ui5GIYw7';
+const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+document.addEventListener('DOMContentLoaded', () => {
+  const navAuthItem = document.getElementById('navAuthItem');
+  if (navAuthItem) {
+    navAuthItem.addEventListener('click', async (e) => {
+      e.preventDefault();
+      await sbClient.auth.signOut();
+      window.location.href = 'index.html';
+    });
+  }
+});
+
+const GRAPH = 'https://graph.facebook.com/v26.0';
+
+let CURRENT_USER = null;
+let CONNECTIONS = [];
+let RANGE_DAYS = 30;
+let ACTIVE_ROLE = 'mediabuyer';
+let MB_RESULTS = [];   // media buyer scored rows (per connected ad account)
+let CR_RESULTS = [];   // creative scored rows (per ad)
+
+function num(v){ const n = parseFloat(v); return isNaN(n) ? 0 : n; }
+function pct(a,b){ return b > 0 ? (a/b)*100 : 0; }
+function actionVal(actions, re){
+  if (!Array.isArray(actions)) return 0;
+  const f = actions.find(a => re.test(a.action_type));
+  return f ? num(f.value) : 0;
+}
+let WEBSITE_FUNNEL = null; // إجمالي خطوات الفانل (كليكس -> عربة -> بدء دفع -> شراء) من بيانات الإعلانات نفسها
+function setTopStatus(msg, isError){
+  const el = document.getElementById('topStatus');
+  el.textContent = msg || '';
+  el.className = 'top-status' + (isError ? ' error' : '');
+}
+
+/* ---------------- تشخيص الموقع من بيانات فانل الإعلان نفسه (بدون ربط Google Analytics) ----------------
+   المنطق: نقارن كل خطوة بالخطوة اللي قبلها (زيارة -> عربة -> بدء دفع -> شراء) ونلاقي
+   الاختناق الحقيقي. النسب المرجعية دي معدلات استرشادية شائعة في التجارة الإلكترونية/الدفع عند
+   الاستلام في مصر، مش أرقام مخترعة عشوائيًا، لكنها برضه تقريبية لحد ما يتوصل مصدر بيانات
+   موقع حقيقي (Google Analytics/بيانات المتجر) يديك نفس الدقة اللي بتديها بيانات الإعلان. */
+/* ---------------- تقييم الموقع من بيانات فانل الإعلان نفسه (بدون ربط Google Analytics) ----------------
+   بنستخدم نفس نظام التقييم المستخدم في باقي الصفحة (rate/overallScore/bandOf) عشان الكارت يبقى
+   متسق تمامًا مع كروت Media Buyer ومصمم الإعلان: درجة من 100، شارة ملونة، وچيبس لكل مؤشر.
+   لو حساب الإعلان مش بيبعت أحداث "عربة تسوق/بدء دفع" لفيسبوك أصلاً (شائع عند تجار كتير)،
+   بنتجاهل المؤشرين دول ونعتمد بس على معدل التحويل الكلي (زيارة -> شراء) بدل ما نطلع تشخيص غلط. */
+function scoreWebsite(f){
+  const visits = f.lpv > 0 ? f.lpv : f.clicks; // لو مفيش تتبع "زيارة صفحة" بنستخدم الكليكات كبديل
+  const hasEnoughVisits = visits >= 20;
+  const overallRate = visits > 0 ? pct(f.purchases, visits) : 0;
+  const atcRate = visits > 0 ? pct(f.atc, visits) : 0;
+  const checkoutRate = f.atc > 0 ? pct(f.checkout, f.atc) : 0;
+  const purchaseRate = f.checkout > 0 ? pct(f.purchases, f.checkout) : 0;
+  const tracksFunnelSteps = f.atc > 0 || f.checkout > 0; // هل البكسل بيتتبع خطوات السلة/الدفع أصلًا
+
+  const ratings = [
+    { key:'معدل التحويل الكلي', rating: hasEnoughVisits ? rate(overallRate, v=>v>=2, v=>v>=0.7) : 'na' }
+  ];
+  if (tracksFunnelSteps){
+    ratings.push({ key:'زيارة → عربة', rating: hasEnoughVisits ? rate(atcRate, v=>v>=6, v=>v>=3) : 'na' });
+    ratings.push({ key:'عربة → بدء دفع', rating: f.atc>=5 ? rate(checkoutRate, v=>v>=55, v=>v>=35) : 'na' });
+    ratings.push({ key:'بدء دفع → شراء', rating: f.checkout>=5 ? rate(purchaseRate, v=>v>=45, v=>v>=25) : 'na' });
+  }
+
+  const score = overallScore(ratings);
+
+  // تحديد أوضح اختناق فعليًا (بالترتيب: أول مرحلة لقيناها "ضعيف")
+  let stageKey = 'ok', message, tip;
+  const atcR = ratings.find(r=>r.key==='زيارة → عربة');
+  const coR = ratings.find(r=>r.key==='عربة → بدء دفع');
+  const puR = ratings.find(r=>r.key==='بدء دفع → شراء');
+
+  if (!hasEnoughVisits){
+    stageKey = 'none';
+    message = 'مفيش زيارات كفاية في الفترة دي عشان نطلع تشخيص موثوق — وسّع الفترة الزمنية.';
+    tip = 'جرب تكبير الفترة الزمنية من فلتر الأيام فوق.';
+  } else if (!tracksFunnelSteps){
+    stageKey = 'nofunnel';
+    message = `الموقع مش بيبعت أحداث "إضافة للعربة" أو "بدء الدفع" لفيسبوك، فمش هنقدر نحدد الاختناق بالظبط. معدل التحويل الكلي من زيارة لشراء: ${overallRate.toFixed(1)}%.`;
+    tip = 'لو ركّبت أحداث Add to Cart و Initiate Checkout في البكسل، هنقدر نوريك بالظبط المشكلة فين — في صفحة المنتج ولا صفحة الدفع.';
+  } else if (atcR && atcR.rating === 'bad'){
+    stageKey = 'landing';
+    message = `نسبة اللي بيضيفوا للعربة من الزوار ضعيفة (${atcRate.toFixed(1)}%). المشكلة الأرجح في صفحة العرض/المنتج مش بتقنع الزائر.`;
+    tip = 'راجع وضوح العرض، صور المنتج، السعر، وسرعة تحميل الصفحة.';
+  } else if (coR && coR.rating === 'bad'){
+    stageKey = 'cart';
+    message = `كتير بيضيفوا للعربة (${atcRate.toFixed(1)}% من الزوار) بس نسبة قليلة بتكمل لبدء الدفع (${checkoutRate.toFixed(1)}%). فيه اختناق بين العربة وبدء الدفع.`;
+    tip = 'راجع خطوات إتمام الطلب، مصاريف الشحن الظاهرة فجأة، أو تعقيد الفورم قبل الدفع.';
+  } else if (puR && puR.rating === 'bad'){
+    stageKey = 'checkout';
+    message = `نسبة كويسة بتبدأ الدفع بس نسبة قليلة بتكمل الشراء فعليًا (${purchaseRate.toFixed(1)}%). المشكلة الأرجح في صفحة الدفع أو الشحن نفسها.`;
+    tip = 'راجع وسائل الدفع المتاحة، أي خطأ تقني في صفحة الدفع، ووضوح تفاصيل الشحن والتوصيل.';
+  } else {
+    stageKey = 'ok';
+    message = `الفانل شغال بشكل صحي (من زيارة لشراء: ${overallRate.toFixed(1)}%). مفيش اختناق واضح في الموقع من بيانات الإعلان الحالية.`;
+    tip = 'استمر على نفس الأداء، وراقب أي تغيير مفاجئ في النسب دي بعد أي تعديل على الموقع.';
+  }
+
+  return { visits, atc:f.atc, checkout:f.checkout, purchases:f.purchases,
+    atcRate, checkoutRate, purchaseRate, overallRate, tracksFunnelSteps,
+    ratings, score, band: bandOf(score), stageKey, message, tip };
+}
+
+/* ---------------- كاش مشترك بين الداشبورد والرسوم البيانية وأداء الموظفين (نفس منطق dashboard.html) ---------------- */
+const GCACHE_TTL_MS = 5 * 60 * 1000;
+function gcacheKey(path, params){
+  const p = { ...params }; delete p.access_token;
+  return 'gcache:' + path + ':' + JSON.stringify(p);
+}
+async function gget(path, params){
+  const key = gcacheKey(path, params);
+  try{
+    const raw = localStorage.getItem(key);
+    if (raw){
+      const cached = JSON.parse(raw);
+      if (Date.now() - cached.t < GCACHE_TTL_MS) return cached.d;
+    }
+  } catch(e){ /* تجاهل أي خطأ قراءة كاش وكمل عادي */ }
+
+  const p = new URLSearchParams(params);
+  const res = await fetch(`${GRAPH}/${path}?${p.toString()}`);
+  const json = await res.json();
+  if (json.error) throw new Error(json.error.message);
+
+  try{ localStorage.setItem(key, JSON.stringify({ t: Date.now(), d: json })); }
+  catch(e){ /* لو الكاش امتلأ، تجاهل التخزين ومتوقفش الصفحة */ }
+
+  return json;
+}
+function fmtDate(d){ return d.toISOString().slice(0,10); }
+function rangeFor(days, offsetDays){
+  const end = new Date(Date.now() - offsetDays*86400000);
+  const start = new Date(end.getTime() - (days-1)*86400000);
+  return { since: fmtDate(start), until: fmtDate(end) };
+}
+
+/* ---------------- Scoring helpers ---------------- */
+// rating: 'good' | 'mid' | 'bad' | 'na'  -> numeric score for the overall gauge
+const RATING_SCORE = { good:100, mid:60, bad:20 };
+function rate(value, goodTest, midTest){
+  if (value === null || value === undefined || isNaN(value)) return 'na';
+  if (goodTest(value)) return 'good';
+  if (midTest(value)) return 'mid';
+  return 'bad';
+}
+function overallScore(ratings){
+  const used = ratings.filter(r => r.rating !== 'na');
+  if (used.length === 0) return null;
+  const sum = used.reduce((s,r)=> s + RATING_SCORE[r.rating], 0);
+  return Math.round(sum/used.length);
+}
+function bandOf(score){
+  if (score === null) return 'na';
+  if (score < 40) return 'bad';
+  if (score < 70) return 'mid';
+  return 'good';
+}
+function bandLabel(band){ return band==='good' ? 'ممتاز' : (band==='mid' ? 'متوسط' : (band==='bad' ? 'ضعيف' : 'لا يوجد بيانات كفاية')); }
+function bandEmoji(band){ return band==='good' ? '🟢' : (band==='mid' ? '🟡' : (band==='bad' ? '🔴' : '⚪')); }
+
+/* ---------------- Gauge (fuel-gauge style, 0-100) ---------------- */
+function polar(cx,cy,r,angleDeg){
+  const rad = (angleDeg) * Math.PI/180;
+  return { x: cx + r*Math.cos(rad), y: cy - r*Math.sin(rad) };
+}
+function arcPath(cx,cy,r,a1,a2){
+  const p1 = polar(cx,cy,r,a1), p2 = polar(cx,cy,r,a2);
+  const largeArc = Math.abs(a1-a2) > 180 ? 1 : 0;
+  return `M ${p1.x.toFixed(1)} ${p1.y.toFixed(1)} A ${r} ${r} 0 ${largeArc} 0 ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
+}
+function gaugeSvg(score){
+  const cx=100, cy=100, r=82;
+  const s = score === null ? 0 : score;
+  // bands: 0-39 red, 40-69 yellow, 70-100 green, mapped over 180deg (180deg=score0 ... 0deg=score100)
+  const angFor = v => 180 - (v/100)*180;
+  const needleAngle = angFor(s);
+  const needleTip = polar(cx,cy,r-16,needleAngle);
+  return `
+    <svg viewBox="0 0 200 118" xmlns="http://www.w3.org/2000/svg">
+      <path d="${arcPath(cx,cy,r,180,angFor(39))}" fill="none" stroke="var(--bad)" stroke-width="14" stroke-linecap="round"/>
+      <path d="${arcPath(cx,cy,r,angFor(40),angFor(69))}" fill="none" stroke="var(--mid)" stroke-width="14" stroke-linecap="round"/>
+      <path d="${arcPath(cx,cy,r,angFor(70),0)}" fill="none" stroke="var(--good)" stroke-width="14" stroke-linecap="round"/>
+      ${score===null ? '' : `<line x1="${cx}" y1="${cy}" x2="${needleTip.x.toFixed(1)}" y2="${needleTip.y.toFixed(1)}" stroke="#eef1f6" stroke-width="3" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="6" fill="#eef1f6"/>`}
+    </svg>
+  `;
+}
+
+/* ---------------- Init ---------------- */
+async function init(){
+  document.querySelectorAll('.range-btn').forEach(b => b.addEventListener('click', ()=>{
+    document.querySelectorAll('.range-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    RANGE_DAYS = parseInt(b.dataset.days,10);
+    loadAndScore();
+  }));
+  document.querySelectorAll('.role-tab').forEach(b => b.addEventListener('click', ()=>{
+    document.querySelectorAll('.role-tab').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    ACTIVE_ROLE = b.dataset.role;
+    renderRole();
+  }));
+
+  try{
+    const { data } = await sbClient.auth.getSession();
+    if (!data.session) { window.location.href = 'index.html'; return; }
+    CURRENT_USER = data.session.user;
+    await loadAndScore();
+    setInterval(loadAndScore, 300000); // تحديث تلقائي كل 5 دقايق طول ما الصفحة مفتوحة
+  } catch(err){
+    setTopStatus('خطأ أثناء تحميل الصفحة: ' + err.message, true);
+  }
+}
+
+async function loadAndScore(){
+  setTopStatus('جاري حساب التقييم من بيانات حسابك الإعلاني...');
+  const { data: pixels, error } = await sbClient.from('ad_pixels').select('*').eq('user_id', CURRENT_USER.id);
+  if (error){ setTopStatus('تعذر تحميل الحسابات المتصلة: ' + error.message, true); MB_RESULTS=[]; CR_RESULTS=[]; renderRole(); return; }
+
+  CONNECTIONS = (pixels || []).filter(c => c.pixel_type === 'facebook' && c.ad_account_id && c.pixel_token);
+  if (CONNECTIONS.length === 0){
+    setTopStatus('مفيش حساب Meta متصل — روح صفحة "ربط الحسابات الإعلانية" الأول.');
+    MB_RESULTS=[]; CR_RESULTS=[]; renderRole(); return;
+  }
+
+  const cur = rangeFor(RANGE_DAYS, 0);
+  const prev = rangeFor(RANGE_DAYS, RANGE_DAYS);
+
+  MB_RESULTS = [];
+  CR_RESULTS = [];
+  let anyError = null;
+
+  // account-level average mature CPA across everything (real, data-driven baseline — no invented target numbers)
+  let mSpend=0, mPurchases=0;
+  // تجميع خطوات الفانل من بيانات الإعلانات الحقيقية (كليكس -> زيارة صفحة -> عربة -> بدء دفع -> شراء)
+  let fClicks=0, fLPV=0, fATC=0, fCheckout=0, fPurchases=0, fSpend=0;
+
+  for (const conn of CONNECTIONS){
+    const actId = conn.ad_account_id.startsWith('act_') ? conn.ad_account_id : 'act_' + conn.ad_account_id;
+    const accountFields = 'impressions,clicks,spend,ctr,cpc,cpm,actions,action_values';
+    try{
+      const [curIns, prevIns] = await Promise.all([
+        gget(`${actId}/insights`, { fields:accountFields, time_range:JSON.stringify(cur), limit:1, access_token:conn.pixel_token }),
+        gget(`${actId}/insights`, { fields:accountFields, time_range:JSON.stringify(prev), limit:1, access_token:conn.pixel_token }).catch(()=>({data:[]}))
+      ]);
+      const c = (curIns.data||[])[0] || {};
+      const p = (prevIns.data||[])[0] || {};
+      const curScored = scoreMediaBuyer(c);
+      const prevScored = scoreMediaBuyer(p);
+      if (curScored.purchases > 0){ mSpend += curScored.spend; mPurchases += curScored.purchases; }
+
+      fClicks += num(c.clicks);
+      fLPV += actionVal(c.actions, /landing_page_view/i);
+      fATC += actionVal(c.actions, /add_to_cart/i);
+      fCheckout += actionVal(c.actions, /initiate[d]?_checkout/i);
+      fPurchases += curScored.purchases; // نفس رقم المشتريات المحسوب أصلاً في scoreMediaBuyer (بدون عد مزدوج)
+      fSpend += num(c.spend);
+
+      MB_RESULTS.push({
+        id: conn.id,
+        name: conn.employee_name || conn.label || ('حساب ' + conn.ad_account_id),
+        role: 'Media Buyer',
+        current: curScored,
+        prevScore: prevScored.score
+      });
+    } catch(err){
+      anyError = `خطأ من فيسبوك في حساب ${conn.ad_account_id}: ${err.message}`;
+      console.error(anyError);
+    }
+
+    // per-ad creative scoring for this account
+    try{
+      const adFields = 'id,name,adset_id,campaign_id,creative{name}';
+      const adInsightFields = 'impressions,clicks,spend,ctr,cpc,actions,action_values,video_play_actions,video_p25_watched_actions';
+      const [adsRes, adInsCur, adInsPrev] = await Promise.all([
+        gget(`${actId}/ads`, { fields:adFields, limit:200, access_token:conn.pixel_token }),
+        gget(`${actId}/insights`, { level:'ad', fields:'ad_id,'+adInsightFields, time_range:JSON.stringify(cur), limit:200, access_token:conn.pixel_token }),
+        gget(`${actId}/insights`, { level:'ad', fields:'ad_id,'+adInsightFields, time_range:JSON.stringify(prev), limit:200, access_token:conn.pixel_token }).catch(()=>({data:[]}))
+      ]);
+      const curMap = {}; (adInsCur.data||[]).forEach(r=>curMap[r.ad_id]=r);
+      const prevMap = {}; (adInsPrev.data||[]).forEach(r=>prevMap[r.ad_id]=r);
+      (adsRes.data||[]).forEach(ad=>{
+        const c = curMap[ad.id];
+        if (!c || num(c.impressions) === 0) return; // skip ads with no real activity this period
+        const curScored = scoreCreative(c);
+        const prevScored = scoreCreative(prevMap[ad.id] || {});
+        CR_RESULTS.push({
+          id: ad.id,
+          name: (ad.creative && ad.creative.name) || ad.name,
+          role: 'مصمم الإعلان',
+          current: curScored,
+          prevScore: prevScored.score
+        });
+      });
+    } catch(err){
+      console.error('creative fetch error', err);
+    }
+  }
+
+  const avgCPA = mPurchases > 0 ? (mSpend/mPurchases) : null;
+  MB_RESULTS.forEach(r => attachCPARating(r.current, avgCPA));
+
+  WEBSITE_FUNNEL = { clicks:fClicks, lpv:fLPV, atc:fATC, checkout:fCheckout, purchases:fPurchases, spend:fSpend };
+
+  if (anyError) setTopStatus(anyError, true); else setTopStatus('');
+  renderRole();
+}
+
+/* ---------------- Media Buyer scoring ---------------- */
+function scoreMediaBuyer(ins){
+  const impressions = num(ins.impressions), clicks = num(ins.clicks), spend = num(ins.spend);
+  const ctr = num(ins.ctr) || pct(clicks, impressions);
+  const cpc = num(ins.cpc) || (clicks>0 ? spend/clicks : 0);
+  const cpm = num(ins.cpm) || (impressions>0 ? (spend/impressions)*1000 : 0);
+  const purchases = actionVal(ins.actions, /purchase/i);
+  const revenue = Array.isArray(ins.action_values) ? (ins.action_values.find(a=>/purchase/i.test(a.action_type))||{}).value || 0 : 0;
+  const roas = spend>0 ? num(revenue)/spend : 0;
+  const convRate = pct(purchases, clicks);
+  const messages = actionVal(ins.actions, /messaging_conversation_started/i);
+  const msgToPurchase = messages>0 ? pct(purchases, messages) : null;
+
+  const ratings = [
+    { key:'CTR', rating: impressions>0 ? rate(ctr, v=>v>=1.5, v=>v>=1.0) : 'na' },
+    { key:'CPC', rating: clicks>0 ? rate(cpc, v=>v<=0.5, v=>v<=1.0) : 'na' },
+    { key:'CPM', rating: impressions>0 ? rate(cpm, v=>v<=10, v=>v<=20) : 'na' },
+    { key:'Purchases', rating: clicks>0 ? rate(purchases, v=>v>=Math.max(3,clicks*0.02), v=>v>=Math.max(1,clicks*0.005)) : 'na' },
+    { key:'ROAS', rating: spend>0 ? rate(roas, v=>v>=3, v=>v>=1.5) : 'na' },
+    { key:'Conversion Rate', rating: clicks>0 ? rate(convRate, v=>v>=3, v=>v>=1) : 'na' }
+  ];
+  if (msgToPurchase !== null) ratings.push({ key:'Message→Purchase', rating: rate(msgToPurchase, v=>v>=8, v=>v>=3) });
+
+  const score = overallScore(ratings);
+  return { impressions, clicks, spend, ctr, cpc, cpm, purchases, revenue:num(revenue), roas, convRate, messages, msgToPurchase, ratings, score, band: bandOf(score) };
+}
+function attachCPARating(scored, avgCPA){
+  if (scored.purchases > 0 && avgCPA){
+    const cpa = scored.spend / scored.purchases;
+    const r = rate(cpa, v=>v<=avgCPA*0.85, v=>v<=avgCPA*1.2);
+    scored.ratings.push({ key:'تكلفة الشراء', rating: r });
+    scored.cpa = cpa;
+  } else {
+    scored.ratings.push({ key:'تكلفة الشراء', rating:'na' });
+  }
+  scored.score = overallScore(scored.ratings);
+  scored.band = bandOf(scored.score);
+}
+
+/* ---------------- Creative scoring ---------------- */
+function scoreCreative(ins){
+  const impressions = num(ins.impressions), clicks = num(ins.clicks), spend = num(ins.spend);
+  const ctr = num(ins.ctr) || pct(clicks, impressions);
+  const cpc = num(ins.cpc) || (clicks>0 ? spend/clicks : 0);
+  const purchases = actionVal(ins.actions, /purchase/i);
+  const engagement = actionVal(ins.actions, /post_engagement|page_engagement/i);
+  const videoPlays = Array.isArray(ins.video_play_actions) ? num(ins.video_play_actions[0]?.value) : 0;
+  const videoP25 = Array.isArray(ins.video_p25_watched_actions) ? num(ins.video_p25_watched_actions[0]?.value) : 0;
+  const thumbstop = impressions>0 && videoPlays>0 ? pct(videoPlays, impressions) : null;
+  const hookRate = videoPlays>0 ? pct(videoP25, videoPlays) : null;
+  const convRate = pct(purchases, clicks);
+  const engagementRate = pct(engagement, impressions);
+  const costPerResult = purchases>0 ? spend/purchases : (clicks>0 ? spend/clicks : null);
+
+  const ratings = [
+    { key:'CTR', rating: impressions>0 ? rate(ctr, v=>v>=1.5, v=>v>=1.0) : 'na' },
+    { key:'CPC', rating: clicks>0 ? rate(cpc, v=>v<=0.5, v=>v<=1.0) : 'na' },
+    { key:'Engagement', rating: impressions>0 ? rate(engagementRate, v=>v>=2, v=>v>=0.8) : 'na' },
+    { key:'Conversion', rating: clicks>0 ? rate(convRate, v=>v>=3, v=>v>=1) : 'na' }
+  ];
+  if (thumbstop !== null) ratings.push({ key:'Thumbstop', rating: rate(thumbstop, v=>v>=25, v=>v>=12) });
+  if (hookRate !== null) ratings.push({ key:'Hook Rate', rating: rate(hookRate, v=>v>=50, v=>v>=25) });
+
+  const score = overallScore(ratings);
+  return { impressions, clicks, spend, ctr, cpc, purchases, thumbstop, hookRate, convRate, engagementRate, costPerResult, ratings, score, band: bandOf(score) };
+}
+
+/* ---------------- Trend ---------------- */
+function trendInfo(curScore, prevScore){
+  if (curScore === null || prevScore === null) return { label:'—', cls:'flat', alert:null };
+  if (prevScore === 0) return { label:'—', cls:'flat', alert:null };
+  const pctChange = ((curScore-prevScore)/prevScore)*100;
+  if (Math.abs(pctChange) < 5) return { label:'➡️ ثابت', cls:'flat', alert:null };
+  if (pctChange > 0) return { label:`📈 يتحسن ${pctChange.toFixed(0)}%`, cls:'up', alert:null };
+  const alert = Math.abs(pctChange) >= 15 ? `⚠️ الأداء تراجع ${Math.abs(pctChange).toFixed(0)}% عن الفترة اللي فاتت` : null;
+  return { label:`📉 يتراجع ${Math.abs(pctChange).toFixed(0)}%`, cls:'down', alert };
+}
+
+/* ---------------- Render ---------------- */
+function currentRows(){
+  if (ACTIVE_ROLE === 'mediabuyer') return MB_RESULTS;
+  if (ACTIVE_ROLE === 'creative') return CR_RESULTS;
+  return [];
+}
+
+function renderRole(){
+  renderAlerts();
+  renderCompareTable();
+  renderDetail();
+}
+
+function renderAlerts(){
+  const wrap = document.getElementById('alertsWrap');
+  const rows = [...MB_RESULTS, ...CR_RESULTS];
+  const alerts = rows.map(r => ({ r, t: trendInfo(r.current.score, r.prevScore) })).filter(x => x.t.alert);
+  wrap.innerHTML = alerts.map(x => `<div class="warn-row">${warnIcon()}<span><b>${x.r.name}</b> (${x.r.role}) — ${x.t.alert}</span></div>`).join('');
+}
+function warnIcon(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:17px;height:17px;color:var(--bad);flex-shrink:0;margin-top:1px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`; }
+
+function renderCompareTable(){
+  const el = document.getElementById('compareTable');
+  const rows = [...MB_RESULTS, ...CR_RESULTS];
+  if (rows.length === 0){
+    el.innerHTML = `<tr><td style="padding:20px;color:var(--text-faint);">مفيش بيانات كفاية لعرض المقارنة دلوقتي.</td></tr>`;
+    return;
+  }
+  el.innerHTML = `
+    <tr><th>الاسم</th><th>الوظيفة</th><th>Score</th><th>الحالة</th><th>Trend</th></tr>
+    ${rows.map(r=>{
+      const t = trendInfo(r.current.score, r.prevScore);
+      return `<tr>
+        <td>${r.name}</td>
+        <td>${r.role}</td>
+        <td class="num">${r.current.score===null?'—':r.current.score}</td>
+        <td><span class="status-chip ${r.current.band}">${bandEmoji(r.current.band)} ${bandLabel(r.current.band)}</span></td>
+        <td class="trend-txt ${t.cls}">${t.label}</td>
+      </tr>`;
+    }).join('')}
+  `;
+}
+
+function chipHtml(label, rating, valueTxt){
+  return `<div class="chip-box"><span class="cl">${label}</span><span class="cv"><span class="cdot ${rating}"></span>${valueTxt}</span></div>`;
+}
+
+function renderDetail(){
+  const grid = document.getElementById('detailGrid');
+  const title = document.getElementById('detailTitle');
+
+  if (ACTIVE_ROLE === 'website'){
+    title.innerHTML = 'مصمم الموقع<div class="section-line"></div>';
+
+    if (!WEBSITE_FUNNEL){
+      grid.innerHTML = `<div class="placeholder-box">جاري تحميل بيانات الفانل من الإعلانات...</div>`;
+      return;
+    }
+
+    const d = scoreWebsite(WEBSITE_FUNNEL);
+    if (d.stageKey === 'none'){
+      grid.innerHTML = `<div class="placeholder-box">${d.message}</div>`;
+      return;
+    }
+
+    const chips = d.ratings.map(rt => {
+      let valueTxt = '—';
+      if (rt.key==='معدل التحويل الكلي') valueTxt = d.overallRate.toFixed(1)+'%';
+      else if (rt.key==='زيارة → عربة') valueTxt = d.atcRate.toFixed(1)+'%';
+      else if (rt.key==='عربة → بدء دفع') valueTxt = d.checkoutRate.toFixed(1)+'%';
+      else if (rt.key==='بدء دفع → شراء') valueTxt = d.purchaseRate.toFixed(1)+'%';
+      if (rt.rating==='na') valueTxt = 'N/A';
+      return chipHtml(rt.key, rt.rating, valueTxt);
+    }).join('');
+
+    grid.innerHTML = `
+      <div class="emp-card">
+        <div class="emp-head">
+          <div>
+            <div class="emp-name">أداء الموقع (من بيانات الإعلان)</div>
+            <div class="emp-role">مصمم الموقع</div>
+          </div>
+          <div class="emp-badge ${d.band}">${bandEmoji(d.band)} ${bandLabel(d.band)}</div>
+        </div>
+        <div class="gauge-wrap">
+          ${gaugeSvg(d.score)}
+          <div class="gauge-score num">${d.score===null?'—':d.score+'%'}</div>
+          <div class="gauge-label ${d.band}">${bandLabel(d.band)}</div>
+        </div>
+        <div class="chips-grid">${chips}</div>
+        <div class="note-line"><b>التشخيص:</b> ${d.message}<br>💡 ${d.tip}</div>
+        <div class="note-line" style="opacity:.75">
+          مبني على بيانات فانل الإعلان نفسه (كليكس/عربة/بدء دفع/شراء) — مش Google Analytics، فبيغطي زوار الإعلانات بس.
+          لدقة أعلى (Bounce Rate و Page Load الفعليين)، اربط Google Analytics أو بيانات المتجر بنفس فكرة ربط التوكن.
+        </div>
+      </div>
+    `;
+    return;
+  }
+  if (ACTIVE_ROLE === 'mentor'){
+    title.innerHTML = 'Mentor<div class="section-line"></div>';
+    grid.innerHTML = `<div class="placeholder-box">
+      مفيش نظام مهام متصل دلوقتي.<br>
+      عشان تحسب <b>نسبة تنفيذ المهام</b> و <b>الالتزام</b> و <b>سرعة حل المشاكل</b> بأرقام حقيقية، محتاج جدول مهام/متابعة للفريق نربطه هنا.
+    </div>`;
+    return;
+  }
+
+  const rows = currentRows();
+  title.innerHTML = (ACTIVE_ROLE === 'mediabuyer' ? 'Media Buyer' : 'مصمم الإعلان') + '<div class="section-line"></div>';
+
+  if (rows.length === 0){
+    grid.innerHTML = `<div class="placeholder-box">مفيش بيانات كفاية في الفترة دي.</div>`;
+    return;
+  }
+
+  grid.innerHTML = rows.map(r=>{
+    const c = r.current;
+    const chips = c.ratings.map(rt => {
+      let valueTxt = '—';
+      if (rt.key==='CTR') valueTxt = c.ctr.toFixed(2)+'%';
+      else if (rt.key==='CPC') valueTxt = '$'+c.cpc.toFixed(2);
+      else if (rt.key==='CPM') valueTxt = '$'+c.cpm.toFixed(2);
+      else if (rt.key==='Purchases') valueTxt = c.purchases.toFixed(0);
+      else if (rt.key==='ROAS') valueTxt = c.roas.toFixed(2)+'x';
+      else if (rt.key==='Conversion Rate' || rt.key==='Conversion') valueTxt = c.convRate.toFixed(2)+'%';
+      else if (rt.key==='Message→Purchase') valueTxt = c.msgToPurchase.toFixed(1)+'%';
+      else if (rt.key==='تكلفة الشراء') valueTxt = c.cpa ? '$'+c.cpa.toFixed(2) : 'N/A';
+      else if (rt.key==='Engagement') valueTxt = c.engagementRate.toFixed(2)+'%';
+      else if (rt.key==='Thumbstop') valueTxt = c.thumbstop.toFixed(1)+'%';
+      else if (rt.key==='Hook Rate') valueTxt = c.hookRate.toFixed(1)+'%';
+      if (rt.rating==='na') valueTxt = 'N/A';
+      return chipHtml(rt.key, rt.rating, valueTxt);
+    }).join('');
+
+    return `
+      <div class="emp-card">
+        <div class="emp-head">
+          <div>
+            <div class="emp-name">${r.name}</div>
+            <div class="emp-role">${r.role}</div>
+          </div>
+          <div class="emp-badge ${c.band}">${bandEmoji(c.band)} ${bandLabel(c.band)}</div>
+        </div>
+        <div class="gauge-wrap">
+          ${gaugeSvg(c.score)}
+          <div class="gauge-score num">${c.score===null?'—':c.score+'%'}</div>
+          <div class="gauge-label ${c.band}">${bandLabel(c.band)}</div>
+        </div>
+        <div class="chips-grid">${chips}</div>
+        <div class="note-line"><b>ملاحظة:</b> التقييم محسوب تلقائيًا من بيانات آخر ${RANGE_DAYS} يوم الحقيقية من فيسبوك، من غير أي رقم مُدخل يدويًا.</div>
+      </div>
+    `;
+  }).join('');
+}
+
+init();
+</script>
+
+<script>
+function openSidebar(){
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('backdrop').classList.add('show');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('backdrop').classList.remove('show');
+}
+function toggleSidebar(e){
+  if (e) e.stopPropagation();
+  document.getElementById('sidebar').classList.contains('open') ? closeSidebar() : openSidebar();
+}
+document.addEventListener('click', (e) => {
+  const sb = document.getElementById('sidebar');
+  if (sb && sb.classList.contains('open') && !sb.contains(e.target) && e.target.id !== 'menuBtn' && !e.target.closest('#menuBtn')) closeSidebar();
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSidebar(); });
+</script>
+</body>
+</html>

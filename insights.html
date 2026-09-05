@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الرسم التوضيحي - Media Buyer Hub</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#090b0f; --bg-soft:#0d1016;
+    --surface:#12151c; --surface-2:#171b24; --surface-3:#1c2029;
+    --border:#20242e; --border-soft:#191c24;
+    --text:#eef1f6; --text-dim:#98a2b3; --text-faint:#5c6474;
+    --accent:#4f7dfb; --accent-2:#22d3ee; --accent-soft:rgba(79,125,251,.14);
+    --good:#22c55e; --good-bg:rgba(34,197,94,.12); --good-bd:rgba(34,197,94,.4);
+    --mid:#eab308; --mid-bg:rgba(234,179,8,.12); --mid-bd:rgba(234,179,8,.4);
+    --bad:#ef4444; --bad-bg:rgba(239,68,68,.13); --bad-bd:rgba(239,68,68,.45);
+    --flat:#c7cdd8; --flat-halo:#05060a;
+    --radius:16px; --radius-sm:10px;
+    --font-ui:'Cairo',system-ui,sans-serif;
+    --font-num:'JetBrains Mono','Cairo',monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:var(--font-ui); background:var(--bg); color:var(--text);
+    min-height:100vh; -webkit-font-smoothing:antialiased;
+  }
+  ::selection{ background:var(--accent-soft); color:#fff; }
+  ::-webkit-scrollbar{ width:8px; height:8px; }
+  ::-webkit-scrollbar-thumb{ background:#242833; border-radius:8px; }
+  a{ color:inherit; }
+  .num{ font-family:var(--font-num); font-variant-numeric:tabular-nums; }
+
+  .topbar{
+    position:sticky; top:0; z-index:120;
+    display:flex; align-items:center; gap:12px;
+    padding:12px clamp(14px,3vw,28px);
+    background:rgba(9,11,15,.86); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border-soft);
+  }
+  .icon-btn{
+    display:flex; align-items:center; justify-content:center;
+    width:38px; height:38px; border-radius:11px; flex-shrink:0;
+    background:var(--surface); border:1px solid var(--border); color:var(--text);
+    cursor:pointer; transition:.15s; text-decoration:none;
+  }
+  .icon-btn:hover{ background:var(--surface-3); border-color:#2c313d; }
+  .icon-btn svg{ width:19px; height:19px; }
+  .brand{ font-weight:800; font-size:15px; letter-spacing:.2px; white-space:nowrap; }
+  .brand span{ color:var(--accent-2); }
+  .topbar-spacer{ flex:1; }
+  .period-note{ font-size:12px; color:var(--text-dim); }
+
+  .content{ padding:20px clamp(14px,3vw,32px) 90px; max-width:1180px; margin:0 auto; }
+  .page-head{ margin-bottom:16px; }
+  .page-head h1{ font-size:clamp(19px,2.4vw,24px); margin:0 0 3px; font-weight:800; }
+  .page-head p{ margin:0; font-size:12.5px; color:var(--text-faint); }
+
+  .top-status{ font-size:12.5px; color:var(--text-dim); margin-bottom:16px; min-height:16px; white-space:pre-wrap; }
+  .top-status.error{ color:var(--bad); }
+
+  .filters-bar{
+    display:flex; flex-wrap:wrap; gap:12px; margin-bottom:18px;
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px;
+  }
+  .filter-group{ display:flex; flex-direction:column; gap:5px; min-width:135px; flex:1; }
+  .filter-group label{ font-size:11px; color:var(--text-faint); font-weight:600; }
+  .filter-group select, .filter-group input{
+    padding:9px 10px; border-radius:9px; border:1px solid var(--border); background:var(--bg-soft); color:var(--text); font-size:13px; font-family:inherit;
+  }
+  .filter-group select:focus, .filter-group input:focus{ outline:2px solid var(--accent-soft); border-color:var(--accent); }
+  .filter-group .apply-btn{
+    padding:9px 10px; border-radius:9px; border:1px solid var(--accent); background:var(--accent-soft); color:var(--text);
+    font-size:13px; font-family:inherit; font-weight:700; cursor:pointer;
+  }
+  .filter-group .apply-btn:hover{ background:var(--accent); color:#06131c; }
+
+  .legend-bar{
+    display:flex; gap:18px; flex-wrap:wrap; align-items:center;
+    background:var(--surface); border:1px solid var(--border); border-radius:14px;
+    padding:12px 16px; margin-bottom:22px; font-size:12px; color:var(--text-dim);
+  }
+  .legend-item{ display:flex; align-items:center; gap:7px; }
+  .legend-swatch{ width:22px; height:3px; border-radius:2px; flex-shrink:0; }
+  .legend-swatch.good{ background:var(--good); }
+  .legend-swatch.bad{ background:var(--bad); }
+  .legend-swatch.flat{ background:var(--flat); box-shadow:0 0 0 1.5px var(--flat-halo); }
+
+  .charts-grid{ display:grid; grid-template-columns:1fr; gap:16px; }
+  @media (min-width:860px){ .charts-grid{ grid-template-columns:1fr 1fr; } }
+
+  .chart-card{
+    background:linear-gradient(160deg,#12161f,#0d1017);
+    border:1px solid var(--border); border-radius:20px; padding:18px 18px 8px;
+    box-shadow:0 10px 30px rgba(0,0,0,.25);
+  }
+  .chart-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:2px; }
+  .chart-title{ display:flex; align-items:center; gap:9px; }
+  .chart-icon{
+    width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center;
+    background:var(--surface-3); border:1px solid var(--border); flex-shrink:0;
+  }
+  .chart-icon svg{ width:17px; height:17px; color:var(--accent-2); }
+  .chart-title h3{ margin:0; font-size:14px; font-weight:800; }
+  .chart-title span{ display:block; font-size:11px; color:var(--text-faint); margin-top:2px; }
+
+  .trend-badge{
+    display:flex; align-items:center; gap:6px; padding:6px 11px; border-radius:20px;
+    font-size:12px; font-weight:700; white-space:nowrap; flex-shrink:0;
+  }
+  .trend-badge svg{ width:13px; height:13px; }
+  .trend-badge.up{ background:var(--good-bg); color:var(--good); border:1px solid var(--good-bd); }
+  .trend-badge.down{ background:var(--bad-bg); color:var(--bad); border:1px solid var(--bad-bd); }
+  .trend-badge.flat{ background:var(--surface-3); color:var(--flat); border:1px solid var(--border); }
+
+  .chart-stats{ display:flex; gap:18px; margin:10px 2px 4px; }
+  .chart-stat .l{ font-size:10.5px; color:var(--text-faint); margin-bottom:2px; font-weight:600; }
+  .chart-stat .v{ font-size:15px; font-weight:800; font-family:var(--font-num); }
+
+  .chart-svg-wrap{ margin-top:6px; }
+  .chart-svg-wrap svg{ width:100%; height:auto; display:block; }
+  .y-label{ font-size:10px; fill:var(--text-faint); font-family:'JetBrains Mono',monospace; }
+  .grid-line{ stroke:var(--border-soft); stroke-width:1; stroke-dasharray:3 4; }
+
+  .chart-note{ font-size:11px; color:var(--text-faint); padding:4px 2px 14px; line-height:1.7; }
+  .chart-note b{ color:var(--text-dim); }
+  .placeholder-box{
+    background:var(--surface); border:1px dashed #2a2e38; border-radius:var(--radius);
+    padding:26px; text-align:center; color:var(--text-faint); font-size:13px;
+  }
+
+  /* ---------- Unified navigation (sidebar) ---------- */
+  .backdrop{
+    position:fixed; inset:0; background:rgba(4,5,8,.55); backdrop-filter:blur(2px);
+    z-index:180; opacity:0; pointer-events:none; transition:opacity .2s ease;
+  }
+  .backdrop.show{ opacity:1; pointer-events:auto; }
+  .sidebar{
+    position:fixed; top:0; bottom:0; right:0; width:min(280px,84vw);
+    background:var(--surface); border-left:1px solid var(--border);
+    padding:20px 14px; z-index:190; overflow-y:auto;
+    transform:translateX(100%); transition:transform .25s cubic-bezier(.4,0,.2,1);
+    box-shadow:-20px 0 60px rgba(0,0,0,.4);
+  }
+  .sidebar.open{ transform:translateX(0); }
+  .sidebar-head{
+    display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; padding:0 4px;
+  }
+  .sidebar-head b{ font-size:15px; color:var(--accent-2); letter-spacing:.2px; }
+  .nav-item{
+    display:flex; align-items:center; gap:11px; padding:11px 12px; border-radius:11px;
+    font-size:13.5px; color:var(--text-dim); text-decoration:none; margin-bottom:4px; font-weight:500;
+  }
+  .nav-item svg{ width:17px; height:17px; flex-shrink:0; opacity:.85; }
+  .nav-item:hover{ background:var(--surface-3); color:var(--text); }
+  .nav-item.active{ background:var(--accent-soft); color:#bcd0ff; font-weight:700; }
+  .nav-item.active svg{ opacity:1; }
+  .nav-item.disabled{ color:#454b57; cursor:not-allowed; pointer-events:none; }
+  .nav-divider{ height:1px; background:var(--border-soft); margin:12px 4px; }
+  .nav-tag{ margin-right:auto; font-size:10px; background:var(--surface-3); color:var(--text-faint); padding:2px 7px; border-radius:20px; }
+  .sidebar-foot{ margin-top:16px; padding:10px 12px; font-size:10.5px; color:var(--text-faint); border-top:1px solid var(--border-soft); line-height:1.7; }
+</style>
+</head>
+<body>
+<div class="backdrop" id="backdrop" onclick="closeSidebar()"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-head"><b>Media Buyer Hub</b>
+    <button class="icon-btn" onclick="closeSidebar()" aria-label="إغلاق"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></button>
+  </div>
+  <a class="nav-item" href="#" id="navAuthItem"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>تسجيل خروج</a>
+  <a class="nav-item" href="account.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18"/></svg>ربط الحسابات الإعلانية</a>
+  <a class="nav-item" href="dashboard.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>تحليل البيانات</a>
+  <a class="nav-item active" href="insights.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="4" width="3" height="14"/></svg>الرسوم البيانية</a>
+  <a class="nav-item" href="automation-rules.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>قواعد الأتمتة</a>
+  <a class="nav-item" href="team-quality.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>أداء الموظفين</a>
+  <a class="nav-item" href="subscription.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>الاشتراك والدفع</a>
+  <div class="nav-divider"></div>
+  <a class="nav-item" href="pricing_calculator.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>التسعير</a>
+  <a class="nav-item" href="https://wa.me/201108712091" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>الدعم <span class="nav-tag">9ص - 5م</span></a>
+</aside>
+
+
+<div class="topbar">
+  <button class="icon-btn" id="menuBtn" aria-label="القائمة" onclick="toggleSidebar(event)"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg></button>
+  <div class="brand">Media Buyer <span>Hub</span></div>
+  <div class="topbar-spacer"></div>
+  <div class="period-note">آخر 14 يوم — بيانات حقيقية من حسابك الإعلاني</div>
+</div>
+
+<main class="content">
+  <div class="page-head">
+    <h1>الرسم التوضيحي</h1>
+    <p>اتجاه أهم 4 مؤشرات في نشاطك خلال الفترة المحددة، من بيانات حسابك الإعلاني المتصل فعليًا.</p>
+  </div>
+
+  <div class="top-status" id="topStatus"></div>
+
+  <div class="filters-bar">
+    <div class="filter-group">
+      <label>الفترة</label>
+      <select id="fRange" onchange="onRangeChange()">
+        <option value="7">آخر 7 أيام</option>
+        <option value="14" selected>آخر 14 يوم</option>
+        <option value="30">آخر 30 يوم</option>
+        <option value="custom">مخصص</option>
+      </select>
+    </div>
+    <div class="filter-group" id="customFromWrap" style="display:none;">
+      <label>من</label>
+      <input type="date" id="fFrom">
+    </div>
+    <div class="filter-group" id="customToWrap" style="display:none;">
+      <label>إلى</label>
+      <input type="date" id="fTo">
+    </div>
+    <div class="filter-group" id="customApplyWrap" style="display:none; justify-content:flex-end;">
+      <label>&nbsp;</label>
+      <button class="apply-btn" onclick="loadAndBuild()">تطبيق</button>
+    </div>
+  </div>
+
+  <div class="legend-bar">
+    <div class="legend-item"><span class="legend-swatch good"></span> صاعد (تحسّن)</div>
+    <div class="legend-item"><span class="legend-swatch bad"></span> نازل (تراجع)</div>
+    <div class="legend-item"><span class="legend-swatch flat"></span> ثابت (لا يوجد تغيّر يُذكر)</div>
+  </div>
+
+  <div class="charts-grid" id="chartsGrid"></div>
+</main>
+
+<script>
+/* ============================================================
+   Real data only — pulled live from the same Meta Graph API
+   token flow used in dashboard.html (ad_pixels table in
+   Supabase). No invented numbers.
+   ============================================================ */
+const SUPABASE_URL = 'https://zphepebjpxrzpudncuas.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_tIG9XDZeHVZpZjz74e-dBA_ui5GIYw7';
+const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+document.addEventListener('DOMContentLoaded', () => {
+  const navAuthItem = document.getElementById('navAuthItem');
+  if (navAuthItem) {
+    navAuthItem.addEventListener('click', async (e) => {
+      e.preventDefault();
+      await sbClient.auth.signOut();
+      window.location.href = 'index.html';
+    });
+  }
+});
+
+const GRAPH = 'https://graph.facebook.com/v26.0';
+const FLAT_RATIO = 0.035; // segment considered "flat" if change < 3.5% of the series range
+
+let CURRENT_USER = null;
+let PROFIT_SETTINGS = null;
+
+function num(v){ const n = parseFloat(v); return isNaN(n) ? 0 : n; }
+function fmtDate(d){ return d.toISOString().slice(0,10); }
+function onRangeChange(){
+  const isCustom = document.getElementById('fRange').value === 'custom';
+  document.getElementById('customFromWrap').style.display = isCustom ? 'flex' : 'none';
+  document.getElementById('customToWrap').style.display = isCustom ? 'flex' : 'none';
+  document.getElementById('customApplyWrap').style.display = isCustom ? 'flex' : 'none';
+  if (!isCustom) loadAndBuild();
+}
+function getDateRange(){
+  const r = document.getElementById('fRange').value;
+  const today = new Date();
+  if (r === 'custom'){
+    const since = document.getElementById('fFrom').value;
+    const until = document.getElementById('fTo').value;
+    return { since, until };
+  }
+  const days = parseInt(r, 10) || 14;
+  return { since: fmtDate(new Date(today - (days-1)*86400000)), until: fmtDate(today) };
+}
+function getPurchases(actions){
+  if (Array.isArray(actions)){
+    const p = actions.find(a => /purchase/i.test(a.action_type));
+    if (p) return num(p.value);
+  }
+  return 0;
+}
+function getRevenue(actionValues){
+  if (Array.isArray(actionValues)){
+    const p = actionValues.find(a => /purchase/i.test(a.action_type));
+    if (p) return num(p.value);
+  }
+  return 0;
+}
+function settingsKey(){ return 'stylek_profit_settings_' + (CURRENT_USER ? CURRENT_USER.id : 'anon'); }
+function loadSettings(){
+  try { PROFIT_SETTINGS = JSON.parse(localStorage.getItem(settingsKey())) || null; } catch(e){ PROFIT_SETTINGS = null; }
+}
+function setTopStatus(msg, isError){
+  const el = document.getElementById('topStatus');
+  el.textContent = msg || '';
+  el.className = 'top-status' + (isError ? ' error' : '');
+}
+/* ---------------- كاش مشترك بين الداشبورد والرسوم البيانية وأداء الموظفين (نفس منطق dashboard.html) ---------------- */
+const GCACHE_TTL_MS = 5 * 60 * 1000;
+function gcacheKey(path, params){
+  const p = { ...params }; delete p.access_token;
+  return 'gcache:' + path + ':' + JSON.stringify(p);
+}
+async function gget(path, params){
+  const key = gcacheKey(path, params);
+  try{
+    const raw = localStorage.getItem(key);
+    if (raw){
+      const cached = JSON.parse(raw);
+      if (Date.now() - cached.t < GCACHE_TTL_MS) return cached.d;
+    }
+  } catch(e){ /* تجاهل أي خطأ قراءة كاش وكمل عادي */ }
+
+  const p = new URLSearchParams(params);
+  const res = await fetch(`${GRAPH}/${path}?${p.toString()}`);
+  const json = await res.json();
+  if (json.error) throw new Error(json.error.message);
+
+  try{ localStorage.setItem(key, JSON.stringify({ t: Date.now(), d: json })); }
+  catch(e){ /* لو الكاش امتلأ، تجاهل التخزين ومتوقفش الصفحة */ }
+
+  return json;
+}
+
+/* ---------------- Init ---------------- */
+async function init(){
+  try{
+    document.getElementById('fFrom').valueAsDate = new Date(Date.now() - 13*86400000);
+    document.getElementById('fTo').valueAsDate = new Date();
+    const { data } = await sbClient.auth.getSession();
+    if (!data.session) { window.location.href = 'index.html'; return; }
+    CURRENT_USER = data.session.user;
+    loadSettings();
+    await loadAndBuild();
+    setInterval(loadAndBuild, 300000); // تحديث تلقائي كل 5 دقايق طول ما الصفحة مفتوحة
+  } catch(err){
+    setTopStatus('خطأ أثناء تحميل الصفحة: ' + err.message, true);
+  }
+}
+
+async function loadAndBuild(){
+  setTopStatus('جاري تحميل بيانات حسابك الإعلاني...');
+  const { data: pixels, error } = await sbClient.from('ad_pixels').select('*').eq('user_id', CURRENT_USER.id);
+  if (error){ setTopStatus('تعذر تحميل الحسابات المتصلة: ' + error.message, true); showEmpty(); return; }
+
+  const metaConns = (pixels || []).filter(c => c.pixel_type === 'facebook' && c.ad_account_id && c.pixel_token);
+  if (metaConns.length === 0){
+    setTopStatus('لا يوجد حساب Meta متصل — يرجى الذهاب إلى صفحة "ربط الحسابات الإعلانية" وإضافة التوكن أولاً حتى تتمكن من رؤية الرسم التوضيحي ببياناتك الحقيقية.');
+    showEmpty();
+    return;
+  }
+
+  const { since, until } = getDateRange();
+  if (!since || !until){
+    setTopStatus('من فضلك اختر تاريخ البداية والنهاية.', true);
+    showEmpty();
+    return;
+  }
+  if (new Date(since) > new Date(until)){
+    setTopStatus('تاريخ البداية لازم يكون قبل تاريخ النهاية.', true);
+    showEmpty();
+    return;
+  }
+  const fields = 'date_start,impressions,clicks,spend,ctr,actions,action_values';
+  const byDate = {}; // date_start -> { impressions, clicks, spend, purchases, revenue }
+  let anyError = null, anyData = false;
+
+  for (const conn of metaConns){
+    const actId = conn.ad_account_id.startsWith('act_') ? conn.ad_account_id : 'act_' + conn.ad_account_id;
+    try{
+      const res = await gget(`${actId}/insights`, {
+        fields, time_increment: 1, time_range: JSON.stringify({ since, until }),
+        limit: 100, access_token: conn.pixel_token
+      });
+      (res.data || []).forEach(row => {
+        const d = row.date_start;
+        if (!byDate[d]) byDate[d] = { impressions:0, clicks:0, spend:0, purchases:0, revenue:0 };
+        byDate[d].impressions += num(row.impressions);
+        byDate[d].clicks += num(row.clicks);
+        byDate[d].spend += num(row.spend);
+        byDate[d].purchases += getPurchases(row.actions);
+        byDate[d].revenue += getRevenue(row.action_values);
+        anyData = true;
+      });
+    } catch(err){
+      anyError = `خطأ من فيسبوك في حساب ${conn.ad_account_id}: ${err.message}`;
+      console.error(anyError);
+    }
+  }
+
+  if (!anyData){
+    setTopStatus(anyError || 'الاتصال يعمل بشكل جيد، ولكن لا توجد بيانات كافية خلال الفترة المحددة لرسم الاتجاه.', true);
+    showEmpty();
+    return;
+  }
+
+  // Build a continuous daily series over the selected range (fill missing days with zeros so the line stays accurate)
+  const dates = [];
+  const cursor = new Date(since);
+  const end = new Date(until);
+  while (cursor <= end){
+    dates.push(fmtDate(cursor));
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  const rows = dates.map(d => byDate[d] || { impressions:0, clicks:0, spend:0, purchases:0, revenue:0 });
+
+  const ordersSeries = rows.map(r => r.purchases);
+  const ctrSeries = rows.map(r => r.impressions > 0 ? (r.clicks/r.impressions)*100 : 0);
+  const qualitySeries = rows.map(r => r.clicks > 0 ? (r.purchases/r.clicks)*100 : 0);
+
+  let profitSeries;
+  let profitNote;
+  if (PROFIT_SETTINGS){
+    const cogsPct = num(PROFIT_SETTINGS.cogsPct)/100, shipping = num(PROFIT_SETTINGS.shipping), paymentPct = num(PROFIT_SETTINGS.paymentPct)/100;
+    profitSeries = rows.map(r => r.revenue - r.spend - (r.revenue*cogsPct) - (r.purchases*shipping) - (r.revenue*paymentPct));
+    profitNote = 'محسوب من الإيراد والإنفاق الفعليين من فيسبوك، بعد خصم نسبة التكلفة والشحن والتحصيل التي قمت بتسجيلها في إعدادات الربح.';
+  } else {
+    profitSeries = rows.map(r => r.revenue - r.spend);
+    profitNote = 'يُحسب حاليًا كـ (إيراد الإعلانات - الإنفاق) فقط، دون خصم التكلفة أو الشحن، لأنك لم تقم بعد بضبط إعدادات الربح في لوحة التحكم الرئيسية.';
+  }
+
+  if (anyError) setTopStatus(anyError, true); else setTopStatus('');
+
+  const METRICS = [
+    {
+      id:'store', title:'أداء المتجر', subtitle:'عدد عمليات الشراء المسجّلة من البيكسل',
+      icon:'<path d="M3 3h2l2.4 12.4a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L22 6H6"/><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/>',
+      unit:'طلب', data:ordersSeries,
+      note:'هذا هو عدد الطلبات التي رصدها البيكسل قادمة من إعلاناتك، وليس إجمالي مبيعات المتجر من جميع المصادر.'
+    },
+    {
+      id:'ads', title:'أداء الإعلانات', subtitle:'حسب CTR اليومي (نقرات ÷ ظهور)',
+      icon:'<path d="M3 11l18-7-7 18-3-8-8-3z"/>',
+      unit:'%', data:ctrSeries,
+      note:'مبني على الظهور والنقرات الحقيقية من حسابك الإعلاني كل يوم.'
+    },
+    {
+      id:'quality', title:'جودة العميل', subtitle:'معدل التحويل من نقرة لشراء',
+      icon:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>',
+      unit:'%', data:qualitySeries,
+      note:'بديل عملي لمعدل تحويل صفحة الهبوط: نسبة الطلبات إلى عدد النقرات على الإعلان في نفس اليوم.'
+    },
+    {
+      id:'pnl', title:'الربح والخسارة', subtitle:'صافي الربح اليومي من الإعلانات',
+      icon:'<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>',
+      unit:'ج.م', data:profitSeries,
+      note:profitNote
+    }
+  ];
+
+  render(METRICS);
+}
+
+function showEmpty(){
+  document.getElementById('chartsGrid').innerHTML = '<div class="placeholder-box">لا توجد بيانات كافية حاليًا لعرض الرسم التوضيحي.</div>';
+}
+
+function catmullRomToBezier(pts){
+  const segs = [];
+  for (let i=0;i<pts.length-1;i++){
+    const p0 = pts[Math.max(i-1,0)];
+    const p1 = pts[i];
+    const p2 = pts[i+1];
+    const p3 = pts[Math.min(i+2,pts.length-1)];
+    const c1 = { x:p1.x+(p2.x-p0.x)/6, y:p1.y+(p2.y-p0.y)/6 };
+    const c2 = { x:p2.x-(p3.x-p1.x)/6, y:p2.y-(p3.y-p1.y)/6 };
+    segs.push({ p1, p2, c1, c2 });
+  }
+  return segs;
+}
+
+function buildChart(metric){
+  const W = 560, H = 190, padL = 40, padR = 10, padT = 14, padB = 10;
+  const vals = metric.data;
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const range = (max - min) || 1;
+  const flatThreshold = range * FLAT_RATIO;
+
+  const innerW = W - padL - padR, innerH = H - padT - padB;
+  const pts = vals.map((v,i)=>({
+    x: padL + (i/(vals.length-1)) * innerW,
+    y: padT + innerH - ((v-min)/range) * innerH
+  }));
+
+  const segs = catmullRomToBezier(pts);
+
+  let gridSvg = '', yLabelsSvg = '';
+  const bands = 4;
+  for (let b=0; b<=bands; b++){
+    const yVal = min + (range * b/bands);
+    const y = padT + innerH - (b/bands)*innerH;
+    gridSvg += `<line class="grid-line" x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}"/>`;
+    yLabelsSvg += `<text class="y-label" x="${padL-6}" y="${y+3}" text-anchor="end">${fmtNum(yVal)}</text>`;
+  }
+
+  let lineSvg = '';
+  segs.forEach((s,i)=>{
+    const dy = vals[i+1]-vals[i];
+    const d = `M ${s.p1.x.toFixed(1)} ${s.p1.y.toFixed(1)} C ${s.c1.x.toFixed(1)} ${s.c1.y.toFixed(1)}, ${s.c2.x.toFixed(1)} ${s.c2.y.toFixed(1)}, ${s.p2.x.toFixed(1)} ${s.p2.y.toFixed(1)}`;
+    if (Math.abs(dy) < flatThreshold){
+      lineSvg += `<path d="${d}" fill="none" stroke="var(--flat-halo)" stroke-width="5.5" stroke-linecap="round"/>`;
+      lineSvg += `<path d="${d}" fill="none" stroke="#050608" stroke-width="2.6" stroke-linecap="round"/>`;
+      lineSvg += `<path d="${d}" fill="none" stroke="var(--flat)" stroke-width="1" stroke-linecap="round" opacity=".55"/>`;
+    } else if (dy > 0){
+      lineSvg += `<path d="${d}" fill="none" stroke="var(--good)" stroke-width="2.6" stroke-linecap="round"/>`;
+    } else {
+      lineSvg += `<path d="${d}" fill="none" stroke="var(--bad)" stroke-width="2.6" stroke-linecap="round"/>`;
+    }
+  });
+
+  const overallUp = vals[vals.length-1] >= vals[0];
+  const fillColor = overallUp ? '34,197,94' : '239,68,68';
+  let areaPath = `M ${pts[0].x.toFixed(1)} ${(padT+innerH).toFixed(1)} L ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)} `;
+  segs.forEach(s=>{
+    areaPath += `C ${s.c1.x.toFixed(1)} ${s.c1.y.toFixed(1)}, ${s.c2.x.toFixed(1)} ${s.c2.y.toFixed(1)}, ${s.p2.x.toFixed(1)} ${s.p2.y.toFixed(1)} `;
+  });
+  areaPath += `L ${pts[pts.length-1].x.toFixed(1)} ${(padT+innerH).toFixed(1)} Z`;
+
+  const gradId = 'grad-'+metric.id;
+
+  return `
+    <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgba(${fillColor},.28)"/>
+          <stop offset="100%" stop-color="rgba(${fillColor},0)"/>
+        </linearGradient>
+      </defs>
+      ${gridSvg}
+      ${yLabelsSvg}
+      <path d="${areaPath}" fill="url(#${gradId})" stroke="none"/>
+      ${lineSvg}
+    </svg>
+  `;
+}
+
+function fmtNum(n){
+  if (Math.abs(n) >= 1000) return (n/1000).toFixed(1).replace(/\.0$/,'')+'k';
+  return Number.isInteger(n) ? n.toString() : n.toFixed(1);
+}
+
+function trendBadge(metric){
+  const vals = metric.data;
+  const range = (Math.max(...vals)-Math.min(...vals)) || 1;
+  const delta = vals[vals.length-1]-vals[0];
+  const pct = (delta/range)*100;
+  if (Math.abs(pct) < 10){
+    return `<div class="trend-badge flat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="4" y1="12" x2="20" y2="12"/></svg> ثابت</div>`;
+  }
+  if (delta > 0){
+    return `<div class="trend-badge up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="6 11 12 5 18 11"/></svg> صاعد</div>`;
+  }
+  return `<div class="trend-badge down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="6 13 12 19 18 13"/></svg> نازل</div>`;
+}
+
+function render(METRICS){
+  const grid = document.getElementById('chartsGrid');
+  grid.innerHTML = '';
+  METRICS.forEach(m=>{
+    const first = m.data[0], last = m.data[m.data.length-1];
+    const changePct = first !== 0 ? (((last-first)/Math.abs(first))*100) : (last !== 0 ? 100 : 0);
+    grid.insertAdjacentHTML('beforeend', `
+      <div class="chart-card">
+        <div class="chart-head">
+          <div class="chart-title">
+            <div class="chart-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${m.icon}</svg></div>
+            <div>
+              <h3>${m.title}</h3>
+              <span>${m.subtitle}</span>
+            </div>
+          </div>
+          ${trendBadge(m)}
+        </div>
+        <div class="chart-stats">
+          <div class="chart-stat"><div class="l">آخر يوم</div><div class="v num">${fmtNum(last)} ${m.unit}</div></div>
+          <div class="chart-stat"><div class="l">من بداية الـ 14 يوم</div><div class="v num" style="color:${last>=first?'var(--good)':'var(--bad)'}">${changePct>=0?'+':''}${changePct.toFixed(0)}%</div></div>
+        </div>
+        <div class="chart-svg-wrap">${buildChart(m)}</div>
+        <div class="chart-note"><b>ملاحظة:</b> ${m.note}</div>
+      </div>
+    `);
+  });
+}
+
+init();
+</script>
+
+<script>
+function openSidebar(){
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('backdrop').classList.add('show');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('backdrop').classList.remove('show');
+}
+function toggleSidebar(e){
+  if (e) e.stopPropagation();
+  document.getElementById('sidebar').classList.contains('open') ? closeSidebar() : openSidebar();
+}
+document.addEventListener('click', (e) => {
+  const sb = document.getElementById('sidebar');
+  if (sb && sb.classList.contains('open') && !sb.contains(e.target) && e.target.id !== 'menuBtn' && !e.target.closest('#menuBtn')) closeSidebar();
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSidebar(); });
+</script>
+</body>
+</html>
