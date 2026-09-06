@@ -269,7 +269,8 @@
       <div class="back-row"><button type="button" class="link-btn" onclick="goAuth('login')">رجوع لتسجيل الدخول</button></div>
       <h2>استرجاع كلمة المرور</h2>
       <label>الإيميل <span class="req">*</span></label>
-      <input id="forgotId" type="email" placeholder="you@email.com" autocomplete="email">
+      <input id="forgotId" type="email" inputmode="email" placeholder="you@email.com" dir="ltr">
+      <div class="hint" style="margin-top:6px; text-align:right;">استرجاع كلمة المرور بالإيميل بس — اكتب نفس الإيميل المسجل بيه حسابك (مش رقم الهاتف).</div>
       <button class="primary" id="forgotBtn" onclick="doForgotRequest()">إرسال كود الاسترجاع</button>
       <div class="status" id="status-forgot"></div>
     </div>
@@ -370,6 +371,7 @@ function describeError(msg){
     { test: /كلمة المرور لازم تكون/, fix: 'اكتب باسورد 8 أحرف/أرقام على الأقل.' },
     { test: /لا يوجد حساب بهذا الإيميل/, fix: 'اتأكد من كتابة نفس الإيميل المسجل بيه حسابك.' },
     { test: /مسجل بالفعل|موجود بالفعل/, fix: 'الإيميل أو رقم الهاتف ده متسجل قبل كده — جرب "تسجيل دخول" بدل إنشاء حساب جديد.' },
+    { test: /محاولات كتير|طلبت كود كتير|محاولات دخول كتير/, fix: 'وصلت لأقصى عدد محاولات مسموح بيه دلوقتي — استنى شوية وجرب تاني، أو كلم خدمة العملاء لو محتاج مساعدة فورية.' },
     { test: /failed to fetch|networkerror|load failed|network request failed/i, fix: 'اتأكد من اتصال الإنترنت عندك وجرب تاني بعد شوية.' },
   ];
   for (const r of rules) if (r.test.test(raw)) return { text: raw, fix: r.fix };
@@ -492,7 +494,7 @@ window.doGuestLogin = async function doGuestLogin() {
 window.doSignup = async function doSignup() {
   const name = document.getElementById('suName').value.trim();
   const store = document.getElementById('suStore').value.trim();
-  const email = document.getElementById('suEmail').value.trim().toLowerCase();
+  const email = document.getElementById('suEmail').value.trim();
   const phone = document.getElementById('suPhone').value.trim();
   const link = document.getElementById('suLink').value.trim();
   const password = document.getElementById('suPassword').value;
@@ -500,65 +502,30 @@ window.doSignup = async function doSignup() {
   const btn = document.getElementById('signupBtn');
 
   if (!name || !store || !email || !phone || !password || !passwordConfirm) {
-    setStatus(
-      'status',
-      'كل الحقول دي مطلوبة: الاسم، اسم المتجر، الإيميل، رقم الهاتف، وكلمة المرور',
-      'error'
-    );
+    setStatus('status', 'كل الحقول دي مطلوبة: الاسم، اسم المتجر، الإيميل، رقم الهاتف، وكلمة المرور', 'error');
     return;
   }
-
-  if (!isEmail(email)) {
-    setStatus('status', 'اكتب إيميل صحيح', 'error');
-    return;
-  }
-
+  if (!isEmail(email)) { setStatus('status', 'اكتب إيميل صحيح', 'error'); return; }
   const digits = normalizePhone(phone);
-
-  if (digits.length < 10) {
-    setStatus('status', 'اكتب رقم هاتف صحيح', 'error');
-    return;
-  }
-
-  if (password.length < 8) {
-    setStatus('status', 'كلمة المرور لازم تكون 8 أحرف/أرقام على الأقل', 'error');
-    return;
-  }
-
-  if (password !== passwordConfirm) {
-    setStatus('status', 'كلمة المرور وتأكيدها مش متطابقين', 'error');
-    return;
-  }
+  if (digits.length < 10) { setStatus('status', 'اكتب رقم هاتف صحيح', 'error'); return; }
+  if (password.length < 8) { setStatus('status', 'كلمة المرور لازم تكون 8 أحرف/أرقام على الأقل', 'error'); return; }
+  if (password !== passwordConfirm) { setStatus('status', 'كلمة المرور وتأكيدها مش متطابقين', 'error'); return; }
 
   btn.disabled = true;
-  setStatus('status', 'جاري إرسال كود التحقق...');
+  setStatus('status', 'جاري إنشاء الحساب...');
 
   try {
     pendingSignup = {
-      email: email,
-      password: password,
+      email, password,
       full_name: name,
       phone: digits,
       organization_name: store,
       store_link: link || null
     };
 
-    // Apps Script يستقبل هذه الأسماء بالضبط.
-    const result = await callAppsScript('signup', {
-      name: name,
-      store_name: store,
-      email: email,
-      phone: digits,
-      store_link: link || '',
-      password: password
-    });
-
+    const result = await callAppsScript('signup', pendingSignup);
     if (!result.success) {
-      setStatus(
-        'status',
-        result.message || 'حصل خطأ أثناء إرسال الكود',
-        'error'
-      );
+      setStatus('status', result.message || 'حصل خطأ', 'error');
       btn.disabled = false;
       return;
     }
@@ -566,24 +533,12 @@ window.doSignup = async function doSignup() {
     registerSend('mbh_signup_', email);
     document.getElementById('otpTargetEmail').textContent = email;
     document.getElementById('otpCode').dataset.email = email;
-
     showView('view-otp');
-
-    startCountdown(
-      'mbh_signup_',
-      email,
-      'otpResendBtn',
-      'otpCountdown',
+    startCountdown('mbh_signup_', email, 'otpResendBtn', 'otpCountdown',
       'وصلت لأقصى عدد محاولات في الساعة، جرّب تاني بعد',
-      'تقدر تطلب كود تاني بعد'
-    );
-
+      'تقدر تطلب كود تاني بعد');
   } catch (err) {
-    setStatus(
-      'status',
-      'حدث خطأ غير متوقع: ' + err.message,
-      'error'
-    );
+    setStatus('status', 'حدث خطأ غير متوقع: ' + err.message, 'error');
   } finally {
     btn.disabled = false;
   }
@@ -631,22 +586,7 @@ window.doVerifySignupOtp = async function doVerifySignupOtp(){
       return;
     }
 
-    
-    // ربط user.id بصف التسجيل في Google Sheet بتوكن مؤقت لمرة واحدة.
-    if (data.user && result.sync_token) {
-      try {
-        const syncResult = await callAppsScript('sync_user', {
-          email: pendingSignup.email,
-          user_id: data.user.id,
-          sync_token: result.sync_token
-        });
-        if (!syncResult.success) console.warn('تعذر ربط الحساب بالشيت:', syncResult.message);
-      } catch (e) {
-        console.warn('تعذر مزامنة User ID مع الشيت:', e);
-      }
-    }
-
-// لو مفيش session معناه إعدادات Supabase لسه محتاجة تأكيد إيميل من عندها (لازم
+    // لو مفيش session معناه إعدادات Supabase لسه محتاجة تأكيد إيميل من عندها (لازم
     // تتقفل من Supabase Dashboard → Authentication → Providers → Email → Confirm email،
     // لأننا بنأكد الحساب بنفسنا عن طريق الكود اللي فوق أصلاً).
     if (data.session) {
@@ -676,51 +616,21 @@ window.doVerifySignupOtp = async function doVerifySignupOtp(){
   }
 };
 
-window.resendSignupOtp = async function resendSignupOtp() {
+window.resendSignupOtp = async function resendSignupOtp(){
   const email = document.getElementById('otpCode').dataset.email;
   const st = getResendState('mbh_signup_', email);
-
   if (st && Date.now() < nextAllowedAt(st)) return;
-
-  if (!pendingSignup) {
-    setStatus('status-otp', 'محتاج تعمل التسجيل تاني من الأول', 'error');
-    return;
-  }
-
+  if (!pendingSignup) { setStatus('status-otp', 'محتاج تعمل التسجيل تاني من الأول', 'error'); return; }
   try {
-    const result = await callAppsScript('signup', {
-      name: pendingSignup.full_name,
-      store_name: pendingSignup.organization_name,
-      email: pendingSignup.email,
-      phone: pendingSignup.phone,
-      store_link: pendingSignup.store_link || '',
-      password: pendingSignup.password
-    });
-
-    if (!result.success) {
-      setStatus('status-otp', result.message || 'خطأ', 'error');
-      return;
-    }
-
+    const result = await callAppsScript('signup', pendingSignup);
+    if (!result.success) { setStatus('status-otp', result.message || 'خطأ', 'error'); return; }
     registerSend('mbh_signup_', email);
-
     setStatus('status-otp', 'اتبعت كود جديد على إيميلك', 'ok');
-
-    startCountdown(
-      'mbh_signup_',
-      email,
-      'otpResendBtn',
-      'otpCountdown',
+    startCountdown('mbh_signup_', email, 'otpResendBtn', 'otpCountdown',
       'وصلت لأقصى عدد محاولات في الساعة، جرّب تاني بعد',
-      'تقدر تطلب كود تاني بعد'
-    );
-
+      'تقدر تطلب كود تاني بعد');
   } catch (err) {
-    setStatus(
-      'status-otp',
-      'حدث خطأ غير متوقع: ' + err.message,
-      'error'
-    );
+    setStatus('status-otp', 'حدث خطأ غير متوقع: ' + err.message, 'error');
   }
 };
 
@@ -774,23 +684,22 @@ window.doLogin = async function doLogin() {
 
 // ---------------- Forgot password ----------------
 window.doForgotRequest = async function doForgotRequest(){
-  const email = document.getElementById('forgotId').value.trim().toLowerCase();
+  const idRaw = document.getElementById('forgotId').value.trim();
   const btn = document.getElementById('forgotBtn');
-
-  if (!email) { setStatus('status-forgot', 'اكتب الإيميل', 'error'); return; }
-  if (!isEmail(email)) { setStatus('status-forgot', 'اكتب إيميل صحيح', 'error'); return; }
+  if (!idRaw) { setStatus('status-forgot', 'اكتب الإيميل', 'error'); return; }
+  // استرجاع الباسورد بالإيميل بس — مفيش OTP بيتبعت على رقم التليفون خالص، فمش بنقبل
+  // غير صيغة إيميل صحيحة هنا حتى لو المستخدم مسجّل برقم هاتف كمان.
+  if (!isEmail(idRaw)) {
+    setStatus('status-forgot', 'استرجاع كلمة المرور بالإيميل بس — اكتب إيميل صحيح، مش رقم هاتف.', 'error');
+    return;
+  }
+  const email = idRaw.toLowerCase();
 
   btn.disabled = true;
-  setStatus('status-forgot', 'جاري التأكد من الإيميل وإرسال الكود...');
-
+  setStatus('status-forgot', 'جاري إرسال الكود...');
   try {
-    // Apps Script هو الذي يبحث عن الإيميل في Google Sheet.
     const result = await callAppsScript('forgot', { email });
-    if (!result.success) {
-      setStatus('status-forgot', result.message || 'خطأ', 'error');
-      btn.disabled = false;
-      return;
-    }
+    if (!result.success) { setStatus('status-forgot', result.message || 'خطأ', 'error'); btn.disabled = false; return; }
 
     registerSend('mbh_reset_', email);
     document.getElementById('forgotTargetEmail').textContent = email;
@@ -830,40 +739,24 @@ window.doResetPassword = async function doResetPassword(){
   const newPasswordConfirm = document.getElementById('newPasswordConfirm').value;
   const btn = document.getElementById('forgotConfirmBtn');
 
-  if (!email || !isEmail(email)) { setStatus('status-forgot-otp', 'الإيميل غير صحيح، ابدأ الاسترجاع من جديد', 'error'); return; }
   if (!token || token.length < 6) { setStatus('status-forgot-otp', 'اكتب الكود المكوّن من 6 أرقام', 'error'); return; }
   if (!newPassword || newPassword.length < 8) { setStatus('status-forgot-otp', 'كلمة المرور لازم تكون 8 أحرف/أرقام على الأقل', 'error'); return; }
   if (newPassword !== newPasswordConfirm) { setStatus('status-forgot-otp', 'كلمة المرور وتأكيدها مش متطابقين', 'error'); return; }
 
   btn.disabled = true;
-  setStatus('status-forgot-otp', 'جاري تغيير كلمة المرور...');
-
+  setStatus('status-forgot-otp', 'جاري التأكيد...');
   try {
-    // الباسورد الجديد يذهب إلى Supabase Auth فقط، ولا يتم تخزينه في Google Sheet.
-    const result = await callAppsScript('verify_forgot', {
-      email, code: token, new_password: newPassword
-    });
-
-    if (!result.success) {
-      setStatus('status-forgot-otp', result.message || 'الكود غلط أو منتهي', 'error');
-      btn.disabled = false;
-      return;
-    }
+    const result = await callAppsScript('verify_forgot', { email, code: token, new_password: newPassword });
+    if (!result.success) { setStatus('status-forgot-otp', result.message || 'الكود غلط أو منتهي', 'error'); btn.disabled = false; return; }
 
     localStorage.removeItem('mbh_reset_' + email);
-
-    // دخول مباشر بالباسورد الجديد.
-    const { data, error: loginError } = await sbClient.auth.signInWithPassword({
-      email, password: newPassword
-    });
-
+    const { error: loginError } = await sbClient.auth.signInWithPassword({ email, password: newPassword });
     if (loginError) {
-      setStatus('status-forgot-otp', 'اتغيرت كلمة المرور بنجاح. سجّل دخولك بالباسورد الجديد.', 'ok');
+      setStatus('status-forgot-otp', 'اتغيرت كلمة المرور، سجّل دخولك بيها', 'ok');
       setTimeout(() => goAuth('login'), 1200);
       return;
     }
-
-    setStatus('status-forgot-otp', 'تم تغيير كلمة المرور بنجاح، جاري التحويل...', 'ok');
+    setStatus('status-forgot-otp', 'اتغيرت كلمة المرور، جاري التحويل...', 'ok');
     setTimeout(() => window.location.href = 'dashboard.html', 600);
   } catch (err) {
     setStatus('status-forgot-otp', 'حدث خطأ غير متوقع: ' + err.message, 'error');
