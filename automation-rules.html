@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>قواعد الأتمتة</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+  :root{
+    --bg:#090b0f; --bg-soft:#0d1016;
+    --surface:#12151c; --surface-2:#171b24; --surface-3:#1c2029;
+    --border:#20242e; --border-soft:#191c24;
+    --text:#eef1f6; --text-dim:#98a2b3; --text-faint:#5c6474;
+    --accent:#4f7dfb; --accent-2:#22d3ee; --accent-soft:rgba(79,125,251,.14);
+    --good:#22c55e; --bad:#f43f5e; --mid:#eab308;
+    --radius:16px; --radius-sm:10px;
+    --font-ui:'Cairo',system-ui,sans-serif;
+    --font-num:'JetBrains Mono','Cairo',monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: var(--font-ui);
+    background: var(--bg); color: var(--text); margin: 0;
+  }
+
+  .content { padding:20px clamp(14px,3vw,28px) 60px; max-width:960px; margin:0 auto; }
+  h1 { font-size:19px; color:#fff; margin-top:0; }
+  .page-toolbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+  .user-chip { font-size:12px; color:#888; }
+  .logout-btn { font-size:12px; background:#241417; color:#e74c3c; border:1px solid #e74c3c; border-radius:8px; padding:6px 12px; cursor:pointer; }
+
+  .form-card { background:#1b1e26; border-radius:14px; padding:20px; margin-bottom:22px; max-width:620px; }
+  .section-title { font-size:13px; color:#6ab3ff; margin:18px 0 4px 0; font-weight:bold; }
+  .section-title:first-child { margin-top:0; }
+  .row2 { display:flex; gap:10px; }
+  .row2 > div { flex:1; min-width:0; }
+
+  label { display:block; margin-top:12px; margin-bottom:4px; font-size:12px; color:#aaa; }
+  input, select {
+    width:100%; padding:10px; border-radius:8px; border:1px solid #333;
+    background:#10121a; color:#fff; font-size:14px;
+  }
+  button.primary {
+    margin-top:18px; width:100%; padding:11px; background:#4da3ff; border:none;
+    border-radius:8px; font-size:14px; font-weight:bold; color:#0f1115; cursor:pointer;
+  }
+  button.primary:disabled { opacity:.6; cursor:not-allowed; }
+  .status { text-align:center; margin-top:10px; font-size:13px; color:#f0c040; white-space:pre-wrap; }
+  .status.error { color:#ff6a6a; }
+  .status.ok { color:#2ecc71; }
+
+  .hidden { display:none !important; }
+
+  .rule-card {
+    background:#171a22; border:1px solid #262a34; border-radius:12px;
+    padding:14px 16px; margin-bottom:12px; max-width:620px;
+  }
+  .rule-top { display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+  .rule-name { color:#fff; font-size:14px; font-weight:bold; }
+  .badge { font-size:11px; padding:3px 8px; border-radius:20px; border:1px solid #333; color:#aaa; margin-inline-start:6px; }
+  .badge.on { color:#2ecc71; border-color:#2ecc71; }
+  .badge.off { color:#888; border-color:#444; }
+  .rule-body { color:#aaa; font-size:12.5px; margin-top:8px; line-height:1.9; }
+  .rule-body b { color:#dbe4ff; }
+  .rule-actions { display:flex; gap:8px; margin-top:10px; }
+  .mini-btn {
+    font-size:12px; border-radius:8px; padding:6px 10px; cursor:pointer; background:transparent;
+  }
+  .mini-btn.toggle { border:1px solid #4da3ff; color:#6ab3ff; }
+  .mini-btn.del { border:1px solid #e74c3c; color:#e74c3c; }
+  .note-line { font-size:11px; color:#6b7280; margin-top:6px; line-height:1.7; }
+  .badge.cooldown { color:#f0c040; border-color:#7a5c14; }
+  .rule-meta-line { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .rule-meta-line .warn { color:#f0c040; }
+
+  .topbar{
+    position:sticky; top:0; z-index:120;
+    display:flex; align-items:center; gap:12px;
+    padding:12px clamp(14px,3vw,28px);
+    background:rgba(9,11,15,.86); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border-soft);
+  }
+  .icon-btn{
+    display:flex; align-items:center; justify-content:center;
+    width:38px; height:38px; border-radius:11px; flex-shrink:0;
+    background:var(--surface); border:1px solid var(--border); color:var(--text);
+    cursor:pointer; transition:.15s; text-decoration:none;
+  }
+  .icon-btn:hover{ background:var(--surface-3); border-color:#2c313d; }
+  .icon-btn svg{ width:19px; height:19px; }
+  .brand{ font-weight:800; font-size:15px; letter-spacing:.2px; white-space:nowrap; color:var(--text); }
+  .brand span{ color:var(--accent-2); }
+  .topbar-spacer{ flex:1; }
+
+  /* ---------- Unified navigation (sidebar) ---------- */
+  .backdrop{
+    position:fixed; inset:0; background:rgba(4,5,8,.55); backdrop-filter:blur(2px);
+    z-index:180; opacity:0; pointer-events:none; transition:opacity .2s ease;
+  }
+  .backdrop.show{ opacity:1; pointer-events:auto; }
+  .sidebar{
+    position:fixed; top:0; bottom:0; right:0; width:min(280px,84vw);
+    background:var(--surface); border-left:1px solid var(--border);
+    padding:20px 14px; z-index:190; overflow-y:auto;
+    transform:translateX(100%); transition:transform .25s cubic-bezier(.4,0,.2,1);
+    box-shadow:-20px 0 60px rgba(0,0,0,.4);
+  }
+  .sidebar.open{ transform:translateX(0); }
+  .sidebar-head{
+    display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; padding:0 4px;
+  }
+  .sidebar-head b{ font-size:15px; color:var(--accent-2); letter-spacing:.2px; }
+  .nav-item{
+    display:flex; align-items:center; gap:11px; padding:11px 12px; border-radius:11px;
+    font-size:13.5px; color:var(--text-dim); text-decoration:none; margin-bottom:4px; font-weight:500;
+  }
+  .nav-item svg{ width:17px; height:17px; flex-shrink:0; opacity:.85; }
+  .nav-item:hover{ background:var(--surface-3); color:var(--text); }
+  .nav-item.active{ background:var(--accent-soft); color:#bcd0ff; font-weight:700; }
+  .nav-item.active svg{ opacity:1; }
+  .nav-item.disabled{ color:#454b57; cursor:not-allowed; pointer-events:none; }
+  .nav-divider{ height:1px; background:var(--border-soft); margin:12px 4px; }
+  .nav-tag{ margin-right:auto; font-size:10px; background:var(--surface-3); color:var(--text-faint); padding:2px 7px; border-radius:20px; }
+  .sidebar-foot{ margin-top:16px; padding:10px 12px; font-size:10.5px; color:var(--text-faint); border-top:1px solid var(--border-soft); line-height:1.7; }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <button class="icon-btn" id="menuBtn" aria-label="القائمة" onclick="toggleSidebar(event)"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg></button>
+  <div class="brand">Media Buyer <span>Hub</span></div>
+  <div class="topbar-spacer"></div>
+</div>
+
+<div class="backdrop" id="backdrop" onclick="closeSidebar()"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-head"><b>Media Buyer Hub</b>
+    <button class="icon-btn" onclick="closeSidebar()" aria-label="إغلاق"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></button>
+  </div>
+  <a class="nav-item" href="index.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>تسجيل الدخول</a>
+  <a class="nav-item" href="account.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18"/></svg>ربط الحسابات الإعلانية</a>
+  <a class="nav-item" href="dashboard.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>تحليل البيانات</a>
+  <a class="nav-item" href="insights.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="4" width="3" height="14"/></svg>الرسوم البيانية</a>
+  <a class="nav-item active" href="automation-rules.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>قواعد الأتمتة</a>
+  <a class="nav-item" href="team-quality.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>أداء الموظفين</a>
+  <a class="nav-item" href="subscription.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>الاشتراك والدفع</a>
+  <div class="nav-divider"></div>
+  <a class="nav-item" href="pricing_calculator.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>التسعير</a>
+  <a class="nav-item disabled"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>الدعم <span class="nav-tag">قريبًا</span></a>
+  <div class="sidebar-foot">جميع البيانات مرتبطة بحسابك ومحمية، ولا تُشارَك مع أي طرف ثالث.</div>
+</aside>
+
+<div class="content">
+  <div class="page-toolbar">
+    <h1>قواعد الأتمتة</h1>
+    <div>
+      <span class="user-chip" id="userChip"></span>
+      <button class="logout-btn" onclick="doLogout()">تسجيل خروج</button>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="section-title">القاعدة تطبق على</div>
+    <div class="row2">
+      <div>
+        <label>المنصة</label>
+        <select id="platform">
+          <option value="facebook">Facebook / Meta</option>
+          <option value="tiktok">TikTok</option>
+          <option value="snapchat">Snapchat</option>
+          <option value="google">Google</option>
+        </select>
+      </div>
+      <div>
+        <label>المستوى</label>
+        <select id="level">
+          <option value="campaign">الحملة (Campaign)</option>
+          <option value="adset">المجموعة الإعلانية (Ad Set)</option>
+          <option value="ad">الإعلان (Ad)</option>
+        </select>
+      </div>
+    </div>
+
+    <label>الحساب الإعلاني</label>
+    <select id="adAccount"><option value="">— جارٍ التحميل... —</option></select>
+
+    <label>الحملة / المجموعة الإعلانية / الإعلان</label>
+    <select id="targetEntity" disabled><option value="">— اختر الحساب الإعلاني أولًا —</option></select>
+    <div class="note-line hidden" id="targetManualNote">الربط المباشر لجلب الأسماء تلقائيًا متاح حاليًا لحسابات Meta المتصلة فقط. يُرجى إدخال الـ ID يدويًا في الحقل التالي:</div>
+    <input id="targetId" class="hidden" type="text" placeholder="مثال: 1208843209384">
+    <input type="hidden" id="targetName">
+
+    <label>اسم القاعدة</label>
+    <input id="ruleName" type="text" placeholder="مثال: زيادة ميزانية لما الـ CTR يرتفع">
+
+    <div class="section-title">الشرط (في حال الرغبة بتشغيل القاعدة دائمًا دون شرط، يُترك الحقل فارغًا)</div>
+    <div class="row2">
+      <div>
+        <label>المؤشر</label>
+        <select id="metric">
+          <option value="none">بدون شرط - تشغيل تلقائي حسب الجدولة فقط</option>
+          <option value="ctr">CTR</option>
+          <option value="cpc">CPC</option>
+          <option value="cpm">CPM</option>
+          <option value="cpp">CPP (تكلفة الشراء)</option>
+        </select>
+      </div>
+      <div>
+        <label>التوقيت</label>
+        <select id="timeWindow">
+          <option value="today">اليوم</option>
+          <option value="yesterday">أمس</option>
+          <option value="last_3d">آخر 3 أيام</option>
+          <option value="last_7d">آخر 7 أيام</option>
+          <option value="lifetime">من البداية</option>
+        </select>
+      </div>
+    </div>
+    <div class="note-line" id="metricLiveValue"></div>
+    <div class="row2" id="conditionValueRow">
+      <div>
+        <label>عندما يكون</label>
+        <select id="operator">
+          <option value="gte">أكبر من أو يساوي ≥</option>
+          <option value="lte">أصغر من أو يساوي ≤</option>
+          <option value="eq">يساوي =</option>
+        </select>
+      </div>
+      <div>
+        <label>القيمة</label>
+        <input id="thresholdValue" type="number" step="0.01" placeholder="مثال: 6">
+      </div>
+    </div>
+
+    <div class="section-title">الإجراء</div>
+    <label>عند تحقق الشرط، يتم تنفيذ</label>
+    <select id="actionType">
+      <option value="increase_budget">زيادة الميزانية</option>
+      <option value="decrease_budget">خفض الميزانية</option>
+      <option value="turn_on">تشغيل الإعلان</option>
+      <option value="turn_off">إيقاف الإعلان</option>
+    </select>
+    <div id="actionValueRow">
+      <label>نسبة التغيير في الميزانية %</label>
+      <input id="actionValue" type="number" step="1" placeholder="مثال: 20">
+    </div>
+
+    <div class="section-title">الجدولة</div>
+    <label>معدّل فحص القاعدة</label>
+    <select id="checkFrequency">
+      <option value="30m">كل 30 دقيقة</option>
+      <option value="1h">كل ساعة</option>
+      <option value="3h">كل 3 ساعات</option>
+      <option value="6h">كل 6 ساعات</option>
+      <option value="12h">كل 12 ساعة</option>
+      <option value="24h">كل 24 ساعة</option>
+    </select>
+
+    <label>القاعدة تسمح بالتنفيذ في أي وقت خلال اليوم (اختياري)</label>
+    <div class="row2">
+      <div>
+        <label style="margin-top:4px;">من الساعة</label>
+        <select id="activeHourStart"><option value="">— كل الأوقات —</option></select>
+      </div>
+      <div>
+        <label style="margin-top:4px;">إلى الساعة</label>
+        <select id="activeHourEnd"><option value="">— كل الأوقات —</option></select>
+      </div>
+    </div>
+    <div class="note-line">يُتاح الاختيار بالساعات الكاملة فقط (من 0 إلى 23) دون كسور مثل 4.5، وذلك لضمان دقة عمل نظام الأتمتة.</div>
+
+    <div class="section-title">الحماية من التكرار</div>
+    <label>بعد تنفيذ القاعدة، لا يُعاد تنفيذها قبل مرور</label>
+    <select id="cooldown">
+      <option value="once">مرة واحدة فقط — توقف تلقائي بعد أول تنفيذ</option>
+      <option value="6">6 ساعات</option>
+      <option value="12">12 ساعة</option>
+      <option value="24" selected>يوم واحد (24 ساعة)</option>
+      <option value="48">يومين (48 ساعة)</option>
+      <option value="72">3 أيام</option>
+      <option value="168">أسبوع</option>
+    </select>
+    <div class="note-line">تمنع هذه الخاصية القاعدة من زيادة الميزانية أو خفضها أكثر من مرة على نفس الشرط، إذ يُسجَّل التنفيذ ويُوقَف مؤقتًا حتى انتهاء فترة التهدئة.</div>
+
+    <button class="primary" id="saveBtn" onclick="saveRule()">حفظ القاعدة</button>
+    <div class="status" id="status"></div>
+  </div>
+
+  <h2 style="font-size:15px; color:#ccc;">القواعد الحالية</h2>
+  <div id="rulesList"><div style="color:#666; font-size:13px;">جارٍ التحميل...</div></div>
+</div>
+
+<script>
+(function(){
+
+const SUPABASE_URL = 'https://zphepebjpxrzpudncuas.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_tIG9XDZeHVZpZjz74e-dBA_ui5GIYw7';
+const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let CURRENT_USER = null;
+let CONNECTIONS = [];
+const GRAPH = 'https://graph.facebook.com/v26.0';
+
+const PLATFORM_LABELS = { facebook:'Facebook / Meta', tiktok:'TikTok', snapchat:'Snapchat', google:'Google' };
+const LEVEL_LABELS = { campaign:'الحملة', adset:'المجموعة الإعلانية', ad:'الإعلان' };
+const METRIC_LABELS = { ctr:'CTR', cpc:'CPC', cpm:'CPM', cpp:'CPP' };
+const OPERATOR_LABELS = { gte:'≥', lte:'≤', eq:'=' };
+const WINDOW_LABELS = { today:'اليوم', yesterday:'أمس', last_3d:'آخر 3 أيام', last_7d:'آخر 7 أيام', lifetime:'من البداية' };
+const ACTION_LABELS = { increase_budget:'زيادة الميزانية', decrease_budget:'خفض الميزانية', turn_on:'تشغيل الإعلان', turn_off:'إيقاف الإعلان' };
+const FREQ_LABELS = { '30m':'كل 30 دقيقة', '1h':'كل ساعة', '3h':'كل 3 ساعات', '6h':'كل 6 ساعات', '12h':'كل 12 ساعة', '24h':'كل 24 ساعة' };
+
+function setStatus(msg, type) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = 'status' + (type ? ' ' + type : '');
+}
+
+function toggleConditionRow() {
+  const isNone = document.getElementById('metric').value === 'none';
+  document.getElementById('conditionValueRow').classList.toggle('hidden', isNone);
+}
+function toggleActionValueRow() {
+  const t = document.getElementById('actionType').value;
+  const needsValue = (t === 'increase_budget' || t === 'decrease_budget');
+  document.getElementById('actionValueRow').classList.toggle('hidden', !needsValue);
+}
+
+function fillHourSelect(id) {
+  const sel = document.getElementById(id);
+  for (let h = 0; h < 24; h++) {
+    const opt = document.createElement('option');
+    opt.value = String(h);
+    opt.textContent = String(h).padStart(2, '0') + ':00';
+    sel.appendChild(opt);
+  }
+}
+
+/* ---------------- ربط اختيار الحملة/المجموعة/الإعلان ببيانات Meta الحية ---------------- */
+async function gget(path, params) {
+  const p = new URLSearchParams(params);
+  const res = await fetch(`${GRAPH}/${path}?${p.toString()}`);
+  const json = await res.json();
+  if (json.error) throw new Error(json.error.message);
+  return json;
+}
+
+async function loadConnections() {
+  const { data, error } = await sbClient.from('ad_pixels').select('*').eq('user_id', CURRENT_USER.id);
+  if (error) { console.error('تعذّر تحميل الحسابات المتصلة:', error); CONNECTIONS = []; }
+  else CONNECTIONS = data || [];
+  populateAccountOptions();
+}
+
+function showManualEntry(manual) {
+  document.getElementById('targetManualNote').classList.toggle('hidden', !manual);
+  document.getElementById('targetId').classList.toggle('hidden', !manual);
+  document.getElementById('targetEntity').classList.toggle('hidden', manual);
+  if (manual) { document.getElementById('targetId').value = ''; }
+  resetEntitySelect();
+}
+
+function resetEntitySelect() {
+  const sel = document.getElementById('targetEntity');
+  sel.innerHTML = '<option value="">— اختر الحساب الإعلاني أولًا —</option>';
+  sel.disabled = true;
+  document.getElementById('targetId').value = '';
+  document.getElementById('targetName').value = '';
+  document.getElementById('metricLiveValue').textContent = '';
+}
+
+function populateAccountOptions() {
+  const platform = document.getElementById('platform').value;
+  const sel = document.getElementById('adAccount');
+  if (platform !== 'facebook') {
+    sel.innerHTML = '<option value="">— الربط المباشر لهذه المنصة غير متاح بعد —</option>';
+    sel.disabled = true;
+    showManualEntry(true);
+    return;
+  }
+  const matching = CONNECTIONS.filter(c => c.pixel_type === 'facebook' && c.ad_account_id && c.pixel_token);
+  if (matching.length === 0) {
+    sel.innerHTML = '<option value="">— لا يوجد حساب Meta متصل، أضِفه من صفحة "ربط الحسابات الإعلانية" —</option>';
+    sel.disabled = true;
+    showManualEntry(true);
+    return;
+  }
+  sel.disabled = false;
+  sel.innerHTML = '<option value="">— اختر حسابًا —</option>' +
+    matching.map(c => `<option value="${c.id}">Meta - ${c.ad_account_id}</option>`).join('');
+  showManualEntry(false);
+}
+
+async function onAccountOrLevelChange() {
+  if (document.getElementById('targetEntity').classList.contains('hidden')) return; // في وضع الإدخال اليدوي لا داعي لإعادة الجلب
+  resetEntitySelect();
+  const accId = document.getElementById('adAccount').value;
+  if (!accId) return;
+  const conn = CONNECTIONS.find(c => c.id === accId);
+  if (!conn) return;
+  const sel = document.getElementById('targetEntity');
+  sel.innerHTML = '<option value="">جارٍ التحميل...</option>';
+  try {
+    const list = await fetchEntities(conn);
+    if (list.length === 0) {
+      sel.innerHTML = '<option value="">— لا توجد عناصر في هذا المستوى —</option>';
+      sel.disabled = true;
+      return;
+    }
+    sel.innerHTML = '<option value="">— اختر —</option>' + list.map(e =>
+      `<option value="${e.id}" data-name="${(e.name || '').replace(/"/g, '&quot;')}">${e.name || e.id}${e.effective_status ? ' (' + e.effective_status + ')' : ''}</option>`
+    ).join('');
+    sel.disabled = false;
+  } catch (err) {
+    sel.innerHTML = '<option value="">تعذّر التحميل</option>';
+    sel.disabled = true;
+    setStatus('تعذّر جلب البيانات من فيسبوك: ' + err.message, 'error');
+  }
+}
+
+async function fetchEntities(conn) {
+  const actId = conn.ad_account_id.startsWith('act_') ? conn.ad_account_id : 'act_' + conn.ad_account_id;
+  const level = document.getElementById('level').value;
+  const token = conn.pixel_token;
+  const path = level === 'campaign' ? `${actId}/campaigns` : (level === 'adset' ? `${actId}/adsets` : `${actId}/ads`);
+  const fields = level === 'campaign' ? 'id,name,effective_status' :
+    (level === 'adset' ? 'id,name,effective_status,campaign_id' : 'id,name,effective_status,adset_id,campaign_id');
+  const res = await gget(path, { fields, limit: 500, access_token: token });
+  return res.data || [];
+}
+
+function onEntityChange() {
+  const sel = document.getElementById('targetEntity');
+  const opt = sel.selectedOptions[0];
+  document.getElementById('targetId').value = sel.value;
+  document.getElementById('targetName').value = sel.value ? (opt.dataset.name || '') : '';
+  refreshLiveMetric();
+}
+
+function metricWindowToRange(w) {
+  const fmt = d => d.toISOString().slice(0, 10);
+  const today = new Date();
+  if (w === 'today') return { since: fmt(today), until: fmt(today) };
+  if (w === 'yesterday') { const y = new Date(today - 86400000); return { since: fmt(y), until: fmt(y) }; }
+  if (w === 'last_3d') return { since: fmt(new Date(today - 2 * 86400000)), until: fmt(today) };
+  if (w === 'last_7d') return { since: fmt(new Date(today - 6 * 86400000)), until: fmt(today) };
+  return { preset: 'maximum' };
+}
+function metricPurchases(actions) {
+  if (!Array.isArray(actions)) return 0;
+  const p = actions.find(a => /purchase/i.test(a.action_type));
+  return p ? parseFloat(p.value) || 0 : 0;
+}
+
+async function refreshLiveMetric() {
+  const el = document.getElementById('metricLiveValue');
+  const metric = document.getElementById('metric').value;
+  const targetId = document.getElementById('targetId').value.trim();
+  const accId = document.getElementById('adAccount').value;
+  if (metric === 'none' || !targetId || !accId) { el.textContent = ''; return; }
+  const conn = CONNECTIONS.find(c => c.id === accId);
+  if (!conn) { el.textContent = ''; return; }
+
+  el.textContent = 'جارٍ جلب القيمة الحالية...';
+  try {
+    const range = metricWindowToRange(document.getElementById('timeWindow').value);
+    const params = { fields: 'ctr,cpc,cpm,spend,actions', access_token: conn.pixel_token };
+    if (range.preset) params.date_preset = range.preset;
+    else params.time_range = JSON.stringify({ since: range.since, until: range.until });
+    const res = await gget(`${targetId}/insights`, params);
+    const row = (res.data || [])[0];
+    if (!row) { el.textContent = 'لا توجد بيانات كافية في هذه الفترة لعرض القيمة الحالية.'; return; }
+
+    let label, value;
+    if (metric === 'ctr') { label = 'الـ CTR الحالي'; value = parseFloat(row.ctr || 0).toFixed(2) + '%'; }
+    else if (metric === 'cpc') { label = 'الـ CPC الحالي'; value = '$' + parseFloat(row.cpc || 0).toFixed(2); }
+    else if (metric === 'cpm') { label = 'الـ CPM الحالي'; value = '$' + parseFloat(row.cpm || 0).toFixed(2); }
+    else if (metric === 'cpp') {
+      const purchases = metricPurchases(row.actions);
+      const spend = parseFloat(row.spend || 0);
+      label = 'تكلفة الشراء الحالية (CPP)';
+      value = purchases > 0 ? '$' + (spend / purchases).toFixed(2) : 'لا توجد عمليات شراء في هذه الفترة';
+    }
+    el.textContent = `${label}: ${value} — استخدم هذا الرقم كمرجع عند تحديد قيمة الشرط.`;
+  } catch (err) {
+    el.textContent = 'تعذّر جلب القيمة الحالية: ' + err.message;
+  }
+}
+
+async function init() {
+  const { data } = await sbClient.auth.getSession();
+  if (!data.session) { window.location.href = 'index.html'; return; }
+  CURRENT_USER = data.session.user;
+  document.getElementById('userChip').textContent = CURRENT_USER.is_anonymous ? 'زائر تجريبي' : (CURRENT_USER.email || CURRENT_USER.phone || '');
+  document.getElementById('metric').addEventListener('change', () => { toggleConditionRow(); refreshLiveMetric(); });
+  document.getElementById('actionType').addEventListener('change', toggleActionValueRow);
+  document.getElementById('platform').addEventListener('change', populateAccountOptions);
+  document.getElementById('level').addEventListener('change', onAccountOrLevelChange);
+  document.getElementById('adAccount').addEventListener('change', onAccountOrLevelChange);
+  document.getElementById('targetEntity').addEventListener('change', onEntityChange);
+  document.getElementById('timeWindow').addEventListener('change', refreshLiveMetric);
+  fillHourSelect('activeHourStart');
+  fillHourSelect('activeHourEnd');
+  toggleConditionRow();
+  toggleActionValueRow();
+  await loadConnections();
+  loadRules();
+}
+
+async function doLogout() {
+  await sbClient.auth.signOut();
+  window.location.href = 'index.html';
+}
+
+async function saveRule() {
+  const ruleName = document.getElementById('ruleName').value.trim();
+  const platform = document.getElementById('platform').value;
+  const level = document.getElementById('level').value;
+  const targetId = document.getElementById('targetId').value.trim();
+  const targetName = document.getElementById('targetName').value.trim();
+  const metric = document.getElementById('metric').value;
+  const operator = document.getElementById('operator').value;
+  const thresholdValue = document.getElementById('thresholdValue').value;
+  const timeWindow = document.getElementById('timeWindow').value;
+  const actionType = document.getElementById('actionType').value;
+  const actionValue = document.getElementById('actionValue').value;
+  const checkFrequency = document.getElementById('checkFrequency').value;
+  const activeHourStartRaw = document.getElementById('activeHourStart').value;
+  const activeHourEndRaw = document.getElementById('activeHourEnd').value;
+  const cooldownRaw = document.getElementById('cooldown').value;
+  const btn = document.getElementById('saveBtn');
+
+  if (!ruleName || !targetId) {
+    setStatus('اسم القاعدة والمعرّف (ID) حقلان مطلوبان', 'error');
+    return;
+  }
+  if (metric !== 'none' && thresholdValue === '') {
+    setStatus('يجب تحديد قيمة للشرط أو اختيار "بدون شرط"', 'error');
+    return;
+  }
+  const needsActionValue = (actionType === 'increase_budget' || actionType === 'decrease_budget');
+  if (needsActionValue && actionValue === '') {
+    setStatus('يجب تحديد نسبة التغيير في الميزانية', 'error');
+    return;
+  }
+  // ساعات صحيحة فقط (0-23) — الاختيار من قائمة منسدلة، دون إدخال حر، لتفادي قيم مثل 4.5
+  const activeHourStart = activeHourStartRaw === '' ? null : parseInt(activeHourStartRaw, 10);
+  const activeHourEnd = activeHourEndRaw === '' ? null : parseInt(activeHourEndRaw, 10);
+  if ((activeHourStart === null) !== (activeHourEnd === null)) {
+    setStatus('يجب تحديد "من الساعة" و"إلى الساعة" معًا، أو تركهما فارغين تمامًا', 'error');
+    return;
+  }
+  if (activeHourStart !== null && activeHourStart === activeHourEnd) {
+    setStatus('يجب أن تختلف "من الساعة" عن "إلى الساعة"', 'error');
+    return;
+  }
+  const cooldownHours = cooldownRaw === 'once' ? null : parseInt(cooldownRaw, 10);
+  const isOneShot = cooldownRaw === 'once';
+
+  btn.disabled = true;
+  setStatus('جارٍ الحفظ...');
+
+  try {
+    const { error } = await sbClient.from('automation_rules').insert({
+      user_id: CURRENT_USER.id,
+      rule_name: ruleName,
+      platform: platform,
+      level: level,
+      target_id: targetId,
+      target_name: targetName || null,
+      metric: metric === 'none' ? null : metric,
+      operator: metric === 'none' ? null : operator,
+      threshold_value: metric === 'none' ? null : parseFloat(thresholdValue),
+      time_window: timeWindow,
+      action_type: actionType,
+      action_value: needsActionValue ? parseFloat(actionValue) : null,
+      check_frequency: checkFrequency,
+      active_hour_start: activeHourStart,
+      active_hour_end: activeHourEnd,
+      cooldown_hours: cooldownHours,
+      one_shot: isOneShot,
+      last_triggered_at: null,
+      is_active: true
+    });
+    if (error) {
+      console.error('automation_rules insert error:', error);
+      let msg = 'خطأ: ' + error.message;
+      if (error.details) msg += '\nالتفاصيل: ' + error.details;
+      if (error.hint) msg += '\nالحل المقترح: ' + error.hint;
+      if (error.code) msg += '\nالرمز: ' + error.code;
+      setStatus(msg, 'error');
+      btn.disabled = false;
+      return;
+    }
+
+    setStatus('تم حفظ القاعدة بنجاح', 'ok');
+    document.getElementById('ruleName').value = '';
+    document.getElementById('targetId').value = '';
+    document.getElementById('targetName').value = '';
+    resetEntitySelect();
+    document.getElementById('thresholdValue').value = '';
+    document.getElementById('actionValue').value = '';
+    document.getElementById('activeHourStart').value = '';
+    document.getElementById('activeHourEnd').value = '';
+    document.getElementById('cooldown').value = '24';
+    loadRules();
+  } catch (err) {
+    setStatus('حدث خطأ غير متوقّع: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function describeCondition(row) {
+  if (!row.metric) return 'بدون شرط، وفقًا للجدولة فقط';
+  return `${METRIC_LABELS[row.metric] || row.metric} ${OPERATOR_LABELS[row.operator] || row.operator} ${row.threshold_value} <span style="color:#666;">(${WINDOW_LABELS[row.time_window] || row.time_window})</span>`;
+}
+function describeAction(row) {
+  const base = ACTION_LABELS[row.action_type] || row.action_type;
+  if (row.action_type === 'increase_budget' || row.action_type === 'decrease_budget') {
+    return `${base} بنسبة ${row.action_value}%`;
+  }
+  return base;
+}
+function describeSchedule(row) {
+  if (row.active_hour_start === null || row.active_hour_start === undefined) return null;
+  const s = String(row.active_hour_start).padStart(2, '0');
+  const e = String(row.active_hour_end).padStart(2, '0');
+  return `التنفيذ مسموح به فقط من الساعة ${s}:00 إلى الساعة ${e}:00`;
+}
+function describeCooldown(row) {
+  if (row.one_shot) return 'مرة واحدة فقط (توقف تلقائي بعد أول تنفيذ)';
+  const map = { 6:'6 ساعات', 12:'12 ساعة', 24:'يوم واحد', 48:'يومين', 72:'3 أيام', 168:'أسبوع' };
+  return 'لا تُنفَّذ مجددًا قبل مرور ' + (map[row.cooldown_hours] || (row.cooldown_hours + ' ساعة'));
+}
+function hoursSince(iso) {
+  if (!iso) return null;
+  return (Date.now() - new Date(iso).getTime()) / 36e5;
+}
+function describeLastTriggered(row) {
+  const hrs = hoursSince(row.last_triggered_at);
+  if (hrs === null) return { text: 'لم تُنفَّذ بعد', inCooldown: false, recentWarning: false };
+  let text;
+  if (hrs < 1) text = 'آخر تنفيذ: منذ أقل من ساعة';
+  else if (hrs < 48) text = `آخر تنفيذ: منذ ${Math.round(hrs)} ساعة`;
+  else text = `آخر تنفيذ: منذ ${Math.round(hrs / 24)} يوم`;
+
+  const cooldownHrs = row.one_shot ? Infinity : (row.cooldown_hours || 24);
+  const inCooldown = hrs < cooldownHrs;
+  // تنبيه خاص في حال حدوث التغيير قبل أقل من يومين، تذكيرًا بأنه لا يزال حديثًا
+  const recentWarning = hrs < 48;
+  return { text, inCooldown, recentWarning };
+}
+
+async function loadRules() {
+  const wrap = document.getElementById('rulesList');
+  const { data, error } = await sbClient.from('automation_rules')
+    .select('*')
+    .eq('user_id', CURRENT_USER.id)
+    .order('created_at', { ascending: false });
+
+  if (error) { wrap.innerHTML = '<div style="color:#ff6a6a;">تعذّر تحميل القواعد: ' + error.message + '</div>'; return; }
+  if (!data || data.length === 0) { wrap.innerHTML = '<div style="color:#666; font-size:13px;">لا توجد قواعد أتمتة بعد</div>'; return; }
+
+  wrap.innerHTML = data.map(row => renderRuleCard(row)).join('');
+}
+
+function renderRuleCard(row) {
+  const sched = describeSchedule(row);
+  const lt = describeLastTriggered(row);
+  return `
+    <div class="rule-card">
+      <div class="rule-top">
+        <div class="rule-name">${row.rule_name}
+          <span class="badge ${row.is_active ? 'on' : 'off'}">${row.is_active ? 'مفعّلة' : 'متوقفة'}</span>
+          ${lt.inCooldown ? '<span class="badge cooldown">في فترة تهدئة</span>' : ''}
+        </div>
+      </div>
+      <div class="rule-body">
+        <div><b>${PLATFORM_LABELS[row.platform] || row.platform}</b> • ${LEVEL_LABELS[row.level] || row.level} • ${row.target_name ? row.target_name + ' — ID: ' + row.target_id : 'ID: ' + row.target_id}</div>
+        <div>الشرط: ${describeCondition(row)}</div>
+        <div>الإجراء: <b>${describeAction(row)}</b></div>
+        <div>الفحص: ${FREQ_LABELS[row.check_frequency] || row.check_frequency}</div>
+        ${sched ? `<div>${sched}</div>` : ''}
+        <div>التكرار: ${describeCooldown(row)}</div>
+        <div class="rule-meta-line">${lt.text}${lt.recentWarning && row.last_triggered_at ? '<span class="warn">— اتغيرت من أقل من يومين، متوقعش تغيير تاني قريب</span>' : ''}</div>
+      </div>
+      <div class="rule-actions">
+        <button class="mini-btn toggle" onclick="toggleRule('${row.id}', ${row.is_active})">${row.is_active ? 'إيقاف القاعدة' : 'تفعيل القاعدة'}</button>
+        <button class="mini-btn del" onclick="deleteRule('${row.id}')">حذف</button>
+      </div>
+    </div>
+  `;
+}
+
+async function toggleRule(id, currentlyActive) {
+  const { error } = await sbClient.from('automation_rules').update({ is_active: !currentlyActive }).eq('id', id);
+  if (error) { alert('خطأ: ' + error.message); return; }
+  loadRules();
+}
+
+async function deleteRule(id) {
+  if (!confirm('هل أنت متأكد من رغبتك في حذف هذه القاعدة؟')) return;
+  const { error } = await sbClient.from('automation_rules').delete().eq('id', id);
+  if (error) { alert('خطأ: ' + error.message); return; }
+  loadRules();
+}
+
+init();
+
+window.doLogout = doLogout;
+window.saveRule = saveRule;
+window.toggleRule = toggleRule;
+window.deleteRule = deleteRule;
+})();
+</script>
+
+<script>
+function openSidebar(){
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('backdrop').classList.add('show');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('backdrop').classList.remove('show');
+}
+function toggleSidebar(e){
+  if (e) e.stopPropagation();
+  document.getElementById('sidebar').classList.contains('open') ? closeSidebar() : openSidebar();
+}
+document.addEventListener('click', (e) => {
+  const sb = document.getElementById('sidebar');
+  if (sb && sb.classList.contains('open') && !sb.contains(e.target) && e.target.id !== 'menuBtn' && !e.target.closest('#menuBtn')) closeSidebar();
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSidebar(); });
+</script>
+</body>
+</html>
