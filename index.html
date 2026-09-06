@@ -268,8 +268,9 @@
     <div id="view-forgot" hidden>
       <div class="back-row"><button type="button" class="link-btn" onclick="goAuth('login')">رجوع لتسجيل الدخول</button></div>
       <h2>استرجاع كلمة المرور</h2>
-      <label>الإيميل أو رقم الهاتف <span class="req">*</span></label>
-      <input id="forgotId" type="text" placeholder="you@email.com أو 01xxxxxxxxx">
+      <label>الإيميل <span class="req">*</span></label>
+      <input id="forgotId" type="email" inputmode="email" placeholder="you@email.com" dir="ltr">
+      <div class="hint" style="margin-top:6px; text-align:right;">استرجاع كلمة المرور بالإيميل بس — اكتب نفس الإيميل المسجل بيه حسابك (مش رقم الهاتف).</div>
       <button class="primary" id="forgotBtn" onclick="doForgotRequest()">إرسال كود الاسترجاع</button>
       <div class="status" id="status-forgot"></div>
     </div>
@@ -370,6 +371,7 @@ function describeError(msg){
     { test: /كلمة المرور لازم تكون/, fix: 'اكتب باسورد 8 أحرف/أرقام على الأقل.' },
     { test: /لا يوجد حساب بهذا الإيميل/, fix: 'اتأكد من كتابة نفس الإيميل المسجل بيه حسابك.' },
     { test: /مسجل بالفعل|موجود بالفعل/, fix: 'الإيميل أو رقم الهاتف ده متسجل قبل كده — جرب "تسجيل دخول" بدل إنشاء حساب جديد.' },
+    { test: /محاولات كتير|طلبت كود كتير|محاولات دخول كتير/, fix: 'وصلت لأقصى عدد محاولات مسموح بيه دلوقتي — استنى شوية وجرب تاني، أو كلم خدمة العملاء لو محتاج مساعدة فورية.' },
     { test: /failed to fetch|networkerror|load failed|network request failed/i, fix: 'اتأكد من اتصال الإنترنت عندك وجرب تاني بعد شوية.' },
   ];
   for (const r of rules) if (r.test.test(raw)) return { text: raw, fix: r.fix };
@@ -414,12 +416,11 @@ async function resolveEmail(identifier){
   const id = (identifier || '').trim();
   if (!id) return null;
   if (isEmail(id)) return id;
-  // بدل الاعتماد على Supabase مباشرة من المتصفح، بنسأل Apps Script (اللي بيدوّر
-  // في جدول user_data بمفتاح السيرفس رول من السيرفر — مفيش أي طلب مباشر لـ Supabase هنا).
-  try {
-    const res = await callAppsScript('resolve_email', { identifier: id });
-    return (res && res.success && res.email) ? res.email : null;
-  } catch (e) { return null; }
+  const phone = normalizePhone(id);
+  if (phone.length < 8) return null;
+  const { data, error } = await sbClient.rpc('get_email_by_phone', { phone_input: phone });
+  if (error) return null;
+  return data || null;
 }
 
 // ---------------- Resend pacing (3 رسايل/ساعة: فورًا، بعد 30 دقيقة، بعد 55 دقيقة) ----------------
@@ -551,6 +552,8 @@ window.doVerifySignupOtp = async function doVerifySignupOtp(){
   btn.disabled = true;
   setStatus('status-otp', 'جاري التأكيد...');
   try {
+    // Apps Script هنا بيتأكد بس من صحة الكود — مش بيكلم Supabase خالص. إنشاء الحساب
+    // الفعلي بيحصل هنا في المتصفح مباشرة، بمفتاح publishable الآمن بس.
     const result = await callAppsScript('verify_signup', { email, code });
     if (!result.success) {
       setStatus('status-otp', result.message || 'الكود غلط أو منتهي', 'error');
@@ -558,22 +561,55 @@ window.doVerifySignupOtp = async function doVerifySignupOtp(){
       return;
     }
 
-    // الحساب اتعمل فعليًا في Supabase دلوقتي، نسجل دخول بنفس الباسورد اللي المستخدم كتبها
-    const password = pendingSignup ? pendingSignup.password : null;
-    if (password) {
-      const { error: loginError } = await sbClient.auth.signInWithPassword({ email, password });
-      if (loginError) {
-        setStatus('status-otp', 'تم تأكيد الحساب، سجّل دخولك يدويًا', 'ok');
-        localStorage.removeItem('mbh_signup_' + email);
-        setTimeout(() => goAuth('login'), 1200);
-        return;
-      }
+    if (!pendingSignup) {
+      setStatus('status-otp', 'حصل خطأ، اعمل التسجيل من الأول من فضلك', 'error');
+      btn.disabled = false;
+      return;
     }
 
-    setStatus('status-otp', 'تم تأكيد الحساب، جاري التحويل...', 'ok');
-    localStorage.removeItem('mbh_signup_' + email);
-    pendingSignup = null;
-    setTimeout(() => window.location.href = 'dashboard.html', 600);
+    const { data, error: signUpError } = await sbClient.auth.signUp({
+      email: pendingSignup.email,
+      password: pendingSignup.password,
+      options: {
+        data: {
+          full_name: pendingSignup.full_name,
+          phone: pendingSignup.phone,
+          organization_name: pendingSignup.organization_name,
+          store_link: pendingSignup.store_link
+        }
+      }
+    });
+
+    if (signUpError) {
+      setStatus('status-otp', 'تم تأكيد الكود لكن حصل خطأ في إنشاء الحساب: ' + signUpError.message, 'error');
+      btn.disabled = false;
+      return;
+    }
+
+    // لو مفيش session معناه إعدادات Supabase لسه محتاجة تأكيد إيميل من عندها (لازم
+    // تتقفل من Supabase Dashboard → Authentication → Providers → Email → Confirm email،
+    // لأننا بنأكد الحساب بنفسنا عن طريق الكود اللي فوق أصلاً).
+    if (data.session) {
+      // نتأكد إن رقم الهاتف وصل فعليًا لجدول user_data (مش بس داخل الـ metadata)
+      try {
+        await sbClient.from('user_data').update({
+          full_name: pendingSignup.full_name,
+          phone: pendingSignup.phone,
+          organization_name: pendingSignup.organization_name,
+          store_link: pendingSignup.store_link
+        }).eq('id', data.user.id);
+      } catch (e) { /* best-effort، مش بيوقف التسجيل لو فشل */ }
+
+      setStatus('status-otp', 'تم تأكيد الحساب، جاري التحويل...', 'ok');
+      localStorage.removeItem('mbh_signup_' + email);
+      pendingSignup = null;
+      setTimeout(() => window.location.href = 'dashboard.html', 600);
+    } else {
+      setStatus('status-otp', 'تم إنشاء الحساب، سجّل دخولك يدويًا من فضلك', 'ok');
+      localStorage.removeItem('mbh_signup_' + email);
+      pendingSignup = null;
+      setTimeout(() => goAuth('login'), 1200);
+    }
   } catch (err) {
     setStatus('status-otp', 'حدث خطأ غير متوقع: ' + err.message, 'error');
     btn.disabled = false;
@@ -613,25 +649,30 @@ window.doLogin = async function doLogin() {
   setStatus('status', 'جاري تسجيل الدخول...');
 
   try {
-    // الدخول بالكامل بيعدي من Google Apps Script (زي الشيت بالظبط) — مفيش أي اتصال
-    // مباشر من المتصفح بـ Supabase هنا. Apps Script هو اللي بيتحقق من الباسورد مع
-    // Supabase من السيرفر، وبيرجّعلنا تصريح دخول (access/refresh token) نفعّله محليًا.
-    const res = await callAppsScript('login', { identifier: idRaw, password });
-    if (!res || !res.success) {
-      setStatus('status', (res && res.message) || 'الإيميل/الرقم أو كلمة المرور غلط', 'error');
+    const email = await resolveEmail(idRaw);
+    if (!email) {
+      setStatus('status', 'الحساب ده مش موجود', 'error');
+      btn.disabled = false;
+      return;
+    }
+    const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
+    if (error) {
+      setStatus('status', 'الإيميل/الرقم أو كلمة المرور غلط', 'error');
       btn.disabled = false;
       return;
     }
 
-    const { error: sessionError } = await sbClient.auth.setSession({
-      access_token: res.access_token,
-      refresh_token: res.refresh_token
-    });
-    if (sessionError) {
-      setStatus('status', 'تم التحقق من بياناتك لكن حصل خطأ في تفعيل الجلسة: ' + sessionError.message, 'error');
-      btn.disabled = false;
-      return;
-    }
+    // إشعار للأدمن (من غير ما نوقف تسجيل الدخول لو فشل الإشعار لأي سبب)
+    (async () => {
+      try {
+        const { data: profile } = await sbClient.from('user_data').select('full_name, phone').eq('id', data.user.id).single();
+        await callAppsScript('notify_login', {
+          email,
+          full_name: profile ? profile.full_name : null,
+          phone: profile ? profile.phone : null
+        });
+      } catch (e) { /* تجاهل أي خطأ في الإشعار */ }
+    })();
 
     setStatus('status', 'تم الدخول بنجاح، جاري التحويل...', 'ok');
     setTimeout(() => window.location.href = 'dashboard.html', 400);
@@ -645,17 +686,18 @@ window.doLogin = async function doLogin() {
 window.doForgotRequest = async function doForgotRequest(){
   const idRaw = document.getElementById('forgotId').value.trim();
   const btn = document.getElementById('forgotBtn');
-  if (!idRaw) { setStatus('status-forgot', 'اكتب الإيميل أو رقم الهاتف', 'error'); return; }
+  if (!idRaw) { setStatus('status-forgot', 'اكتب الإيميل', 'error'); return; }
+  // استرجاع الباسورد بالإيميل بس — مفيش OTP بيتبعت على رقم التليفون خالص، فمش بنقبل
+  // غير صيغة إيميل صحيحة هنا حتى لو المستخدم مسجّل برقم هاتف كمان.
+  if (!isEmail(idRaw)) {
+    setStatus('status-forgot', 'استرجاع كلمة المرور بالإيميل بس — اكتب إيميل صحيح، مش رقم هاتف.', 'error');
+    return;
+  }
+  const email = idRaw.toLowerCase();
 
   btn.disabled = true;
   setStatus('status-forgot', 'جاري إرسال الكود...');
   try {
-    const email = await resolveEmail(idRaw);
-    if (!email) {
-      setStatus('status-forgot', 'الحساب ده مش موجود', 'error');
-      btn.disabled = false;
-      return;
-    }
     const result = await callAppsScript('forgot', { email });
     if (!result.success) { setStatus('status-forgot', result.message || 'خطأ', 'error'); btn.disabled = false; return; }
 
