@@ -1,192 +1,909 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="ar">
+<html lang="ar" dir="rtl">
 <head>
-  <base target="_top">
-  <meta charset="UTF-8">
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      font-family: Tahoma, Arial, sans-serif;
-      background: linear-gradient(135deg, #0f172a, #1e293b);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0;
-      color: #e2e8f0;
-    }
-    .card {
-      background: #1e293b;
-      border-radius: 16px;
-      padding: 32px;
-      width: 100%;
-      max-width: 420px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-    }
-    h1 { text-align: center; font-size: 22px; margin-bottom: 4px; color: #38bdf8; }
-    .subtitle { text-align: center; color: #94a3b8; margin-bottom: 24px; font-size: 13px; }
-    .tabs { display: flex; margin-bottom: 20px; border-radius: 10px; overflow: hidden; background: #0f172a; }
-    .tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; color: #94a3b8; font-size: 14px; }
-    .tab.active { background: #38bdf8; color: #0f172a; font-weight: bold; }
-    label { display: block; margin-bottom: 6px; font-size: 13px; color: #cbd5e1; }
-    input {
-      width: 100%; padding: 10px 12px; margin-bottom: 14px; border-radius: 8px;
-      border: 1px solid #334155; background: #0f172a; color: #e2e8f0; font-size: 14px;
-    }
-    input:focus { outline: none; border-color: #38bdf8; }
-    button.submit {
-      width: 100%; padding: 12px; border: none; border-radius: 8px; background: #38bdf8;
-      color: #0f172a; font-weight: bold; font-size: 15px; cursor: pointer; margin-top: 6px;
-    }
-    button.submit:disabled { opacity: 0.6; cursor: not-allowed; }
-    .msg { text-align: center; font-size: 13px; margin-bottom: 12px; min-height: 16px; }
-    .msg.error { color: #f87171; }
-    .msg.success { color: #4ade80; }
-    .hidden { display: none; }
-    .dashboard { text-align: center; }
-    .dashboard h2 { color: #38bdf8; }
-    .dashboard p { color: #cbd5e1; margin: 4px 0; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Media Buyer Hub - حوّل بيانات إعلاناتك لقرار</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+  :root{
+    --bg:#090b0f; --bg-soft:#0d1016;
+    --surface:#12151c; --surface-2:#171b24; --surface-3:#1c2029;
+    --border:#20242e; --border-soft:#191c24;
+    --text:#eef1f6; --text-dim:#98a2b3; --text-faint:#5c6474;
+    --accent:#4f7dfb; --accent-2:#22d3ee; --accent-soft:rgba(79,125,251,.14);
+    --good:#22c55e; --bad:#f43f5e; --mid:#eab308;
+    --radius:16px; --radius-sm:10px;
+    --font-ui:'Cairo',system-ui,sans-serif;
+    --font-num:'JetBrains Mono','Cairo',monospace;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior:smooth; }
+  body {
+    font-family: var(--font-ui);
+    background: var(--bg); color: var(--text); margin: 0;
+  }
+
+  .topbar{
+    position:sticky; top:0; z-index:120;
+    display:flex; align-items:center; gap:12px;
+    padding:12px clamp(14px,3vw,28px);
+    background:rgba(9,11,15,.86); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border-soft);
+  }
+  .icon-btn{
+    display:flex; align-items:center; justify-content:center;
+    width:38px; height:38px; border-radius:11px; flex-shrink:0;
+    background:var(--surface); border:1px solid var(--border); color:var(--text);
+    cursor:pointer; transition:.15s; text-decoration:none;
+  }
+  .icon-btn:hover{ background:var(--surface-3); border-color:#2c313d; }
+  .icon-btn svg{ width:19px; height:19px; }
+  .brand{ font-weight:800; font-size:15px; letter-spacing:.2px; white-space:nowrap; color:var(--text); }
+  .brand span{ color:var(--accent-2); }
+  .topbar-spacer{ flex:1; }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    min-height:calc(100dvh - 63px);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:48px 20px 40px; gap:28px;
+  }
+  .hero-eyebrow-free{ max-width:600px; }
+  .hero h1{
+    font-size:clamp(26px,6vw,42px); line-height:1.28; margin:0 0 14px;
+    font-weight:800; letter-spacing:-.2px; max-width:620px;
+  }
+  .hero p.sub{
+    font-size:clamp(14.5px,3.4vw,17px); color:var(--text-dim); line-height:1.75;
+    max-width:480px; margin:0 auto;
+  }
+  .ticker{
+    width:min(320px,86vw); background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--radius); padding:16px 18px; text-align:right;
+  }
+  .ticker-row{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:9px 0; border-bottom:1px solid var(--border-soft);
+  }
+  .ticker-row:last-child{ border-bottom:none; }
+  .ticker-label{ font-size:12.5px; color:var(--text-dim); }
+  .ticker-val{ font-family:var(--font-num); font-size:15px; font-weight:700; display:flex; align-items:center; gap:6px; }
+  .ticker-val.up{ color:var(--good); } .ticker-val.down{ color:var(--bad); }
+  .ticker-val svg{ width:12px; height:12px; }
+  .spark{ width:100%; height:34px; margin-top:6px; }
+  .spark path{ fill:none; stroke:var(--accent-2); stroke-width:2; }
+
+  .hero-ctas{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+  .btn{
+    padding:13px 26px; border-radius:11px; font-size:14.5px; font-weight:700;
+    border:none; cursor:pointer; text-decoration:none; display:inline-block; transition:.15s;
+  }
+  .btn-fill{ background:var(--accent); color:#fff; }
+  .btn-fill:hover{ background:#3f6ce0; }
+  .btn-ghost{ background:var(--surface); color:var(--text); border:1px solid var(--border); }
+  .btn-ghost:hover{ background:var(--surface-3); }
+  .guest-link{
+    font-size:12.5px; color:var(--text-faint); text-decoration:underline; text-underline-offset:3px;
+    background:none; border:none; cursor:pointer; font-family:var(--font-ui);
+  }
+  .guest-link:hover{ color:var(--text-dim); }
+
+  /* ---------- Auth section ---------- */
+  .content { display:flex; align-items:center; justify-content:center; padding:24px 20px 60px; }
+  .auth-card {
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+    padding:26px; width:380px; max-width:92vw;
+    box-shadow:0 12px 30px rgba(0,0,0,.35);
+  }
+  .auth-card h2 { font-size:17px; color:var(--text); text-align:center; margin:0 0 18px 0; font-weight:700; }
+  .tabs { display:flex; margin-bottom:18px; border-radius:10px; overflow:hidden; border:1px solid var(--border); }
+  .tab { flex:1; text-align:center; padding:10px; cursor:pointer; background:var(--bg-soft); color:var(--text-faint); font-size:13px; font-weight:600; }
+  .tab.active { background:var(--accent); color:#fff; }
+
+  label { display:block; margin-top:12px; margin-bottom:4px; font-size:12px; color:var(--text-dim); }
+  input {
+    width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border);
+    background:var(--bg-soft); color:var(--text); font-size:14px; font-family:var(--font-ui);
+  }
+  input:focus{ outline:none; border-color:var(--accent); }
+  .pw-wrap{ position:relative; }
+  .pw-wrap input{ padding-left:38px; }
+  .pw-toggle{
+    position:absolute; left:8px; top:50%; transform:translateY(-50%);
+    background:none; border:none; padding:4px; cursor:pointer; color:var(--text-faint);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .pw-toggle:hover{ color:var(--text-dim); }
+  .pw-toggle svg{ width:18px; height:18px; }
+  .req { color:var(--bad); }
+  button.primary {
+    margin-top:18px; width:100%; padding:12px; background:var(--accent); border:none;
+    border-radius:8px; font-size:15px; font-weight:bold; color:#fff; cursor:pointer;
+  }
+  button.primary:hover{ background:#3f6ce0; }
+  button.primary:disabled { opacity:.55; cursor:not-allowed; }
+  button.secondary{
+    margin-top:10px; width:100%; padding:11px; background:transparent; border:1px solid var(--border);
+    border-radius:8px; font-size:13.5px; font-weight:600; color:var(--text-dim); cursor:pointer;
+  }
+  button.secondary:hover{ background:var(--surface-3); }
+  button.secondary:disabled{ opacity:.5; cursor:not-allowed; }
+  .status { text-align:center; margin-top:12px; font-size:13px; color:var(--mid); white-space:pre-wrap; }
+  .status.error { color:var(--bad); }
+  .status.ok { color:var(--good); }
+  .err-box{
+    margin-top:12px; text-align:right; background:rgba(244,63,94,0.08);
+    border:1px solid rgba(244,63,94,0.35); border-radius:10px; padding:11px 13px;
+  }
+  .err-title{ color:var(--bad); font-weight:800; font-size:13.5px; margin-bottom:4px; display:flex; align-items:center; gap:6px; }
+  .err-fix{ color:var(--text-dim); font-size:12px; line-height:1.7; margin-bottom:9px; }
+  .err-support{
+    display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700;
+    color:#25D366; text-decoration:none; border:1px solid rgba(37,211,102,0.4);
+    border-radius:8px; padding:6px 11px; background:rgba(37,211,102,0.06);
+  }
+  .err-support:hover{ background:rgba(37,211,102,0.14); }
+  .err-support svg{ width:14px; height:14px; }
+  .form-section { display:none; }
+  .form-section.active { display:block; }
+  .hint { font-size:11.5px; color:var(--text-faint); margin-top:10px; text-align:center; line-height:1.6; }
+  .link-btn{
+    background:none; border:none; color:var(--accent-2); font-size:12.5px; cursor:pointer;
+    padding:0; font-family:var(--font-ui); text-decoration:underline; text-underline-offset:3px;
+  }
+  .link-row{ text-align:left; margin-top:8px; }
+  .back-row{ margin-bottom:14px; }
+  .otp-target{ text-align:center; font-size:13px; color:var(--text-dim); margin-bottom:4px; }
+  .otp-target b{ color:var(--text); font-family:var(--font-num); }
+  input.otp-input{ text-align:center; letter-spacing:6px; font-family:var(--font-num); font-size:20px; }
+  .countdown{ text-align:center; font-size:12px; color:var(--text-faint); margin-top:8px; font-family:var(--font-num); }
+  [hidden]{ display:none !important; }
+</style>
 </head>
 <body>
-  <div class="card">
-    <h1>Media Buyer Hub</h1>
-    <div class="subtitle">منصة إدارة حساباتك بسهولة</div>
+<div class="topbar">
+  <div class="brand">Media Buyer <span>Hub</span></div>
+  <div class="topbar-spacer"></div>
+</div>
 
-    <div id="authBox">
-      <div class="tabs">
-        <div class="tab active" id="tabLogin" onclick="showTab('login')">تسجيل الدخول</div>
-        <div class="tab" id="tabSignup" onclick="showTab('signup')">حساب جديد</div>
-      </div>
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <h1>اعرف كل جنيه في إعلاناتك رايح فين، وانت لسه بتحتسي قهوتك</h1>
+  <p class="sub">Media Buyer Hub بيجمعلك أرقام فيسبوك، الربح الحقيقي، وجودة العملاء في مكان واحد — عشان تقفل الحملة اللي بتخسرك أو تضاعف اللي بتكسبك دلوقتي، مش آخر الشهر.</p>
 
-      <div id="msgBox" class="msg"></div>
-
-      <form id="loginForm">
-        <label>الإيميل</label>
-        <input type="email" id="loginEmail" required>
-        <label>كلمة السر</label>
-        <input type="password" id="loginPassword" required>
-        <button type="submit" class="submit" id="loginBtn">دخول</button>
-      </form>
-
-      <form id="signupForm" class="hidden">
-        <label>الاسم *</label>
-        <input type="text" id="suName" required>
-        <label>رقم الهاتف *</label>
-        <input type="tel" id="suPhone" required>
-        <label>الإيميل *</label>
-        <input type="email" id="suEmail" required>
-        <label>اسم المتجر *</label>
-        <input type="text" id="suStoreName" required>
-        <label>لينك المتجر (اختياري)</label>
-        <input type="url" id="suStoreLink">
-        <label>كلمة السر (8 أحرف على الأقل) *</label>
-        <input type="password" id="suPassword" required>
-        <label>تأكيد كلمة السر *</label>
-        <input type="password" id="suConfirmPassword" required>
-        <button type="submit" class="submit" id="signupBtn">إنشاء الحساب</button>
-      </form>
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-row">
+      <span class="ticker-label">ROAS</span>
+      <span class="ticker-val up" id="tkRoas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="4,17 10,10 14,14 20,6"/></svg>3.4x</span>
     </div>
-
-    <div id="dashboard" class="dashboard hidden">
-      <h2>أهلاً بيك 👋</h2>
-      <p id="dbName"></p>
-      <p id="dbStore"></p>
-      <p id="dbEmail"></p>
+    <div class="ticker-row">
+      <span class="ticker-label">الربح اليومي</span>
+      <span class="ticker-val up" id="tkProfit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="4,17 10,10 14,14 20,6"/></svg>2,140 ج.م</span>
     </div>
+    <div class="ticker-row">
+      <span class="ticker-label">تكلفة الطلب</span>
+      <span class="ticker-val down" id="tkCpa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="4,7 10,14 14,10 20,18"/></svg>38 ج.م</span>
+    </div>
+    <svg class="spark" viewBox="0 0 260 34" preserveAspectRatio="none"><path id="sparkPath" d="M0,26 20,22 40,24 60,15 80,18 100,10 120,14 140,8 160,12 180,6 200,9 220,4 240,7 260,3"/></svg>
   </div>
 
-  <script>
-    function showTab(tab) {
-      document.getElementById('msgBox').textContent = '';
-      document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
-      document.getElementById('signupForm').classList.toggle('hidden', tab !== 'signup');
-      document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
-      document.getElementById('tabSignup').classList.toggle('active', tab === 'signup');
+  <div class="hero-ctas">
+    <button class="btn btn-fill" onclick="goAuth('signup')">إنشاء حساب مجاني</button>
+    <button class="btn btn-ghost" onclick="goAuth('login')">تسجيل الدخول</button>
+  </div>
+  <button class="guest-link" onclick="doGuestLogin()">أو جرّب المنصة دلوقتي من غير تسجيل</button>
+</section>
+
+<!-- ================= AUTH ================= -->
+<div class="content" id="authSection">
+  <div class="auth-card">
+
+    <!-- LOGIN / SIGNUP -->
+    <div id="view-auth">
+      <h2>مساعد المديا باير</h2>
+      <div class="tabs">
+        <div class="tab active" id="tabLogin" onclick="switchTab('login')">تسجيل دخول</div>
+        <div class="tab" id="tabSignup" onclick="switchTab('signup')">حساب جديد</div>
+      </div>
+
+      <!-- LOGIN -->
+      <div class="form-section active" id="section-login">
+        <label>الإيميل أو رقم الهاتف <span class="req">*</span></label>
+        <input id="loginId" type="text" placeholder="you@email.com أو 01xxxxxxxxx">
+        <label>كلمة المرور <span class="req">*</span></label>
+        <div class="pw-wrap">
+          <input id="loginPassword" type="password" placeholder="••••••••">
+          <button type="button" class="pw-toggle" onclick="togglePw(this,'loginPassword')" aria-label="إظهار/إخفاء كلمة المرور"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+        <div class="link-row"><button type="button" class="link-btn" onclick="goForgot()">نسيت كلمة المرور؟</button></div>
+        <button class="primary" id="loginBtn" onclick="doLogin()">دخول</button>
+      </div>
+
+      <!-- SIGNUP -->
+      <div class="form-section" id="section-signup">
+        <label>الاسم الكامل <span class="req">*</span></label>
+        <input id="suName" type="text" placeholder="اسمك بالكامل">
+        <label>اسم المتجر <span class="req">*</span></label>
+        <input id="suStore" type="text" placeholder="اسم المتجر / البراند">
+        <label>الإيميل <span class="req">*</span></label>
+        <input id="suEmail" type="email" placeholder="you@email.com">
+        <label>رقم الهاتف <span class="req">*</span></label>
+        <input id="suPhone" type="text" placeholder="01xxxxxxxxx">
+        <label>لينك المتجر (اختياري)</label>
+        <input id="suLink" type="text" placeholder="https://...">
+        <label>كلمة المرور <span class="req">*</span></label>
+        <div class="pw-wrap">
+          <input id="suPassword" type="password" placeholder="8 أحرف/أرقام على الأقل">
+          <button type="button" class="pw-toggle" onclick="togglePw(this,'suPassword')" aria-label="إظهار/إخفاء كلمة المرور"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+        <label>تأكيد كلمة المرور <span class="req">*</span></label>
+        <div class="pw-wrap">
+          <input id="suPasswordConfirm" type="password" placeholder="اكتب الباسورد تاني">
+          <button type="button" class="pw-toggle" onclick="togglePw(this,'suPasswordConfirm')" aria-label="إظهار/إخفاء كلمة المرور"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+        <button class="primary" id="signupBtn" onclick="doSignup()">إنشاء الحساب</button>
+      </div>
+
+      <div class="status" id="status"></div>
+    </div>
+
+    <!-- OTP after signup -->
+    <div id="view-otp" hidden>
+      <div class="back-row"><button type="button" class="link-btn" onclick="goAuth('login')">رجوع</button></div>
+      <h2>أكّد إيميلك</h2>
+      <p class="otp-target">بعتنا كود من 6 أرقام على <b id="otpTargetEmail"></b></p>
+      <label>الكود <span class="req">*</span></label>
+      <input id="otpCode" class="otp-input" type="text" inputmode="numeric" maxlength="6" placeholder="------">
+      <button class="primary" id="otpConfirmBtn" onclick="doVerifySignupOtp()">تأكيد الكود</button>
+      <button class="secondary" id="otpResendBtn" onclick="resendSignupOtp()">إعادة إرسال الكود</button>
+      <div class="countdown" id="otpCountdown"></div>
+      <div class="status" id="status-otp"></div>
+    </div>
+
+    <!-- Forgot password: request -->
+    <div id="view-forgot" hidden>
+      <div class="back-row"><button type="button" class="link-btn" onclick="goAuth('login')">رجوع لتسجيل الدخول</button></div>
+      <h2>استرجاع كلمة المرور</h2>
+      <label>الإيميل <span class="req">*</span></label>
+      <input id="forgotId" type="email" placeholder="you@email.com" autocomplete="email">
+      <button class="primary" id="forgotBtn" onclick="doForgotRequest()">إرسال كود الاسترجاع</button>
+      <div class="status" id="status-forgot"></div>
+    </div>
+
+    <!-- Forgot password: OTP + new password -->
+    <div id="view-forgot-otp" hidden>
+      <div class="back-row"><button type="button" class="link-btn" onclick="goAuth('login')">رجوع لتسجيل الدخول</button></div>
+      <h2>كود الاسترجاع</h2>
+      <p class="otp-target">بعتنا كود من 6 أرقام على <b id="forgotTargetEmail"></b></p>
+      <label>الكود <span class="req">*</span></label>
+      <input id="forgotCode" class="otp-input" type="text" inputmode="numeric" maxlength="6" placeholder="------">
+      <label>كلمة المرور الجديدة <span class="req">*</span></label>
+      <div class="pw-wrap">
+        <input id="newPassword" type="password" placeholder="8 أحرف/أرقام على الأقل">
+        <button type="button" class="pw-toggle" onclick="togglePw(this,'newPassword')" aria-label="إظهار/إخفاء كلمة المرور"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+      <label>تأكيد كلمة المرور الجديدة <span class="req">*</span></label>
+      <div class="pw-wrap">
+        <input id="newPasswordConfirm" type="password" placeholder="اكتب الباسورد تاني">
+        <button type="button" class="pw-toggle" onclick="togglePw(this,'newPasswordConfirm')" aria-label="إظهار/إخفاء كلمة المرور"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+      <button class="primary" id="forgotConfirmBtn" onclick="doResetPassword()">تغيير كلمة المرور</button>
+      <button class="secondary" id="forgotResendBtn" onclick="resendForgotOtp()">إعادة إرسال الكود</button>
+      <div class="countdown" id="forgotCountdown"></div>
+      <div class="status" id="status-forgot-otp"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function(){
+
+// ---------------- Supabase client ----------------
+// ملاحظة أمان: المفتاح ده "publishable/anon" وهو مصمم أصلاً عشان يتحط في الفرونت إند،
+// آمن طالما الـ Row Level Security مفعّل على الجداول (وهو مفعّل عندك بالفعل).
+const SUPABASE_URL = 'https://zphepebjpxrzpudncuas.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_tIG9XDZeHVZpZjz74e-dBA_ui5GIYw7';
+const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Apps Script (بيبعت الإيميلات ويأكد الحسابات - بدل نظام إيميل Supabase)
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxLUAJWRmhhIJVi8Gxu1bmaJmYNvNbhWCfrsDd5j23I7GHhKDF_j-0Lb19OwbfaRyzpcA/exec';
+
+async function callAppsScript(action, payload) {
+  const res = await fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action, ...payload })
+  });
+  return res.json();
+}
+
+// بيانات التسجيل المعلّقة (لحد ما يتأكد الكود)، محفوظة عشان نقدر نعمل "إعادة إرسال" ونسجل دخول تلقائي بعد التأكيد
+let pendingSignup = null;
+
+// ---------------- View / tab switching ----------------
+const VIEWS = ['view-auth','view-otp','view-forgot','view-forgot-otp'];
+function showView(name){
+  VIEWS.forEach(v => document.getElementById(v).hidden = (v !== name));
+  clearAllStatus();
+}
+function clearAllStatus(){
+  ['status','status-otp','status-forgot','status-forgot-otp'].forEach(id=>{
+    const el = document.getElementById(id);
+    if (el) { el.textContent=''; el.className='status'; }
+  });
+}
+function goAuth(tab){
+  showView('view-auth');
+  switchTab(tab || 'login');
+  document.getElementById('authSection').scrollIntoView({behavior:'smooth', block:'start'});
+}
+function goForgot(){
+  showView('view-forgot');
+  document.getElementById('authSection').scrollIntoView({behavior:'smooth', block:'start'});
+}
+function switchTab(name) {
+  document.getElementById('tabLogin').classList.toggle('active', name==='login');
+  document.getElementById('tabSignup').classList.toggle('active', name==='signup');
+  document.getElementById('section-login').classList.toggle('active', name==='login');
+  document.getElementById('section-signup').classList.toggle('active', name==='signup');
+}
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+// بيحاول يفهم نوع الخطأ من نصه، ويطلع سبب واضح + طريقة حل عملية بدل رسالة عامة
+const SUPPORT_WA_NUMBER = '201108712091';
+function describeError(msg){
+  const raw = String(msg || '').trim();
+  const rules = [
+    { test: /الحساب ده مش موجود/, fix: 'تأكد إنك كاتب نفس الإيميل أو رقم الهاتف اللي سجّلت بيه، أو اعمل حساب جديد من "حساب جديد".' },
+    { test: /الإيميل\/الرقم أو كلمة المرور غلط/, fix: 'راجع الباسورد (فيه أيقونة عين 👁️ جنبه تقدر تشوفه بيها)، أو دوس "نسيت كلمة المرور؟".' },
+    { test: /^الكود غلط/, fix: 'اتأكد إنك ناسخ آخر كود اتبعت على إيميلك (مش كود قديم)، وإنك مكتبوش رقم زيادة أو ناقص.' },
+    { test: /الكود منتهي/, fix: 'الكود صالح لمدة ساعة بس — دوس "إعادة إرسال الكود" وهيتبعتلك واحد جديد.' },
+    { test: /بيانات ناقصة/, fix: 'راجع إنك ملّيت كل الحقول المطلوبة (المعلّمة بـ *) قبل ما تكمل.' },
+    { test: /غير مصرح/, fix: 'ده خطأ فني من عندنا في إعدادات الاتصال بالسيرفر مش منك — بلغ الدعم فورًا من غير ما تجرب تاني.' },
+    { test: /كلمة المرور لازم تكون/, fix: 'اكتب باسورد 8 أحرف/أرقام على الأقل.' },
+    { test: /لا يوجد حساب بهذا الإيميل/, fix: 'اتأكد من كتابة نفس الإيميل المسجل بيه حسابك.' },
+    { test: /مسجل بالفعل|موجود بالفعل/, fix: 'الإيميل أو رقم الهاتف ده متسجل قبل كده — جرب "تسجيل دخول" بدل إنشاء حساب جديد.' },
+    { test: /failed to fetch|networkerror|load failed|network request failed/i, fix: 'اتأكد من اتصال الإنترنت عندك وجرب تاني بعد شوية.' },
+  ];
+  for (const r of rules) if (r.test.test(raw)) return { text: raw, fix: r.fix };
+  return { text: raw || 'حصل خطأ غير متوقع.', fix: 'جرب تاني، ولو الخطأ اتكرر ابعتلنا نص الرسالة دي بالظبط عشان نقدر نحلها بسرعة.' };
+}
+function setStatus(scope, msg, type) {
+  const el = document.getElementById(scope);
+  if (!el) return;
+  if (type === 'error') {
+    const { text, fix } = describeError(msg);
+    const waMsg = encodeURIComponent('واجهت مشكلة في Media Buyer Hub:\n' + text);
+    el.className = 'status';
+    el.innerHTML = `<div class="err-box">
+      <div class="err-title">⚠️ ${escapeHtml(text)}</div>
+      <div class="err-fix">${escapeHtml(fix)}</div>
+      <a class="err-support" href="https://wa.me/${SUPPORT_WA_NUMBER}?text=${waMsg}" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.6 6.32A8.86 8.86 0 0 0 12.02 3a8.97 8.97 0 0 0-7.77 13.42L3 21l4.7-1.24a8.96 8.96 0 0 0 4.32 1.1h.01a8.97 8.97 0 0 0 5.57-15.54zM12.03 19.4a7.4 7.4 0 0 1-3.78-1.04l-.27-.16-2.8.74.75-2.73-.18-.28a7.45 7.45 0 1 1 6.28 3.47z"/></svg>
+        لسه المشكلة موجودة؟ كلم الدعم
+      </a>
+    </div>`;
+    return;
+  }
+  el.textContent = msg;
+  el.className = 'status' + (type ? ' ' + type : '');
+}
+
+// ---------------- إظهار/إخفاء كلمة المرور ----------------
+const EYE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+const EYE_OFF_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.6 21.6 0 0 1 5.06-6.06M9.9 4.24A10.4 10.4 0 0 1 12 4c7 0 11 8 11 8a21.4 21.4 0 0 1-3.22 4.56M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+function togglePw(btn, inputId){
+  const input = document.getElementById(inputId);
+  const nowShowing = input.type === 'password';
+  input.type = nowShowing ? 'text' : 'password';
+  btn.innerHTML = nowShowing ? EYE_OFF_ICON : EYE_ICON;
+}
+window.togglePw = togglePw;
+
+function normalizePhone(phone){ return (phone || '').replace(/\D/g, ''); }
+function isEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((v||'').trim()); }
+
+async function resolveEmail(identifier){
+  const id = (identifier || '').trim();
+  if (!id) return null;
+  if (isEmail(id)) return id;
+  const phone = normalizePhone(id);
+  if (phone.length < 8) return null;
+  const { data, error } = await sbClient.rpc('get_email_by_phone', { phone_input: phone });
+  if (error) return null;
+  return data || null;
+}
+
+// ---------------- Resend pacing (3 رسايل/ساعة: فورًا، بعد 30 دقيقة، بعد 55 دقيقة) ----------------
+function getResendState(prefix, email){
+  try { return JSON.parse(localStorage.getItem(prefix + email)); } catch(e){ return null; }
+}
+function registerSend(prefix, email){
+  const now = Date.now();
+  let st = getResendState(prefix, email);
+  if (!st || (now - st.firstSentAt) > 60*60*1000) {
+    st = { firstSentAt: now, count: 1 };
+  } else {
+    st.count = Math.min(st.count + 1, 3);
+  }
+  localStorage.setItem(prefix + email, JSON.stringify(st));
+  return st;
+}
+function nextAllowedAt(st){
+  if (!st) return 0;
+  if (st.count >= 3) return st.firstSentAt + 60*60*1000;
+  if (st.count === 1) return st.firstSentAt + 30*60*1000;
+  if (st.count === 2) return st.firstSentAt + 55*60*1000;
+  return 0;
+}
+function fmtCountdown(ms){
+  const s = Math.max(0, Math.ceil(ms/1000));
+  const m = Math.floor(s/60); const r = s%60;
+  return String(m).padStart(2,'0') + ':' + String(r).padStart(2,'0');
+}
+let countdownTimers = {};
+function startCountdown(prefix, email, resendBtnId, countdownElId, maxedMsg, waitMsg){
+  clearInterval(countdownTimers[countdownElId]);
+  const btn = document.getElementById(resendBtnId);
+  const el = document.getElementById(countdownElId);
+  function tick(){
+    const st = getResendState(prefix, email);
+    const target = nextAllowedAt(st);
+    const remaining = target - Date.now();
+    if (!st || remaining <= 0) {
+      btn.disabled = false;
+      el.textContent = '';
+      clearInterval(countdownTimers[countdownElId]);
+      return;
     }
+    btn.disabled = true;
+    el.textContent = (st.count >= 3 ? maxedMsg : waitMsg) + ' ' + fmtCountdown(remaining);
+  }
+  tick();
+  countdownTimers[countdownElId] = setInterval(tick, 1000);
+}
 
-    function showMsg(text, type) {
-      const box = document.getElementById('msgBox');
-      box.textContent = text;
-      box.className = 'msg ' + (type || '');
-    }
+// ---------------- Guest / anonymous instant login ----------------
+window.doGuestLogin = async function doGuestLogin() {
+  try {
+    const { data, error } = await sbClient.auth.signInAnonymously();
+    if (error) { setStatus('status', 'خطأ: ' + error.message, 'error'); return; }
+    const userId = data.user.id;
+    const guestName = 'guest_' + Math.floor(1000 + Math.random() * 9000);
+    // البروفايل بيتعمل تلقائيًا عن طريق trigger، هنا بنكمّله بس
+    await sbClient.from('user_data').update({
+      username: guestName,
+      full_name: 'زائر تجريبي'
+    }).eq('id', userId);
+    window.location.href = 'dashboard.html';
+  } catch (err) {
+    setStatus('status', 'حدث خطأ غير متوقع: ' + err.message, 'error');
+  }
+};
 
-    document.getElementById('loginForm').addEventListener('submit', function (e) {
-      e.preventDefault();
-      const btn = document.getElementById('loginBtn');
-      btn.disabled = true;
-      showMsg('جاري التحقق...', '');
+// ---------------- Signup ----------------
+window.doSignup = async function doSignup() {
+  const name = document.getElementById('suName').value.trim();
+  const store = document.getElementById('suStore').value.trim();
+  const email = document.getElementById('suEmail').value.trim().toLowerCase();
+  const phone = document.getElementById('suPhone').value.trim();
+  const link = document.getElementById('suLink').value.trim();
+  const password = document.getElementById('suPassword').value;
+  const passwordConfirm = document.getElementById('suPasswordConfirm').value;
+  const btn = document.getElementById('signupBtn');
 
-      google.script.run
-        .withSuccessHandler(function (res) {
-          btn.disabled = false;
-          if (res.success) {
-            showDashboard(res.user);
-          } else {
-            showMsg(res.message, 'error');
-          }
-        })
-        .withFailureHandler(function (err) {
-          btn.disabled = false;
-          showMsg('حصل خطأ: ' + err.message, 'error');
-        })
-        .loginUser({
-          email: document.getElementById('loginEmail').value,
-          password: document.getElementById('loginPassword').value
-        });
+  if (!name || !store || !email || !phone || !password || !passwordConfirm) {
+    setStatus(
+      'status',
+      'كل الحقول دي مطلوبة: الاسم، اسم المتجر، الإيميل، رقم الهاتف، وكلمة المرور',
+      'error'
+    );
+    return;
+  }
+
+  if (!isEmail(email)) {
+    setStatus('status', 'اكتب إيميل صحيح', 'error');
+    return;
+  }
+
+  const digits = normalizePhone(phone);
+
+  if (digits.length < 10) {
+    setStatus('status', 'اكتب رقم هاتف صحيح', 'error');
+    return;
+  }
+
+  if (password.length < 8) {
+    setStatus('status', 'كلمة المرور لازم تكون 8 أحرف/أرقام على الأقل', 'error');
+    return;
+  }
+
+  if (password !== passwordConfirm) {
+    setStatus('status', 'كلمة المرور وتأكيدها مش متطابقين', 'error');
+    return;
+  }
+
+  btn.disabled = true;
+  setStatus('status', 'جاري إرسال كود التحقق...');
+
+  try {
+    pendingSignup = {
+      email: email,
+      password: password,
+      full_name: name,
+      phone: digits,
+      organization_name: store,
+      store_link: link || null
+    };
+
+    // Apps Script يستقبل هذه الأسماء بالضبط.
+    const result = await callAppsScript('signup', {
+      name: name,
+      store_name: store,
+      email: email,
+      phone: digits,
+      store_link: link || '',
+      password: password
     });
 
-    document.getElementById('signupForm').addEventListener('submit', function (e) {
-      e.preventDefault();
-      const password = document.getElementById('suPassword').value;
-      const confirmPassword = document.getElementById('suConfirmPassword').value;
+    if (!result.success) {
+      setStatus(
+        'status',
+        result.message || 'حصل خطأ أثناء إرسال الكود',
+        'error'
+      );
+      btn.disabled = false;
+      return;
+    }
 
-      if (password !== confirmPassword) {
-        showMsg('كلمة السر وتأكيدها مش متطابقين', 'error');
-        return;
+    registerSend('mbh_signup_', email);
+    document.getElementById('otpTargetEmail').textContent = email;
+    document.getElementById('otpCode').dataset.email = email;
+
+    showView('view-otp');
+
+    startCountdown(
+      'mbh_signup_',
+      email,
+      'otpResendBtn',
+      'otpCountdown',
+      'وصلت لأقصى عدد محاولات في الساعة، جرّب تاني بعد',
+      'تقدر تطلب كود تاني بعد'
+    );
+
+  } catch (err) {
+    setStatus(
+      'status',
+      'حدث خطأ غير متوقع: ' + err.message,
+      'error'
+    );
+  } finally {
+    btn.disabled = false;
+  }
+};
+
+window.doVerifySignupOtp = async function doVerifySignupOtp(){
+  const email = document.getElementById('otpCode').dataset.email;
+  const code = document.getElementById('otpCode').value.trim();
+  if (!code || code.length < 6) { setStatus('status-otp', 'اكتب الكود المكوّن من 6 أرقام', 'error'); return; }
+  const btn = document.getElementById('otpConfirmBtn');
+  btn.disabled = true;
+  setStatus('status-otp', 'جاري التأكيد...');
+  try {
+    // Apps Script هنا بيتأكد بس من صحة الكود — مش بيكلم Supabase خالص. إنشاء الحساب
+    // الفعلي بيحصل هنا في المتصفح مباشرة، بمفتاح publishable الآمن بس.
+    const result = await callAppsScript('verify_signup', { email, code });
+    if (!result.success) {
+      setStatus('status-otp', result.message || 'الكود غلط أو منتهي', 'error');
+      btn.disabled = false;
+      return;
+    }
+
+    if (!pendingSignup) {
+      setStatus('status-otp', 'حصل خطأ، اعمل التسجيل من الأول من فضلك', 'error');
+      btn.disabled = false;
+      return;
+    }
+
+    const { data, error: signUpError } = await sbClient.auth.signUp({
+      email: pendingSignup.email,
+      password: pendingSignup.password,
+      options: {
+        data: {
+          full_name: pendingSignup.full_name,
+          phone: pendingSignup.phone,
+          organization_name: pendingSignup.organization_name,
+          store_link: pendingSignup.store_link
+        }
       }
-      if (password.length < 8) {
-        showMsg('كلمة السر لازم تكون 8 أحرف على الأقل', 'error');
-        return;
-      }
-
-      const btn = document.getElementById('signupBtn');
-      btn.disabled = true;
-      showMsg('جاري إنشاء الحساب...', '');
-
-      google.script.run
-        .withSuccessHandler(function (res) {
-          btn.disabled = false;
-          if (res.success) {
-            showMsg(res.message, 'success');
-            document.getElementById('signupForm').reset();
-            setTimeout(function () { showTab('login'); }, 1200);
-          } else {
-            showMsg(res.message, 'error');
-          }
-        })
-        .withFailureHandler(function (err) {
-          btn.disabled = false;
-          showMsg('حصل خطأ: ' + err.message, 'error');
-        })
-        .signUp({
-          name: document.getElementById('suName').value,
-          phone: document.getElementById('suPhone').value,
-          email: document.getElementById('suEmail').value,
-          storeName: document.getElementById('suStoreName').value,
-          storeLink: document.getElementById('suStoreLink').value,
-          password: password,
-          confirmPassword: confirmPassword
-        });
     });
 
-    function showDashboard(user) {
-      document.getElementById('authBox').classList.add('hidden');
-      document.getElementById('dashboard').classList.remove('hidden');
-      document.getElementById('dbName').textContent = 'الاسم: ' + user.name;
-      document.getElementById('dbStore').textContent = 'المتجر: ' + user.storeName;
-      document.getElementById('dbEmail').textContent = 'الإيميل: ' + user.email;
+    if (signUpError) {
+      setStatus('status-otp', 'تم تأكيد الكود لكن حصل خطأ في إنشاء الحساب: ' + signUpError.message, 'error');
+      btn.disabled = false;
+      return;
     }
-  </script>
+
+    
+    // ربط user.id بصف التسجيل في Google Sheet بتوكن مؤقت لمرة واحدة.
+    if (data.user && result.sync_token) {
+      try {
+        const syncResult = await callAppsScript('sync_user', {
+          email: pendingSignup.email,
+          user_id: data.user.id,
+          sync_token: result.sync_token
+        });
+        if (!syncResult.success) console.warn('تعذر ربط الحساب بالشيت:', syncResult.message);
+      } catch (e) {
+        console.warn('تعذر مزامنة User ID مع الشيت:', e);
+      }
+    }
+
+// لو مفيش session معناه إعدادات Supabase لسه محتاجة تأكيد إيميل من عندها (لازم
+    // تتقفل من Supabase Dashboard → Authentication → Providers → Email → Confirm email،
+    // لأننا بنأكد الحساب بنفسنا عن طريق الكود اللي فوق أصلاً).
+    if (data.session) {
+      // نتأكد إن رقم الهاتف وصل فعليًا لجدول user_data (مش بس داخل الـ metadata)
+      try {
+        await sbClient.from('user_data').update({
+          full_name: pendingSignup.full_name,
+          phone: pendingSignup.phone,
+          organization_name: pendingSignup.organization_name,
+          store_link: pendingSignup.store_link
+        }).eq('id', data.user.id);
+      } catch (e) { /* best-effort، مش بيوقف التسجيل لو فشل */ }
+
+      setStatus('status-otp', 'تم تأكيد الحساب، جاري التحويل...', 'ok');
+      localStorage.removeItem('mbh_signup_' + email);
+      pendingSignup = null;
+      setTimeout(() => window.location.href = 'dashboard.html', 600);
+    } else {
+      setStatus('status-otp', 'تم إنشاء الحساب، سجّل دخولك يدويًا من فضلك', 'ok');
+      localStorage.removeItem('mbh_signup_' + email);
+      pendingSignup = null;
+      setTimeout(() => goAuth('login'), 1200);
+    }
+  } catch (err) {
+    setStatus('status-otp', 'حدث خطأ غير متوقع: ' + err.message, 'error');
+    btn.disabled = false;
+  }
+};
+
+window.resendSignupOtp = async function resendSignupOtp() {
+  const email = document.getElementById('otpCode').dataset.email;
+  const st = getResendState('mbh_signup_', email);
+
+  if (st && Date.now() < nextAllowedAt(st)) return;
+
+  if (!pendingSignup) {
+    setStatus('status-otp', 'محتاج تعمل التسجيل تاني من الأول', 'error');
+    return;
+  }
+
+  try {
+    const result = await callAppsScript('signup', {
+      name: pendingSignup.full_name,
+      store_name: pendingSignup.organization_name,
+      email: pendingSignup.email,
+      phone: pendingSignup.phone,
+      store_link: pendingSignup.store_link || '',
+      password: pendingSignup.password
+    });
+
+    if (!result.success) {
+      setStatus('status-otp', result.message || 'خطأ', 'error');
+      return;
+    }
+
+    registerSend('mbh_signup_', email);
+
+    setStatus('status-otp', 'اتبعت كود جديد على إيميلك', 'ok');
+
+    startCountdown(
+      'mbh_signup_',
+      email,
+      'otpResendBtn',
+      'otpCountdown',
+      'وصلت لأقصى عدد محاولات في الساعة، جرّب تاني بعد',
+      'تقدر تطلب كود تاني بعد'
+    );
+
+  } catch (err) {
+    setStatus(
+      'status-otp',
+      'حدث خطأ غير متوقع: ' + err.message,
+      'error'
+    );
+  }
+};
+
+// ---------------- Login ----------------
+window.doLogin = async function doLogin() {
+  const idRaw = document.getElementById('loginId').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const btn = document.getElementById('loginBtn');
+
+  if (!idRaw || !password) {
+    setStatus('status', 'اكتب الإيميل أو رقم الهاتف وكلمة المرور', 'error');
+    return;
+  }
+
+  btn.disabled = true;
+  setStatus('status', 'جاري تسجيل الدخول...');
+
+  try {
+    const email = await resolveEmail(idRaw);
+    if (!email) {
+      setStatus('status', 'الحساب ده مش موجود', 'error');
+      btn.disabled = false;
+      return;
+    }
+    const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
+    if (error) {
+      setStatus('status', 'الإيميل/الرقم أو كلمة المرور غلط', 'error');
+      btn.disabled = false;
+      return;
+    }
+
+    // إشعار للأدمن (من غير ما نوقف تسجيل الدخول لو فشل الإشعار لأي سبب)
+    (async () => {
+      try {
+        const { data: profile } = await sbClient.from('user_data').select('full_name, phone').eq('id', data.user.id).single();
+        await callAppsScript('notify_login', {
+          email,
+          full_name: profile ? profile.full_name : null,
+          phone: profile ? profile.phone : null
+        });
+      } catch (e) { /* تجاهل أي خطأ في الإشعار */ }
+    })();
+
+    setStatus('status', 'تم الدخول بنجاح، جاري التحويل...', 'ok');
+    setTimeout(() => window.location.href = 'dashboard.html', 400);
+  } catch (err) {
+    setStatus('status', 'حدث خطأ غير متوقع: ' + err.message, 'error');
+    btn.disabled = false;
+  }
+};
+
+// ---------------- Forgot password ----------------
+window.doForgotRequest = async function doForgotRequest(){
+  const email = document.getElementById('forgotId').value.trim().toLowerCase();
+  const btn = document.getElementById('forgotBtn');
+
+  if (!email) { setStatus('status-forgot', 'اكتب الإيميل', 'error'); return; }
+  if (!isEmail(email)) { setStatus('status-forgot', 'اكتب إيميل صحيح', 'error'); return; }
+
+  btn.disabled = true;
+  setStatus('status-forgot', 'جاري التأكد من الإيميل وإرسال الكود...');
+
+  try {
+    // Apps Script هو الذي يبحث عن الإيميل في Google Sheet.
+    const result = await callAppsScript('forgot', { email });
+    if (!result.success) {
+      setStatus('status-forgot', result.message || 'خطأ', 'error');
+      btn.disabled = false;
+      return;
+    }
+
+    registerSend('mbh_reset_', email);
+    document.getElementById('forgotTargetEmail').textContent = email;
+    document.getElementById('forgotCode').dataset.email = email;
+    showView('view-forgot-otp');
+    startCountdown('mbh_reset_', email, 'forgotResendBtn', 'forgotCountdown',
+      'وصلت لأقصى عدد محاولات في الساعة، جرّب تاني بعد',
+      'تقدر تطلب كود تاني بعد');
+  } catch (err) {
+    setStatus('status-forgot', 'حدث خطأ غير متوقع: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+};
+
+window.resendForgotOtp = async function resendForgotOtp(){
+  const email = document.getElementById('forgotCode').dataset.email;
+  const st = getResendState('mbh_reset_', email);
+  if (st && Date.now() < nextAllowedAt(st)) return;
+  try {
+    const result = await callAppsScript('forgot', { email });
+    if (!result.success) { setStatus('status-forgot-otp', result.message || 'خطأ', 'error'); return; }
+    registerSend('mbh_reset_', email);
+    setStatus('status-forgot-otp', 'اتبعت كود جديد على إيميلك', 'ok');
+    startCountdown('mbh_reset_', email, 'forgotResendBtn', 'forgotCountdown',
+      'وصلت لأقصى عدد محاولات في الساعة، جرّب تاني بعد',
+      'تقدر تطلب كود تاني بعد');
+  } catch (err) {
+    setStatus('status-forgot-otp', 'حدث خطأ غير متوقع: ' + err.message, 'error');
+  }
+};
+
+window.doResetPassword = async function doResetPassword(){
+  const email = document.getElementById('forgotCode').dataset.email;
+  const token = document.getElementById('forgotCode').value.trim();
+  const newPassword = document.getElementById('newPassword').value;
+  const newPasswordConfirm = document.getElementById('newPasswordConfirm').value;
+  const btn = document.getElementById('forgotConfirmBtn');
+
+  if (!email || !isEmail(email)) { setStatus('status-forgot-otp', 'الإيميل غير صحيح، ابدأ الاسترجاع من جديد', 'error'); return; }
+  if (!token || token.length < 6) { setStatus('status-forgot-otp', 'اكتب الكود المكوّن من 6 أرقام', 'error'); return; }
+  if (!newPassword || newPassword.length < 8) { setStatus('status-forgot-otp', 'كلمة المرور لازم تكون 8 أحرف/أرقام على الأقل', 'error'); return; }
+  if (newPassword !== newPasswordConfirm) { setStatus('status-forgot-otp', 'كلمة المرور وتأكيدها مش متطابقين', 'error'); return; }
+
+  btn.disabled = true;
+  setStatus('status-forgot-otp', 'جاري تغيير كلمة المرور...');
+
+  try {
+    // الباسورد الجديد يذهب إلى Supabase Auth فقط، ولا يتم تخزينه في Google Sheet.
+    const result = await callAppsScript('verify_forgot', {
+      email, code: token, new_password: newPassword
+    });
+
+    if (!result.success) {
+      setStatus('status-forgot-otp', result.message || 'الكود غلط أو منتهي', 'error');
+      btn.disabled = false;
+      return;
+    }
+
+    localStorage.removeItem('mbh_reset_' + email);
+
+    // دخول مباشر بالباسورد الجديد.
+    const { data, error: loginError } = await sbClient.auth.signInWithPassword({
+      email, password: newPassword
+    });
+
+    if (loginError) {
+      setStatus('status-forgot-otp', 'اتغيرت كلمة المرور بنجاح. سجّل دخولك بالباسورد الجديد.', 'ok');
+      setTimeout(() => goAuth('login'), 1200);
+      return;
+    }
+
+    setStatus('status-forgot-otp', 'تم تغيير كلمة المرور بنجاح، جاري التحويل...', 'ok');
+    setTimeout(() => window.location.href = 'dashboard.html', 600);
+  } catch (err) {
+    setStatus('status-forgot-otp', 'حدث خطأ غير متوقع: ' + err.message, 'error');
+    btn.disabled = false;
+  }
+};
+
+// لو المستخدم داخل بالفعل، حوله على طول لصفحة الداشبورد
+(async () => {
+  const { data } = await sbClient.auth.getSession();
+  if (data.session) { window.location.href = 'dashboard.html'; return; }
+
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('view') === 'signup') {
+    goAuth('signup');
+  }
+})();
+
+// ---------------- Hero ticker (تحريك زخرفي بس) ----------------
+(function(){
+  const roasEl = document.getElementById('tkRoas');
+  const profitEl = document.getElementById('tkProfit');
+  const cpaEl = document.getElementById('tkCpa');
+  let roas = 3.4, profit = 2140, cpa = 38;
+  setInterval(() => {
+    roas = Math.max(1.2, roas + (Math.random()-0.45)*0.15);
+    profit = Math.max(300, profit + (Math.random()-0.45)*90);
+    cpa = Math.max(15, cpa + (Math.random()-0.5)*2.2);
+    const up = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="4,17 10,10 14,14 20,6"/></svg>';
+    const down = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="4,7 10,14 14,10 20,18"/></svg>';
+    roasEl.innerHTML = up + roas.toFixed(1) + 'x'; roasEl.className = 'ticker-val up';
+    profitEl.innerHTML = up + Math.round(profit).toLocaleString('en-US') + ' ج.م'; profitEl.className = 'ticker-val up';
+    cpaEl.innerHTML = down + Math.round(cpa) + ' ج.م'; cpaEl.className = 'ticker-val down';
+  }, 2600);
+})();
+
+window.goAuth = goAuth;
+window.goForgot = goForgot;
+window.switchTab = switchTab;
+})();
+</script>
 </body>
 </html>
