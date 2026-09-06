@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ربط الحسابات الإعلانية</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+  :root{
+    --bg:#090b0f; --bg-soft:#0d1016;
+    --surface:#12151c; --surface-2:#171b24; --surface-3:#1c2029;
+    --border:#20242e; --border-soft:#191c24;
+    --text:#eef1f6; --text-dim:#98a2b3; --text-faint:#5c6474;
+    --accent:#4f7dfb; --accent-2:#22d3ee; --accent-soft:rgba(79,125,251,.14);
+    --good:#22c55e; --bad:#f43f5e; --mid:#eab308;
+    --radius:16px; --radius-sm:10px;
+    --font-ui:'Cairo',system-ui,sans-serif;
+    --font-num:'JetBrains Mono','Cairo',monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: var(--font-ui);
+    background: var(--bg); color: var(--text); margin: 0;
+  }
+
+  .content { padding:20px clamp(14px,3vw,28px) 60px; max-width:900px; margin:0 auto; }
+  h1 { font-size:19px; color:#fff; margin-top:0; }
+  .page-toolbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+  .user-chip { font-size:12px; color:#888; }
+  .logout-btn { font-size:12px; background:#241417; color:#e74c3c; border:1px solid #e74c3c; border-radius:8px; padding:6px 12px; cursor:pointer; }
+
+  .form-card { background:#1b1e26; border-radius:14px; padding:20px; margin-bottom:22px; max-width:520px; }
+  label { display:block; margin-top:12px; margin-bottom:4px; font-size:12px; color:#aaa; }
+  input, select {
+    width:100%; padding:10px; border-radius:8px; border:1px solid #333;
+    background:#10121a; color:#fff; font-size:14px;
+  }
+  button.primary {
+    margin-top:16px; width:100%; padding:11px; background:#4da3ff; border:none;
+    border-radius:8px; font-size:14px; font-weight:bold; color:#0f1115; cursor:pointer;
+  }
+  button.primary:disabled { opacity:.6; cursor:not-allowed; }
+  .status { text-align:center; margin-top:10px; font-size:13px; color:#f0c040; white-space:pre-wrap; }
+  .status.error { color:#ff6a6a; }
+  .status.ok { color:#2ecc71; }
+
+  .security-note {
+    background:#1a1512; border:1px solid #4a3418; border-radius:10px;
+    padding:12px 14px; font-size:12px; color:#e0b568; line-height:1.8; margin-bottom:20px; max-width:520px;
+  }
+
+  .conn-card {
+    background:#171a22; border:1px solid #262a34; border-radius:12px;
+    padding:14px 16px; margin-bottom:12px; max-width:520px;
+    display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;
+  }
+  .conn-info b { color:#fff; font-size:14px; }
+  .conn-info .sub { color:#888; font-size:12px; margin-top:3px; }
+  .del-btn { font-size:12px; border:1px solid #e74c3c; color:#e74c3c; background:transparent; border-radius:8px; padding:6px 10px; cursor:pointer; }
+  .platform-icon { font-size:18px; margin-left:6px; }
+
+  .topbar{
+    position:sticky; top:0; z-index:120;
+    display:flex; align-items:center; gap:12px;
+    padding:12px clamp(14px,3vw,28px);
+    background:rgba(9,11,15,.86); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border-soft);
+  }
+  .icon-btn{
+    display:flex; align-items:center; justify-content:center;
+    width:38px; height:38px; border-radius:11px; flex-shrink:0;
+    background:var(--surface); border:1px solid var(--border); color:var(--text);
+    cursor:pointer; transition:.15s; text-decoration:none;
+  }
+  .icon-btn:hover{ background:var(--surface-3); border-color:#2c313d; }
+  .icon-btn svg{ width:19px; height:19px; }
+  .brand{ font-weight:800; font-size:15px; letter-spacing:.2px; white-space:nowrap; color:var(--text); }
+  .brand span{ color:var(--accent-2); }
+  .topbar-spacer{ flex:1; }
+
+  /* ---------- Unified navigation (sidebar) ---------- */
+  .backdrop{
+    position:fixed; inset:0; background:rgba(4,5,8,.55); backdrop-filter:blur(2px);
+    z-index:180; opacity:0; pointer-events:none; transition:opacity .2s ease;
+  }
+  .backdrop.show{ opacity:1; pointer-events:auto; }
+  .sidebar{
+    position:fixed; top:0; bottom:0; right:0; width:min(280px,84vw);
+    background:var(--surface); border-left:1px solid var(--border);
+    padding:20px 14px; z-index:190; overflow-y:auto;
+    transform:translateX(100%); transition:transform .25s cubic-bezier(.4,0,.2,1);
+    box-shadow:-20px 0 60px rgba(0,0,0,.4);
+  }
+  .sidebar.open{ transform:translateX(0); }
+  .sidebar-head{
+    display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; padding:0 4px;
+  }
+  .sidebar-head b{ font-size:15px; color:var(--accent-2); letter-spacing:.2px; }
+  .nav-item{
+    display:flex; align-items:center; gap:11px; padding:11px 12px; border-radius:11px;
+    font-size:13.5px; color:var(--text-dim); text-decoration:none; margin-bottom:4px; font-weight:500;
+  }
+  .nav-item svg{ width:17px; height:17px; flex-shrink:0; opacity:.85; }
+  .nav-item:hover{ background:var(--surface-3); color:var(--text); }
+  .nav-item.active{ background:var(--accent-soft); color:#bcd0ff; font-weight:700; }
+  .nav-item.active svg{ opacity:1; }
+  .nav-item.disabled{ color:#454b57; cursor:not-allowed; pointer-events:none; }
+  .nav-divider{ height:1px; background:var(--border-soft); margin:12px 4px; }
+  .nav-tag{ margin-right:auto; font-size:10px; background:var(--surface-3); color:var(--text-faint); padding:2px 7px; border-radius:20px; }
+  .sidebar-foot{ margin-top:16px; padding:10px 12px; font-size:10.5px; color:var(--text-faint); border-top:1px solid var(--border-soft); line-height:1.7; }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <button class="icon-btn" id="menuBtn" aria-label="القائمة" onclick="toggleSidebar(event)"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg></button>
+  <div class="brand">Media Buyer <span>Hub</span></div>
+  <div class="topbar-spacer"></div>
+</div>
+
+<div class="backdrop" id="backdrop" onclick="closeSidebar()"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-head"><b>Media Buyer Hub</b>
+    <button class="icon-btn" onclick="closeSidebar()" aria-label="إغلاق"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></button>
+  </div>
+  <a class="nav-item" href="index.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>تسجيل الدخول</a>
+  <a class="nav-item active" href="account.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18"/></svg>ربط الحسابات الإعلانية</a>
+  <a class="nav-item" href="dashboard.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>تحليل البيانات</a>
+  <a class="nav-item" href="insights.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="4" width="3" height="14"/></svg>الرسوم البيانية</a>
+  <a class="nav-item" href="automation-rules.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>قواعد الأتمتة</a>
+  <a class="nav-item" href="team-quality.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>أداء الموظفين</a>
+  <a class="nav-item" href="subscription.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>الاشتراك والدفع</a>
+  <div class="nav-divider"></div>
+  <a class="nav-item" href="pricing_calculator.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>التسعير</a>
+  <a class="nav-item disabled"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>الدعم <span class="nav-tag">قريبًا</span></a>
+  <div class="sidebar-foot">جميع البيانات مرتبطة بحسابك ومحمية — لا تتم مشاركتها مع أي طرف تالت.</div>
+</aside>
+
+<div class="content">
+  <div class="page-toolbar">
+    <h1>ربط الحسابات الإعلانية</h1>
+    <div>
+      <span class="user-chip" id="userChip"></span>
+      <button class="logout-btn" onclick="doLogout()">تسجيل خروج</button>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <label>المنصة</label>
+    <select id="platform">
+      <option value="facebook">Facebook / Meta</option>
+      <option value="tiktok">TikTok</option>
+      <option value="snapchat">Snapchat</option>
+      <option value="google">Google</option>
+    </select>
+
+    <label>رقم الحساب الإعلاني (Ad Account ID)</label>
+    <input id="adAccountId" type="text" placeholder="مثال: 775043705559371">
+
+    <label>رقم البيكسل (اختياري - لو معندكش سيبه فاضي)</label>
+    <input id="pixelId" type="text" placeholder="مثال: 1234567890">
+
+    <label>Access Token</label>
+    <input id="tokenInput" type="password" placeholder="ألصق التوكن هنا">
+
+    <label>ملاحظة (اختياري)</label>
+    <input id="noteInput" type="text" placeholder="مثال: حساب المتجر الرئيسي">
+
+    <button class="primary" id="saveBtn" onclick="saveConnection()">حفظ الاتصال</button>
+    <div class="status" id="status"></div>
+  </div>
+
+  <h2 style="font-size:15px; color:#ccc;">الحسابات المتصلة</h2>
+  <div id="connectionsList"><div style="color:#666; font-size:13px;">جاري التحميل...</div></div>
+</div>
+
+<script>
+(function(){
+
+const SUPABASE_URL = 'https://zphepebjpxrzpudncuas.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_tIG9XDZeHVZpZjz74e-dBA_ui5GIYw7';
+const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let CURRENT_USER = null;
+
+const PLATFORM_LABELS = {
+  facebook: { label: 'Facebook / Meta', icon: '📘' },
+  tiktok: { label: 'TikTok', icon: '🎵' },
+  snapchat: { label: 'Snapchat', icon: '👻' },
+  google: { label: 'Google', icon: '🔍' }
+};
+
+function setStatus(msg, type) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = 'status' + (type ? ' ' + type : '');
+}
+
+function maskToken(t) {
+  if (!t) return '-';
+  return t.length > 8 ? '••••••••' + t.slice(-4) : '••••••••';
+}
+
+async function init() {
+  const { data } = await sbClient.auth.getSession();
+  if (!data.session) { window.location.href = 'index.html'; return; }
+  CURRENT_USER = data.session.user;
+  document.getElementById('userChip').textContent = CURRENT_USER.is_anonymous ? 'زائر تجريبي' : (CURRENT_USER.email || CURRENT_USER.phone || '');
+  loadConnections();
+}
+
+async function doLogout() {
+  await sbClient.auth.signOut();
+  window.location.href = 'index.html';
+}
+
+async function saveConnection() {
+  const platform = document.getElementById('platform').value;
+  const adAccountId = document.getElementById('adAccountId').value.trim();
+  let pixelId = document.getElementById('pixelId').value.trim();
+  const token = document.getElementById('tokenInput').value.trim();
+  const note = document.getElementById('noteInput').value.trim();
+  const btn = document.getElementById('saveBtn');
+
+  if (!adAccountId || !token) {
+    setStatus('رقم الحساب والتوكن مطلوبين', 'error');
+    return;
+  }
+  if (!pixelId) pixelId = adAccountId; // الجدول محتاج pixel_id يكون موجود
+
+  btn.disabled = true;
+  setStatus('جاري الحفظ...');
+
+  try {
+    const { error } = await sbClient.from('ad_pixels').insert({
+      user_id: CURRENT_USER.id,
+      pixel_type: platform,
+      pixel_id: pixelId,
+      pixel_token: token,
+      ad_account_id: adAccountId,
+      note: note || null
+    });
+    if (error) {
+      console.error('ad_pixels insert error:', error);
+      let msg = 'خطأ: ' + error.message;
+      if (error.details) msg += '\nتفاصيل: ' + error.details;
+      if (error.hint) msg += '\nحل مقترح: ' + error.hint;
+      if (error.code) msg += '\nكود: ' + error.code;
+      setStatus(msg, 'error');
+      btn.disabled = false;
+      return;
+    }
+
+    setStatus('تم الحفظ بنجاح', 'ok');
+    document.getElementById('adAccountId').value = '';
+    document.getElementById('pixelId').value = '';
+    document.getElementById('tokenInput').value = '';
+    document.getElementById('noteInput').value = '';
+    loadConnections();
+  } catch (err) {
+    setStatus('حدث خطأ غير متوقع: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function loadConnections() {
+  const wrap = document.getElementById('connectionsList');
+  const { data, error } = await sbClient.from('ad_pixels')
+    .select('*')
+    .eq('user_id', CURRENT_USER.id)
+    .order('created_at', { ascending: false });
+
+  if (error) { wrap.innerHTML = '<div style="color:#ff6a6a;">تعذر تحميل الحسابات: ' + error.message + '</div>'; return; }
+  if (!data || data.length === 0) { wrap.innerHTML = '<div style="color:#666; font-size:13px;">مفيش حسابات متصلة لسه</div>'; return; }
+
+  wrap.innerHTML = data.map(row => {
+    const p = PLATFORM_LABELS[row.pixel_type] || { label: row.pixel_type, icon: '🔗' };
+    return `
+      <div class="conn-card">
+        <div class="conn-info">
+          <span class="platform-icon">${p.icon}</span><b>${p.label}</b>
+          <div class="sub">حساب: ${row.ad_account_id || '-'} | بيكسل: ${row.pixel_id || '-'} | توكن: ${maskToken(row.pixel_token)}</div>
+          ${row.note ? `<div class="sub">${row.note}</div>` : ''}
+        </div>
+        <button class="del-btn" onclick="deleteConnection('${row.id}')">حذف</button>
+      </div>
+    `;
+  }).join('');
+}
+
+async function deleteConnection(id) {
+  if (!confirm('متأكد إنك عايز تحذف الحساب ده؟')) return;
+  const { error } = await sbClient.from('ad_pixels').delete().eq('id', id);
+  if (error) { alert('خطأ: ' + error.message); return; }
+  loadConnections();
+}
+
+init();
+
+
+window.doLogout = doLogout;
+window.saveConnection = saveConnection;
+window.deleteConnection = deleteConnection;
+})();
+</script>
+
+<script>
+function openSidebar(){
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('backdrop').classList.add('show');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('backdrop').classList.remove('show');
+}
+function toggleSidebar(e){
+  if (e) e.stopPropagation();
+  document.getElementById('sidebar').classList.contains('open') ? closeSidebar() : openSidebar();
+}
+document.addEventListener('click', (e) => {
+  const sb = document.getElementById('sidebar');
+  if (sb && sb.classList.contains('open') && !sb.contains(e.target) && e.target.id !== 'menuBtn' && !e.target.closest('#menuBtn')) closeSidebar();
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSidebar(); });
+</script>
+</body>
+</html>
