@@ -268,9 +268,8 @@
     <div id="view-forgot" hidden>
       <div class="back-row"><button type="button" class="link-btn" onclick="goAuth('login')">رجوع لتسجيل الدخول</button></div>
       <h2>استرجاع كلمة المرور</h2>
-      <label>الإيميل <span class="req">*</span></label>
-      <input id="forgotId" type="email" inputmode="email" placeholder="you@email.com" dir="ltr">
-      <div class="hint" style="margin-top:6px; text-align:right;">استرجاع كلمة المرور بالإيميل بس — اكتب نفس الإيميل المسجل بيه حسابك (مش رقم الهاتف).</div>
+      <label>الإيميل أو رقم الهاتف <span class="req">*</span></label>
+      <input id="forgotId" type="text" placeholder="you@email.com أو 01xxxxxxxxx">
       <button class="primary" id="forgotBtn" onclick="doForgotRequest()">إرسال كود الاسترجاع</button>
       <div class="status" id="status-forgot"></div>
     </div>
@@ -371,7 +370,6 @@ function describeError(msg){
     { test: /كلمة المرور لازم تكون/, fix: 'اكتب باسورد 8 أحرف/أرقام على الأقل.' },
     { test: /لا يوجد حساب بهذا الإيميل/, fix: 'اتأكد من كتابة نفس الإيميل المسجل بيه حسابك.' },
     { test: /مسجل بالفعل|موجود بالفعل/, fix: 'الإيميل أو رقم الهاتف ده متسجل قبل كده — جرب "تسجيل دخول" بدل إنشاء حساب جديد.' },
-    { test: /محاولات كتير|طلبت كود كتير|محاولات دخول كتير/, fix: 'وصلت لأقصى عدد محاولات مسموح بيه دلوقتي — استنى شوية وجرب تاني، أو كلم خدمة العملاء لو محتاج مساعدة فورية.' },
     { test: /failed to fetch|networkerror|load failed|network request failed/i, fix: 'اتأكد من اتصال الإنترنت عندك وجرب تاني بعد شوية.' },
   ];
   for (const r of rules) if (r.test.test(raw)) return { text: raw, fix: r.fix };
@@ -686,18 +684,17 @@ window.doLogin = async function doLogin() {
 window.doForgotRequest = async function doForgotRequest(){
   const idRaw = document.getElementById('forgotId').value.trim();
   const btn = document.getElementById('forgotBtn');
-  if (!idRaw) { setStatus('status-forgot', 'اكتب الإيميل', 'error'); return; }
-  // استرجاع الباسورد بالإيميل بس — مفيش OTP بيتبعت على رقم التليفون خالص، فمش بنقبل
-  // غير صيغة إيميل صحيحة هنا حتى لو المستخدم مسجّل برقم هاتف كمان.
-  if (!isEmail(idRaw)) {
-    setStatus('status-forgot', 'استرجاع كلمة المرور بالإيميل بس — اكتب إيميل صحيح، مش رقم هاتف.', 'error');
-    return;
-  }
-  const email = idRaw.toLowerCase();
+  if (!idRaw) { setStatus('status-forgot', 'اكتب الإيميل أو رقم الهاتف', 'error'); return; }
 
   btn.disabled = true;
   setStatus('status-forgot', 'جاري إرسال الكود...');
   try {
+    const email = await resolveEmail(idRaw);
+    if (!email) {
+      setStatus('status-forgot', 'الحساب ده مش موجود', 'error');
+      btn.disabled = false;
+      return;
+    }
     const result = await callAppsScript('forgot', { email });
     if (!result.success) { setStatus('status-forgot', result.message || 'خطأ', 'error'); btn.disabled = false; return; }
 
