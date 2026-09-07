@@ -863,6 +863,18 @@ window.doResetPassword = async function doResetPassword(){
     });
 
     if (!result.success) {
+      if (result.needs_signup) {
+        // الإيميل ده مش موجود فعلاً — بدل رسالة خطأ، نودّيه لفورم إنشاء حساب
+        // ونملّيله الإيميل والباسورد اللي كتبهم، يكمّل بس الاسم/الرقم/المتجر.
+        localStorage.removeItem('mbh_reset_' + email);
+        goAuth('signup');
+        document.getElementById('suEmail').value = email;
+        document.getElementById('suPassword').value = newPassword;
+        document.getElementById('suPasswordConfirm').value = newPasswordConfirm;
+        setStatus('status', result.message || 'مفيش حساب بالإيميل ده، كمّل باقي البيانات عشان تعمل حساب جديد', 'ok');
+        btn.disabled = false;
+        return;
+      }
       setStatus('status-forgot-otp', result.message || 'الكود غلط أو منتهي', 'error');
       btn.disabled = false;
       return;
