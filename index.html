@@ -543,10 +543,12 @@ window.doSignup = async function doSignup() {
       store_link: link || null
     };
 
-    // Apps Script يستقبل هذه الأسماء بالضبط.
+    // ⚠️ الإصلاح هنا: أسماء الحقول لازم تطابق بالظبط اللي الـ Apps Script بيستناها
+    // (full_name / organization_name)، مش (name / store_name) — ده كان سبب
+    // "بيانات ناقصة" حتى لو الفورم متملي بالكامل.
     const result = await callAppsScript('signup', {
-      name: name,
-      store_name: store,
+      full_name: name,
+      organization_name: store,
       email: email,
       phone: digits,
       store_link: link || '',
@@ -688,9 +690,10 @@ window.resendSignupOtp = async function resendSignupOtp() {
   }
 
   try {
+    // نفس الإصلاح هنا كمان: full_name / organization_name بدل name / store_name.
     const result = await callAppsScript('signup', {
-      name: pendingSignup.full_name,
-      store_name: pendingSignup.organization_name,
+      full_name: pendingSignup.full_name,
+      organization_name: pendingSignup.organization_name,
       email: pendingSignup.email,
       phone: pendingSignup.phone,
       store_link: pendingSignup.store_link || '',
@@ -781,10 +784,25 @@ window.doForgotRequest = async function doForgotRequest(){
   if (!isEmail(email)) { setStatus('status-forgot', 'اكتب إيميل صحيح', 'error'); return; }
 
   btn.disabled = true;
-  setStatus('status-forgot', 'جاري التأكد من الإيميل وإرسال الكود...');
+  setStatus('status-forgot', 'جاري التأكد من الإيميل...');
 
   try {
-    // Apps Script هو الذي يبحث عن الإيميل في Google Sheet.
+    // تحقق مباشر من Supabase أولًا قبل ما نكلم الـ Apps Script خالص.
+    const { data: exists, error: existsError } = await sbClient.rpc('email_exists', { email_input: email });
+    if (existsError) {
+      setStatus('status-forgot', 'حدث خطأ غير متوقع: ' + existsError.message, 'error');
+      btn.disabled = false;
+      return;
+    }
+    if (!exists) {
+      setStatus('status-forgot', 'لا يوجد حساب بهذا الإيميل', 'error');
+      btn.disabled = false;
+      return;
+    }
+
+    setStatus('status-forgot', 'جاري إرسال كود الاسترجاع...');
+
+    // الإيميل موجود فعلًا في Supabase، دلوقتي الـ Apps Script يبعت الكود.
     const result = await callAppsScript('forgot', { email });
     if (!result.success) {
       setStatus('status-forgot', result.message || 'خطأ', 'error');
