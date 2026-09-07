@@ -531,6 +531,21 @@ window.doSignup = async function doSignup() {
   }
 
   btn.disabled = true;
+  setStatus('status', 'جاري التأكد من الإيميل...');
+
+  try {
+    const { data: exists, error: existsError } = await sbClient.rpc('email_exists', { email_input: email });
+    if (!existsError && exists) {
+      setStatus('status', 'الإيميل ده متسجل بحساب بالفعل — سجّل دخولك بدل إنشاء حساب جديد', 'error');
+      setTimeout(() => {
+        goAuth('login');
+        document.getElementById('loginId').value = email;
+      }, 1500);
+      btn.disabled = false;
+      return;
+    }
+  } catch (e) { /* لو التحقق فشل لأي سبب، نكمل عادي ونسيب verify_signup يتصرف */ }
+
   setStatus('status', 'جاري إرسال كود التحقق...');
 
   try {
@@ -628,6 +643,16 @@ window.doVerifySignupOtp = async function doVerifySignupOtp(){
     });
 
     if (signUpError) {
+      if (/already registered|already exists/i.test(signUpError.message || '')) {
+        setStatus('status-otp', 'الإيميل ده اتسجل بحساب بالفعل — هنوديك لتسجيل الدخول', 'ok');
+        const emailToLogin = pendingSignup.email;
+        pendingSignup = null;
+        setTimeout(() => {
+          goAuth('login');
+          document.getElementById('loginId').value = emailToLogin;
+        }, 1500);
+        return;
+      }
       setStatus('status-otp', 'تم تأكيد الكود لكن حصل خطأ في إنشاء الحساب: ' + signUpError.message, 'error');
       btn.disabled = false;
       return;
@@ -784,25 +809,12 @@ window.doForgotRequest = async function doForgotRequest(){
   if (!isEmail(email)) { setStatus('status-forgot', 'اكتب إيميل صحيح', 'error'); return; }
 
   btn.disabled = true;
-  setStatus('status-forgot', 'جاري التأكد من الإيميل...');
+  setStatus('status-forgot', 'جاري إرسال كود الاسترجاع...');
 
   try {
-    // تحقق مباشر من Supabase أولًا قبل ما نكلم الـ Apps Script خالص.
-    const { data: exists, error: existsError } = await sbClient.rpc('email_exists', { email_input: email });
-    if (existsError) {
-      setStatus('status-forgot', 'حدث خطأ غير متوقع: ' + existsError.message, 'error');
-      btn.disabled = false;
-      return;
-    }
-    if (!exists) {
-      setStatus('status-forgot', 'لا يوجد حساب بهذا الإيميل', 'error');
-      btn.disabled = false;
-      return;
-    }
-
-    setStatus('status-forgot', 'جاري إرسال كود الاسترجاع...');
-
-    // الإيميل موجود فعلًا في Supabase، دلوقتي الـ Apps Script يبعت الكود.
+    // مبنتأكدش هنا خالص هل الإيميل موجود ولا لأ — بنبعت الكود في كل الحالات
+    // عشان محدش يعرف مين عنده حساب من رد الموقع. القرار (تغيير باسورد /
+    // التوجيه لإنشاء حساب) بيتاخد بعد ما يتأكد الكود، في verify_forgot.
     const result = await callAppsScript('forgot', { email });
     if (!result.success) {
       setStatus('status-forgot', result.message || 'خطأ', 'error');
