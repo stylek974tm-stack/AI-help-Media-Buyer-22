@@ -6,6 +6,8 @@
 <title>Media Buyer Hub - حوّل بيانات إعلاناتك لقرار</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Supabase JS client - عشان نعمل جلسة حقيقية للمستخدم في المتصفح بعد الدخول/التسجيل -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 
   :root{
@@ -294,8 +296,14 @@
 
 <script>
 (function(){
-// Apps Script (البنك دوت الوحيد للبيانات: Google Sheet — مفيش Supabase خالص)
+// Apps Script (جوجل شيت لسه هو المصدر الأساسي لتسجيل الدخول/الحسابات)
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxLUAJWRmhhIJVi8Gxu1bmaJmYNvNbhWCfrsDd5j23I7GHhKDF_j-0Lb19OwbfaRyzpcA/exec';
+
+// Supabase - عشان الداشبورد (اللي شغالة بالسيرفرات دي) تلاقي جلسة حقيقية
+// للمستخدم في المتصفح بعد تسجيل الدخول/التسجيل/تغيير الباسورد.
+const SUPABASE_URL = 'https://zphepebjpxrzpudncuas.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpwaGVwZWJqcHhyenB1ZG5jdWFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NzY0NzQsImV4cCI6MjA5NzI1MjQ3NH0.RUUcj74GOZDkoC41zXBj3DZlhwGgIwC-ctpNu4D5Nwk';
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 async function callAppsScript(action, payload) {
   const res = await fetch(APPS_SCRIPT_URL, {
@@ -309,11 +317,26 @@ async function callAppsScript(action, payload) {
 // بيانات التسجيل المعلّقة (لحد ما يتأكد الكود)، عشان "إعادة الإرسال" تشتغل
 let pendingSignup = null;
 
-function saveSession(user, sessionToken){
+async function saveSession(user, sessionToken, password){
   try {
     const payload = Object.assign({}, user, { session_token: sessionToken });
     localStorage.setItem('mbh_session', JSON.stringify(payload));
   } catch(e){}
+
+  // من غير الخطوة دي، الداشبورد (اللي بتقرا من Supabase وعليها RLS) هتفضل
+  // مش لاقية أي جلسة للمستخدم وهترجعه لصفحة الدخول، حتى لو بياناته موجودة
+  // فعلاً في جدول user_data. لازم يبقى فيه جلسة Supabase حقيقية في المتصفح.
+  if (user && user.email && password) {
+    try {
+      const { error } = await supabaseClient.auth.signInWithPassword({
+        email: user.email,
+        password: password
+      });
+      if (error) console.error('Supabase sign-in error:', error.message);
+    } catch (e) {
+      console.error('Supabase sign-in exception:', e);
+    }
+  }
 }
 
 // ---------------- View / tab switching ----------------
@@ -358,6 +381,7 @@ function describeError(msg){
     { test: /بيانات ناقصة/, fix: 'راجع إنك ملّيت كل الحقول المطلوبة (المعلّمة بـ *) قبل ما تكمل.' },
     { test: /كلمة المرور لازم تكون/, fix: 'اكتب باسورد 8 أحرف/أرقام على الأقل.' },
     { test: /مسجل قبل كده/, fix: 'الإيميل ده متسجل بحساب بالفعل — جرب "تسجيل دخول" بدل إنشاء حساب جديد.' },
+    { test: /رقم الهاتف ده مسجل/, fix: 'رقم التليفون ده مستخدم في حساب تاني بالفعل — جرب "تسجيل دخول"، أو راجع الرقم اللي كتبته.' },
     { test: /محاولات كتير|طلبت كود كتير/, fix: 'استنى شوية وجرب تاني.' },
     { test: /failed to fetch|networkerror|load failed|network request failed/i, fix: 'اتأكد من اتصال الإنترنت عندك وجرب تاني بعد شوية.' },
   ];
@@ -518,9 +542,10 @@ window.doVerifySignupOtp = async function doVerifySignupOtp(){
       return;
     }
 
+    const signupPassword = pendingSignup ? pendingSignup.password : document.getElementById('suPassword').value;
     localStorage.removeItem('mbh_signup_' + email);
     pendingSignup = null;
-    saveSession(result.user, result.session_token);
+    await saveSession(result.user, result.session_token, signupPassword);
 
     setStatus('status-otp', 'تم تأكيد الحساب، جاري التحويل...', 'ok');
     setTimeout(() => window.location.href = 'dashboard.html', 600);
@@ -571,7 +596,7 @@ window.doLogin = async function doLogin() {
       return;
     }
 
-    saveSession(result.user, result.session_token);
+    await saveSession(result.user, result.session_token, password);
     setStatus('status', 'تم الدخول بنجاح، جاري التحويل...', 'ok');
     setTimeout(() => window.location.href = 'dashboard.html', 400);
   } catch (err) {
@@ -665,7 +690,7 @@ window.doResetPassword = async function doResetPassword(){
     }
 
     localStorage.removeItem('mbh_reset_' + email);
-    saveSession(result.user, result.session_token);
+    await saveSession(result.user, result.session_token, newPassword);
     setStatus('status-forgot-otp', 'تم تغيير كلمة المرور بنجاح، جاري التحويل...', 'ok');
     setTimeout(() => window.location.href = 'dashboard.html', 600);
   } catch (err) {
