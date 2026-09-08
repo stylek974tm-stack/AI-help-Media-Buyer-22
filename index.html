@@ -318,11 +318,6 @@ async function callAppsScript(action, payload) {
 let pendingSignup = null;
 
 async function saveSession(user, sessionToken, password){
-  try {
-    const payload = Object.assign({}, user, { session_token: sessionToken });
-    localStorage.setItem('mbh_session', JSON.stringify(payload));
-  } catch(e){}
-
   // من غير الخطوة دي، الداشبورد (اللي بتقرا من Supabase وعليها RLS) هتفضل
   // مش لاقية أي جلسة للمستخدم وهترجعه لصفحة الدخول، حتى لو بياناته موجودة
   // فعلاً في جدول user_data. لازم يبقى فيه جلسة Supabase حقيقية في المتصفح.
@@ -699,14 +694,8 @@ window.doResetPassword = async function doResetPassword(){
   }
 };
 
-// لو فيه جلسة محفوظة بالفعل، حوله على طول للداشبورد
-(function(){
-  try {
-    if (localStorage.getItem('mbh_session')) { window.location.href = 'dashboard.html'; return; }
-  } catch(e){}
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('view') === 'signup') goAuth('signup');
-})();
+const params = new URLSearchParams(window.location.search);
+if (params.get('view') === 'signup') goAuth('signup');
 
 // ---------------- Hero ticker (تحريك زخرفي بس) ----------------
 (function(){
