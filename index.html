@@ -705,10 +705,16 @@ window.doResetPassword = async function doResetPassword(){
   }
 };
 
-// لو فيه جلسة محفوظة بالفعل، حوله على طول للداشبورد
-(function(){
+// لو فيه جلسة Supabase حقيقية شغالة، حوله على طول للداشبورد.
+// بنتحقق من الجلسة الحقيقية (مش بس علامة محلية) عشان منقعش في لوب تحويل
+// لا نهائي بين الصفحتين لو الجلسة القديمة منتهية أو المزامنة فشلت قبل كده.
+(async function(){
   try {
-    if (localStorage.getItem('mbh_session')) { window.location.href = 'dashboard.html'; return; }
+    const { data } = await sb.auth.getSession();
+    if (data && data.session) { window.location.href = 'dashboard.html'; return; }
+    // فيه علامة دخول قديمة بس مفيش جلسة Supabase حقيقية معاها — نظّفها
+    // عشان الصفحة تفضل عارضة فورم الدخول بدل ما تحاول تحوّل تاني وتدخل لوب.
+    localStorage.removeItem('mbh_session');
   } catch(e){}
   const params = new URLSearchParams(window.location.search);
   if (params.get('view') === 'signup') goAuth('signup');
