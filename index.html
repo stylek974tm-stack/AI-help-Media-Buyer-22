@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Media Buyer Hub - حوّل بيانات إعلاناتك لقرار</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -86,12 +85,6 @@
   .btn-fill:hover{ background:#3f6ce0; }
   .btn-ghost{ background:var(--surface); color:var(--text); border:1px solid var(--border); }
   .btn-ghost:hover{ background:var(--surface-3); }
-  .guest-link{
-    font-size:12.5px; color:var(--text-faint); text-decoration:underline; text-underline-offset:3px;
-    background:none; border:none; cursor:pointer; font-family:var(--font-ui);
-  }
-  .guest-link:hover{ color:var(--text-dim); }
-
   /* ---------- Auth section ---------- */
   .content { display:flex; align-items:center; justify-content:center; padding:24px 20px 60px; }
   .auth-card {
@@ -195,7 +188,6 @@
     <button class="btn btn-fill" onclick="goAuth('signup')">إنشاء حساب مجاني</button>
     <button class="btn btn-ghost" onclick="goAuth('login')">تسجيل الدخول</button>
   </div>
-  <button class="guest-link" onclick="doGuestLogin()">أو جرّب المنصة دلوقتي من غير تسجيل</button>
 </section>
 
 <!-- ================= AUTH ================= -->
@@ -302,20 +294,27 @@
 
 <script>
 (function(){
-// ---------------- Supabase client ----------------
-// ملحوظة أمان: المفتاح ده "publishable/anon" وهو مصمم أصلاً عشان يتحط في الفرونت إند،
-// آمن طالما الـ Row Level Security مفعّل على الجداول (وهو مفعّل عندك بالفعل).
-const SUPABASE_URL = 'https://zphepebjpxrzpudncuas.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_tIG9XDZeHVZpZjz74e-dBA_ui5GIYw7';
-const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// Apps Script (البنك دوت الوحيد للبيانات: Google Sheet — مفيش Supabase خالص)
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxLUAJWRmhhIJVi8Gxu1bmaJmYNvNbhWCfrsDd5j23I7GHhKDF_j-0Lb19OwbfaRyzpcA/exec';
 
-// كل التأكيدات (تسجيل حساب + نسيت كلمة المرور) بقت عن طريق Supabase Auth نفسه
-// بالكود المكوّن من 6 أرقام اللي بيوصل بالإيميل — من غير أي سيرفر خارجي (لا Apps
-// Script ولا Google Sheet). لازم يكون مفعّل من Dashboard بتاع Supabase (تفاصيل في
-// آخر الرسالة اللي وصلتك).
+async function callAppsScript(action, payload) {
+  const res = await fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action, ...payload })
+  });
+  return res.json();
+}
 
-// إيميل التسجيل المعلّق، عشان "إعادة الإرسال" تعرف تبعت تاني لنفس الإيميل
-let pendingSignupEmail = null;
+// بيانات التسجيل المعلّقة (لحد ما يتأكد الكود)، عشان "إعادة الإرسال" تشتغل
+let pendingSignup = null;
+
+function saveSession(user, sessionToken){
+  try {
+    const payload = Object.assign({}, user, { session_token: sessionToken });
+    localStorage.setItem('mbh_session', JSON.stringify(payload));
+  } catch(e){}
+}
 
 // ---------------- View / tab switching ----------------
 const VIEWS = ['view-auth','view-otp','view-forgot','view-forgot-otp'];
@@ -348,17 +347,18 @@ function switchTab(name) {
 function escapeHtml(str){
   return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
-// بيحاول يفهم نوع الخطأ من نصه، ويطلع سبب واضح + طريقة حل عملية بدل رسالة عامة
 const SUPPORT_WA_NUMBER = '201108712091';
 function describeError(msg){
   const raw = String(msg || '').trim();
   const rules = [
-    { test: /Invalid login credentials/i, fix: 'راجع الباسورد (فيه أيقونة عين 👁️ جنبه تقدر تشوفه بيها)، أو دوس "نسيت كلمة المرور؟".' },
-    { test: /Email not confirmed/i, fix: 'لازم تأكد إيميلك الأول بالكود اللي وصلك وقت التسجيل.' },
-    { test: /Token has expired|invalid.*(otp|token)/i, fix: 'الكود صالح لمدة محدودة بس — دوس "إعادة إرسال الكود" وهيتبعتلك واحد جديد.' },
-    { test: /Password should be at least/i, fix: 'اكتب باسورد 8 أحرف/أرقام على الأقل.' },
-    { test: /User already registered|already exists/i, fix: 'الإيميل ده متسجل بحساب بالفعل — سجّل دخولك بدل إنشاء حساب جديد.' },
-    { test: /rate limit|too many requests/i, fix: 'طلبت كتير على نفس الإيميل، جرب تاني بعد شوية.' },
+    { test: /الحساب ده مش موجود/, fix: 'تأكد إنك كاتب نفس الإيميل أو رقم الهاتف اللي سجّلت بيه، أو اعمل حساب جديد من "حساب جديد".' },
+    { test: /الإيميل\/الرقم أو كلمة المرور غلط/, fix: 'راجع الباسورد (فيه أيقونة عين 👁️ جنبه تقدر تشوفه بيها)، أو دوس "نسيت كلمة المرور؟".' },
+    { test: /^الكود غلط/, fix: 'اتأكد إنك ناسخ آخر كود اتبعت على إيميلك (مش كود قديم)، وإنك مكتبوش رقم زيادة أو ناقص.' },
+    { test: /الكود منتهي/, fix: 'الكود صالح لمدة ساعة بس — دوس "إعادة إرسال الكود" وهيتبعتلك واحد جديد.' },
+    { test: /بيانات ناقصة/, fix: 'راجع إنك ملّيت كل الحقول المطلوبة (المعلّمة بـ *) قبل ما تكمل.' },
+    { test: /كلمة المرور لازم تكون/, fix: 'اكتب باسورد 8 أحرف/أرقام على الأقل.' },
+    { test: /مسجل قبل كده/, fix: 'الإيميل ده متسجل بحساب بالفعل — جرب "تسجيل دخول" بدل إنشاء حساب جديد.' },
+    { test: /محاولات كتير|طلبت كود كتير/, fix: 'استنى شوية وجرب تاني.' },
     { test: /failed to fetch|networkerror|load failed|network request failed/i, fix: 'اتأكد من اتصال الإنترنت عندك وجرب تاني بعد شوية.' },
   ];
   for (const r of rules) if (r.test.test(raw)) return { text: raw, fix: r.fix };
@@ -399,30 +399,7 @@ window.togglePw = togglePw;
 function normalizePhone(phone){ return (phone || '').replace(/\D/g, ''); }
 function isEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((v||'').trim()); }
 
-async function resolveEmail(identifier){
-  const id = (identifier || '').trim();
-  if (!id) return null;
-  if (isEmail(id)) return id;
-  const phone = normalizePhone(id);
-  if (phone.length < 8) return null;
-  const { data, error } = await sbClient.rpc('get_email_by_phone', { phone_input: phone });
-  if (error) return null;
-  return data || null;
-}
-
-// بيسجل حدث (تسجيل دخول / حساب جديد) في جدول activity_logs بدل ما يتبعت إيميل
-// إشعار للأدمن — تسجيل داخل Supabase نفسه، من غير أي سيرفر خارجي. best-effort:
-// لو فشل التسجيل، ما بيوقفش تسجيل الدخول أو إنشاء الحساب.
-async function logActivity(actionType, details){
-  try {
-    await sbClient.from('activity_logs').insert({
-      action_type: actionType,
-      action_details: details
-    });
-  } catch (e) { /* تجاهل */ }
-}
-
-// ---------------- Resend pacing (تلطيف الضغط على المستخدم، Supabase عندها كمان تحديد داخلي) ----------------
+// ---------------- Resend pacing (تلطيف الضغط على المستخدم فقط) ----------------
 function getResendState(prefix, email){
   try { return JSON.parse(localStorage.getItem(prefix + email)); } catch(e){ return null; }
 }
@@ -471,23 +448,6 @@ function startCountdown(prefix, email, resendBtnId, countdownElId, maxedMsg, wai
   countdownTimers[countdownElId] = setInterval(tick, 1000);
 }
 
-// ---------------- Guest / anonymous instant login ----------------
-window.doGuestLogin = async function doGuestLogin() {
-  try {
-    const { data, error } = await sbClient.auth.signInAnonymously();
-    if (error) { setStatus('status', 'خطأ: ' + error.message, 'error'); return; }
-    const userId = data.user.id;
-    const guestName = 'guest_' + Math.floor(1000 + Math.random() * 9000);
-    await sbClient.from('user_data').update({
-      username: guestName,
-      full_name: 'زائر تجريبي'
-    }).eq('id', userId);
-    window.location.href = 'dashboard.html';
-  } catch (err) {
-    setStatus('status', 'حدث خطأ غير متوقع: ' + err.message, 'error');
-  }
-};
-
 // ---------------- Signup ----------------
 window.doSignup = async function doSignup() {
   const name = document.getElementById('suName').value.trim();
@@ -504,67 +464,38 @@ window.doSignup = async function doSignup() {
     return;
   }
   if (!isEmail(email)) { setStatus('status', 'اكتب إيميل صحيح', 'error'); return; }
-
   const digits = normalizePhone(phone);
   if (digits.length < 10) { setStatus('status', 'اكتب رقم هاتف صحيح', 'error'); return; }
   if (password.length < 8) { setStatus('status', 'كلمة المرور لازم تكون 8 أحرف/أرقام على الأقل', 'error'); return; }
   if (password !== passwordConfirm) { setStatus('status', 'كلمة المرور وتأكيدها مش متطابقين', 'error'); return; }
 
   btn.disabled = true;
-  setStatus('status', 'جاري التأكد من الإيميل...');
+  setStatus('status', 'جاري إرسال كود التحقق...');
 
   try {
-    // تحقق مباشر من Supabase الأول — لو الإيميل متسجل بالفعل، نوديه لتسجيل
-    // الدخول بدل ما نضيّع وقته في كود مايفيدوش.
-    const { data: exists, error: existsError } = await sbClient.rpc('email_exists', { email_input: email });
-    if (!existsError && exists) {
-      setStatus('status', 'الإيميل ده متسجل بحساب بالفعل — سجّل دخولك بدل إنشاء حساب جديد', 'error');
-      setTimeout(() => { goAuth('login'); document.getElementById('loginId').value = email; }, 1500);
-      btn.disabled = false;
-      return;
-    }
+    pendingSignup = {
+      email: email, password: password, confirm_password: passwordConfirm,
+      full_name: name, phone: digits, organization_name: store, store_link: link || ''
+    };
 
-    setStatus('status', 'جاري إنشاء الحساب وإرسال كود التحقق...');
+    const result = await callAppsScript('signup', pendingSignup);
 
-    // إنشاء الحساب مباشرة في Supabase — بيبقى غير مؤكد لحد ما يتأكد بالكود.
-    // Supabase نفسها هي اللي بتبعت إيميل فيه كود من 6 أرقام (لازم "Confirm email"
-    // يكون مفعّل من الإعدادات، وتيمبلت الإيميل معدّل يعرض {{ .Token }} — تفاصيل
-    // في آخر الرسالة).
-    const { error: signUpError } = await sbClient.auth.signUp({
-      email: email,
-      password: password,
-      options: {
-        data: {
-          full_name: name,
-          phone: digits,
-          organization_name: store,
-          store_link: link || null
-        }
-      }
-    });
-
-    if (signUpError) {
-      if (/already registered|already exists/i.test(signUpError.message || '')) {
-        setStatus('status', 'الإيميل ده متسجل بحساب بالفعل — سجّل دخولك بدل إنشاء حساب جديد', 'error');
+    if (!result.success) {
+      setStatus('status', result.message || 'حصل خطأ أثناء إرسال الكود', 'error');
+      if (/مسجل قبل كده/.test(result.message || '')) {
         setTimeout(() => { goAuth('login'); document.getElementById('loginId').value = email; }, 1500);
-      } else {
-        setStatus('status', signUpError.message, 'error');
       }
       btn.disabled = false;
       return;
     }
 
-    pendingSignupEmail = email;
     registerSend('mbh_signup_', email);
     document.getElementById('otpTargetEmail').textContent = email;
     document.getElementById('otpCode').dataset.email = email;
-
     showView('view-otp');
-
     startCountdown('mbh_signup_', email, 'otpResendBtn', 'otpCountdown',
       'وصلت لأقصى عدد محاولات في الساعة، جرّب تاني بعد',
       'تقدر تطلب كود تاني بعد');
-
   } catch (err) {
     setStatus('status', 'حدث خطأ غير متوقع: ' + err.message, 'error');
   } finally {
@@ -580,34 +511,19 @@ window.doVerifySignupOtp = async function doVerifySignupOtp(){
   btn.disabled = true;
   setStatus('status-otp', 'جاري التأكيد...');
   try {
-    // Supabase نفسها بتتأكد من الكود وتأكّد الحساب في نفس الخطوة (verifyOtp)،
-    // وبترجع session جاهزة — من غير أي وسيط تاني.
-    const { data, error } = await sbClient.auth.verifyOtp({
-      email: email,
-      token: code,
-      type: 'signup'
-    });
-
-    if (error) {
-      setStatus('status-otp', error.message || 'الكود غلط أو منتهي', 'error');
+    const result = await callAppsScript('verify_signup', { email, code });
+    if (!result.success) {
+      setStatus('status-otp', result.message || 'الكود غلط أو منتهي', 'error');
       btn.disabled = false;
       return;
     }
 
-    if (data.user) {
-      logActivity('signup_confirmed', 'حساب جديد اتأكد: ' + email);
-    }
-
     localStorage.removeItem('mbh_signup_' + email);
-    pendingSignupEmail = null;
+    pendingSignup = null;
+    saveSession(result.user, result.session_token);
 
-    if (data.session) {
-      setStatus('status-otp', 'تم تأكيد الحساب، جاري التحويل...', 'ok');
-      setTimeout(() => window.location.href = 'dashboard.html', 600);
-    } else {
-      setStatus('status-otp', 'تم تأكيد الحساب، سجّل دخولك من فضلك', 'ok');
-      setTimeout(() => { goAuth('login'); document.getElementById('loginId').value = email; }, 1200);
-    }
+    setStatus('status-otp', 'تم تأكيد الحساب، جاري التحويل...', 'ok');
+    setTimeout(() => window.location.href = 'dashboard.html', 600);
   } catch (err) {
     setStatus('status-otp', 'حدث خطأ غير متوقع: ' + err.message, 'error');
     btn.disabled = false;
@@ -618,12 +534,11 @@ window.resendSignupOtp = async function resendSignupOtp() {
   const email = document.getElementById('otpCode').dataset.email;
   const st = getResendState('mbh_signup_', email);
   if (st && Date.now() < nextAllowedAt(st)) return;
+  if (!pendingSignup) { setStatus('status-otp', 'محتاج تعمل التسجيل تاني من الأول', 'error'); return; }
 
   try {
-    // Supabase بتبعت كود جديد لنفس الحساب الغير مؤكد.
-    const { error } = await sbClient.auth.resend({ type: 'signup', email: email });
-    if (error) { setStatus('status-otp', error.message || 'خطأ', 'error'); return; }
-
+    const result = await callAppsScript('signup', pendingSignup);
+    if (!result.success) { setStatus('status-otp', result.message || 'خطأ', 'error'); return; }
     registerSend('mbh_signup_', email);
     setStatus('status-otp', 'اتبعت كود جديد على إيميلك', 'ok');
     startCountdown('mbh_signup_', email, 'otpResendBtn', 'otpCountdown',
@@ -649,21 +564,14 @@ window.doLogin = async function doLogin() {
   setStatus('status', 'جاري تسجيل الدخول...');
 
   try {
-    const email = await resolveEmail(idRaw);
-    if (!email) {
-      setStatus('status', 'الحساب ده مش موجود', 'error');
-      btn.disabled = false;
-      return;
-    }
-    const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
-    if (error) {
-      setStatus('status', error.message, 'error');
+    const result = await callAppsScript('login', { identifier: idRaw, password });
+    if (!result.success) {
+      setStatus('status', result.message || 'خطأ', 'error');
       btn.disabled = false;
       return;
     }
 
-    logActivity('login', 'تسجيل دخول: ' + email);
-
+    saveSession(result.user, result.session_token);
     setStatus('status', 'تم الدخول بنجاح، جاري التحويل...', 'ok');
     setTimeout(() => window.location.href = 'dashboard.html', 400);
   } catch (err) {
@@ -681,30 +589,13 @@ window.doForgotRequest = async function doForgotRequest(){
   if (!isEmail(email)) { setStatus('status-forgot', 'اكتب إيميل صحيح', 'error'); return; }
 
   btn.disabled = true;
-  setStatus('status-forgot', 'جاري التأكد من الإيميل...');
+  setStatus('status-forgot', 'جاري إرسال كود الاسترجاع...');
 
   try {
-    // لو الإيميل مش موجود، نوديه لإنشاء حساب بدل ما نبعت كود لحساب مش موجود.
-    const { data: exists, error: existsError } = await sbClient.rpc('email_exists', { email_input: email });
-    if (existsError) {
-      setStatus('status-forgot', 'حدث خطأ غير متوقع: ' + existsError.message, 'error');
-      btn.disabled = false;
-      return;
-    }
-    if (!exists) {
-      goAuth('signup');
-      document.getElementById('suEmail').value = email;
-      setStatus('status', 'مفيش حساب بالإيميل ده، كمّل باقي البيانات عشان تعمل حساب جديد', 'ok');
-      btn.disabled = false;
-      return;
-    }
-
-    setStatus('status-forgot', 'جاري إرسال كود الاسترجاع...');
-
-    // Supabase نفسها بتبعت كود استرجاع من 6 أرقام على الإيميل.
-    const { error } = await sbClient.auth.resetPasswordForEmail(email);
-    if (error) {
-      setStatus('status-forgot', error.message, 'error');
+    // بنبعت الكود في كل الحالات — الأب سكريبت مش بيكشف هل الإيميل موجود ولا لأ.
+    const result = await callAppsScript('forgot', { email });
+    if (!result.success) {
+      setStatus('status-forgot', result.message || 'خطأ', 'error');
       btn.disabled = false;
       return;
     }
@@ -728,8 +619,8 @@ window.resendForgotOtp = async function resendForgotOtp(){
   const st = getResendState('mbh_reset_', email);
   if (st && Date.now() < nextAllowedAt(st)) return;
   try {
-    const { error } = await sbClient.auth.resetPasswordForEmail(email);
-    if (error) { setStatus('status-forgot-otp', error.message, 'error'); return; }
+    const result = await callAppsScript('forgot', { email });
+    if (!result.success) { setStatus('status-forgot-otp', result.message || 'خطأ', 'error'); return; }
     registerSend('mbh_reset_', email);
     setStatus('status-forgot-otp', 'اتبعت كود جديد على إيميلك', 'ok');
     startCountdown('mbh_reset_', email, 'forgotResendBtn', 'forgotCountdown',
@@ -752,33 +643,29 @@ window.doResetPassword = async function doResetPassword(){
   if (newPassword !== newPasswordConfirm) { setStatus('status-forgot-otp', 'كلمة المرور وتأكيدها مش متطابقين', 'error'); return; }
 
   btn.disabled = true;
-  setStatus('status-forgot-otp', 'جاري التأكد من الكود...');
+  setStatus('status-forgot-otp', 'جاري تغيير كلمة المرور...');
 
   try {
-    // بنتأكد من الكود مع Supabase — ده بيرجع session مؤقتة (recovery session).
-    const { error: verifyError } = await sbClient.auth.verifyOtp({
-      email: email,
-      token: token,
-      type: 'recovery'
-    });
+    const result = await callAppsScript('verify_forgot', { email, code: token, new_password: newPassword });
 
-    if (verifyError) {
-      setStatus('status-forgot-otp', verifyError.message || 'الكود غلط أو منتهي', 'error');
-      btn.disabled = false;
-      return;
-    }
-
-    setStatus('status-forgot-otp', 'جاري تغيير كلمة المرور...');
-
-    // دلوقتي فيه session صالحة، نقدر نغيّر الباسورد مباشرة.
-    const { error: updateError } = await sbClient.auth.updateUser({ password: newPassword });
-    if (updateError) {
-      setStatus('status-forgot-otp', updateError.message || 'فشل تغيير كلمة المرور', 'error');
+    if (!result.success) {
+      if (result.needs_signup) {
+        localStorage.removeItem('mbh_reset_' + email);
+        goAuth('signup');
+        document.getElementById('suEmail').value = email;
+        document.getElementById('suPassword').value = newPassword;
+        document.getElementById('suPasswordConfirm').value = newPasswordConfirm;
+        setStatus('status', result.message || 'مفيش حساب بالإيميل ده، كمّل باقي البيانات عشان تعمل حساب جديد', 'ok');
+        btn.disabled = false;
+        return;
+      }
+      setStatus('status-forgot-otp', result.message || 'الكود غلط أو منتهي', 'error');
       btn.disabled = false;
       return;
     }
 
     localStorage.removeItem('mbh_reset_' + email);
+    saveSession(result.user, result.session_token);
     setStatus('status-forgot-otp', 'تم تغيير كلمة المرور بنجاح، جاري التحويل...', 'ok');
     setTimeout(() => window.location.href = 'dashboard.html', 600);
   } catch (err) {
@@ -787,15 +674,13 @@ window.doResetPassword = async function doResetPassword(){
   }
 };
 
-// لو المستخدم داخل بالفعل، حوله على طول لصفحة الداشبورد
-(async () => {
-  const { data } = await sbClient.auth.getSession();
-  if (data.session) { window.location.href = 'dashboard.html'; return; }
-
+// لو فيه جلسة محفوظة بالفعل، حوله على طول للداشبورد
+(function(){
+  try {
+    if (localStorage.getItem('mbh_session')) { window.location.href = 'dashboard.html'; return; }
+  } catch(e){}
   const params = new URLSearchParams(window.location.search);
-  if (params.get('view') === 'signup') {
-    goAuth('signup');
-  }
+  if (params.get('view') === 'signup') goAuth('signup');
 })();
 
 // ---------------- Hero ticker (تحريك زخرفي بس) ----------------
