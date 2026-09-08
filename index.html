@@ -292,18 +292,35 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
 // Apps Script (البنك دوت الوحيد للبيانات: Google Sheet — مفيش Supabase خالص)
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxLUAJWRmhhIJVi8Gxu1bmaJmYNvNbhWCfrsDd5j23I7GHhKDF_j-0Lb19OwbfaRyzpcA/exec';
 
-async function callAppsScript(action, payload) {
-  const res = await fetch(APPS_SCRIPT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ action, ...payload })
-  });
-  return res.json();
+// ---------------- جسر تسجيل الدخول الحقيقي لـ Supabase ----------------
+// المصدر الأساسي للبيانات لسه Google Sheet، لكن أي صفحة تانية (dashboard.html،
+// admin-2.html) بتتكلم مع Supabase مباشرة وبتعتمد على auth.uid() في الـ RLS.
+// من غير الجزء ده، الجلسة دي مبتتعملش أبدًا، وأي حاجة في الصفحات التانية
+// هتترفض بصمت (RLS). بنستخدم نفس الإيميل والباسورد اللي المستخدم كتبهم
+// عندنا فعلاً، فمفيش خطوة إضافية تتطلب منه.
+const SUPABASE_URL = 'https://zphepebjpxrzpudncuas.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_tIG9XDZeHVZpZjz74e-dBA_ui5GIYw7';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+async function bridgeSupabaseSession(email, password){
+  if (!email || !password) return;
+  try {
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) {
+      // best-effort: لو اليوزر لسه ما اتزامنش مع Supabase (مشكلة الـ sync اللي
+      // بنصلحها في الباك إند)، مبنوقفش المستخدم هنا — بس مبيبقاش عنده جلسة
+      // Supabase حقيقية، فهيحصله مشاكل في الداشبورد لحد ما الـ sync يتظبط.
+      console.warn('Supabase session bridge failed:', error.message);
+    }
+  } catch (e) {
+    console.warn('Supabase session bridge error:', e);
+  }
 }
 
 // بيانات التسجيل المعلّقة (لحد ما يتأكد الكود)، عشان "إعادة الإرسال" تشتغل
@@ -518,9 +535,14 @@ window.doVerifySignupOtp = async function doVerifySignupOtp(){
       return;
     }
 
+    const password = pendingSignup ? pendingSignup.password : null;
     localStorage.removeItem('mbh_signup_' + email);
     pendingSignup = null;
     saveSession(result.user, result.session_token);
+
+    // جسر Supabase: يفتح جلسة حقيقية بنفس الإيميل والباسورد اللي اتسجل بيهم،
+    // عشان dashboard.html وباقي الصفحات تقدر تستخدم auth.uid() صح.
+    await bridgeSupabaseSession(email, password);
 
     setStatus('status-otp', 'تم تأكيد الحساب، جاري التحويل...', 'ok');
     setTimeout(() => window.location.href = 'dashboard.html', 600);
@@ -572,6 +594,11 @@ window.doLogin = async function doLogin() {
     }
 
     saveSession(result.user, result.session_token);
+
+    // جسر Supabase: بنستخدم الإيميل الحقيقي اللي رجع من الشيت (مش اللي كتبه
+    // المستخدم لو كان دخل برقم الهاتف)، عشان signInWithPassword محتاج إيميل.
+    await bridgeSupabaseSession(result.user.email, password);
+
     setStatus('status', 'تم الدخول بنجاح، جاري التحويل...', 'ok');
     setTimeout(() => window.location.href = 'dashboard.html', 400);
   } catch (err) {
@@ -666,6 +693,10 @@ window.doResetPassword = async function doResetPassword(){
 
     localStorage.removeItem('mbh_reset_' + email);
     saveSession(result.user, result.session_token);
+
+    // جسر Supabase: الباسورد اتغيّر، فلازم نفتح جلسة Supabase بالباسورد الجديد.
+    await bridgeSupabaseSession(email, newPassword);
+
     setStatus('status-forgot-otp', 'تم تغيير كلمة المرور بنجاح، جاري التحويل...', 'ok');
     setTimeout(() => window.location.href = 'dashboard.html', 600);
   } catch (err) {
@@ -700,6 +731,15 @@ window.doResetPassword = async function doResetPassword(){
     cpaEl.innerHTML = down + Math.round(cpa) + ' ج.م'; cpaEl.className = 'ticker-val down';
   }, 2600);
 })();
+
+async function callAppsScript(action, payload) {
+  const res = await fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action, ...payload })
+  });
+  return res.json();
+}
 
 window.goAuth = goAuth;
 window.goForgot = goForgot;
