@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>تفاصيل الإعلان - Media Buyer Hub</title>
+
+<!-- ====== PWA: manifest + icons + theme color ====== -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#090b0f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AI Media Buyer">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" href="/icon-192.png">
+<!-- ====== end PWA head tags ====== -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#090b0f; --bg-soft:#0d1016;
+    --surface:#12151c; --surface-2:#171b24; --surface-3:#1c2029;
+    --border:#20242e; --border-soft:#191c24;
+    --text:#eef1f6; --text-dim:#98a2b3; --text-faint:#5c6474;
+    --accent:#4f7dfb; --accent-2:#22d3ee; --accent-soft:rgba(79,125,251,.14);
+    --good:#22c55e; --good-bg:rgba(34,197,94,.12); --good-bd:rgba(34,197,94,.4);
+    --mid:#eab308; --mid-bg:rgba(234,179,8,.12); --mid-bd:rgba(234,179,8,.4);
+    --bad:#f43f5e; --bad-bg:rgba(244,63,94,.13); --bad-bd:rgba(244,63,94,.45);
+    --radius:16px; --radius-sm:10px;
+    --font-ui:'Cairo',system-ui,sans-serif;
+    --font-num:'JetBrains Mono','Cairo',monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:var(--font-ui); background:var(--bg); color:var(--text);
+    min-height:100vh; -webkit-font-smoothing:antialiased;
+  }
+  ::selection{ background:var(--accent-soft); color:#fff; }
+  ::-webkit-scrollbar{ width:8px; height:8px; }
+  ::-webkit-scrollbar-thumb{ background:#242833; border-radius:8px; }
+  a{ color:inherit; }
+  button{ font-family:inherit; }
+
+  .num{ font-family:var(--font-num); font-variant-numeric:tabular-nums; }
+
+  /* ---------- Topbar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:120;
+    display:flex; align-items:center; gap:12px;
+    padding:12px clamp(14px,3vw,28px);
+    background:rgba(9,11,15,.86); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border-soft);
+  }
+  .icon-btn{
+    display:flex; align-items:center; justify-content:center;
+    width:38px; height:38px; border-radius:11px; flex-shrink:0;
+    background:var(--surface); border:1px solid var(--border); color:var(--text);
+    cursor:pointer; transition:.15s;
+  }
+  .icon-btn:hover{ background:var(--surface-3); border-color:#2c313d; }
+  .icon-btn svg{ width:19px; height:19px; }
+  .brand{ font-weight:800; font-size:15px; letter-spacing:.2px; white-space:nowrap; }
+  .brand span{ color:var(--accent-2); }
+  .topbar-spacer{ flex:1; }
+  .live-status{ display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-dim); flex-wrap:wrap; justify-content:flex-end; }
+
+  /* ---------- Sidebar (overlay, hamburger-only) ---------- */
+  .backdrop{
+    position:fixed; inset:0; background:rgba(4,5,8,.55); backdrop-filter:blur(2px);
+    z-index:180; opacity:0; pointer-events:none; transition:opacity .2s ease;
+  }
+  .backdrop.show{ opacity:1; pointer-events:auto; }
+  .sidebar{
+    position:fixed; top:0; bottom:0; right:0; width:min(280px,84vw);
+    background:var(--surface); border-left:1px solid var(--border);
+    padding:20px 14px; z-index:190; overflow-y:auto;
+    transform:translateX(100%); transition:transform .25s cubic-bezier(.4,0,.2,1);
+    box-shadow:-20px 0 60px rgba(0,0,0,.4);
+  }
+  .sidebar.open{ transform:translateX(0); }
+  .sidebar-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:22px; padding:0 4px; }
+  .sidebar-head b{ font-size:15px; color:var(--accent-2); }
+  .nav-item{
+    display:flex; align-items:center; gap:11px; padding:11px 12px; border-radius:11px;
+    font-size:13.5px; color:var(--text-dim); text-decoration:none; margin-bottom:4px; font-weight:500;
+  }
+  .nav-item svg{ width:17px; height:17px; flex-shrink:0; opacity:.85; }
+  .nav-item:hover{ background:var(--surface-3); color:var(--text); }
+  .nav-item.active{ background:var(--accent-soft); color:#bcd0ff; font-weight:700; }
+  .nav-item.active svg{ opacity:1; }
+  .nav-item.disabled{ color:#454b57; cursor:not-allowed; pointer-events:none; }
+  .nav-divider{ height:1px; background:var(--border-soft); margin:12px 4px; }
+  .nav-tag{ margin-right:auto; font-size:10px; background:var(--surface-3); color:var(--text-faint); padding:2px 7px; border-radius:20px; }
+  .sidebar-foot{ font-size:10.5px; color:var(--text-faint); line-height:1.7; margin-top:16px; padding:0 4px; }
+
+  /* ---------- Layout ---------- */
+  .content{ padding:20px clamp(14px,3vw,32px) 90px; max-width:1100px; margin:0 auto; }
+  .back-row{ margin-bottom:14px; }
+  .back-link{
+    display:inline-flex; align-items:center; gap:7px; font-size:12.5px; color:var(--text-dim);
+    text-decoration:none; padding:8px 13px; border-radius:10px; border:1px solid var(--border); background:var(--surface);
+  }
+  .back-link:hover{ color:var(--text); border-color:#2c313d; }
+  .back-link svg{ width:15px; height:15px; }
+
+  .top-status{ font-size:12px; color:var(--text-dim); margin-bottom:12px; min-height:16px; white-space:pre-wrap; }
+  .top-status.error{ color:var(--bad); }
+
+  .section-title{ font-size:14px; color:#d3d8e0; margin:26px 0 12px; display:flex; align-items:center; gap:10px; font-weight:700; }
+  .section-title svg{ width:16px; height:16px; color:var(--accent-2); }
+  .section-line{ flex:1; height:1px; background:linear-gradient(90deg,#2a2e38,transparent); }
+  .placeholder-box{
+    background:var(--surface); border:1px dashed #2a2e38; border-radius:var(--radius);
+    padding:26px; text-align:center; color:var(--text-faint); font-size:13px;
+  }
+
+  /* ---------- Ad header ---------- */
+  .ad-head-card{
+    display:flex; gap:16px; background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--radius); padding:16px; margin-bottom:18px; flex-wrap:wrap;
+  }
+  .ad-head-thumb{ width:110px; height:110px; border-radius:14px; overflow:hidden; background:var(--bg-soft); flex-shrink:0; }
+  .ad-head-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .ad-head-thumb .ph{ width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:var(--text-faint); }
+  .ad-head-thumb .ph svg{ width:32px; height:32px; opacity:.5; }
+  .ad-head-body{ flex:1; min-width:200px; }
+  .ad-head-title{ font-size:16px; font-weight:800; margin-bottom:4px; }
+  .ad-head-creative-name{ color:var(--accent-2); font-size:12px; margin-bottom:6px; }
+  .ad-head-sub{ color:var(--text-faint); font-size:11.5px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .status-dot{ width:6px; height:6px; border-radius:50%; display:inline-block; }
+  .status-dot.on{ background:var(--good); } .status-dot.off{ background:#5c6474; }
+  .acc-tag{ font-size:10.5px; color:var(--text-faint); background:var(--bg-soft); border:1px dashed var(--border); border-radius:20px; padding:2px 8px; display:inline-block; }
+  .verdict-badge{
+    display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:20px;
+    font-size:11.5px; font-weight:700; white-space:nowrap; margin-top:8px;
+  }
+  .verdict-good{ background:var(--good-bg); color:var(--good); border:1px solid var(--good-bd); }
+  .verdict-mid{ background:var(--mid-bg); color:var(--mid); border:1px solid var(--mid-bd); }
+  .verdict-bad{ background:var(--bad-bg); color:var(--bad); border:1px solid var(--bad-bd); }
+
+  /* ---------- Chart card ---------- */
+  .chart-card{
+    background:linear-gradient(180deg,#12151c,#0d1016);
+    border:1px solid var(--border); border-radius:var(--radius); padding:18px 16px 10px;
+    margin-bottom:18px;
+  }
+  .chart-card-head{ display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:6px; flex-wrap:wrap; }
+  .chart-card-head h3{ margin:0; font-size:13.5px; font-weight:700; }
+  .chart-legend{ display:flex; gap:14px; font-size:11px; color:var(--text-dim); }
+  .chart-legend span{ display:flex; align-items:center; gap:5px; }
+  .chart-legend i{ width:10px; height:10px; border-radius:3px; display:inline-block; }
+  .chart-wrap{ width:100%; }
+  .chart-wrap svg{ width:100%; height:auto; display:block; }
+
+  /* ---------- Summary boxes ---------- */
+  .summary-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:20px; }
+  .summary-box{ background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:14px; text-align:center; }
+  .summary-box .lbl{ font-size:11px; color:var(--text-faint); margin-bottom:7px; font-weight:600; }
+  .summary-box .val{ font-size:18px; font-weight:700; color:var(--text); font-family:var(--font-num); }
+  .summary-box.profit .val{ color:var(--good); } .summary-box.loss .val{ color:var(--bad); }
+  .summary-box.good .val{ color:var(--good); } .summary-box.mid .val{ color:var(--mid); } .summary-box.bad .val{ color:var(--bad); }
+
+  .metrics-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(90px,1fr)); gap:8px; margin-bottom:20px; }
+  .metric-box{ border-radius:10px; padding:10px 6px; text-align:center; border:1px solid var(--border-soft); background:var(--bg-soft); }
+  .metric-box.good{ border-color:var(--good-bd); background:var(--good-bg); }
+  .metric-box.bad{ border-color:var(--bad-bd); background:var(--bad-bg); }
+  .metric-label{ font-size:9.5px; color:var(--text-faint); margin-bottom:4px; font-weight:600; }
+  .metric-value{ font-size:13.5px; font-weight:700; color:var(--text); font-family:var(--font-num); }
+  .metric-box.good .metric-value{ color:var(--good); } .metric-box.bad .metric-value{ color:var(--bad); }
+
+  /* ---------- Quality / conversion cards ---------- */
+  .quality-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin-bottom:20px; }
+  .quality-card{ background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:14px 16px; }
+  .quality-card .qlbl{ font-size:11.5px; color:var(--text-faint); margin-bottom:8px; font-weight:600; }
+  .quality-card .qval{ font-size:15px; font-weight:700; }
+  .quality-card.good .qval{ color:var(--good); }
+  .quality-card.mid .qval{ color:var(--mid); }
+  .quality-card.bad .qval{ color:var(--bad); }
+
+  /* ---------- Ad actions ---------- */
+  .ad-actions{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px; }
+  .mini-btn{
+    font-family:inherit; font-size:12px; font-weight:700; padding:8px 13px; border-radius:9px;
+    border:1px solid var(--border); background:var(--surface-3); color:var(--text); cursor:pointer; transition:.15s;
+  }
+  .mini-btn:hover{ background:var(--surface-2); border-color:#333844; }
+  .mini-btn.danger{ border-color:var(--bad-bd); color:var(--bad); }
+  .mini-btn.go{ border-color:var(--accent); color:var(--accent-2); }
+
+  /* ---------- Modal (budget) ---------- */
+  .modal-backdrop{ position:fixed; inset:0; background:rgba(4,5,8,.6); z-index:210; opacity:0; pointer-events:none; transition:.2s; }
+  .modal-backdrop.show{ opacity:1; pointer-events:auto; }
+  .modal{
+    position:fixed; top:50%; left:50%; transform:translate(-50%,-46%); width:min(380px,90vw);
+    background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:20px 22px;
+    z-index:211; opacity:0; pointer-events:none; transition:.2s;
+  }
+  .modal.show{ opacity:1; pointer-events:auto; transform:translate(-50%,-50%); }
+  .modal h3{ margin:0 0 4px; font-size:15px; }
+  .modal p{ margin:0 0 16px; font-size:11.5px; color:var(--text-faint); line-height:1.6; }
+  .modal label{ display:block; font-size:11.5px; color:var(--text-dim); margin:12px 0 5px; font-weight:600; }
+  .modal input, .modal select{ width:100%; padding:9px 10px; border-radius:9px; border:1px solid var(--border); background:var(--bg-soft); color:var(--text); font-family:inherit; }
+  .modal input{ font-family:var(--font-num); }
+  .modal .modal-actions{ display:flex; gap:8px; margin-top:18px; }
+  .btn{ padding:9px 16px; border-radius:10px; border:1px solid var(--border); background:var(--surface-3); color:var(--text); font-size:12.5px; font-weight:700; cursor:pointer; }
+  .btn.primary{ background:var(--accent); border-color:var(--accent); color:#fff; flex:1; }
+  .btn.ghost{ background:transparent; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <button class="icon-btn" id="menuBtn" aria-label="القائمة" onclick="toggleSidebar(event)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+  </button>
+  <div class="brand">Media Buyer <span>Hub</span></div>
+  <div class="topbar-spacer"></div>
+  <div class="live-status">
+    <span>آخر تحديث: <span id="lastUpdate" class="num">--</span></span>
+  </div>
+</div>
+
+<div class="backdrop" id="backdrop" onclick="closeSidebar()"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-head"><b>Media Buyer Hub</b>
+    <button class="icon-btn" onclick="closeSidebar()" aria-label="إغلاق"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></button>
+  </div>
+  <a class="nav-item" href="index.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>تسجيل الدخول</a>
+  <a class="nav-item" href="account.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18"/></svg>ربط الحسابات الإعلانية</a>
+  <a class="nav-item active" href="dashboard.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>تحليل البيانات</a>
+  <a class="nav-item" href="insights.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="4" width="3" height="14"/></svg>الرسوم البيانية</a>
+  <a class="nav-item" href="automation-rules.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>قواعد الأتمتة</a>
+  <a class="nav-item" href="team-quality.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>أداء الموظفين</a>
+  <a class="nav-item" href="subscription.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>الاشتراك والدفع</a>
+  <div class="nav-divider"></div>
+  <a class="nav-item" href="pricing_calculator.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>التسعير</a>
+  <a class="nav-item disabled"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>الدعم <span class="nav-tag">قريبًا</span></a>
+  <div class="sidebar-foot">جميع البيانات مرتبطة بحسابك ومحمية — لا تتم مشاركتها مع أي طرف تالت.</div>
+</aside>
+
+<main class="content">
+  <div class="back-row">
+    <a class="back-link" href="dashboard.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      رجوع لتحليل البيانات
+    </a>
+  </div>
+
+  <div class="top-status" id="topStatus"></div>
+
+  <div id="adHeadWrap"></div>
+
+  <div class="chart-card" id="chartCard" style="display:none;">
+    <div class="chart-card-head">
+      <h3>الأداء المالي خلال الفترة</h3>
+      <div class="chart-legend">
+        <span><i style="background:var(--good);"></i>الإيراد</span>
+        <span><i style="background:var(--bad);"></i>الإنفاق</span>
+      </div>
+    </div>
+    <div class="chart-wrap" id="chartWrap"></div>
+  </div>
+
+  <div id="summaryWrap"></div>
+  <div id="metricsWrap"></div>
+
+  <div id="qualityWrap"></div>
+
+  <div id="actionsWrap"></div>
+</main>
+
+<div class="modal-backdrop" id="budgetBackdrop" onclick="closeBudgetModal()"></div>
+<div class="modal" id="budgetModal">
+  <h3>تعديل الميزانية اليومية</h3>
+  <p id="budgetModalSub">هتتبعت مباشرة لفيسبوك بمجرد ما تضغط "تنفيذ" — التعديل هيتطبق على مجموعة الإعلانات الحقيقية بتاعتك.</p>
+  <label>الميزانية الحالية</label>
+  <input type="text" id="budgetCurrentDisplay" disabled>
+  <label>نوع التعديل</label>
+  <select id="budgetMode" onchange="onBudgetModeChange()">
+    <option value="pct10">زيادة 10%</option>
+    <option value="pct20">زيادة 20%</option>
+    <option value="pct50">زيادة 50%</option>
+    <option value="custom">مبلغ مخصص ($ / يوم)</option>
+  </select>
+  <div id="budgetCustomWrap" style="display:none;">
+    <label>الميزانية الجديدة ($ / يوم)</label>
+    <input type="number" id="budgetCustomValue" step="0.5" min="1">
+  </div>
+  <div class="modal-actions">
+    <button class="btn ghost" onclick="closeBudgetModal()">إلغاء</button>
+    <button class="btn primary" onclick="submitBudgetChange()">نفّذ على فيسبوك</button>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://zphepebjpxrzpudncuas.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_tIG9XDZeHVZpZjz74e-dBA_ui5GIYw7';
+const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const GRAPH = 'https://graph.facebook.com/v26.0';
+
+const RANK_LABELS = {
+  ABOVE_AVERAGE: { label: 'أعلى من المتوسط', cls: 'good' },
+  AVERAGE: { label: 'متوسط', cls: 'mid' },
+  BELOW_AVERAGE_35: { label: 'أقل من المتوسط', cls: 'bad' },
+  BELOW_AVERAGE_20: { label: 'أقل من المتوسط', cls: 'bad' },
+  BELOW_AVERAGE_10: { label: 'أقل بكتير', cls: 'bad' },
+  BELOW_AVERAGE: { label: 'أقل من المتوسط', cls: 'bad' },
+  UNKNOWN: { label: 'غير متاح', cls: 'mid' }
+};
+const BENCHMARKS = {
+  ctr: { good: 1.5, mid: 1.0, dir: 'high' },
+  cpm: { good: 10,  mid: 20,  dir: 'low'  },
+  cpc: { good: 0.5, mid: 1.0, dir: 'low'  }
+};
+
+let CURRENT_USER = null;
+let PROFIT_SETTINGS = null;
+let PARAMS = null;
+let AD = null, ADSET = null, INS = null, DAILY = [];
+let BUDGET_TARGET = null;
+
+function num(v){ const n = parseFloat(v); return isNaN(n) ? 0 : n; }
+function money(v){ return '$' + num(v).toFixed(2); }
+function rateMetric(key, value){
+  const b = BENCHMARKS[key];
+  if (!b || isNaN(value)) return 'mid';
+  if (b.dir === 'high') return value >= b.good ? 'good' : (value >= b.mid ? 'mid' : 'bad');
+  return value <= b.good ? 'good' : (value <= b.mid ? 'mid' : 'bad');
+}
+function getPurchases(actions, conversions){
+  if (Array.isArray(actions)) {
+    const p = actions.find(a => /purchase/i.test(a.action_type));
+    if (p) return num(p.value);
+  }
+  return num(conversions);
+}
+function getRevenue(actionValues){
+  if (Array.isArray(actionValues)) {
+    const p = actionValues.find(a => /purchase/i.test(a.action_type));
+    if (p) return num(p.value);
+  }
+  return 0;
+}
+function setTopStatus(msg, isError){
+  const el = document.getElementById('topStatus');
+  el.textContent = msg || '';
+  el.className = 'top-status' + (isError ? ' error' : '');
+}
+function maskToken(t){ if (!t) return '-'; return t.length > 8 ? '••••••••' + t.slice(-4) : '••••••••'; }
+
+/* ---------------- Sidebar ---------------- */
+function openSidebar(){ document.getElementById('sidebar').classList.add('open'); document.getElementById('backdrop').classList.add('show'); }
+function closeSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('backdrop').classList.remove('show'); }
+function toggleSidebar(e){ e.stopPropagation(); document.getElementById('sidebar').classList.contains('open') ? closeSidebar() : openSidebar(); }
+document.addEventListener('click', (e) => {
+  const sb = document.getElementById('sidebar');
+  if (sb.classList.contains('open') && !sb.contains(e.target) && e.target.id !== 'menuBtn') closeSidebar();
+});
+
+/* ---------------- Profit settings (نفس مفتاح التخزين المستخدم في تحليل البيانات) ---------------- */
+function settingsKey(){ return 'stylek_profit_settings_' + (CURRENT_USER ? CURRENT_USER.id : 'anon'); }
+function loadSettings(){
+  try { PROFIT_SETTINGS = JSON.parse(localStorage.getItem(settingsKey())) || null; } catch(e){ PROFIT_SETTINGS = null; }
+}
+
+async function gget(path, params){
+  const p = new URLSearchParams(params);
+  const res = await fetch(`${GRAPH}/${path}?${p.toString()}`);
+  const json = await res.json();
+  if (json.error) throw new Error(json.error.message);
+  return json;
+}
+async function gpost(path, params){
+  const p = new URLSearchParams(params);
+  const res = await fetch(`${GRAPH}/${path}`, { method:'POST', body:p });
+  const json = await res.json();
+  if (json.error) throw new Error(json.error.message);
+  return json;
+}
+
+/* ---------------- Init ---------------- */
+async function init(){
+  try{
+    const { data } = await sbClient.auth.getSession();
+    if (!data.session) { window.location.href = 'index.html'; return; }
+    CURRENT_USER = data.session.user;
+    loadSettings();
+
+    const qs = new URLSearchParams(window.location.search);
+    PARAMS = {
+      adId: qs.get('ad'),
+      actId: qs.get('act'),
+      token: qs.get('token'),
+      accLabel: qs.get('acc') || '',
+      since: qs.get('since'),
+      until: qs.get('until')
+    };
+    if (!PARAMS.adId || !PARAMS.actId || !PARAMS.token){
+      setTopStatus('مفيش إعلان محدد — ارجع لصفحة تحليل البيانات واختار إعلان.', true);
+      return;
+    }
+    if (!PARAMS.since || !PARAMS.until){
+      const today = new Date();
+      const fmt = d => d.toISOString().slice(0,10);
+      PARAMS.since = fmt(new Date(today - 30*86400000));
+      PARAMS.until = fmt(today);
+    }
+
+    await loadAdDetails();
+    document.getElementById('lastUpdate').textContent = 'الآن';
+  } catch(err){
+    setTopStatus('خطأ أثناء تحميل تفاصيل الإعلان: ' + err.message, true);
+  }
+}
+
+async function loadAdDetails(){
+  setTopStatus('جاري تحميل بيانات الإعلان...');
+  const timeRange = JSON.stringify({ since: PARAMS.since, until: PARAMS.until });
+  const adFields = 'id,name,status,effective_status,adset_id,campaign_id,created_time,creative{name,thumbnail_url,image_url}';
+  const insightFields = 'impressions,reach,clicks,spend,ctr,cpc,cpm,conversions,actions,action_values,quality_ranking,engagement_rate_ranking,conversion_rate_ranking';
+
+  const [adRes, insRes, dailyRes] = await Promise.all([
+    gget(`${PARAMS.adId}`, { fields: adFields, access_token: PARAMS.token }),
+    gget(`${PARAMS.adId}/insights`, { fields: insightFields, time_range: timeRange, access_token: PARAMS.token }).catch(()=>({data:[]})),
+    gget(`${PARAMS.adId}/insights`, { fields:'spend,actions,action_values,impressions,clicks', time_range: timeRange, time_increment: 1, access_token: PARAMS.token }).catch(()=>({data:[]}))
+  ]);
+
+  AD = adRes;
+  INS = (insRes.data && insRes.data[0]) || null;
+  DAILY = dailyRes.data || [];
+
+  // نجيب الميزانية اليومية لمجموعة الإعلان (لزرار زوّد الميزانية)
+  if (AD.adset_id){
+    try { ADSET = await gget(`${AD.adset_id}`, { fields:'id,name,daily_budget', access_token: PARAMS.token }); }
+    catch(e){ ADSET = null; }
+  }
+
+  setTopStatus('');
+  renderAll();
+}
+
+function renderAll(){
+  renderHeader();
+  renderChart();
+  renderSummary();
+  renderMetrics();
+  renderQuality();
+  renderActions();
+}
+
+function metricBoxes(ins){
+  const ctr = ins ? num(ins.ctr) : 0, cpm = ins ? num(ins.cpm) : 0, cpc = ins ? num(ins.cpc) : 0;
+  return { ctr, cpm, cpc, ctrRate: rateMetric('ctr', ctr), cpmRate: rateMetric('cpm', cpm), cpcRate: rateMetric('cpc', cpc) };
+}
+function getVerdict(ctrRate, cpmRate, cpcRate){
+  const scores = { good:2, mid:1, bad:0 };
+  const total = scores[ctrRate] + scores[cpmRate] + scores[cpcRate];
+  if (ctrRate === 'good' && cpmRate === 'good' && cpcRate === 'good') return { level:'good', label:'الكريتف ممتاز' };
+  if (ctrRate === 'bad') return { level:'bad', label:'مشكلة في الكريتف' };
+  if (total >= 4) return { level:'good', label:'أداء كويس' };
+  if (cpcRate === 'bad' || cpmRate === 'bad') return { level:'mid', label:'الميزانية/المزاد محتاج مراجعة' };
+  return { level:'mid', label:'أداء متوسط' };
+}
+function badgeClass(level){ return level === 'good' ? 'verdict-good' : (level === 'mid' ? 'verdict-mid' : 'verdict-bad'); }
+function iconImage(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`; }
+
+function renderHeader(){
+  const creative = AD.creative || {};
+  const thumb = creative.thumbnail_url || creative.image_url;
+  const m = metricBoxes(INS);
+  const verdict = getVerdict(m.ctrRate, m.cpmRate, m.cpcRate);
+
+  document.getElementById('adHeadWrap').innerHTML = `
+    <div class="ad-head-card">
+      <div class="ad-head-thumb">${thumb ? `<img src="${thumb}" alt="">` : `<div class="ph">${iconImage()}</div>`}</div>
+      <div class="ad-head-body">
+        <div class="ad-head-title">${AD.name}</div>
+        ${creative.name && creative.name !== AD.name ? `<div class="ad-head-creative-name">${creative.name}</div>` : ''}
+        <div class="ad-head-sub">
+          <span class="status-dot ${AD.status==='ACTIVE'?'on':'off'}"></span>${AD.status === 'ACTIVE' ? 'شغّال' : 'متوقف'}
+          ${PARAMS.accLabel ? `<span class="acc-tag">${PARAMS.accLabel}</span>` : ''}
+          <span>· الفترة: ${PARAMS.since} إلى ${PARAMS.until}</span>
+        </div>
+        <div class="verdict-badge ${badgeClass(verdict.level)}">${verdict.label}</div>
+      </div>
+    </div>
+  `;
+}
+
+/* ---------------- Line chart (spend vs revenue over time) ---------------- */
+function renderChart(){
+  const card = document.getElementById('chartCard');
+  const wrap = document.getElementById('chartWrap');
+  if (!DAILY.length){ card.style.display = 'none'; return; }
+  card.style.display = 'block';
+
+  const points = DAILY.map(d => ({
+    date: d.date_start,
+    revenue: getRevenue(d.action_values),
+    spend: num(d.spend)
+  }));
+
+  const W = 700, H = 260, padL = 44, padR = 14, padT = 16, padB = 26;
+  const maxVal = Math.max(1, ...points.map(p => Math.max(p.revenue, p.spend)));
+  const stepX = points.length > 1 ? (W - padL - padR) / (points.length - 1) : 0;
+  const x = i => padL + i * stepX;
+  const y = v => padT + (H - padT - padB) * (1 - v / maxVal);
+
+  function smoothPath(vals){
+    if (vals.length === 1) return `M ${x(0)} ${y(vals[0])}`;
+    let d = `M ${x(0)} ${y(vals[0])}`;
+    for (let i = 0; i < vals.length - 1; i++){
+      const x0 = x(i), y0 = y(vals[i]);
+      const x1 = x(i+1), y1 = y(vals[i+1]);
+      const mx = (x0 + x1) / 2;
+      d += ` C ${mx} ${y0}, ${mx} ${y1}, ${x1} ${y1}`;
+    }
+    return d;
+  }
+
+  const revenuePath = smoothPath(points.map(p => p.revenue));
+  const spendPath = smoothPath(points.map(p => p.spend));
+  const areaPath = revenuePath + ` L ${x(points.length-1)} ${y(0)} L ${x(0)} ${y(0)} Z`;
+
+  const gridLines = 5;
+  let gridSvg = '';
+  for (let i = 0; i <= gridLines; i++){
+    const v = (maxVal / gridLines) * i;
+    const gy = y(v);
+    gridSvg += `<line x1="${padL}" y1="${gy}" x2="${W-padR}" y2="${gy}" stroke="#242833" stroke-width="1" stroke-dasharray="4 4"/>`;
+    gridSvg += `<text x="${padL-8}" y="${gy+4}" text-anchor="end" font-size="11" fill="#5c6474" font-family="JetBrains Mono, monospace">${Math.round(v)}</text>`;
+  }
+
+  const firstLabel = points[0] ? points[0].date : '';
+  const lastLabel = points[points.length-1] ? points[points.length-1].date : '';
+
+  wrap.innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="revFill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#22c55e" stop-opacity="0.35"/>
+          <stop offset="100%" stop-color="#22c55e" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      ${gridSvg}
+      <path d="${areaPath}" fill="url(#revFill)" stroke="none"/>
+      <path d="${revenuePath}" fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="${spendPath}" fill="none" stroke="#f43f5e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="5 5" opacity="0.85"/>
+      <text x="${padL}" y="${H-6}" font-size="10.5" fill="#5c6474" font-family="Cairo, sans-serif">${firstLabel}</text>
+      <text x="${W-padR}" y="${H-6}" text-anchor="end" font-size="10.5" fill="#5c6474" font-family="Cairo, sans-serif">${lastLabel}</text>
+    </svg>
+  `;
+}
+
+function renderSummary(){
+  const spend = INS ? num(INS.spend) : 0;
+  const revenue = INS ? getRevenue(INS.action_values) : 0;
+  const purchases = INS ? getPurchases(INS.actions, INS.conversions) : 0;
+  const clicks = INS ? num(INS.clicks) : 0;
+  const roas = spend ? (revenue/spend) : 0;
+  const convRate = clicks ? ((purchases/clicks)*100) : 0;
+  const qualityCls = convRate >= 3 ? 'good' : (convRate >= 1.5 ? 'mid' : 'bad');
+  const qualityLabel = convRate >= 3 ? 'ممتازة' : (convRate >= 1.5 ? 'متوسطة' : 'ضعيفة');
+
+  let profitBox = '';
+  if (PROFIT_SETTINGS && revenue > 0){
+    const cogs = revenue * (num(PROFIT_SETTINGS.cogsPct)/100);
+    const shipping = purchases * num(PROFIT_SETTINGS.shipping);
+    const paymentFee = revenue * (num(PROFIT_SETTINGS.paymentPct)/100);
+    const netProfit = revenue - cogs - shipping - paymentFee - spend;
+    profitBox = `<div class="summary-box ${netProfit>=0?'profit':'loss'}"><div class="lbl">صافي الربح (تقديري بناءً على إعداداتك)</div><div class="val num">${money(netProfit)}</div></div>`;
+  }
+
+  document.getElementById('summaryWrap').innerHTML = `
+    <div class="summary-grid">
+      <div class="summary-box"><div class="lbl">الإنفاق</div><div class="val num">${money(spend)}</div></div>
+      <div class="summary-box"><div class="lbl">الإيراد (من فيسبوك)</div><div class="val num">${money(revenue)}</div></div>
+      ${profitBox}
+      <div class="summary-box ${roas>=1?'profit':'loss'}"><div class="lbl">ROAS</div><div class="val num">${roas.toFixed(2)}x</div></div>
+      <div class="summary-box"><div class="lbl">عدد المبيعات</div><div class="val num">${purchases.toFixed(0)}</div></div>
+      <div class="summary-box ${qualityCls}"><div class="lbl">معدل التحويل</div><div class="val">${convRate.toFixed(2)}% (${qualityLabel})</div></div>
+    </div>
+  `;
+}
+
+function renderMetrics(){
+  const m = metricBoxes(INS);
+  document.getElementById('metricsWrap').innerHTML = `
+    <div class="metrics-grid">
+      <div class="metric-box ${m.ctrRate}"><div class="metric-label">CTR</div><div class="metric-value">${m.ctr.toFixed(2)}%</div></div>
+      <div class="metric-box ${m.cpmRate}"><div class="metric-label">CPM</div><div class="metric-value">${money(m.cpm)}</div></div>
+      <div class="metric-box ${m.cpcRate}"><div class="metric-label">CPC</div><div class="metric-value">${money(m.cpc)}</div></div>
+      <div class="metric-box"><div class="metric-label">الظهور</div><div class="metric-value">${INS?num(INS.impressions).toLocaleString():'0'}</div></div>
+      <div class="metric-box"><div class="metric-label">النقرات</div><div class="metric-value">${INS?num(INS.clicks).toLocaleString():'0'}</div></div>
+    </div>
+  `;
+}
+
+function renderQuality(){
+  const qr = INS ? (RANK_LABELS[INS.conversion_rate_ranking] || RANK_LABELS.UNKNOWN) : RANK_LABELS.UNKNOWN;
+  const qq = INS ? (RANK_LABELS[INS.quality_ranking] || RANK_LABELS.UNKNOWN) : RANK_LABELS.UNKNOWN;
+  const qe = INS ? (RANK_LABELS[INS.engagement_rate_ranking] || RANK_LABELS.UNKNOWN) : RANK_LABELS.UNKNOWN;
+
+  document.getElementById('qualityWrap').innerHTML = `
+    <div class="section-title">جودة العميل والأداء<div class="section-line"></div></div>
+    <div class="quality-grid">
+      <div class="quality-card ${qr.cls}"><div class="qlbl">جودة العميل (معدل التحويل)</div><div class="qval">${qr.label}</div></div>
+      <div class="quality-card ${qq.cls}"><div class="qlbl">جودة الكريتف</div><div class="qval">${qq.label}</div></div>
+      <div class="quality-card ${qe.cls}"><div class="qlbl">معدل التفاعل</div><div class="qval">${qe.label}</div></div>
+    </div>
+  `;
+}
+
+function renderActions(){
+  document.getElementById('actionsWrap').innerHTML = `
+    <div class="ad-actions">
+      ${AD.adset_id ? `<button class="mini-btn go" onclick="openBudgetModal()">زوّد الميزانية</button>` : ''}
+      <button class="mini-btn ${AD.status==='ACTIVE'?'danger':''}" onclick="toggleStatus()">${AD.status==='ACTIVE'?'أوقف الإعلان':'شغّل الإعلان'}</button>
+      ${AD.campaign_id ? `<button class="mini-btn" onclick="openInAdsManager()">افتح في مدير الإعلانات (استهداف/جمهور)</button>` : ''}
+    </div>
+  `;
+}
+
+/* ---------------- إجراءات حقيقية على فيسبوك — كلها بضغطة زر يدوية من المستخدم ---------------- */
+async function toggleStatus(){
+  const newStatus = AD.status === 'ACTIVE' ? 'PAUSED' : 'ACTIVE';
+  const confirmMsg = newStatus === 'PAUSED' ? 'متأكد إنك عايز توقف ده على فيسبوك؟' : 'متأكد إنك عايز تشغّل ده تاني على فيسبوك؟';
+  if (!confirm(confirmMsg)) return;
+  try{
+    await gpost(AD.id, { status: newStatus, access_token: PARAMS.token });
+    setTopStatus(newStatus === 'PAUSED' ? 'تم إيقاف الإعلان على فيسبوك.' : 'تم تشغيل الإعلان على فيسبوك.');
+    await loadAdDetails();
+  } catch(err){
+    alert('حصل خطأ من فيسبوك: ' + err.message);
+  }
+}
+function openInAdsManager(){
+  const url = `https://www.facebook.com/adsmanager/manage/campaigns?act=${PARAMS.actId.replace('act_','')}&selected_campaign_ids=${AD.campaign_id}`;
+  window.open(url, '_blank');
+}
+function openBudgetModal(){
+  if (!ADSET){ alert('معرفتش ألاقي بيانات مجموعة الإعلانات دي.'); return; }
+  BUDGET_TARGET = { adsetId: ADSET.id, currentBudget: num(ADSET.daily_budget)/100, name: ADSET.name };
+  document.getElementById('budgetModalSub').textContent = `تعديل ميزانية "${ADSET.name}" — هيتبعت مباشرة لفيسبوك بمجرد الضغط على تنفيذ.`;
+  document.getElementById('budgetCurrentDisplay').value = money(BUDGET_TARGET.currentBudget) + ' / يوم';
+  document.getElementById('budgetMode').value = 'pct20';
+  onBudgetModeChange();
+  document.getElementById('budgetBackdrop').classList.add('show');
+  document.getElementById('budgetModal').classList.add('show');
+}
+function closeBudgetModal(){
+  document.getElementById('budgetBackdrop').classList.remove('show');
+  document.getElementById('budgetModal').classList.remove('show');
+  BUDGET_TARGET = null;
+}
+function onBudgetModeChange(){
+  const mode = document.getElementById('budgetMode').value;
+  document.getElementById('budgetCustomWrap').style.display = mode === 'custom' ? 'block' : 'none';
+  if (mode === 'custom' && BUDGET_TARGET) document.getElementById('budgetCustomValue').value = BUDGET_TARGET.currentBudget.toFixed(2);
+}
+async function submitBudgetChange(){
+  if (!BUDGET_TARGET) return;
+  const mode = document.getElementById('budgetMode').value;
+  let newBudget;
+  if (mode === 'pct10') newBudget = BUDGET_TARGET.currentBudget * 1.10;
+  else if (mode === 'pct20') newBudget = BUDGET_TARGET.currentBudget * 1.20;
+  else if (mode === 'pct50') newBudget = BUDGET_TARGET.currentBudget * 1.50;
+  else newBudget = num(document.getElementById('budgetCustomValue').value);
+  if (!newBudget || newBudget <= 0){ alert('حط قيمة ميزانية صحيحة.'); return; }
+
+  try{
+    await gpost(BUDGET_TARGET.adsetId, { daily_budget: Math.round(newBudget * 100), access_token: PARAMS.token });
+    setTopStatus(`تم تعديل ميزانية "${BUDGET_TARGET.name}" إلى ${money(newBudget)}/يوم على فيسبوك.`);
+    closeBudgetModal();
+    await loadAdDetails();
+  } catch(err){
+    alert('حصل خطأ من فيسبوك وإحنا بنعدّل الميزانية: ' + err.message);
+  }
+}
+
+init();
+</script>
+
+</body>
+</html>
