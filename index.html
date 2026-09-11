@@ -79,24 +79,35 @@
   .content { display:flex; align-items:center; justify-content:center; padding:24px 20px 60px; }
   .auth-card {
     background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
-    padding:30px 26px; width:380px; max-width:92vw;
+    padding:26px; width:380px; max-width:92vw;
     box-shadow:0 12px 30px rgba(0,0,0,.35);
-    text-align:center;
   }
-  .auth-card h2 { font-size:18px; color:var(--text); margin:0 0 6px 0; font-weight:800; }
-  .auth-card p.hint-top { font-size:13px; color:var(--text-dim); margin:0 0 24px 0; line-height:1.7; }
+  .auth-card h2 { font-size:17px; color:var(--text); text-align:center; margin:0 0 6px 0; font-weight:700; }
+  .auth-card p.hint-top { font-size:12.5px; color:var(--text-dim); text-align:center; margin:0 0 18px 0; line-height:1.7; }
 
-  .google-btn{
-    width:100%; display:flex; align-items:center; justify-content:center; gap:10px;
-    padding:13px 18px; border-radius:10px; border:1px solid var(--border);
-    background:#fff; color:#1f1f1f; font-family:var(--font-ui);
-    font-size:15px; font-weight:700; cursor:pointer; transition:.15s;
+  label { display:block; margin-top:12px; margin-bottom:4px; font-size:12px; color:var(--text-dim); }
+  input {
+    width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border);
+    background:var(--bg-soft); color:var(--text); font-size:14px; font-family:var(--font-ui);
   }
-  .google-btn:hover{ background:#f4f4f4; }
-  .google-btn:disabled{ opacity:.6; cursor:not-allowed; }
-  .google-btn svg{ width:20px; height:20px; flex-shrink:0; }
-
-  .status { text-align:center; margin-top:16px; font-size:13px; color:var(--mid); white-space:pre-wrap; }
+  input:focus{ outline:none; border-color:var(--accent); }
+  .pw-wrap{ position:relative; }
+  .pw-wrap input{ padding-left:38px; }
+  .pw-toggle{
+    position:absolute; left:8px; top:50%; transform:translateY(-50%);
+    background:none; border:none; padding:4px; cursor:pointer; color:var(--text-faint);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .pw-toggle:hover{ color:var(--text-dim); }
+  .pw-toggle svg{ width:18px; height:18px; }
+  .req { color:var(--bad); }
+  button.primary {
+    margin-top:18px; width:100%; padding:12px; background:var(--accent); border:none;
+    border-radius:8px; font-size:15px; font-weight:bold; color:#fff; cursor:pointer;
+  }
+  button.primary:hover{ background:#3f6ce0; }
+  button.primary:disabled { opacity:.55; cursor:not-allowed; }
+  .status { text-align:center; margin-top:12px; font-size:13px; color:var(--mid); white-space:pre-wrap; }
   .status.error { color:var(--bad); }
   .status.ok { color:var(--good); }
   .err-box{
@@ -113,11 +124,33 @@
   .err-support:hover{ background:rgba(37,211,102,0.14); }
   .err-support svg{ width:14px; height:14px; }
 
-  .privacy-note{
-    display:flex; align-items:center; justify-content:center; gap:6px;
-    margin-top:18px; font-size:11.5px; color:var(--text-faint); line-height:1.6;
+  .link-row{ text-align:left; margin-top:8px; }
+  .link-btn{
+    background:none; border:none; color:var(--accent-2); font-size:12.5px; cursor:pointer;
+    padding:0; font-family:var(--font-ui); text-decoration:underline; text-underline-offset:3px;
   }
-  .privacy-note svg{ width:14px; height:14px; flex-shrink:0; color:var(--text-faint); }
+  .back-row{ margin-bottom:14px; }
+
+  .divider{
+    display:flex; align-items:center; gap:10px; margin:20px 0 16px;
+    color:var(--text-faint); font-size:12px;
+  }
+  .divider::before, .divider::after{ content:''; flex:1; height:1px; background:var(--border); }
+
+  .google-btn{
+    width:100%; display:flex; align-items:center; justify-content:center; gap:10px;
+    padding:12px 16px; border-radius:10px; border:1px solid var(--border);
+    background:#fff; color:#1f1f1f; font-family:var(--font-ui);
+    font-size:14.5px; font-weight:700; cursor:pointer; transition:.15s;
+  }
+  .google-btn:hover{ background:#f4f4f4; }
+  .google-btn:disabled{ opacity:.6; cursor:not-allowed; }
+  .google-btn svg{ width:19px; height:19px; flex-shrink:0; }
+
+  .skip-row{ text-align:center; margin-top:10px; }
+
+  .form-section { display:none; }
+  .form-section.active { display:block; }
   [hidden]{ display:none !important; }
 </style>
 </head>
@@ -156,48 +189,102 @@
 <!-- ================= AUTH ================= -->
 <div class="content" id="authSection">
   <div class="auth-card">
-    <h2>مساعد المديا باير</h2>
-    <p class="hint-top">سجّل دخولك أو اعمل حساب جديد بضغطة واحدة بحساب جوجل بتاعك — مفيش فورم ومفيش باسورد تحفظه.</p>
 
-    <button class="google-btn" id="googleBtn" onclick="signInWithGoogle()">
-      <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.87c2.27-2.09 3.58-5.17 3.58-8.82z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.07 7.94-2.91l-3.87-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.27v3.11A12 12 0 0 0 12 24z"/><path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.89 12c0-.79.14-1.56.38-2.28V6.61H1.27A12 12 0 0 0 0 12c0 1.94.46 3.77 1.27 5.39l4-3.11z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.94 1.19 15.24 0 12 0 7.31 0 3.26 2.69 1.27 6.61l4 3.11C6.22 6.86 8.87 4.75 12 4.75z"/></svg>
-      الدخول عن طريق جوجل
-    </button>
+    <!-- MAIN: quick email/password login + google -->
+    <div id="view-main">
+      <h2>مساعد المديا باير</h2>
+      <p class="hint-top">لو عندك حساب قبل كده ادخل بإيميلك وباسوردك، أو اعمل حساب جديد / ادخل بجوجل تحت.</p>
 
-    <div class="status" id="status"></div>
+      <form id="quickLoginForm" autocomplete="on">
+        <label>الإيميل</label>
+        <input id="loginEmail" type="email" name="email" autocomplete="username" placeholder="you@email.com" required>
+        <label>كلمة المرور</label>
+        <div class="pw-wrap">
+          <input id="loginPassword" type="password" name="password" autocomplete="current-password" placeholder="••••••••" required>
+          <button type="button" class="pw-toggle" onclick="togglePw(this,'loginPassword')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+        <div class="link-row"><button type="button" class="link-btn" onclick="goForgot()">نسيت كلمة المرور؟</button></div>
+        <button class="primary" id="loginBtn" type="submit">تسجيل الدخول</button>
+      </form>
 
-    <div class="privacy-note">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6l8-4z"/></svg>
-      بياناتك متخزنة بأمان، واحنا مش بناخد أي باسورد منك خالص.
+      <div class="divider">أو</div>
+
+      <button class="google-btn" id="googleBtn" onclick="signInWithGoogle()">
+        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.87c2.27-2.09 3.58-5.17 3.58-8.82z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.07 7.94-2.91l-3.87-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.27v3.11A12 12 0 0 0 12 24z"/><path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.89 12c0-.79.14-1.56.38-2.28V6.61H1.27A12 12 0 0 0 0 12c0 1.94.46 3.77 1.27 5.39l4-3.11z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.94 1.19 15.24 0 12 0 7.31 0 3.26 2.69 1.27 6.61l4 3.11C6.22 6.86 8.87 4.75 12 4.75z"/></svg>
+        إنشاء حساب / دخول بجوجل
+      </button>
+
+      <div class="status" id="status"></div>
     </div>
+
+    <!-- Shown once, right after a brand-new Google signup, to enable fast email/password login next time -->
+    <div id="view-set-password" hidden>
+      <h2>خلي دخولك أسرع المرة الجاية</h2>
+      <p class="hint-top">حط باسورد على إيميلك (<b id="spEmail"></b>) عشان تقدر تدخل بيه بسرعة من غير جوجل في أي وقت.</p>
+      <label>كلمة المرور <span class="req">*</span></label>
+      <div class="pw-wrap">
+        <input id="spPassword" type="password" autocomplete="new-password" placeholder="8 أحرف/أرقام على الأقل">
+        <button type="button" class="pw-toggle" onclick="togglePw(this,'spPassword')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+      <button class="primary" id="spSaveBtn" onclick="saveNewPassword()">حفظ ودخول</button>
+      <div class="skip-row"><button type="button" class="link-btn" onclick="skipSetPassword()">تخطي دلوقتي</button></div>
+      <div class="status" id="status-sp"></div>
+    </div>
+
+    <!-- Forgot password: request reset link -->
+    <div id="view-forgot" hidden>
+      <div class="back-row"><button type="button" class="link-btn" onclick="goMain()">رجوع لتسجيل الدخول</button></div>
+      <h2>استرجاع كلمة المرور</h2>
+      <label>الإيميل <span class="req">*</span></label>
+      <input id="forgotEmail" type="email" placeholder="you@email.com" autocomplete="email">
+      <button class="primary" id="forgotBtn" onclick="doForgotRequest()">إرسال لينك الاسترجاع</button>
+      <div class="status" id="status-forgot"></div>
+    </div>
+
+    <!-- Reached only via the reset-password email link -->
+    <div id="view-reset" hidden>
+      <h2>كلمة مرور جديدة</h2>
+      <label>كلمة المرور الجديدة <span class="req">*</span></label>
+      <div class="pw-wrap">
+        <input id="resetPassword" type="password" autocomplete="new-password" placeholder="8 أحرف/أرقام على الأقل">
+        <button type="button" class="pw-toggle" onclick="togglePw(this,'resetPassword')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+      <button class="primary" id="resetBtn" onclick="doSetResetPassword()">حفظ الباسورد الجديد</button>
+      <div class="status" id="status-reset"></div>
+    </div>
+
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
-// ---------------- Supabase (المصدر الوحيد للبيانات والـ Auth، مفيش Apps Script خالص) ----------------
+// ---------------- Supabase (المصدر الوحيد للـ Auth والبيانات) ----------------
 const SUPABASE_URL = 'https://zphepebjpxrzpudncuas.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_tIG9XDZeHVZpZjz74e-dBA_ui5GIYw7'; // مفتاح عام (publishable) بس، مفيش سر هنا
+const SUPABASE_KEY = 'sb_publishable_tIG9XDZeHVZpZjz74e-dBA_ui5GIYw7'; // مفتاح عام بس
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
 const DASHBOARD_URL = 'dashboard.html';
-// نرجّع اليوزر لنفس الصفحة دي بعد ما يختار حسابه في جوجل، عشان نعمل upsert
-// لبياناته في user_data قبل ما نحوله للداشبورد. Supabase JS بيلقط الـ session
-// من الـ URL تلقائي (detectSessionInUrl مفعّلة افتراضيًا).
-function currentOrigin(){
-  return window.location.origin + window.location.pathname;
+
+function currentOrigin(){ return window.location.origin + window.location.pathname; }
+
+const VIEWS = ['view-main','view-set-password','view-forgot','view-reset'];
+function showView(name){
+  VIEWS.forEach(v => document.getElementById(v).hidden = (v !== name));
 }
+function goMain(){ showView('view-main'); }
+function goForgot(){ showView('view-forgot'); }
+window.goMain = goMain;
+window.goForgot = goForgot;
 
 function escapeHtml(str){
   return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 const SUPPORT_WA_NUMBER = '201108712091';
-function setStatus(msg, type){
-  const el = document.getElementById('status');
+function setStatus(scope, msg, type){
+  const el = document.getElementById(scope);
   if (!el) return;
   if (type === 'error') {
-    const waMsg = encodeURIComponent('واجهت مشكلة في تسجيل الدخول بجوجل في Media Buyer Hub:\n' + msg);
+    const waMsg = encodeURIComponent('واجهت مشكلة في تسجيل الدخول في Media Buyer Hub:\n' + msg);
     el.className = 'status';
     el.innerHTML = `<div class="err-box">
       <div class="err-title">⚠️ ${escapeHtml(msg)}</div>
@@ -213,9 +300,27 @@ function setStatus(msg, type){
   el.className = 'status' + (type ? ' ' + type : '');
 }
 
+const EYE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+const EYE_OFF_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.6 21.6 0 0 1 5.06-6.06M9.9 4.24A10.4 10.4 0 0 1 12 4c7 0 11 8 11 8a21.4 21.4 0 0 1-3.22 4.56M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+function togglePw(btn, inputId){
+  const input = document.getElementById(inputId);
+  const nowShowing = input.type === 'password';
+  input.type = nowShowing ? 'text' : 'password';
+  btn.innerHTML = nowShowing ? EYE_OFF_ICON : EYE_ICON;
+}
+window.togglePw = togglePw;
+
+// يطلب من المتصفح يحفظ/يعرض بوب أب "احفظ الباسورد" بشكل صريح، فوق الحفظ التلقائي من الـ<form>
+async function offerCredentialSave(email, password){
+  try {
+    if ('credentials' in navigator && window.PasswordCredential) {
+      const cred = new PasswordCredential({ id: email, password: password, name: email });
+      await navigator.credentials.store(cred);
+    }
+  } catch(e){ /* المتصفح مش داعم أو رفض - مش مشكلة */ }
+}
+
 // ---------------- تخزين/تحديث بيانات اليوزر في جدول user_data ----------------
-// RLS المفروض يكون مضبوط بحيث اليوزر يقدر يعمل insert/update للصف بتاعه بس
-// (auth.uid() = id). شوف ملاحظات الـ SQL اللي بعتهالك مع الملف.
 async function upsertUserData(user){
   const meta = user.user_metadata || {};
   const row = {
@@ -226,54 +331,135 @@ async function upsertUserData(user){
     updated_at: new Date().toISOString()
   };
   const { error } = await sb.from('user_data').upsert(row, { onConflict: 'id' });
-  if (error) {
-    // ما بنمنعش اليوزر من الدخول لو الـ upsert فشل، بس بنسجل تحذير عشان
-    // نقدر نتابع المشكلة (مثلاً لو RLS مش مظبوطة صح لسه).
-    console.warn('user_data upsert failed:', error.message);
-  }
+  if (error) console.warn('user_data upsert failed:', error.message);
 }
+
+function goToDashboard(){ window.location.href = DASHBOARD_URL; }
 
 let handled = false;
 async function handleSession(session){
   if (!session || handled) return;
   handled = true;
-  setStatus('تم الدخول بنجاح، جاري تجهيز حسابك...', 'ok');
   await upsertUserData(session.user);
-  window.location.href = DASHBOARD_URL;
+
+  // لو الحساب اتعمل دلوقتي بالظبط (أول مرة بجوجل) وميعملوش باسورد قبل كده،
+  // اعرض عليه يحط باسورد عشان يدخل بسرعة المرة الجاية.
+  const createdAt = new Date(session.user.created_at).getTime();
+  const isBrandNew = (Date.now() - createdAt) < 2 * 60 * 1000;
+  const hasPasswordIdentity = (session.user.identities || []).some(i => i.provider === 'email');
+  if (isBrandNew && !hasPasswordIdentity) {
+    document.getElementById('spEmail').textContent = session.user.email || '';
+    showView('view-set-password');
+    return;
+  }
+  goToDashboard();
 }
 
+// ---------------- تسجيل دخول سريع بإيميل/باسورد ----------------
+document.getElementById('quickLoginForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const btn = document.getElementById('loginBtn');
+  if (!email || !password) { setStatus('status', 'اكتب الإيميل وكلمة المرور', 'error'); return; }
+
+  btn.disabled = true;
+  setStatus('status', 'جاري تسجيل الدخول...');
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) {
+    setStatus('status', error.message === 'Invalid login credentials'
+      ? 'الإيميل أو كلمة المرور غلط، أو لسه معملتش حساب — اعمل حساب بجوجل تحت.'
+      : error.message, 'error');
+    btn.disabled = false;
+    return;
+  }
+  await offerCredentialSave(email, password);
+  await handleSession(data.session);
+  btn.disabled = false;
+});
+
+// ---------------- Google ----------------
 window.signInWithGoogle = async function signInWithGoogle(){
   const btn = document.getElementById('googleBtn');
   btn.disabled = true;
-  setStatus('جاري تحويلك لجوجل...');
+  setStatus('status', 'جاري تحويلك لجوجل...');
   const { error } = await sb.auth.signInWithOAuth({
     provider: 'google',
     options: { redirectTo: currentOrigin() }
   });
   if (error) {
-    setStatus(error.message || 'حصل خطأ أثناء فتح صفحة جوجل', 'error');
+    setStatus('status', error.message || 'حصل خطأ أثناء فتح صفحة جوجل', 'error');
     btn.disabled = false;
   }
-  // لو نجحت، المتصفح هيتحول لجوجل على طول؛ الكود بعد السطر ده مش هيتنفذ.
 };
 
-// ---------------- عند تحميل الصفحة: لو فيه session خلاص (رجوع من جوجل، أو جلسة قديمة)، كمّل على طول ----------------
+// ---------------- تعيين باسورد بعد أول تسجيل بجوجل ----------------
+window.saveNewPassword = async function saveNewPassword(){
+  const password = document.getElementById('spPassword').value;
+  const btn = document.getElementById('spSaveBtn');
+  if (!password || password.length < 8) { setStatus('status-sp', 'كلمة المرور لازم تكون 8 أحرف/أرقام على الأقل', 'error'); return; }
+  btn.disabled = true;
+  setStatus('status-sp', 'جاري الحفظ...');
+  const { data: userData } = await sb.auth.getUser();
+  const email = userData && userData.user ? userData.user.email : '';
+  const { error } = await sb.auth.updateUser({ password });
+  if (error) {
+    setStatus('status-sp', error.message, 'error');
+    btn.disabled = false;
+    return;
+  }
+  await offerCredentialSave(email, password);
+  goToDashboard();
+};
+window.skipSetPassword = function skipSetPassword(){ goToDashboard(); };
+
+// ---------------- نسيت كلمة المرور ----------------
+window.doForgotRequest = async function doForgotRequest(){
+  const email = document.getElementById('forgotEmail').value.trim();
+  const btn = document.getElementById('forgotBtn');
+  if (!email) { setStatus('status-forgot', 'اكتب الإيميل', 'error'); return; }
+  btn.disabled = true;
+  setStatus('status-forgot', 'جاري إرسال اللينك...');
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: currentOrigin() });
+  btn.disabled = false;
+  if (error) { setStatus('status-forgot', error.message, 'error'); return; }
+  setStatus('status-forgot', 'لو الإيميل ده متسجل عندنا، هتلاقي لينك استرجاع في بريدك دلوقتي.', 'ok');
+};
+
+window.doSetResetPassword = async function doSetResetPassword(){
+  const password = document.getElementById('resetPassword').value;
+  const btn = document.getElementById('resetBtn');
+  if (!password || password.length < 8) { setStatus('status-reset', 'كلمة المرور لازم تكون 8 أحرف/أرقام على الأقل', 'error'); return; }
+  btn.disabled = true;
+  setStatus('status-reset', 'جاري الحفظ...');
+  const { data: userData } = await sb.auth.getUser();
+  const email = userData && userData.user ? userData.user.email : '';
+  const { error } = await sb.auth.updateUser({ password });
+  if (error) { setStatus('status-reset', error.message, 'error'); btn.disabled = false; return; }
+  await offerCredentialSave(email, password);
+  setStatus('status-reset', 'تم تغيير كلمة المرور، جاري الدخول...', 'ok');
+  setTimeout(goToDashboard, 600);
+};
+
+// ---------------- عند تحميل الصفحة ----------------
+sb.auth.onAuthStateChange((event, session) => {
+  if (event === 'PASSWORD_RECOVERY') { showView('view-reset'); return; }
+  if (event === 'SIGNED_IN' && session) handleSession(session);
+});
+
 (async function init(){
-  // في حالة جوجل رجّع خطأ في الـ URL (مثلاً اليوزر لغى العملية)
   const hashParams = new URLSearchParams(window.location.hash.replace('#',''));
   const qParams = new URLSearchParams(window.location.search);
   const oauthError = hashParams.get('error_description') || qParams.get('error_description');
-  if (oauthError) setStatus(decodeURIComponent(oauthError), 'error');
+  if (oauthError) setStatus('status', decodeURIComponent(oauthError.replace(/\+/g,' ')), 'error');
+
+  if (hashParams.get('type') === 'recovery') return; // onAuthStateChange هيتكفل بيها
 
   const { data, error } = await sb.auth.getSession();
   if (!error && data && data.session) {
     await handleSession(data.session);
   }
 })();
-
-sb.auth.onAuthStateChange((event, session) => {
-  if (event === 'SIGNED_IN' && session) handleSession(session);
-});
 
 // ---------------- Hero ticker (تحريك زخرفي بس) ----------------
 (function(){
