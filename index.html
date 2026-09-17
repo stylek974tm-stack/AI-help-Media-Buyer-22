@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Media Buyer Hub - حوّل بيانات إعلاناتك لقرار</title>
+<link rel="icon" type="image/jpeg" href="(2).jpeg">
+<link rel="shortcut icon" href="(2).jpeg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -36,6 +38,12 @@
   .brand{ font-weight:800; font-size:15px; letter-spacing:.2px; white-space:nowrap; color:var(--text); }
   .brand span{ color:var(--accent-2); }
   .topbar-spacer{ flex:1; }
+  .lang-toggle{
+    background:var(--surface-2); border:1px solid var(--border); color:var(--text);
+    font-family:var(--font-ui); font-size:12.5px; font-weight:700;
+    padding:7px 14px; border-radius:999px; cursor:pointer; transition:.15s;
+  }
+  .lang-toggle:hover{ background:var(--surface-3); border-color:var(--accent); }
 
   /* ---------- Hero ---------- */
   .hero{
@@ -53,7 +61,7 @@
   }
   .ticker{
     width:min(320px,86vw); background:var(--surface); border:1px solid var(--border);
-    border-radius:var(--radius); padding:16px 18px; text-align:right;
+    border-radius:var(--radius); padding:16px 18px;
   }
   .ticker-row{
     display:flex; align-items:center; justify-content:space-between;
@@ -66,6 +74,10 @@
   .ticker-val svg{ width:12px; height:12px; }
   .spark{ width:100%; height:34px; margin-top:6px; }
   .spark path{ fill:none; stroke:var(--accent-2); stroke-width:2; }
+  .ticker-note{
+    text-align:center; font-size:10.5px; color:var(--text-faint);
+    margin-top:10px; letter-spacing:.2px;
+  }
 
   .hero-ctas{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
   .btn{
@@ -152,6 +164,11 @@
   .form-section { display:none; }
   .form-section.active { display:block; }
   [hidden]{ display:none !important; }
+
+  html[dir="ltr"] .pw-wrap input{ padding-left:12px; padding-right:38px; }
+  html[dir="ltr"] .pw-toggle{ left:auto; right:8px; }
+  html[dir="ltr"] .link-row{ text-align:right; }
+  html[dir="ltr"] .err-box{ text-align:left; }
 </style>
 
  <!-- Meta Pixel Code -->
@@ -176,12 +193,16 @@ src="https://www.facebook.com/tr?id=1077724507991357&ev=PageView&noscript=1"
 <div class="topbar">
   <div class="brand">Media Buyer <span>Hub</span></div>
   <div class="topbar-spacer"></div>
+  <button class="lang-toggle" id="langToggle" onclick="toggleLang()">EN</button>
 </div>
 
 <!-- ================= HERO ================= -->
 <section class="hero">
-  <h1>اعرف كل جنيه في إعلاناتك رايح فين، وانت لسه بتحتسي قهوتك</h1>
-  <p class="sub">Media Buyer Hub بيجمعلك أرقام فيسبوك، الربح الحقيقي، وجودة العملاء في مكان واحد — عشان تقفل الحملة اللي بتخسرك أو تضاعف اللي بتكسبك دلوقتي، مش آخر الشهر.</p>
+  <h1 data-ar="اعرف بالظبط فين رايح كل جنيه بتصرفه على إعلاناتك — لحظة بلحظة، مش آخر الشهر"
+      data-en="Know exactly where every ad dollar goes — in real time, not at month-end">اعرف بالظبط فين رايح كل جنيه بتصرفه على إعلاناتك — لحظة بلحظة، مش آخر الشهر</h1>
+  <p class="sub"
+     data-ar="Media Buyer Hub بيجمعلك أرقام حملاتك على فيسبوك وتيك توك، الربح الحقيقي، وجودة العملاء في مكان واحد — عشان تاخد قرارك وانت شايف الصورة كاملة."
+     data-en="Media Buyer Hub brings your Facebook and TikTok campaign numbers, real profit, and lead quality together in one dashboard — so you always decide with the full picture.">Media Buyer Hub بيجمعلك أرقام حملاتك على فيسبوك وتيك توك، الربح الحقيقي، وجودة العملاء في مكان واحد — عشان تاخد قرارك وانت شايف الصورة كاملة.</p>
 
   <div class="ticker" aria-hidden="true">
     <div class="ticker-row">
@@ -189,18 +210,18 @@ src="https://www.facebook.com/tr?id=1077724507991357&ev=PageView&noscript=1"
       <span class="ticker-val up" id="tkRoas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="4,17 10,10 14,14 20,6"/></svg>3.4x</span>
     </div>
     <div class="ticker-row">
-      <span class="ticker-label">الربح اليومي</span>
+      <span class="ticker-label" data-ar="الربح اليومي" data-en="Daily Profit">الربح اليومي</span>
       <span class="ticker-val up" id="tkProfit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="4,17 10,10 14,14 20,6"/></svg>2,140 ج.م</span>
     </div>
     <div class="ticker-row">
-      <span class="ticker-label">تكلفة الطلب</span>
+      <span class="ticker-label" data-ar="تكلفة الطلب" data-en="Cost per Order">تكلفة الطلب</span>
       <span class="ticker-val down" id="tkCpa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="4,7 10,14 14,10 20,18"/></svg>38 ج.م</span>
     </div>
     <svg class="spark" viewBox="0 0 260 34" preserveAspectRatio="none"><path id="sparkPath" d="M0,26 20,22 40,24 60,15 80,18 100,10 120,14 140,8 160,12 180,6 200,9 220,4 240,7 260,3"/></svg>
   </div>
 
   <div class="hero-ctas">
-    <button class="btn btn-fill" onclick="document.getElementById('authSection').scrollIntoView({behavior:'smooth'})">ابدأ دلوقتي</button>
+    <button class="btn btn-fill" data-ar="أنشئ حسابك المجاني" data-en="Create your free account" onclick="document.getElementById('authSection').scrollIntoView({behavior:'smooth'})">أنشئ حسابك المجاني</button>
   </div>
 </section>
 
@@ -210,26 +231,25 @@ src="https://www.facebook.com/tr?id=1077724507991357&ev=PageView&noscript=1"
 
     <!-- MAIN: quick email/password login + google -->
     <div id="view-main">
-      <h2>مساعد المديا باير</h2>
-      <p class="hint-top">لو عندك حساب قبل كده ادخل بإيميلك وباسوردك، أو اعمل حساب جديد / ادخل بجوجل تحت.</p>
+      <h2 data-ar="ابدأ مع Media Buyer Hub" data-en="Get started with Media Buyer Hub">ابدأ مع Media Buyer Hub</h2>
 
       <form id="quickLoginForm" autocomplete="on">
-        <label>الإيميل</label>
+        <label data-ar="الإيميل" data-en="Email">الإيميل</label>
         <input id="loginEmail" type="email" name="email" autocomplete="username" placeholder="you@email.com" required>
-        <label>كلمة المرور</label>
+        <label data-ar="كلمة المرور" data-en="Password">كلمة المرور</label>
         <div class="pw-wrap">
           <input id="loginPassword" type="password" name="password" autocomplete="current-password" placeholder="••••••••" required>
           <button type="button" class="pw-toggle" onclick="togglePw(this,'loginPassword')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
         </div>
-        <div class="link-row"><button type="button" class="link-btn" onclick="goForgot()">نسيت كلمة المرور؟</button></div>
-        <button class="primary" id="loginBtn" type="submit">تسجيل الدخول</button>
+        <div class="link-row"><button type="button" class="link-btn" data-ar="نسيت كلمة المرور؟" data-en="Forgot your password?" onclick="goForgot()">نسيت كلمة المرور؟</button></div>
+        <button class="primary" id="loginBtn" type="submit" data-ar="تسجيل الدخول" data-en="Sign In">تسجيل الدخول</button>
       </form>
 
-      <div class="divider">أو</div>
+      <div class="divider" data-ar="أو" data-en="or">أو</div>
 
       <button class="google-btn" id="googleBtn" onclick="signInWithGoogle()">
         <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.87c2.27-2.09 3.58-5.17 3.58-8.82z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.07 7.94-2.91l-3.87-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.27v3.11A12 12 0 0 0 12 24z"/><path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.89 12c0-.79.14-1.56.38-2.28V6.61H1.27A12 12 0 0 0 0 12c0 1.94.46 3.77 1.27 5.39l4-3.11z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.94 1.19 15.24 0 12 0 7.31 0 3.26 2.69 1.27 6.61l4 3.11C6.22 6.86 8.87 4.75 12 4.75z"/></svg>
-        إنشاء حساب / دخول بجوجل
+        <span data-ar="إنشاء حساب / دخول بجوجل" data-en="Sign up / Sign in with Google">إنشاء حساب / دخول بجوجل</span>
       </button>
 
       <div class="status" id="status"></div>
@@ -237,37 +257,37 @@ src="https://www.facebook.com/tr?id=1077724507991357&ev=PageView&noscript=1"
 
     <!-- Shown once, right after a brand-new Google signup, to enable fast email/password login next time -->
     <div id="view-set-password" hidden>
-      <h2>خلي دخولك أسرع المرة الجاية</h2>
-      <p class="hint-top">حط باسورد على إيميلك (<b id="spEmail"></b>) عشان تقدر تدخل بيه بسرعة من غير جوجل في أي وقت.</p>
-      <label>كلمة المرور <span class="req">*</span></label>
+      <h2 data-ar="خلي دخولك أسرع المرة الجاية" data-en="Make your next login faster">خلي دخولك أسرع المرة الجاية</h2>
+      <p class="hint-top"><span data-ar="حط باسورد على إيميلك (" data-en="Set a password for your email (">حط باسورد على إيميلك (</span><b id="spEmail"></b><span data-ar=") عشان تقدر تدخل بيه بسرعة من غير جوجل في أي وقت." data-en=") so you can log in quickly anytime, without Google.">) عشان تقدر تدخل بيه بسرعة من غير جوجل في أي وقت.</span></p>
+      <label><span data-ar="كلمة المرور" data-en="Password">كلمة المرور</span> <span class="req">*</span></label>
       <div class="pw-wrap">
-        <input id="spPassword" type="password" autocomplete="new-password" placeholder="8 أحرف/أرقام على الأقل">
+        <input id="spPassword" type="password" autocomplete="new-password" placeholder="8 أحرف/أرقام على الأقل" data-ar-placeholder="8 أحرف/أرقام على الأقل" data-en-placeholder="At least 8 characters">
         <button type="button" class="pw-toggle" onclick="togglePw(this,'spPassword')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
       </div>
-      <button class="primary" id="spSaveBtn" onclick="saveNewPassword()">حفظ ودخول</button>
-      <div class="skip-row"><button type="button" class="link-btn" onclick="skipSetPassword()">تخطي دلوقتي</button></div>
+      <button class="primary" id="spSaveBtn" data-ar="حفظ ودخول" data-en="Save & Continue" onclick="saveNewPassword()">حفظ ودخول</button>
+      <div class="skip-row"><button type="button" class="link-btn" data-ar="تخطي دلوقتي" data-en="Skip for now" onclick="skipSetPassword()">تخطي دلوقتي</button></div>
       <div class="status" id="status-sp"></div>
     </div>
 
     <!-- Forgot password: request reset link -->
     <div id="view-forgot" hidden>
-      <div class="back-row"><button type="button" class="link-btn" onclick="goMain()">رجوع لتسجيل الدخول</button></div>
-      <h2>استرجاع كلمة المرور</h2>
-      <label>الإيميل <span class="req">*</span></label>
+      <div class="back-row"><button type="button" class="link-btn" data-ar="رجوع لتسجيل الدخول" data-en="Back to sign in" onclick="goMain()">رجوع لتسجيل الدخول</button></div>
+      <h2 data-ar="استرجاع كلمة المرور" data-en="Reset your password">استرجاع كلمة المرور</h2>
+      <label><span data-ar="الإيميل" data-en="Email">الإيميل</span> <span class="req">*</span></label>
       <input id="forgotEmail" type="email" placeholder="you@email.com" autocomplete="email">
-      <button class="primary" id="forgotBtn" onclick="doForgotRequest()">إرسال لينك الاسترجاع</button>
+      <button class="primary" id="forgotBtn" data-ar="إرسال لينك الاسترجاع" data-en="Send reset link" onclick="doForgotRequest()">إرسال لينك الاسترجاع</button>
       <div class="status" id="status-forgot"></div>
     </div>
 
     <!-- Reached only via the reset-password email link -->
     <div id="view-reset" hidden>
-      <h2>كلمة مرور جديدة</h2>
-      <label>كلمة المرور الجديدة <span class="req">*</span></label>
+      <h2 data-ar="كلمة مرور جديدة" data-en="New password">كلمة مرور جديدة</h2>
+      <label><span data-ar="كلمة المرور الجديدة" data-en="New password">كلمة المرور الجديدة</span> <span class="req">*</span></label>
       <div class="pw-wrap">
-        <input id="resetPassword" type="password" autocomplete="new-password" placeholder="8 أحرف/أرقام على الأقل">
+        <input id="resetPassword" type="password" autocomplete="new-password" placeholder="8 أحرف/أرقام على الأقل" data-ar-placeholder="8 أحرف/أرقام على الأقل" data-en-placeholder="At least 8 characters">
         <button type="button" class="pw-toggle" onclick="togglePw(this,'resetPassword')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
       </div>
-      <button class="primary" id="resetBtn" onclick="doSetResetPassword()">حفظ الباسورد الجديد</button>
+      <button class="primary" id="resetBtn" data-ar="حفظ الباسورد الجديد" data-en="Save new password" onclick="doSetResetPassword()">حفظ الباسورد الجديد</button>
       <div class="status" id="status-reset"></div>
     </div>
 
@@ -284,6 +304,62 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const DASHBOARD_URL = 'dashboard.html';
 
 function currentOrigin(){ return window.location.origin + window.location.pathname; }
+
+// ---------------- Language toggle (front-end display only) ----------------
+const MSG = {
+  ar: {
+    fillBoth: 'اكتب الإيميل وكلمة المرور',
+    loading: 'جاري تسجيل الدخول...',
+    invalidCreds: 'الإيميل أو كلمة المرور غلط، أو لسه معملتش حساب — اعمل حساب بجوجل تحت.',
+    googleRedirect: 'جاري تحويلك لجوجل...',
+    googleErrorGeneric: 'حصل خطأ أثناء فتح صفحة جوجل',
+    pwMin: 'كلمة المرور لازم تكون 8 أحرف/أرقام على الأقل',
+    saving: 'جاري الحفظ...',
+    forgotEmpty: 'اكتب الإيميل',
+    sendingLink: 'جاري إرسال اللينك...',
+    linkSent: 'لو الإيميل ده متسجل عندنا، هتلاقي لينك استرجاع في بريدك دلوقتي.',
+    pwChanged: 'تم تغيير كلمة المرور، جاري الدخول...',
+    supportTip: 'جرب تاني، ولو المشكلة استمرت كلّم الدعم وابعتله نفس رسالة الخطأ دي.',
+    supportBtn: 'كلم الدعم',
+    waPrefix: 'واجهت مشكلة في تسجيل الدخول في Media Buyer Hub:\n'
+  },
+  en: {
+    fillBoth: 'Please enter your email and password',
+    loading: 'Signing in...',
+    invalidCreds: "Email or password is incorrect, or you don't have an account yet — sign up with Google below.",
+    googleRedirect: 'Redirecting you to Google...',
+    googleErrorGeneric: 'Something went wrong opening the Google sign-in page',
+    pwMin: 'Password must be at least 8 characters',
+    saving: 'Saving...',
+    forgotEmpty: 'Please enter your email',
+    sendingLink: 'Sending reset link...',
+    linkSent: "If this email is registered with us, you'll receive a reset link shortly.",
+    pwChanged: 'Password changed, signing you in...',
+    supportTip: 'Try again, and if the issue continues, contact support with this same error message.',
+    supportBtn: 'Contact support',
+    waPrefix: 'I ran into a sign-in issue on Media Buyer Hub:\n'
+  }
+};
+let currentLang = localStorage.getItem('mbh_lang') || 'ar';
+
+function applyLang(lang){
+  document.documentElement.lang = lang;
+  document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-ar]').forEach(function(el){
+    const text = (lang === 'ar') ? el.getAttribute('data-ar') : el.getAttribute('data-en');
+    if (text !== null) el.textContent = text;
+  });
+  document.querySelectorAll('[data-ar-placeholder]').forEach(function(el){
+    const text = (lang === 'ar') ? el.getAttribute('data-ar-placeholder') : el.getAttribute('data-en-placeholder');
+    if (text !== null) el.placeholder = text;
+  });
+  const toggleBtn = document.getElementById('langToggle');
+  if (toggleBtn) toggleBtn.textContent = (lang === 'ar') ? 'EN' : 'AR';
+  currentLang = lang;
+  localStorage.setItem('mbh_lang', lang);
+}
+function toggleLang(){ applyLang(currentLang === 'ar' ? 'en' : 'ar'); }
+window.toggleLang = toggleLang;
 
 const VIEWS = ['view-main','view-set-password','view-forgot','view-reset'];
 function showView(name){
@@ -302,14 +378,14 @@ function setStatus(scope, msg, type){
   const el = document.getElementById(scope);
   if (!el) return;
   if (type === 'error') {
-    const waMsg = encodeURIComponent('واجهت مشكلة في تسجيل الدخول في Media Buyer Hub:\n' + msg);
+    const waMsg = encodeURIComponent(MSG[currentLang].waPrefix + msg);
     el.className = 'status';
     el.innerHTML = `<div class="err-box">
       <div class="err-title">⚠️ ${escapeHtml(msg)}</div>
-      <div class="err-fix">جرب تاني، ولو المشكلة استمرت كلّم الدعم وابعتله نفس رسالة الخطأ دي.</div>
+      <div class="err-fix">${MSG[currentLang].supportTip}</div>
       <a class="err-support" href="https://wa.me/${SUPPORT_WA_NUMBER}?text=${waMsg}" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.6 6.32A8.86 8.86 0 0 0 12.02 3a8.97 8.97 0 0 0-7.77 13.42L3 21l4.7-1.24a8.96 8.96 0 0 0 4.32 1.1h.01a8.97 8.97 0 0 0 5.57-15.54zM12.03 19.4a7.4 7.4 0 0 1-3.78-1.04l-.27-.16-2.8.74.75-2.73-.18-.28a7.45 7.45 0 1 1 6.28 3.47z"/></svg>
-        كلم الدعم
+        ${MSG[currentLang].supportBtn}
       </a>
     </div>`;
     return;
@@ -379,14 +455,14 @@ document.getElementById('quickLoginForm').addEventListener('submit', async funct
   const email = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
   const btn = document.getElementById('loginBtn');
-  if (!email || !password) { setStatus('status', 'اكتب الإيميل وكلمة المرور', 'error'); return; }
+  if (!email || !password) { setStatus('status', MSG[currentLang].fillBoth, 'error'); return; }
 
   btn.disabled = true;
-  setStatus('status', 'جاري تسجيل الدخول...');
+  setStatus('status', MSG[currentLang].loading);
   const { data, error } = await sb.auth.signInWithPassword({ email, password });
   if (error) {
     setStatus('status', error.message === 'Invalid login credentials'
-      ? 'الإيميل أو كلمة المرور غلط، أو لسه معملتش حساب — اعمل حساب بجوجل تحت.'
+      ? MSG[currentLang].invalidCreds
       : error.message, 'error');
     btn.disabled = false;
     return;
@@ -400,13 +476,13 @@ document.getElementById('quickLoginForm').addEventListener('submit', async funct
 window.signInWithGoogle = async function signInWithGoogle(){
   const btn = document.getElementById('googleBtn');
   btn.disabled = true;
-  setStatus('status', 'جاري تحويلك لجوجل...');
+  setStatus('status', MSG[currentLang].googleRedirect);
   const { error } = await sb.auth.signInWithOAuth({
     provider: 'google',
     options: { redirectTo: currentOrigin() }
   });
   if (error) {
-    setStatus('status', error.message || 'حصل خطأ أثناء فتح صفحة جوجل', 'error');
+    setStatus('status', error.message || MSG[currentLang].googleErrorGeneric, 'error');
     btn.disabled = false;
   }
 };
@@ -415,9 +491,9 @@ window.signInWithGoogle = async function signInWithGoogle(){
 window.saveNewPassword = async function saveNewPassword(){
   const password = document.getElementById('spPassword').value;
   const btn = document.getElementById('spSaveBtn');
-  if (!password || password.length < 8) { setStatus('status-sp', 'كلمة المرور لازم تكون 8 أحرف/أرقام على الأقل', 'error'); return; }
+  if (!password || password.length < 8) { setStatus('status-sp', MSG[currentLang].pwMin, 'error'); return; }
   btn.disabled = true;
-  setStatus('status-sp', 'جاري الحفظ...');
+  setStatus('status-sp', MSG[currentLang].saving);
   const { data: userData } = await sb.auth.getUser();
   const email = userData && userData.user ? userData.user.email : '';
   const { error } = await sb.auth.updateUser({ password });
@@ -435,27 +511,27 @@ window.skipSetPassword = function skipSetPassword(){ goToDashboard(); };
 window.doForgotRequest = async function doForgotRequest(){
   const email = document.getElementById('forgotEmail').value.trim();
   const btn = document.getElementById('forgotBtn');
-  if (!email) { setStatus('status-forgot', 'اكتب الإيميل', 'error'); return; }
+  if (!email) { setStatus('status-forgot', MSG[currentLang].forgotEmpty, 'error'); return; }
   btn.disabled = true;
-  setStatus('status-forgot', 'جاري إرسال اللينك...');
+  setStatus('status-forgot', MSG[currentLang].sendingLink);
   const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: currentOrigin() });
   btn.disabled = false;
   if (error) { setStatus('status-forgot', error.message, 'error'); return; }
-  setStatus('status-forgot', 'لو الإيميل ده متسجل عندنا، هتلاقي لينك استرجاع في بريدك دلوقتي.', 'ok');
+  setStatus('status-forgot', MSG[currentLang].linkSent, 'ok');
 };
 
 window.doSetResetPassword = async function doSetResetPassword(){
   const password = document.getElementById('resetPassword').value;
   const btn = document.getElementById('resetBtn');
-  if (!password || password.length < 8) { setStatus('status-reset', 'كلمة المرور لازم تكون 8 أحرف/أرقام على الأقل', 'error'); return; }
+  if (!password || password.length < 8) { setStatus('status-reset', MSG[currentLang].pwMin, 'error'); return; }
   btn.disabled = true;
-  setStatus('status-reset', 'جاري الحفظ...');
+  setStatus('status-reset', MSG[currentLang].saving);
   const { data: userData } = await sb.auth.getUser();
   const email = userData && userData.user ? userData.user.email : '';
   const { error } = await sb.auth.updateUser({ password });
   if (error) { setStatus('status-reset', error.message, 'error'); btn.disabled = false; return; }
   await offerCredentialSave(email, password);
-  setStatus('status-reset', 'تم تغيير كلمة المرور، جاري الدخول...', 'ok');
+  setStatus('status-reset', MSG[currentLang].pwChanged, 'ok');
   setTimeout(goToDashboard, 600);
 };
 
@@ -466,6 +542,8 @@ sb.auth.onAuthStateChange((event, session) => {
 });
 
 (async function init(){
+  applyLang(currentLang);
+
   const hashParams = new URLSearchParams(window.location.hash.replace('#',''));
   const qParams = new URLSearchParams(window.location.search);
   const oauthError = hashParams.get('error_description') || qParams.get('error_description');
