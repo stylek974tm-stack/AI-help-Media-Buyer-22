@@ -641,6 +641,70 @@ const FN = SUPABASE_URL + '/functions/v1/ads-api';
 const S = window.MBH_SPEC;
 const M = window.MBH = { SPEC: S, ctx: { conn: {}, acct: {}, page: {}, pixel: {}, names: {}, bench: {}, reach: {} }, pf: 'meta', user: null };
 
+/* ---------- language (AR/EN) ---------- */
+const LANG_KEY = 'mbh.lang';
+M.lang = localStorage.getItem(LANG_KEY) === 'ar' ? 'ar' : 'en';
+const I18N = {
+  en: {
+    brand_hub: 'Media Buyer Hub', menu: 'Menu', close: 'Close', demo_pill: 'Demo data — nothing is sent',
+    all_saved: 'All changes saved', create_ad: 'Create ad', back: 'Back', cont: 'Continue',
+    sidebar_foot: 'All your data stays tied to your account and protected — nothing is shared with third parties.',
+    manager: 'Ads Manager', campaigns: 'Campaigns', adsets: 'Ad sets', adgroups: 'Ad groups', ads: 'Ads', drafts: 'Drafts',
+    search_name: 'Search by name', refresh: 'Refresh', platform: 'Platform', ad_account: 'Ad account', date_range: 'Date range',
+    all_campaigns: 'All campaigns', col_on: 'On', col_name: 'Name', col_status: 'Status', col_budget: 'Budget', col_results: 'Results',
+    col_spend: 'Spend', col_impr: 'Impressions', col_clicks: 'Clicks', col_ctr: 'CTR', col_cpc: 'CPC', col_cpm: 'CPM', col_cpp: 'CPP',
+    col_actions: 'Actions', total: 'Total', selected: 'selected', turn_on: 'Turn on', turn_off: 'Turn off', pause: 'Pause', delete: 'Delete',
+    edit: 'Edit', duplicate: 'Duplicate', no_dup: 'does not allow duplicating from here', per_day: '/day', continue_draft: 'Continue',
+    camp_s: 'campaign', adset_s: 'ad set', adgroup_s: 'ad group', ad_s: 'ad',
+    no_items: 'here yet', create_hint: 'Create your first ad to see it here.', no_results_hint: 'Nothing found for this selection and date range.',
+    no_drafts: 'No drafts', drafts_hint: 'Ads you start creating are saved here automatically.', untitled_ad: 'Untitled ad',
+    no_objective: 'No objective yet', edited: 'edited', delete_this: 'Delete this', del_body_multi: 'and everything inside it will stop delivering and be removed. This cannot be undone.',
+    del_confirm: 'Delete', del_ok: 'Deleted', today: 'Today', yesterday: 'Yesterday', last7: 'Last 7 days', last30: 'Last 30 days', last90: 'Last 90 days',
+    active: 'Active', paused: 'Paused', in_review: 'In review', not_approved: 'Not approved', has_issues: 'Has issues', archived: 'Archived',
+    deleted: 'Deleted', campaign_paused: 'Campaign paused', adset_paused: 'Ad set paused', not_connected: 'Not connected',
+    edit_x: 'Edit', save_changes: 'Save changes', name_lbl: 'Name', status_lbl: 'Status', daily_budget: 'Daily budget',
+    end_date_opt: 'End date (optional)', edit_note: 'Audience and creative changes: create a new ad or duplicate this one — editing them in place would restart the learning phase.',
+    enter_valid_budget: 'Enter a valid budget.', saved: 'Saved', duplicated: 'Duplicated', duplicated_note: '(paused). Copies can take a moment to appear.',
+    delete_x_q: 'Delete this', will_stop_single: 'will stop delivering and be removed. This cannot be undone.', and_everything_inside: 'and everything inside it ',
+    delete_n_q: 'Delete', will_stop_multi: 'They will stop delivering and be removed. This cannot be undone.', delete_draft_q: 'Delete this draft?',
+    draft_removed: 'The draft will be removed from all your devices.'
+  },
+  ar: {
+    brand_hub: 'مساعد الميديا باير', menu: 'القائمة', close: 'إغلاق', demo_pill: 'بيانات تجريبية — لا شيء يُرسل فعليًا',
+    all_saved: 'تم حفظ كل التعديلات', create_ad: 'إنشاء إعلان', back: 'رجوع', cont: 'متابعة',
+    sidebar_foot: 'جميع البيانات مرتبطة بحسابك ومحمية — لا تتم مشاركتها مع أي طرف تالت.',
+    manager: 'مدير الإعلانات', campaigns: 'الحملات', adsets: 'المجموعات الإعلانية', adgroups: 'مجموعات الإعلانات', ads: 'الإعلانات', drafts: 'المسودات',
+    search_name: 'ابحث بالاسم', refresh: 'تحديث', platform: 'المنصة', ad_account: 'الحساب الإعلاني', date_range: 'الفترة الزمنية',
+    all_campaigns: 'كل الحملات', col_on: 'تشغيل', col_name: 'الاسم', col_status: 'الحالة', col_budget: 'الميزانية', col_results: 'النتائج',
+    col_spend: 'الصرف', col_impr: 'الظهور', col_clicks: 'النقرات', col_ctr: 'نسبة النقر', col_cpc: 'تكلفة النقرة', col_cpm: 'تكلفة الألف ظهور', col_cpp: 'CPP',
+    col_actions: 'إجراءات', total: 'الإجمالي', selected: 'محدد', turn_on: 'تشغيل', turn_off: 'إيقاف', pause: 'إيقاف مؤقت', delete: 'حذف',
+    edit: 'تعديل', duplicate: 'نسخ', no_dup: 'لا تسمح بالنسخ من هنا', per_day: '/يوم', continue_draft: 'متابعة',
+    no_items: 'هنا حتى الآن', create_hint: 'أنشئ أول إعلان لك عشان يظهر هنا.', no_results_hint: 'مفيش نتائج للفلاتر والفترة دي.',
+    camp_s: 'حملة', adset_s: 'مجموعة إعلانية', adgroup_s: 'مجموعة إعلانات', ad_s: 'إعلان',
+    no_drafts: 'لا توجد مسودات', drafts_hint: 'الإعلانات اللي تبدأ تعملها بتتحفظ هنا تلقائيًا.', untitled_ad: 'إعلان بدون اسم',
+    no_objective: 'لسه مفيش هدف محدد', edited: 'آخر تعديل', delete_this: 'حذف', del_body_multi: 'وكل اللي جواه هيتوقف عن الظهور ويتحذف. الإجراء ده لا يمكن التراجع عنه.',
+    del_confirm: 'حذف', del_ok: 'تم الحذف', today: 'اليوم', yesterday: 'أمس', last7: 'آخر 7 أيام', last30: 'آخر 30 يوم', last90: 'آخر 90 يوم',
+    active: 'نشط', paused: 'متوقف', in_review: 'قيد المراجعة', not_approved: 'مرفوض', has_issues: 'به مشاكل', archived: 'مؤرشف',
+    deleted: 'محذوف', campaign_paused: 'الحملة متوقفة', adset_paused: 'المجموعة متوقفة', not_connected: 'غير متصل',
+    edit_x: 'تعديل', save_changes: 'حفظ التعديلات', name_lbl: 'الاسم', status_lbl: 'الحالة', daily_budget: 'الميزانية اليومية',
+    end_date_opt: 'تاريخ الانتهاء (اختياري)', edit_note: 'تعديل الجمهور والمحتوى الإبداعي: أنشئ إعلان جديد أو انسخ هذا — التعديل المباشر هيرجّع فترة التعلم من الأول.',
+    enter_valid_budget: 'ادخل ميزانية صحيحة.', saved: 'تم الحفظ', duplicated: 'تم النسخ', duplicated_note: '(متوقف). النسخة ممكن تاخد شوية وقت عشان تظهر.',
+    delete_x_q: 'حذف', will_stop_single: 'هيتوقف عن الظهور ويتحذف. الإجراء ده لا يمكن التراجع عنه.', and_everything_inside: 'وكل اللي جواه ',
+    delete_n_q: 'حذف', will_stop_multi: 'هيتوقفوا عن الظهور ويتحذفوا. الإجراء ده لا يمكن التراجع عنه.', delete_draft_q: 'حذف المسودة دي؟',
+    draft_removed: 'المسودة هتتشال من كل أجهزتك.'
+  }
+};
+M.t = function (key) { const d = I18N[M.lang] || I18N.en; return d[key] != null ? d[key] : (I18N.en[key] != null ? I18N.en[key] : key); };
+M.setLang = function (l) {
+  M.lang = l === 'ar' ? 'ar' : 'en';
+  localStorage.setItem(LANG_KEY, M.lang);
+  document.documentElement.lang = M.lang;
+  document.documentElement.dir = M.lang === 'ar' ? 'rtl' : 'ltr';
+  if (M.run) M.run();
+};
+document.documentElement.lang = M.lang;
+document.documentElement.dir = M.lang === 'ar' ? 'rtl' : 'ltr';
+
 /* ---------- tiny utils ---------- */
 const $ = (s, r) => (r || document).querySelector(s), $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -816,28 +880,32 @@ M.setCtx = function (kind, pf, list, keyFn) {
 };
 
 /* ---------- shell (topbar + sidebar + stepper + footbar) ---------- */
-const NAV = [['index.html', 'تسجيل الدخول', 'left'], ['account.html', 'ربط الحسابات الإعلانية', 'lock'], ['dashboard.html', 'تحليل البيانات', 'clock'], ['insights.html', 'الرسوم البيانية', 'clock'], ['automation-rules.html', 'قواعد الأتمتة', 'bolt'], ['team-quality.html', 'أداء الموظفين', 'users'], ['subscription.html', 'الاشتراك والدفع', 'lock'], ['|'], ['#/new', 'إنشاء إعلان', 'spark'], ['#/manager', 'مدير الإعلانات', 'form']];
+const NAV_AR = [['index.html', 'تسجيل الدخول', 'left'], ['account.html', 'ربط الحسابات الإعلانية', 'lock'], ['dashboard.html', 'تحليل البيانات', 'clock'], ['insights.html', 'الرسوم البيانية', 'clock'], ['automation-rules.html', 'قواعد الأتمتة', 'bolt'], ['team-quality.html', 'أداء الموظفين', 'users'], ['subscription.html', 'الاشتراك والدفع', 'lock'], ['|'], ['#/new', 'إنشاء إعلان', 'spark'], ['#/manager', 'مدير الإعلانات', 'form']];
+const NAV_EN = [['index.html', 'Log in', 'left'], ['account.html', 'Connect ad accounts', 'lock'], ['dashboard.html', 'Data analytics', 'clock'], ['insights.html', 'Insights', 'clock'], ['automation-rules.html', 'Automation rules', 'bolt'], ['team-quality.html', 'Team performance', 'users'], ['subscription.html', 'Subscription & billing', 'lock'], ['|'], ['#/new', 'Create ad', 'spark'], ['#/manager', 'Ads Manager', 'form']];
 M.shell = function (o) {
   const page = '#/' + (M.routeName || 'manager');
+  const NAV = M.lang === 'ar' ? NAV_AR : NAV_EN;
   const nav = NAV.map(n => n[0] === '|' ? '<div class="nav-divider"></div>' : '<a class="nav-item' + ((page === n[0].split('?')[0] || (n[0] === '#/new' && /^#\/(setup|audience|budget|creative|review|done)/.test(page))) ? ' active' : '') + '" href="' + n[0] + '">' + ic(n[2]) + n[1] + '</a>').join('');
   const top = document.createElement('div');
-  top.innerHTML = '<div class="topbar"><button class="icon-btn" id="menuBtn" aria-label="Menu">' + ic('menu') + '</button><div class="brand">Media Buyer <span>Hub</span></div><div class="topbar-spacer"></div>' + (M.demo ? '<a class="demo-pill" href="?demo=0" title="Exit demo mode">Demo data — nothing is sent</a>' : '') + (o.saveState ? '<div class="save-state" id="saveState"><i></i><span>All changes saved</span></div>' : '') + '</div>' +
-    '<div class="backdrop" id="backdrop"></div><aside class="sidebar" id="sidebar"><div class="sidebar-head"><b>Media Buyer Hub</b><button class="icon-btn" id="closeSb" aria-label="Close">' + ic('x') + '</button></div>' + nav + '<div class="sidebar-foot">جميع البيانات مرتبطة بحسابك ومحمية — لا تتم مشاركتها مع أي طرف تالت.</div></aside>';
+  top.innerHTML = '<div class="topbar"><button class="icon-btn" id="menuBtn" aria-label="' + M.t('menu') + '">' + ic('menu') + '</button><div class="brand">' + esc(M.t('brand_hub')) + '</div><div class="topbar-spacer"></div><button class="icon-btn" id="langToggle" title="EN / AR" style="font-size:11px;font-weight:800;width:auto;padding:0 10px">' + (M.lang === 'ar' ? 'EN' : 'AR') + '</button>' + (M.demo ? '<a class="demo-pill" href="?demo=0" title="' + esc(M.t('demo_pill')) + '">' + esc(M.t('demo_pill')) + '</a>' : '') + (o.saveState ? '<div class="save-state" id="saveState"><i></i><span>' + esc(M.t('all_saved')) + '</span></div>' : '') + '</div>' +
+    '<div class="backdrop" id="backdrop"></div><aside class="sidebar" id="sidebar"><div class="sidebar-head"><b>' + esc(M.t('brand_hub')) + '</b><button class="icon-btn" id="closeSb" aria-label="' + M.t('close') + '">' + ic('x') + '</button></div>' + nav + '<div class="sidebar-foot">' + esc(M.t('sidebar_foot')) + '</div></aside>';
   const frag = document.createDocumentFragment(); while (top.firstChild) frag.appendChild(top.firstChild); document.body.prepend(frag);
   const sb = $('#sidebar'), bd = $('#backdrop');
   const open = () => { sb.classList.add('open'); bd.classList.add('show'); }, close = () => { sb.classList.remove('open'); bd.classList.remove('show'); };
   $('#menuBtn').onclick = e => { e.stopPropagation(); sb.classList.contains('open') ? close() : open(); }; $('#closeSb').onclick = close; bd.onclick = close;
+  $('#langToggle').onclick = () => M.setLang(M.lang === 'ar' ? 'en' : 'ar');
   if (M._kd) document.removeEventListener('keydown', M._kd); M._kd = e => { if (e.key === 'Escape') close(); }; document.addEventListener('keydown', M._kd);
   if (o.step != null) {
     const d = D.d, st = document.createElement('nav'); st.className = 'stepper'; st.setAttribute('aria-label', 'Ad creation steps');
     let blocked = false;
+    const STEP_LABELS = M.lang === 'ar' ? { objective: 'الهدف', setup: 'الإعداد', audience: 'الجمهور', budget: 'الميزانية', creative: 'المحتوى الإبداعي', review: 'المراجعة' } : {};
     st.innerHTML = '<div class="steps">' + S.STEPS.map((s, i) => {
       const ready = i < 5 && d ? S.stepReady(s[0], d) : false;
       const cls = i === o.step ? 'active' : (i < o.step || (d && i <= (d.maxStep || 0) && ready)) ? 'done' : '';
       const lock = i > o.step && (blocked || !d || i > (d.maxStep || 0) + 1);
       if (i <= o.step && !ready && i < 5) blocked = true;
       const n = i < o.step && ready ? ic('check', '') : (i + 1);
-      const inner = '<span class="n">' + n + '</span>' + s[1];
+      const inner = '<span class="n">' + n + '</span>' + esc(STEP_LABELS[s[0]] || s[1]);
       return (i === o.step || lock) ? '<span class="step ' + cls + (lock ? ' locked' : '') + '"' + (i === o.step ? ' aria-current="step"' : '') + '>' + inner + '</span>' : '<a class="step ' + cls + '" href="' + S.STEP_URL[s[0]] + '">' + inner + '</a>';
     }).join('<span class="step-sep"></span>') + '</div>';
     const tb = $('.topbar'); tb.parentNode.insertBefore(st, tb.nextSibling);
@@ -846,7 +914,7 @@ M.shell = function (o) {
 };
 M.foot = function (o) {
   const f = document.createElement('div'); f.className = 'footbar';
-  f.innerHTML = '<div class="in">' + (o.back ? '<a class="btn ghost" href="' + o.back + '">' + ic('left') + 'Back</a>' : '<span></span>') + '<div class="msg" id="footMsg" aria-live="polite"></div>' + (o.extra || '') + '<button class="btn primary" id="nextBtn">' + esc(o.label || 'Continue') + ic('right') + '</button></div>';
+  f.innerHTML = '<div class="in">' + (o.back ? '<a class="btn ghost" href="' + o.back + '">' + ic('left') + esc(M.t('back')) + '</a>' : '<span></span>') + '<div class="msg" id="footMsg" aria-live="polite"></div>' + (o.extra || '') + '<button class="btn primary" id="nextBtn">' + esc(o.label || M.t('cont')) + ic('right') + '</button></div>';
   document.body.appendChild(f);
   const btn = $('#nextBtn');
   btn.onclick = async function () {
@@ -1973,21 +2041,21 @@ R.manager = async function () {
 'use strict';
 const M = window.MBH, S = M.SPEC, esc = M.esc, ic = M.icon, app = document.getElementById('app');
 if (!(await M.boot({ needDraft: false, saveState: false }))) return;
-const RANGES = [['today', 'Today'], ['yesterday', 'Yesterday'], ['last_7d', 'Last 7 days'], ['last_30d', 'Last 30 days'], ['last_90d', 'Last 90 days']];
-const LEVELS = [['campaign', 'Campaigns'], ['adset', 'Ad sets'], ['ad', 'Ads'], ['drafts', 'Drafts']];
+const RANGES = [['today', M.t('today')], ['yesterday', M.t('yesterday')], ['last_7d', M.t('last7')], ['last_30d', M.t('last30')], ['last_90d', M.t('last90')]];
+const LEVELS = [['campaign', M.t('campaigns')], ['adset', M.t('adsets')], ['ad', M.t('ads')], ['drafts', M.t('drafts')]];
 const st = { pf: sessionStorage.getItem('mbh.mgr.pf') || 'meta', acct: '', accts: [], level: 'campaign', parent: {}, range: 'last_7d', q: '', sel: new Set(), items: null, err: null, sort: null, dir: -1, drafts: null };
 let conn = {};
 try { conn = await M.loadConn(); } catch (e) { conn = {}; }
 if (!app.isConnected) return;
 if (!(conn[st.pf] || {}).connected) st.pf = S.PF.find(p => (conn[p] || {}).connected) || 'meta';
-const label = { campaign: 'campaign', adset: S.PLATFORMS[st.pf].name === 'Google' ? 'ad group' : 'ad set', ad: 'ad' };
+const label = { campaign: M.t('camp_s'), adset: S.PLATFORMS[st.pf].name === 'Google' ? M.t('adgroup_s') : M.t('adset_s'), ad: M.t('ad_s') };
 const canDup = () => st.pf === 'meta';
-const setLabel = () => (st.pf === 'google' ? 'Ad groups' : 'Ad sets');
+const setLabel = () => (st.pf === 'google' ? M.t('adgroups') : M.t('adsets'));
 
-app.innerHTML = '<div class="row between wrap" style="margin-bottom:14px;gap:12px"><div><h1 style="margin:0;font-size:22px;font-weight:800">Ads Manager</h1><div class="dim small" id="crumbs"></div></div><div class="row wrap" id="tools" style="gap:8px"></div></div><div id="view"></div>';
+app.innerHTML = '<div class="row between wrap" style="margin-bottom:14px;gap:12px"><div><h1 style="margin:0;font-size:22px;font-weight:800">' + esc(M.t('manager')) + '</h1><div class="dim small" id="crumbs"></div></div><div class="row wrap" id="tools" style="gap:8px"></div></div><div id="view"></div>';
 
 const money = (v, c) => S.money(v, c);
-const statusBadge = i => { const s = i.effective_status || i.status; const m = { ACTIVE: ['ok', 'Active'], PAUSED: ['mute', 'Paused'], PENDING_REVIEW: ['warn', 'In review'], IN_PROCESS: ['warn', 'In review'], DISAPPROVED: ['err', 'Not approved'], WITH_ISSUES: ['warn', 'Has issues'], ARCHIVED: ['mute', 'Archived'], DELETED: ['mute', 'Deleted'], CAMPAIGN_PAUSED: ['mute', 'Campaign paused'], ADSET_PAUSED: ['mute', 'Ad set paused'] }[s] || ['mute', s || '—']; return '<span class="badge ' + m[0] + '">' + m[1] + '</span>'; };
+const statusBadge = i => { const s = i.effective_status || i.status; const m = { ACTIVE: ['ok', M.t('active')], PAUSED: ['mute', M.t('paused')], PENDING_REVIEW: ['warn', M.t('in_review')], IN_PROCESS: ['warn', M.t('in_review')], DISAPPROVED: ['err', M.t('not_approved')], WITH_ISSUES: ['warn', M.t('has_issues')], ARCHIVED: ['mute', M.t('archived')], DELETED: ['mute', M.t('deleted')], CAMPAIGN_PAUSED: ['mute', M.t('campaign_paused')], ADSET_PAUSED: ['mute', M.t('adset_paused')] }[s] || ['mute', s || '—']; return '<span class="badge ' + m[0] + '">' + esc(m[1]) + '</span>'; };
 
 async function loadAccts() {
   try { st.accts = await M.api(st.pf, 'accounts.list'); M.setCtx('acct', st.pf, st.accts); const last = localStorage.getItem('mbh.mgr.' + st.pf); const a = st.accts.find(x => x.id === last) || st.accts.find(x => x.status === 'active') || st.accts[0]; st.acct = a ? a.id : ''; } catch (e) { st.accts = []; st.err = e; }
@@ -2005,47 +2073,47 @@ async function load(force) {
   draw();
 }
 function crumbs() {
-  const c = ['<a href="#" data-goto="campaign">All campaigns</a>']; if (st.parent.campaign) c.push('<a href="#" data-goto="adset">' + esc(st.parent.campaign.name) + '</a>'); if (st.parent.adset) c.push('<span>' + esc(st.parent.adset.name) + '</span>');
+  const c = ['<a href="#" data-goto="campaign">' + esc(M.t('all_campaigns')) + '</a>']; if (st.parent.campaign) c.push('<a href="#" data-goto="adset">' + esc(st.parent.campaign.name) + '</a>'); if (st.parent.adset) c.push('<span>' + esc(st.parent.adset.name) + '</span>');
   return st.level === 'drafts' ? '' : c.join(' › ');
 }
 function tools() {
-  const acc = '<select class="input" id="acctSel" style="min-height:36px;padding:6px 30px 6px 10px;width:auto;max-width:230px" aria-label="Ad account">' + st.accts.map(a => '<option value="' + esc(a.id) + '"' + (a.id === st.acct ? ' selected' : '') + '>' + esc(a.name) + '</option>').join('') + '</select>';
-  const pfs = '<div class="seg" role="group" aria-label="Platform">' + S.PF.map(p => '<button data-pf="' + p + '" class="' + (p === st.pf ? 'on' : '') + '"' + ((conn[p] || {}).connected ? '' : ' disabled title="Not connected"') + '>' + S.PLATFORMS[p].name + '</button>').join('') + '</div>';
-  const rng = '<select class="input" id="rangeSel" style="min-height:36px;padding:6px 30px 6px 10px;width:auto" aria-label="Date range">' + RANGES.map(r => '<option value="' + r[0] + '"' + (r[0] === st.range ? ' selected' : '') + '>' + r[1] + '</option>').join('') + '</select>';
-  return pfs + acc + rng + '<button class="icon-btn" id="refresh" aria-label="Refresh" title="Refresh">' + ic('refresh') + '</button><a class="btn primary" href="#/new?new=1&pf=' + st.pf + '">' + ic('plus') + 'Create ad</a>';
+  const acc = '<select class="input" id="acctSel" style="min-height:36px;padding:6px 30px 6px 10px;width:auto;max-width:230px" aria-label="' + esc(M.t('ad_account')) + '">' + st.accts.map(a => '<option value="' + esc(a.id) + '"' + (a.id === st.acct ? ' selected' : '') + '>' + esc(a.name) + '</option>').join('') + '</select>';
+  const pfs = '<div class="seg" role="group" aria-label="' + esc(M.t('platform')) + '">' + S.PF.map(p => '<button data-pf="' + p + '" class="' + (p === st.pf ? 'on' : '') + '"' + ((conn[p] || {}).connected ? '' : ' disabled title="' + esc(M.t('not_connected')) + '"') + '>' + S.PLATFORMS[p].name + '</button>').join('') + '</div>';
+  const rng = '<select class="input" id="rangeSel" style="min-height:36px;padding:6px 30px 6px 10px;width:auto" aria-label="' + esc(M.t('date_range')) + '">' + RANGES.map(r => '<option value="' + r[0] + '"' + (r[0] === st.range ? ' selected' : '') + '>' + esc(r[1]) + '</option>').join('') + '</select>';
+  return pfs + acc + rng + '<button class="icon-btn" id="refresh" aria-label="' + esc(M.t('refresh')) + '" title="' + esc(M.t('refresh')) + '">' + ic('refresh') + '</button><a class="btn primary" href="#/new?new=1&pf=' + st.pf + '">' + ic('plus') + esc(M.t('create_ad')) + '</a>';
 }
-const COLS = [['spend', 'Spend'], ['impressions', 'Impressions'], ['clicks', 'Clicks'], ['ctr', 'CTR'], ['cpc', 'CPC'], ['cpm', 'CPM'], ['cpp', 'CPP']];
+const COLS = [['spend', M.t('col_spend')], ['impressions', M.t('col_impr')], ['clicks', M.t('col_clicks')], ['ctr', M.t('col_ctr')], ['cpc', M.t('col_cpc')], ['cpm', M.t('col_cpm')], ['cpp', M.t('col_cpp')]];
 function tableHTML() {
   if (st.err) return M.errBox(st.err, true);
   if (!st.items) return '<div class="card">' + M.skeleton(6, 40) + '</div>';
   let items = st.items.slice();
   if (st.sort) items.sort((a, b) => ((a[st.sort] || 0) - (b[st.sort] || 0)) * st.dir);
-  if (!items.length) return '<div class="card"><div class="empty"><b>No ' + (st.level === 'adset' ? setLabel().toLowerCase() : st.level + 's') + ' here yet</b>' + (st.level === 'campaign' ? 'Create your first ad to see it here.' : 'Nothing found for this selection and date range.') + '</div></div>';
+  if (!items.length) return '<div class="card"><div class="empty"><b>' + esc((st.level === 'adset' ? setLabel() : LEVELS.find(l => l[0] === st.level)[1]) + ' ' + M.t('no_items')) + '</b>' + esc(st.level === 'campaign' ? M.t('create_hint') : M.t('no_results_hint')) + '</div></div>';
   const cur = (M.ctx.acct[st.pf] || {})[st.acct]; const c = cur ? cur.currency : '';
   const tot = items.reduce((t, i) => { t.spend += i.spend || 0; t.impressions += i.impressions || 0; t.clicks += i.clicks || 0; t.results += i.results || 0; return t; }, { spend: 0, impressions: 0, clicks: 0, results: 0 });
   const th = (k, l) => '<th class="r"><button class="linkbtn" style="color:inherit" data-sort="' + k + '">' + l + (st.sort === k ? (st.dir > 0 ? ' ▲' : ' ▼') : '') + '</button></th>';
   const rows = items.map(i => {
     const drill = st.level === 'campaign' ? 'adset' : st.level === 'adset' ? 'ad' : '';
-    return '<tr data-id="' + esc(i.id) + '"><td><input type="checkbox" data-sel="' + esc(i.id) + '"' + (st.sel.has(i.id) ? ' checked' : '') + ' aria-label="Select ' + esc(i.name) + '"></td>' +
-      '<td><label class="switch" title="' + (i.status === 'ACTIVE' ? 'Turn off' : 'Turn on') + '"><input type="checkbox" data-tog="' + esc(i.id) + '"' + (i.status === 'ACTIVE' ? ' checked' : '') + (['ARCHIVED', 'DELETED'].includes(i.status) ? ' disabled' : '') + '><span class="tr"></span></label></td>' +
+    return '<tr data-id="' + esc(i.id) + '"><td><input type="checkbox" data-sel="' + esc(i.id) + '"' + (st.sel.has(i.id) ? ' checked' : '') + ' aria-label="' + esc(i.name) + '"></td>' +
+      '<td><label class="switch" title="' + (i.status === 'ACTIVE' ? esc(M.t('turn_off')) : esc(M.t('turn_on'))) + '"><input type="checkbox" data-tog="' + esc(i.id) + '"' + (i.status === 'ACTIVE' ? ' checked' : '') + (['ARCHIVED', 'DELETED'].includes(i.status) ? ' disabled' : '') + '><span class="tr"></span></label></td>' +
       '<td class="nm" style="font-weight:600">' + (i.thumb ? '<img src="' + esc(i.thumb) + '" alt="" style="width:26px;height:34px;object-fit:cover;border-radius:5px;vertical-align:middle;margin-inline-end:8px">' : '') + (drill ? '<a href="#" data-drill="' + esc(i.id) + '">' + esc(i.name) + '</a>' : esc(i.name)) + '</td><td>' + statusBadge(i) + '</td>' +
-      '<td class="r num">' + (i.daily_budget ? money(i.daily_budget, i.currency || c) + '<span class="faint tiny">/day</span>' : '—') + '</td><td class="r num">' + (i.results != null ? S.money(i.results) + '<div class="tiny faint">' + esc(i.result_label || '') + '</div>' : '—') + '</td>' +
+      '<td class="r num">' + (i.daily_budget ? money(i.daily_budget, i.currency || c) + '<span class="faint tiny">' + esc(M.t('per_day')) + '</span>' : '—') + '</td><td class="r num">' + (i.results != null ? S.money(i.results) + '<div class="tiny faint">' + esc(i.result_label || '') + '</div>' : '—') + '</td>' +
       COLS.map(col => '<td class="r num">' + (col[0] === 'ctr' ? S.pct(i.ctr) : col[0] === 'impressions' || col[0] === 'clicks' ? S.money(i[col[0]]) : i[col[0]] ? money(i[col[0]]) : '—') + '</td>').join('') +
-      '<td class="r" style="white-space:nowrap"><button class="icon-btn" style="width:30px;height:30px" data-edit="' + esc(i.id) + '" aria-label="Edit" title="Edit">' + ic('edit') + '</button> <button class="icon-btn" style="width:30px;height:30px" data-dup="' + esc(i.id) + '" aria-label="Duplicate" title="' + (canDup() ? 'Duplicate' : S.PLATFORMS[st.pf].name + ' does not allow duplicating from here') + '"' + (canDup() ? '' : ' disabled') + '>' + ic('copy') + '</button> <button class="icon-btn" style="width:30px;height:30px" data-del="' + esc(i.id) + '" aria-label="Delete" title="Delete">' + ic('trash') + '</button></td></tr>';
+      '<td class="r" style="white-space:nowrap"><button class="icon-btn" style="width:30px;height:30px" data-edit="' + esc(i.id) + '" aria-label="' + esc(M.t('edit')) + '" title="' + esc(M.t('edit')) + '">' + ic('edit') + '</button> <button class="icon-btn" style="width:30px;height:30px" data-dup="' + esc(i.id) + '" aria-label="' + esc(M.t('duplicate')) + '" title="' + (canDup() ? esc(M.t('duplicate')) : esc(S.PLATFORMS[st.pf].name + ' ' + M.t('no_dup'))) + '"' + (canDup() ? '' : ' disabled') + '>' + ic('copy') + '</button> <button class="icon-btn" style="width:30px;height:30px" data-del="' + esc(i.id) + '" aria-label="' + esc(M.t('delete')) + '" title="' + esc(M.t('delete')) + '">' + ic('trash') + '</button></td></tr>';
   }).join('');
-  const bulk = st.sel.size ? '<div class="row" style="gap:8px;margin-bottom:10px"><b>' + st.sel.size + ' selected</b><button class="btn sm" data-bulk="ACTIVE">' + ic('play') + 'Turn on</button><button class="btn sm" data-bulk="PAUSED">' + ic('pause') + 'Pause</button><button class="btn sm danger" data-bulk="DELETE">' + ic('trash') + 'Delete</button></div>' : '';
-  return bulk + '<div class="tbl-wrap"><table class="tbl"><thead><tr><th></th><th>On</th><th>Name</th><th>Status</th><th class="r">Budget</th><th class="r">Results</th>' + COLS.map(x => th(x[0], x[1])).join('') + '<th class="r">Actions</th></tr></thead><tbody>' + rows + '</tbody><tfoot><tr><td></td><td></td><td>Total (' + items.length + ')</td><td></td><td></td><td class="r num">' + S.money(tot.results) + '</td><td class="r num">' + money(tot.spend, c) + '</td><td class="r num">' + S.money(tot.impressions) + '</td><td class="r num">' + S.money(tot.clicks) + '</td><td class="r num">' + S.pct(tot.impressions ? tot.clicks / tot.impressions * 100 : null) + '</td><td class="r num">' + (tot.clicks ? money(tot.spend / tot.clicks) : '—') + '</td><td class="r num">' + (tot.impressions ? money(tot.spend / tot.impressions * 1000) : '—') + '</td><td class="r num">' + (tot.results ? money(tot.spend / tot.results) : '—') + '</td><td></td></tr></tfoot></table></div>';
+  const bulk = st.sel.size ? '<div class="row" style="gap:8px;margin-bottom:10px"><b>' + st.sel.size + ' ' + esc(M.t('selected')) + '</b><button class="btn sm" data-bulk="ACTIVE">' + ic('play') + esc(M.t('turn_on')) + '</button><button class="btn sm" data-bulk="PAUSED">' + ic('pause') + esc(M.t('pause')) + '</button><button class="btn sm danger" data-bulk="DELETE">' + ic('trash') + esc(M.t('delete')) + '</button></div>' : '';
+  return bulk + '<div class="tbl-wrap"><table class="tbl"><thead><tr><th></th><th>' + esc(M.t('col_on')) + '</th><th>' + esc(M.t('col_name')) + '</th><th>' + esc(M.t('col_status')) + '</th><th class="r">' + esc(M.t('col_budget')) + '</th><th class="r">' + esc(M.t('col_results')) + '</th>' + COLS.map(x => th(x[0], x[1])).join('') + '<th class="r">' + esc(M.t('col_actions')) + '</th></tr></thead><tbody>' + rows + '</tbody><tfoot><tr><td></td><td></td><td>' + esc(M.t('total')) + ' (' + items.length + ')</td><td></td><td></td><td class="r num">' + S.money(tot.results) + '</td><td class="r num">' + money(tot.spend, c) + '</td><td class="r num">' + S.money(tot.impressions) + '</td><td class="r num">' + S.money(tot.clicks) + '</td><td class="r num">' + S.pct(tot.impressions ? tot.clicks / tot.impressions * 100 : null) + '</td><td class="r num">' + (tot.clicks ? money(tot.spend / tot.clicks) : '—') + '</td><td class="r num">' + (tot.impressions ? money(tot.spend / tot.impressions * 1000) : '—') + '</td><td class="r num">' + (tot.results ? money(tot.spend / tot.results) : '—') + '</td><td></td></tr></tfoot></table></div>';
 }
 function draftsHTML() {
   if (!st.drafts) return '<div class="card">' + M.skeleton(3, 60) + '</div>';
-  if (!st.drafts.length) return '<div class="card"><div class="empty"><b>No drafts</b>Ads you start creating are saved here automatically.</div></div>';
-  return '<div class="stack">' + st.drafts.map(d => '<div class="card row between wrap" style="gap:12px"><div><b>' + esc(d.name || 'Untitled ad') + '</b><div class="small dim">' + (d.platforms || []).map(p => S.PLATFORMS[p].name).join(' + ') + ' · ' + (d.objective ? S.OBJECTIVES[d.objective].label : 'No objective yet') + ' · edited ' + S.fmtDate(d.updated) + '</div></div><div class="row" style="gap:8px"><button class="btn primary sm" data-resume="' + esc(d.id) + '">Continue</button><button class="btn danger sm" data-rmdraft="' + esc(d.id) + '">Delete</button></div></div>').join('') + '</div>';
+  if (!st.drafts.length) return '<div class="card"><div class="empty"><b>' + esc(M.t('no_drafts')) + '</b>' + esc(M.t('drafts_hint')) + '</div></div>';
+  return '<div class="stack">' + st.drafts.map(d => '<div class="card row between wrap" style="gap:12px"><div><b>' + esc(d.name || M.t('untitled_ad')) + '</b><div class="small dim">' + (d.platforms || []).map(p => S.PLATFORMS[p].name).join(' + ') + ' · ' + (d.objective ? S.OBJECTIVES[d.objective].label : esc(M.t('no_objective'))) + ' · ' + esc(M.t('edited')) + ' ' + S.fmtDate(d.updated) + '</div></div><div class="row" style="gap:8px"><button class="btn primary sm" data-resume="' + esc(d.id) + '">' + esc(M.t('continue_draft')) + '</button><button class="btn danger sm" data-rmdraft="' + esc(d.id) + '">' + esc(M.t('delete')) + '</button></div></div>').join('') + '</div>';
 }
 function draw() { if (!app.isConnected) return;
   document.getElementById('crumbs').innerHTML = crumbs();
   document.getElementById('tools').innerHTML = tools();
   const tabs = '<div class="tabs" role="tablist">' + LEVELS.map(l => '<button class="tab' + (st.level === l[0] ? ' on' : '') + ' pf-' + st.pf + '" data-level="' + l[0] + '">' + (l[0] === 'adset' ? setLabel() : l[1]) + (l[0] === 'drafts' && st.drafts ? ' <span class="cnt">' + st.drafts.length + '</span>' : '') + '</button>').join('') + '</div>';
-  const search = st.level === 'drafts' ? '' : '<div class="field mb8" style="max-width:340px"><input class="input" id="q" placeholder="Search by name" value="' + esc(st.q) + '" aria-label="Search by name" autocomplete="off"></div>';
+  const search = st.level === 'drafts' ? '' : '<div class="field mb8" style="max-width:340px"><input class="input" id="q" placeholder="' + esc(M.t('search_name')) + '" value="' + esc(st.q) + '" aria-label="' + esc(M.t('search_name')) + '" autocomplete="off"></div>';
   document.getElementById('view').innerHTML = tabs + search + (st.level === 'drafts' ? draftsHTML() : tableHTML());
 }
 
@@ -2056,12 +2124,12 @@ async function patch(id, p, msg) {
 }
 async function editModal(it) {
   const hasBudget = it.daily_budget != null && st.level !== 'ad';
-  const v = await M.modal({ title: 'Edit ' + label[st.level], ok: 'Save changes', collect: bg => ({ name: bg.querySelector('#eName').value.trim(), status: bg.querySelector('#eStat').value, budget: hasBudget ? bg.querySelector('#eBud').value : null, end: bg.querySelector('#eEnd') ? bg.querySelector('#eEnd').value : null }),
-    html: '<div class="stack"><div class="field"><label>Name</label><input class="input" id="eName" value="' + esc(it.name) + '" dir="auto"></div><div class="grid g2"><div class="field"><label>Status</label><select class="input" id="eStat"><option value="ACTIVE"' + (it.status === 'ACTIVE' ? ' selected' : '') + '>Active</option><option value="PAUSED"' + (it.status !== 'ACTIVE' ? ' selected' : '') + '>Paused</option></select></div>' + (hasBudget ? '<div class="field"><label>Daily budget</label><input class="input" id="eBud" inputmode="decimal" value="' + esc(it.daily_budget) + '"></div>' : '<div></div>') + '</div>' + (st.level !== 'ad' ? '<div class="field"><label>End date (optional)</label><input class="input" id="eEnd" type="datetime-local"></div>' : '') + '<p class="tiny faint">Audience and creative changes: create a new ad or duplicate this one — editing them in place would restart the learning phase.</p></div>' });
+  const v = await M.modal({ title: M.t('edit_x') + ' ' + label[st.level], ok: M.t('save_changes'), collect: bg => ({ name: bg.querySelector('#eName').value.trim(), status: bg.querySelector('#eStat').value, budget: hasBudget ? bg.querySelector('#eBud').value : null, end: bg.querySelector('#eEnd') ? bg.querySelector('#eEnd').value : null }),
+    html: '<div class="stack"><div class="field"><label>' + esc(M.t('name_lbl')) + '</label><input class="input" id="eName" value="' + esc(it.name) + '" dir="auto"></div><div class="grid g2"><div class="field"><label>' + esc(M.t('status_lbl')) + '</label><select class="input" id="eStat"><option value="ACTIVE"' + (it.status === 'ACTIVE' ? ' selected' : '') + '>' + esc(M.t('active')) + '</option><option value="PAUSED"' + (it.status !== 'ACTIVE' ? ' selected' : '') + '>' + esc(M.t('paused')) + '</option></select></div>' + (hasBudget ? '<div class="field"><label>' + esc(M.t('daily_budget')) + '</label><input class="input" id="eBud" inputmode="decimal" value="' + esc(it.daily_budget) + '"></div>' : '<div></div>') + '</div>' + (st.level !== 'ad' ? '<div class="field"><label>' + esc(M.t('end_date_opt')) + '</label><input class="input" id="eEnd" type="datetime-local"></div>' : '') + '<p class="tiny faint">' + esc(M.t('edit_note')) + '</p></div>' });
   if (!v) return;
-  const p = {}; if (v.name && v.name !== it.name) p.name = v.name; if (v.status !== (it.status === 'ACTIVE' ? 'ACTIVE' : 'PAUSED')) p.status = v.status; if (hasBudget && v.budget && Number(v.budget) !== Number(it.daily_budget)) { if (!(Number(v.budget) > 0)) { M.toast('Enter a valid budget.', 'warn'); return; } p.daily_budget = Number(v.budget); } if (v.end) p.end_time = new Date(v.end).toISOString();
+  const p = {}; if (v.name && v.name !== it.name) p.name = v.name; if (v.status !== (it.status === 'ACTIVE' ? 'ACTIVE' : 'PAUSED')) p.status = v.status; if (hasBudget && v.budget && Number(v.budget) !== Number(it.daily_budget)) { if (!(Number(v.budget) > 0)) { M.toast(M.t('enter_valid_budget'), 'warn'); return; } p.daily_budget = Number(v.budget); } if (v.end) p.end_time = new Date(v.end).toISOString();
   if (!Object.keys(p).length) return;
-  if (await patch(it.id, p, 'Saved')) load(true);
+  if (await patch(it.id, p, M.t('saved'))) load(true);
 }
 document.getElementById('view').addEventListener('click', async e => {
   const t = e.target; let b;
@@ -2069,17 +2137,17 @@ document.getElementById('view').addEventListener('click', async e => {
   if ((b = t.closest('[data-sort]'))) { const k = b.dataset.sort; st.dir = st.sort === k ? -st.dir : -1; st.sort = k; draw(); return; }
   if ((b = t.closest('[data-drill]'))) { e.preventDefault(); const it = st.items.find(x => x.id === b.dataset.drill); if (st.level === 'campaign') { st.parent = { campaign: it }; st.level = 'adset'; } else { st.parent.adset = it; st.level = 'ad'; } load(); return; }
   if ((b = t.closest('[data-edit]'))) { editModal(st.items.find(x => x.id === b.dataset.edit)); return; }
-  if ((b = t.closest('[data-dup]'))) { const it = st.items.find(x => x.id === b.dataset.dup); b.disabled = true; try { await M.api(st.pf, 'entity.duplicate', { account: st.acct, level: st.level, id: it.id, deep: true }, { mutate: true, invalidate: ['tree'] }); M.toast('Duplicated “' + it.name + '” (paused). Copies can take a moment to appear.', 'ok', 5500); load(true); } catch (er) { M.toast(er.message, 'err', 7000); b.disabled = false; } return; }
-  if ((b = t.closest('[data-del]'))) { const it = st.items.find(x => x.id === b.dataset.del); if (await M.confirm({ title: 'Delete this ' + label[st.level] + '?', html: '<p><b>' + esc(it.name) + '</b> ' + (st.level === 'ad' ? '' : 'and everything inside it ') + 'will stop delivering and be removed. This cannot be undone.</p>', ok: 'Delete', danger: true })) { try { await M.api(st.pf, 'entity.delete', { account: st.acct, level: st.level, id: it.id }, { mutate: true, invalidate: ['tree'] }); M.toast('Deleted', 'ok'); load(true); } catch (er) { M.toast(er.message, 'err', 7000); } } return; }
+  if ((b = t.closest('[data-dup]'))) { const it = st.items.find(x => x.id === b.dataset.dup); b.disabled = true; try { await M.api(st.pf, 'entity.duplicate', { account: st.acct, level: st.level, id: it.id, deep: true }, { mutate: true, invalidate: ['tree'] }); M.toast(M.t('duplicated') + ' “' + it.name + '” ' + M.t('duplicated_note'), 'ok', 5500); load(true); } catch (er) { M.toast(er.message, 'err', 7000); b.disabled = false; } return; }
+  if ((b = t.closest('[data-del]'))) { const it = st.items.find(x => x.id === b.dataset.del); if (await M.confirm({ title: M.t('delete_x_q') + ' ' + label[st.level] + (M.lang === 'ar' ? '؟' : '?'), html: '<p><b>' + esc(it.name) + '</b> ' + (st.level === 'ad' ? '' : esc(M.t('and_everything_inside'))) + esc(M.t('will_stop_single')) + '</p>', ok: M.t('delete'), danger: true })) { try { await M.api(st.pf, 'entity.delete', { account: st.acct, level: st.level, id: it.id }, { mutate: true, invalidate: ['tree'] }); M.toast(M.t('del_ok'), 'ok'); load(true); } catch (er) { M.toast(er.message, 'err', 7000); } } return; }
   if ((b = t.closest('[data-bulk]'))) {
     const act = b.dataset.bulk, ids = Array.from(st.sel);
-    if (act === 'DELETE' && !(await M.confirm({ title: 'Delete ' + ids.length + ' ' + label[st.level] + (ids.length > 1 ? 's' : '') + '?', body: 'They will stop delivering and be removed. This cannot be undone.', ok: 'Delete', danger: true }))) return;
+    if (act === 'DELETE' && !(await M.confirm({ title: M.t('delete_n_q') + ' ' + ids.length + ' ' + label[st.level] + (ids.length > 1 && M.lang !== 'ar' ? 's' : '') + '?', body: M.t('will_stop_multi'), ok: M.t('delete'), danger: true }))) return;
     for (const id of ids) { try { if (act === 'DELETE') await M.api(st.pf, 'entity.delete', { account: st.acct, level: st.level, id }, { mutate: true }); else await M.api(st.pf, 'entity.update', { account: st.acct, level: st.level, id, patch: { status: act } }, { mutate: true }); } catch (er) { M.toast(er.message, 'err', 6000); break; } }
     M.cache.bust(st.pf, 'tree'); load(true); return;
   }
   if (t.closest('[data-retry]')) { load(true); return; }
   if ((b = t.closest('[data-resume]'))) { const d = M.draft.load(b.dataset.resume); if (!d) return; const s = S.STEPS[Math.min(d.maxStep || 0, 5)][0]; M.navigate(S.STEP_URL[s]); return; }
-  if ((b = t.closest('[data-rmdraft]'))) { if (await M.confirm({ title: 'Delete this draft?', body: 'The draft will be removed from all your devices.', ok: 'Delete', danger: true })) { await M.draft.remove(b.dataset.rmdraft); st.drafts = await M.draft.list(); draw(); } }
+  if ((b = t.closest('[data-rmdraft]'))) { if (await M.confirm({ title: M.t('delete_draft_q'), body: M.t('draft_removed'), ok: M.t('delete'), danger: true })) { await M.draft.remove(b.dataset.rmdraft); st.drafts = await M.draft.list(); draw(); } }
 });
 document.getElementById('view').addEventListener('change', async e => {
   const t = e.target;
