@@ -373,23 +373,27 @@ function resetEntitySelect() {
 function populateAccountOptions() {
   const platform = document.getElementById('platform').value;
   const sel = document.getElementById('adAccount');
-  if (platform !== 'facebook') {
-    sel.innerHTML = '<option value="">— الربط المباشر لهذه المنصة غير متاح بعد —</option>';
-    sel.disabled = true;
-    showManualEntry(true);
+
+  if (platform === 'facebook' || platform === 'tiktok') {
+    const matching = CONNECTIONS.filter(c => c.pixel_type === platform && c.ad_account_id && c.pixel_token);
+    if (matching.length === 0) {
+      sel.innerHTML = '<option value="">— لا يوجد حساب متصل بهذه المنصة، أضِفه من صفحة "ربط الحسابات الإعلانية" —</option>';
+      sel.disabled = true;
+      showManualEntry(true);
+      return;
+    }
+    sel.disabled = false;
+    const label = platform === 'facebook' ? 'Meta' : 'TikTok';
+    sel.innerHTML = '<option value="">— اختر حسابًا —</option>' +
+      matching.map(c => `<option value="${c.id}">${label} - ${c.ad_account_id}</option>`).join('');
+    // الجلب المباشر لأسماء الحملات/المجموعات متاح لحسابات Meta فقط حاليًا؛ تيك توك بالـ ID يدويًا
+    showManualEntry(platform !== 'facebook');
     return;
   }
-  const matching = CONNECTIONS.filter(c => c.pixel_type === 'facebook' && c.ad_account_id && c.pixel_token);
-  if (matching.length === 0) {
-    sel.innerHTML = '<option value="">— لا يوجد حساب Meta متصل، أضِفه من صفحة "ربط الحسابات الإعلانية" —</option>';
-    sel.disabled = true;
-    showManualEntry(true);
-    return;
-  }
-  sel.disabled = false;
-  sel.innerHTML = '<option value="">— اختر حسابًا —</option>' +
-    matching.map(c => `<option value="${c.id}">Meta - ${c.ad_account_id}</option>`).join('');
-  showManualEntry(false);
+
+  sel.innerHTML = '<option value="">— الربط المباشر لهذه المنصة غير متاح بعد —</option>';
+  sel.disabled = true;
+  showManualEntry(true);
 }
 
 async function onAccountOrLevelChange() {
@@ -526,6 +530,7 @@ async function saveRule() {
   const actionType = document.getElementById('actionType').value;
   const actionValue = document.getElementById('actionValue').value;
   const checkFrequency = document.getElementById('checkFrequency').value;
+  const adPixelId = document.getElementById('adAccount').value || null;
   const activeHourStartRaw = document.getElementById('activeHourStart').value;
   const activeHourEndRaw = document.getElementById('activeHourEnd').value;
   const cooldownRaw = document.getElementById('cooldown').value;
@@ -569,6 +574,7 @@ async function saveRule() {
       level: level,
       target_id: targetId,
       target_name: targetName || null,
+      ad_pixel_id: adPixelId,
       metric: metric === 'none' ? null : metric,
       operator: metric === 'none' ? null : operator,
       threshold_value: metric === 'none' ? null : parseFloat(thresholdValue),
