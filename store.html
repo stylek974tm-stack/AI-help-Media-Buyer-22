@@ -6,7 +6,7 @@
 <title>المتجر</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
     --bg:#0d0e12;
@@ -207,13 +207,42 @@ const LOGIN_URL = "index.html";
 const configured = !SUPABASE_URL.includes("YOUR_") && !SUPABASE_ANON_KEY.includes("YOUR_");
 let supa = null;
 let sdkLoadError = null;
-try{
-  if(configured){
-    if(typeof supabase === 'undefined') throw new Error('مكتبة Supabase (supabase-js) ما اتحمّلتش من الـ CDN');
-    supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+function loadScriptSrc(src){
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error('تعذر تحميل ' + src));
+    document.head.appendChild(s);
+  });
+}
+
+// المكتبة المحمّلة في <head> ممكن تفشل حسب الشبكة، فبنجرب مصادر تانية تلقائيًا قبل ما نستسلم
+async function ensureSupabaseSdk(){
+  if(typeof supabase !== 'undefined') return;
+  const fallbackSources = [
+    'https://unpkg.com/@supabase/supabase-js@2',
+    'https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.45.4/dist/umd/supabase.min.js'
+  ];
+  let lastErr = new Error('مكتبة Supabase (supabase-js) ما اتحمّلتش من أي مصدر');
+  for(const src of fallbackSources){
+    try{
+      await loadScriptSrc(src);
+      if(typeof supabase !== 'undefined') return;
+    } catch(err){ lastErr = err; }
   }
-} catch(err){
-  sdkLoadError = err;
+  throw lastErr;
+}
+
+async function initSupabase(){
+  if(!configured) return;
+  try{
+    await ensureSupabaseSdk();
+    supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  } catch(err){
+    sdkLoadError = err;
+  }
 }
 
 let currentUser = null;
@@ -422,12 +451,16 @@ async function load(){
   if(allApps.length) renderGrid(allApps);
 }
 
-supa && supa.auth.onAuthStateChange((event) => {
-  if(event === 'SIGNED_OUT') location.reload();
-  if(event === 'SIGNED_IN') load();
-});
+async function boot(){
+  await initSupabase();
+  supa && supa.auth.onAuthStateChange((event) => {
+    if(event === 'SIGNED_OUT') location.reload();
+    if(event === 'SIGNED_IN') load();
+  });
+  await load();
+}
 
-load().catch(err => {
+boot().catch(err => {
   showEmptyMessage("فشل الربط: تعذر تحميل صفحة المتجر");
   setStatus('خطأ غير متوقع: ' + (err && err.message ? err.message : err), 'error');
 });
