@@ -398,6 +398,13 @@
 
   /* ---------- New: goal + best-hours cards ---------- */
   .goal-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; margin-bottom:14px; display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
+  .cap-bar-track{ width:100%; height:9px; border-radius:20px; background:rgba(255,255,255,.08); overflow:hidden; margin-top:9px; }
+  .cap-bar-fill{ height:100%; border-radius:20px; transition:width .3s; }
+  .cap-bar-fill.ok{ background:var(--good,#22c55e); }
+  .cap-bar-fill.warn{ background:#f4c84d; }
+  .cap-bar-fill.over{ background:var(--bad,#f43f5e); }
+  .cap-note{ font-size:11.5px; color:var(--text-dim); margin-top:8px; line-height:1.7; }
+  .cap-note.over{ color:#ff8fa0; font-weight:700; }
   .goal-card input{ width:90px; padding:8px 10px; border-radius:9px; border:1px solid var(--border); background:var(--bg-soft); color:var(--text); font-family:var(--font-num); }
   .goal-note{ font-size:12px; color:var(--text-dim); flex:1; min-width:220px; line-height:1.7; }
   .hours-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; margin-bottom:14px; }
@@ -536,25 +543,6 @@ html,body{background:#050505!important}
 }
 
 </style>
-<!-- Meta Pixel Code -->
-<script>
-!function(f,b,e,v,n,t,s)
-{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-n.queue=[];t=b.createElement(e);t.async=!0;
-t.src=v;s=b.getElementsByTagName(e)[0];
-s.parentNode.insertBefore(t,s)}(window, document,'script',
-'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '1077724507991357');
-fbq('track', 'PageView');
-</script>
-<noscript><img height="1" width="1" style="display:none"
-src="https://www.facebook.com/tr?id=1077724507991357&ev=PageView&noscript=1"
-/></noscript>
-<!-- End Meta Pixel Code -->
-  
-  
 </head>
 <body>
 
@@ -571,15 +559,7 @@ src="https://www.facebook.com/tr?id=1077724507991357&ev=PageView&noscript=1"
   </button>
   <button class="icon-btn" id="feedbackBtn" title="مشاكل الحملات والحلول المقترحة" onclick="openCampaignIssues()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v13H7l-3 3V4z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg>
-  </button
-    
- 
-<button class="icon-btn" id="settingsBtn" title="إعدادات الربح" onclick="openSettings()">
-  ...
-</button>
-  
-  
-  
+  </button>
   <button class="icon-btn" id="settingsBtn" title="إعدادات الربح" onclick="openSettings()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
   </button>
@@ -664,6 +644,7 @@ src="https://www.facebook.com/tr?id=1077724507991357&ev=PageView&noscript=1"
 
   <div id="walletsWrap"></div>
   <div id="goalWrap"></div>
+  <div id="spendCapWrap"></div>
   <div id="hoursWrap"></div>
   <div id="alertsWrap"></div>
   <div id="rankingWrap"></div>
@@ -792,7 +773,7 @@ const RANK_LABELS = {
   AVERAGE: { label: 'متوسط', cls: 'mid' },
   BELOW_AVERAGE_35: { label: 'أقل من المتوسط', cls: 'bad' },
   BELOW_AVERAGE_20: { label: 'أقل من المتوسط', cls: 'bad' },
-  BELOW_AVERAGE_10: { label: 'أقل بكتير', cls: 'bad' },
+  BELOW_AVERAGE_10: { label: 'أقل بكثير', cls: 'bad' },
   BELOW_AVERAGE: { label: 'أقل من المتوسط', cls: 'bad' },
   UNKNOWN: { label: 'غير متاح', cls: 'mid' }
 };
@@ -896,7 +877,7 @@ function getAgeAlertLevel(ad, ins){
   if (!underperforming) return null; // لو أداءه عادي أو كويس، متعملش عليه تصعيد ولو قديم
 
   const hours = age * 24;
-  if (hours >= 24*7) return { level:'high', label:'أسبوع وأداء ضعيف — يستاهل توقف', action:'stop' };
+  if (hours >= 24*7) return { level:'high', label:'أسبوع بأداء ضعيف — يستدعي الإيقاف', action:'stop' };
   if (hours >= 24*3) return { level:'mid', label:'3 أيام وأداء ضعيف — قرار مطلوب', action:'review' };
   if (hours >= 48) return { level:'light', label:'48 ساعة — راقب عن قرب', action:'watch' };
   if (hours >= 24) return { level:'watch', label:'24 ساعة — تنبيه أولي خفيف', action:'watch' };
@@ -1151,7 +1132,7 @@ async function loadConnections(){
     return `<div class="token-box">
       <b>${label}</b> — حساب: ${c.ad_account_id || '-'}<br>
       توكن: ${maskToken(c.pixel_token)}<br>
-      <span class="${isLive ? 'status-ok' : 'status-soon'}">${isLive ? '● متصل ويجيب بيانات حية' : '● قريبًا (لسه مش متكامل)'}</span>
+      <span class="${isLive ? 'status-ok' : 'status-soon'}">${isLive ? '● متصل ويعرض بيانات حية' : '● قريبًا (لم يكتمل بعد)'}</span>
     </div>`;
   }).join('');
   data.forEach(c => {
@@ -1241,8 +1222,8 @@ async function fetchDashboard(){
 
   if (metaConns.length === 0){
     setTopStatus(CONNECTIONS.length === 0
-      ? 'مفيش حسابات متصلة - روح صفحة ربط الحسابات الإعلانية.'
-      : 'مفيش حساب Meta مطابق للفلاتر الحالية.');
+      ? 'لا توجد حسابات متصلة — يُرجى التوجه إلى صفحة ربط الحسابات الإعلانية.'
+      : 'لا يوجد حساب Meta مطابق للفلاتر الحالية.');
   } else if (!since || !until){
     setTopStatus('اختار تاريخ "من" و"إلى" صحيح في فلتر الفترة المخصصة.', true);
   } else {
@@ -1303,7 +1284,7 @@ async function fetchDashboard(){
     }
 
     if (anyError) setTopStatus(anyError, true);
-    else if (DATA.campaigns.length === 0) setTopStatus('الاتصال تمام، بس مفيش حملات أو بيانات في الفترة المختارة.');
+    else if (DATA.campaigns.length === 0) setTopStatus('الاتصال سليم، ولكن لا توجد حملات أو بيانات في الفترة المختارة.');
     else setTopStatus('');
   }
 
@@ -1318,18 +1299,19 @@ async function fetchDashboard(){
 function getVerdict(ctrRate, cpmRate, cpcRate){
   const scores = { good:2, mid:1, bad:0 };
   const total = scores[ctrRate] + scores[cpmRate] + scores[cpcRate];
-  if (ctrRate === 'good' && cpmRate === 'good' && cpcRate === 'good') return { level:'good', label:'الكريتف ممتاز' };
-  if (ctrRate === 'bad') return { level:'bad', label:'مشكلة في الكريتف' };
-  if (total >= 4) return { level:'good', label:'أداء كويس' };
+  if (ctrRate === 'good' && cpmRate === 'good' && cpcRate === 'good') return { level:'good', label:'الكرييتف ممتاز' };
+  if (ctrRate === 'bad') return { level:'bad', label:'مشكلة في الكرييتف' };
+  if (total >= 4) return { level:'good', label:'أداء جيد' };
   if (cpcRate === 'bad' || cpmRate === 'bad') return { level:'mid', label:'الميزانية/المزاد محتاج مراجعة' };
   return { level:'mid', label:'أداء متوسط' };
 }
 function buildIssueText(ctrRate, cpmRate, cpcRate, extra){
   const issues = [];
-  if (ctrRate === 'bad') issues.push({ title:'CTR ضعيف', cause:'الكريتف مش بيوقف السكرول، أو الهوك الأول ضعيف، أو الـ CTA مش واضح.', fix:'جرّب كريتف جديد بهوك مختلف في أول 3 ثواني، وغيّر الـ CTA.', act:'watch' });
+  if (extra && extra.addToCart > 0 && (extra.purchases || 0) === 0) issues.push({ title:'اهتمام دون شراء', cause:`قام ${extra.addToCart} من الأشخاص بإضافة المنتج إلى السلة من هذا الإعلان، دون إتمام عملية شراء.`, fix:'الحل ليس زيادة ميزانية هذا الإعلان — أنشئ جمهور ريتارجتنج يستهدف هؤلاء الأشخاص تحديدًا، وقدّم لهم كرييتف يتضمن خصمًا أو تذكيرًا، بدلًا من انتظار عودتهم من تلقاء أنفسهم.', act:'retarget' });
+  if (ctrRate === 'bad') issues.push({ title:'CTR ضعيف', cause:'الكرييتف لا يوقف عملية التمرير (Scroll)، أو أن الافتتاحية (Hook) الأولى ضعيفة، أو أن دعوة اتخاذ الإجراء (CTA) غير واضحة.', fix:'جرّب كريتف جديد بهوك مختلف في أول 3 ثواني، وغيّر الـ CTA.', act:'watch' });
   if (cpmRate === 'bad') issues.push({ title:'CPM مرتفع', cause:'المزاد على الجمهور ده مكلف — استهداف واسع/ضيق جدًا، أو منافسة عالية.', fix:'راجع حجم الجمهور، جرّب Broad أو Lookalike جديد، زوّد الميزانية شوية للخروج من مرحلة التعلم.', act:'watch' });
   if (cpcRate === 'bad') issues.push({ title:'CPC مرتفع', cause:'تنافس عالي في المزاد، أو صفحة الهبوط بطيئة.', fix:'راجع استراتيجية المزايدة، وحسّن سرعة ووضوح صفحة الهبوط.', act:'watch' });
-  if (extra && extra.spendNoPurchase) issues.push({ title:'صرف بدون مبيعات', cause:`صرف ${money(extra.spend)} في الفترة المختارة من غير أي عملية شراء مسجّلة.`, fix:'أوقف الإعلان مؤقتًا أو راجع صفحة الهبوط والبيكسل قبل ما يكمل يصرف.', act:'pause' });
+  if (extra && extra.spendNoPurchase) issues.push({ title:'صرف بدون مبيعات', cause:`صرف ${money(extra.spend)} في الفترة المختارة من غير أي عملية شراء مسجّلة.`, fix:'أوقف الإعلان مؤقتًا أو راجع صفحة الهبوط والبيكسل قبل استمراره في الصرف.', act:'pause' });
   return issues.length ? issues : null;
 }
 function badgeClass(level){ return level === 'good' ? 'verdict-good' : (level === 'mid' ? 'verdict-mid' : 'verdict-bad'); }
@@ -1376,6 +1358,7 @@ function renderAll(){
   renderToday();
   renderWallets();
   renderGoalPanel();
+  renderSpendCapWidget();
   renderBestHours();
   renderAlerts();
   renderRanking();
@@ -1449,6 +1432,55 @@ function renderWallets(){
 
 /* ---------------- New: هدف أسبوعي (مثلاً "عايز 10 أوردر خلال أسبوع") ---------------- */
 function goalKey(){ return 'stylek_weekly_goal_' + (CURRENT_USER ? CURRENT_USER.id : 'anon'); }
+
+/* ---------------- Monthly spend cap — owner-level safety net across ALL connected accounts (Meta/TikTok/Google) ---------------- */
+function capKey(){ return 'mbh_monthly_cap_' + (CURRENT_USER ? CURRENT_USER.id : 'anon'); }
+function saveCap(){
+  const v = parseFloat(document.getElementById('capInput').value);
+  if (!v || v <= 0){ localStorage.removeItem(capKey()); } else { localStorage.setItem(capKey(), String(v)); }
+  renderSpendCapWidget();
+}
+function renderSpendCapWidget(){
+  const wrap = document.getElementById('spendCapWrap'); if (!wrap) return;
+  const saved = localStorage.getItem(capKey());
+  const cap = saved ? parseFloat(saved) : null;
+  const s = window._SUMMARY_CACHE || { totSpend: 0 };
+  const spend = s.totSpend || 0;
+
+  if (!cap){
+    wrap.innerHTML = `
+      <div class="goal-card">
+        <label style="font-size:12px; color:var(--text-dim); font-weight:600;">حد أقصى للصرف الشهري (على كل حساباتك المتصلة مع بعض)</label>
+        <input type="number" id="capInput" min="1" placeholder="مثال: 30000">
+        <button class="btn primary" style="flex:0;" onclick="saveCap()">احفظ</button>
+        <div class="cap-note">حدّد سقفًا بالجنيه — فإذا اقترب إجمالي صرفك على جميع الحسابات المتصلة (فيسبوك/تيك توك/جوجل) منه أو تجاوزه، سيظهر تنبيه هنا وفي شريط التنبيهات فورًا.</div>
+      </div>`;
+    return;
+  }
+
+  const pct = Math.min(999, (spend / cap) * 100);
+  const cls = pct >= 100 ? 'over' : (pct >= 80 ? 'warn' : 'ok');
+  const note = pct >= 100
+    ? `تم تجاوز الحد الأقصى الذي حددته! تم صرف ${money(spend)} من أصل حد أقصى قدره ${money(cap)} خلال الفترة المختارة.`
+      : (pct >= 80
+      ? `اقتربتَ من الحد الأقصى — تم صرف ${money(spend)} من أصل ${money(cap)} (${pct.toFixed(0)}%). يُرجى مراجعة الحسابات قبل الاستمرار.`
+      : `تم صرف ${money(spend)} من أصل ${money(cap)} (${pct.toFixed(0)}%) خلال الفترة المختارة، على مستوى جميع حساباتك المتصلة مجتمعة.`);
+
+  wrap.innerHTML = `
+    <div class="goal-card" style="display:block;">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; width:100%;">
+        <label style="font-size:12px; color:var(--text-dim); font-weight:600;">الحد الأقصى الشهري للصرف الإجمالي</label>
+        <button class="mini-btn" style="font-size:10px!important;" onclick="document.getElementById('capInput2').style.display='flex'">تعديل</button>
+      </div>
+      <div class="cap-bar-track"><div class="cap-bar-fill ${cls}" style="width:${Math.min(100,pct)}%"></div></div>
+      <div class="cap-note ${pct>=100?'over':''}">${note}</div>
+      <div id="capInput2" style="display:none; gap:8px; margin-top:10px;">
+        <input type="number" id="capInput" min="1" value="${cap}" style="flex:1;">
+        <button class="btn primary" style="flex:0;" onclick="saveCap()">حفظ الجديد</button>
+      </div>
+    </div>`;
+}
+
 function saveGoal(){
   const v = parseInt(document.getElementById('goalInput').value, 10);
   localStorage.setItem(goalKey(), isNaN(v) ? '' : String(v));
@@ -1575,8 +1607,8 @@ function renderSummary(){
   if (totClicks === 0 && totImp === 0){
     tips.push('مفيش بيانات ظهرت لسه في الفترة دي - وسّع الفترة الزمنية أو تأكد إن الحساب فيه حملات شغالة.');
   } else {
-    if (avgCtr < 1) tips.push('متوسط CTR ضعيف - غالبًا الكريتف محتاج هوك أقوى في أول 3 ثواني.');
-    else if (avgCtr >= 1.5) tips.push('متوسط CTR كويس - الكريتف بيوقف الناس صح.');
+    if (avgCtr < 1) tips.push('متوسط CTR ضعيف - غالبًا الكرييتف محتاج هوك أقوى في أول 3 ثواني.');
+    else if (avgCtr >= 1.5) tips.push('متوسط CTR جيد — الكرييتف يجذب انتباه الجمهور بفعالية.');
     if (convRate < 1.5 && totClicks > 20) tips.push('نسبة تحويل الزوار لمبيعات ضعيفة - المشكلة غالبًا في صفحة الهبوط أو السعر مش في الإعلان نفسه.');
     if (remaining < 0) tips.push('الإنفاق تخطى الميزانية اليومية المحددة للمجموعات النشطة - راجع الميزانيات.');
     if (!PROFIT_SETTINGS) tips.push('حط بيانات تكلفة المنتج والشحن من إعدادات الربح (⚙) عشان تشوف صافي ربحك الحقيقي مش بس الإيراد.');
@@ -1620,9 +1652,10 @@ function collectIssues(){
     const m = metricBoxes(ins);
     const spend = ins ? num(ins.spend) : 0;
     const purchases = ins ? getPurchases(ins.actions, ins.conversions) : 0;
+    const addToCart = ins ? getAddToCart(ins.actions) : 0;
     const spendNoPurchase = spend >= 5 && purchases === 0;
-    const issues = buildIssueText(m.ctrRate, m.cpmRate, m.cpcRate, { spendNoPurchase, spend });
-    if (issues) issues.forEach(i => list.push({ adName: ad.name, ...i }));
+    const issues = buildIssueText(m.ctrRate, m.cpmRate, m.cpcRate, { spendNoPurchase, spend, addToCart, purchases });
+    if (issues) issues.forEach(i => list.push({ adName: ad.name, adId: ad.id, ...i }));
   });
   return list;
 }
@@ -1660,6 +1693,21 @@ function collectOpportunities(){
 function renderAlerts(){
   const wrap = document.getElementById('alertsWrap');
   const rows = [];
+
+  // تخطي الحد الأقصى الشهري للصرف اللي حدده صاحب الحساب — أول حاجة تتعرض، أهم تنبيه لصاحب البزنس
+  const capSaved = localStorage.getItem(capKey());
+  if (capSaved){
+    const cap = parseFloat(capSaved);
+    const spend = (window._SUMMARY_CACHE || { totSpend: 0 }).totSpend || 0;
+    if (cap > 0 && spend >= cap * 0.8){
+      const over = spend >= cap;
+      rows.push(`<div class="alert-row">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <div>${over ? `<b>تم تجاوز الحد الأقصى الذي حددته!</b> تم صرف ${money(spend)} من أصل ${money(cap)} على مستوى جميع حساباتك المتصلة.` : `<b>اقتربتَ من الحد الأقصى للصرف</b> — ${money(spend)} من أصل ${money(cap)} (${((spend/cap)*100).toFixed(0)}%).`}</div>
+      </div>`);
+    }
+  }
+
   Object.entries(TODAY_AD_SPEND).forEach(([adId, v]) => {
     if (v.spend >= 5 && v.purchases === 0){
       const ad = DATA.ads.find(a => a.id === adId);
@@ -1990,7 +2038,7 @@ function findAdsetToken(adsetId){
 let BUDGET_TARGET = null;
 function openBudgetModal(adsetId){
   const found = findAdsetToken(adsetId);
-  if (!found){ alert('معرفتش ألاقي بيانات مجموعة الإعلانات دي.'); return; }
+  if (!found){ alert('تعذّر العثور على بيانات مجموعة الإعلانات هذه.'); return; }
   BUDGET_TARGET = { adsetId, token: found.token, currentBudget: num(found.adset.daily_budget)/100, name: found.adset.name };
   document.getElementById('budgetModalSub').textContent = `تعديل ميزانية "${found.adset.name}" — هيتبعت مباشرة لفيسبوك بمجرد الضغط على تنفيذ.`;
   document.getElementById('budgetCurrentDisplay').value = money(BUDGET_TARGET.currentBudget) + ' / يوم';
@@ -2026,17 +2074,17 @@ async function submitBudgetChange(){
     closeBudgetModal();
     await fetchDashboard();
   } catch(err){
-    alert('حصل خطأ من فيسبوك وإحنا بنعدّل الميزانية: ' + err.message);
+    alert('حدث خطأ من فيسبوك أثناء تعديل الميزانية: ' + err.message);
   }
 }
 /* ---------------- زيادة سريعة بمبلغ ثابت بالجنيه (من لوحة "مشاكل الحملات") — تتنفذ على فيسبوك فورًا ---------------- */
 async function quickIncreaseBudget(adsetId, amountEgp){
   const found = findAdsetToken(adsetId);
-  if (!found){ alert('معرفتش ألاقي بيانات المجموعة الإعلانية دي.'); return; }
+  if (!found){ alert('تعذّر العثور على بيانات المجموعة الإعلانية هذه.'); return; }
   if (!EGP_RATE){
-    setTopStatus('بنجيب سعر الصرف الحالي، جرب تاني بعد شوية...', true);
+    setTopStatus('جارٍ جلب سعر الصرف الحالي، يُرجى المحاولة مرة أخرى بعد قليل...', true);
     await loadExchangeRate();
-    if (!EGP_RATE){ alert('تعذر جلب سعر الصرف دلوقتي، جرب تاني كمان شوية.'); return; }
+    if (!EGP_RATE){ alert('تعذّر جلب سعر الصرف حاليًا، يُرجى المحاولة مرة أخرى بعد قليل.'); return; }
   }
   const currentBudget = num(found.adset.daily_budget) / 100; // الميزانية الحالية بالدولار
   const addUsd = amountEgp / EGP_RATE;
@@ -2050,21 +2098,21 @@ async function quickIncreaseBudget(adsetId, amountEgp){
     closeCampaignIssues();
     await fetchDashboard();
   } catch(err){
-    alert('حصل خطأ من فيسبوك أثناء زيادة الميزانية: ' + err.message);
+    alert('حدث خطأ من فيسبوك أثناء زيادة الميزانية: ' + err.message);
   }
 }
 
 /* ---------------- إيقاف / تشغيل إعلان أو حملة (مباشرة على فيسبوك) ---------------- */
 async function toggleStatus(entityId, currentStatus, token, level){
   const newStatus = currentStatus === 'ACTIVE' ? 'PAUSED' : 'ACTIVE';
-  const confirmMsg = newStatus === 'PAUSED' ? 'متأكد إنك عايز توقف ده على فيسبوك؟' : 'متأكد إنك عايز تشغّل ده تاني على فيسبوك؟';
+  const confirmMsg = newStatus === 'PAUSED' ? 'هل تريد بالتأكيد إيقاف هذا على فيسبوك؟' : 'هل تريد بالتأكيد تشغيل هذا مجددًا على فيسبوك؟';
   if (!confirm(confirmMsg)) return;
   try{
     await gpost(entityId, { status: newStatus, access_token: token });
     setTopStatus(newStatus === 'PAUSED' ? 'تم إيقاف الإعلان على فيسبوك.' : 'تم تشغيل الإعلان على فيسبوك.');
     await fetchDashboard();
   } catch(err){
-    alert('حصل خطأ من فيسبوك: ' + err.message);
+    alert('حدث خطأ من فيسبوك: ' + err.message);
   }
 }
 
@@ -2076,7 +2124,28 @@ async function duplicateCampaign(campaignId, token, name){
     setTopStatus('تم عمل نسخة من الحملة على فيسبوك (موقوفة لحد ما تراجعها).');
     await fetchDashboard();
   } catch(err){
-    alert('حصل خطأ من فيسبوك أثناء عمل النسخة: ' + err.message);
+    alert('حدث خطأ من فيسبوك أثناء إنشاء النسخة: ' + err.message);
+  }
+}
+
+/* ---------------- إنشاء جمهور ريتارجتنج مباشر على فيسبوك: ناس عملت Add to Cart ومشترتش ---------------- */
+async function createCartAbandonerAudience(adId){
+  const ad = DATA.ads.find(a => a.id === adId);
+  if (!ad){ alert('تعذّر العثور على بيانات هذا الإعلان.'); return; }
+  const conn = CONNECTIONS.find(c => c.id === ad._accId);
+  const pixelId = conn && conn.pixel_id ? conn.pixel_id : null;
+  if (!pixelId){ alert('لا يوجد رقم بيكسل مسجّل لهذا الحساب — يُرجى إضافة رقم البيكسل من صفحة ربط الحسابات أولًا.'); return; }
+  if (!confirm('سيتم إنشاء جمهور جديد على فيسبوك يضم من قاموا بإضافة المنتج إلى السلة خلال آخر 14 يومًا دون إتمام الشراء. هل تريد المتابعة؟')) return;
+  const name = 'ريتارجتنج - سلة متروكة - ' + ad.name.slice(0, 40) + ' - ' + new Date().toISOString().slice(0, 10);
+  const rule = JSON.stringify({
+    inclusions: { operator: 'or', rules: [{ event_sources: [{ id: pixelId, type: 'pixel' }], retention_seconds: 1209600, filter: { operator: 'and', filters: [{ field: 'event', operator: '=', value: 'AddToCart' }] } }] },
+    exclusions: { operator: 'or', rules: [{ event_sources: [{ id: pixelId, type: 'pixel' }], retention_seconds: 1209600, filter: { operator: 'and', filters: [{ field: 'event', operator: '=', value: 'Purchase' }] } }] }
+  });
+  try{
+    await gpost(`${ad._actId}/customaudiences`, { name, subtype: 'WEBSITE', rule, access_token: ad._token });
+    setTopStatus(`تم إنشاء جمهور "${name}" على فيسبوك بنجاح — يمكنك التوجه إلى صفحة إنشاء إعلان واختياره ضمن خطوة الجمهور.`);
+  } catch(err){
+    alert('حدث خطأ من فيسبوك أثناء إنشاء الجمهور: ' + err.message);
   }
 }
 
@@ -2132,7 +2201,7 @@ function renderAiPanel(){
   let html=`<div class="inbox-summary"><div class="inbox-stat"><span>قرارات مطلوبة</span><b style="color:var(--bad)">${issues.length}</b></div><div class="inbox-stat"><span>تنبيهات اليوم</span><b>${alerts.length}</b></div><div class="inbox-stat"><span>فرص توسع</span><b style="color:var(--good)">${opps.length}</b></div></div>`;
   if(alerts.length){html+=`<div class="decision-group"><div class="decision-group-head"><span style="color:var(--bad)">${iconAlert()}</span><b>تنبيهات اليوم</b><span class="dg-count">${alerts.length}</span></div>`; alerts.forEach(([id,v])=>{const ad=DATA.ads.find(a=>a.id===id);if(ad) html+=`<div class="decision-item"><strong>${ad.name}</strong><div class="decision-meta">صرف ${money(v.spend)} اليوم بدون مبيعات</div><div class="decision-fix">قرار سريع: راجع الإعلان قبل استمرار الإنفاق.</div><span class="decision-action">أوقف أو راجع</span></div>`});html+='</div>'}
   const keys=Object.keys(grouped);
-  if(keys.length){html+=keys.map(k=>`<div class="decision-group"><div class="decision-group-head"><span style="color:var(--bad)">${iconAlert()}</span><b>${k}</b><span class="dg-count">${grouped[k].length}</span></div>${grouped[k].map(i=>`<div class="decision-item ${i.act==='watch'?'watch':''}"><strong>${i.adName}</strong><div class="decision-fix">${i.cause}</div><div class="decision-fix"><b style="color:var(--accent-2)">الحل:</b> ${i.fix}</div><span class="decision-action">${i.act==='pause'?'إيقاف مطلوب':'مراجعة مطلوبة'}</span></div>`).join('')}</div>`).join('')}
+  if(keys.length){html+=keys.map(k=>`<div class="decision-group"><div class="decision-group-head"><span style="color:var(--bad)">${iconAlert()}</span><b>${k}</b><span class="dg-count">${grouped[k].length}</span></div>${grouped[k].map(i=>`<div class="decision-item ${i.act==='watch'?'watch':''}"><strong>${i.adName}</strong><div class="decision-fix">${i.cause}</div><div class="decision-fix"><b style="color:var(--accent-2)">الحل:</b> ${i.fix}</div>${i.act==='retarget'?`<button class="mini-btn go" onclick="createCartAbandonerAudience('${i.adId}')">استهداف من أضافوا المنتج إلى السلة</button>`:`<span class="decision-action">${i.act==='pause'?'إيقاف مطلوب':'مراجعة مطلوبة'}</span>`}</div>`).join('')}</div>`).join('')}
   if(!issues.length&&!alerts.length) html+=`<div class="ai-item" style="text-align:center;padding:25px">${iconTrophy()}<br><b>مفيش قرارات عاجلة دلوقتي.</b><div class="cause">الأرقام الحالية لا تحتوي على مشكلة واضحة تحتاج تدخل سريع.</div></div>`;
   if(opps.length){html+=`<div class="decision-group"><div class="decision-group-head"><span style="color:var(--good)">${iconTrophy()}</span><b>فرص تستاهل التوسع</b><span class="dg-count">${opps.length}</span></div>${opps.slice(0,8).map(o=>`<div class="decision-item"><strong>${o.adName}</strong><div class="decision-fix">${o.text}</div><span class="decision-action" style="background:var(--good-bg);color:var(--good);border-color:var(--good-bd)">فكّر في التوسيع</span></div>`).join('')}</div>`}
   body.innerHTML=html; document.getElementById('aiFabDot')?.classList.toggle('show',issues.length>0||alerts.length>0); updateHero();
@@ -2442,7 +2511,7 @@ function buildAccountRecommendations(t){
   const out=[];
   const dailySpend=t.spend/Math.max(1,aggregateAccountDaily().length||1);
   const qualityBudget=Math.max(dailySpend*1.5, t.cpp>0?t.cpp*2:50);
-  if(t.cpc>BENCHMARKS.cpc.mid) out.push(`<div class="analysis-tip"><strong>CPC مرتفع:</strong> الحالي <span class="red">${money(t.cpc)}</span>. حاول تنزل به إلى <span class="green">${money(BENCHMARKS.cpc.good)}</span> أو أقل. لو الكريتف كويس ولسه محتاج بيانات أكثر، جرّب ميزانية يومية حوالي <strong>${money(qualityBudget)}</strong> بدل القفزات الكبيرة.</div>`);
+  if(t.cpc>BENCHMARKS.cpc.mid) out.push(`<div class="analysis-tip"><strong>CPC مرتفع:</strong> الحالي <span class="red">${money(t.cpc)}</span>. حاول تنزل به إلى <span class="green">${money(BENCHMARKS.cpc.good)}</span> أو أقل. لو الكرييتف كويس ولسه محتاج بيانات أكثر، جرّب ميزانية يومية حوالي <strong>${money(qualityBudget)}</strong> بدل القفزات الكبيرة.</div>`);
   else if(t.cpm>BENCHMARKS.cpm.mid) out.push(`<div class="analysis-tip"><strong>CPM مرتفع:</strong> الحالي <span class="red">${money(t.cpm)}</span>. استهدف أقل من <span class="green">${money(BENCHMARKS.cpm.mid)}</span> وراجع الجمهور قبل زيادة الميزانية. للبيانات الأسرع جرّب حوالي <strong>${money(qualityBudget)}</strong>/يوم.`);
   else if(t.ctr<BENCHMARKS.ctr.good) out.push(`<div class="analysis-tip"><strong>CTR محتاج يتحسن:</strong> الحالي <span class="yellow">${t.ctr.toFixed(2)}%</span>. الهدف المبدئي <span class="green">${BENCHMARKS.ctr.good.toFixed(2)}%</span>+ قبل ما تكبّر الإنفاق بقوة.`);
   else out.push(`<div class="analysis-tip"><strong>الحساب مستقر:</strong> الأرقام الأساسية كويسة. لو عايز بيانات أسرع، جرّب ميزانية يومية حوالي <strong>${money(qualityBudget)}</strong> مع متابعة CPP وعدم زيادة الميزانية فجأة.</div>`);
