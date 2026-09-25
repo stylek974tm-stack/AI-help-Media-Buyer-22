@@ -80,6 +80,13 @@
   .btn-install.owned{background:var(--good)}
   .btn-install:hover{filter:brightness(1.08)}
   .empty-state{text-align:center;color:var(--muted);padding:60px 20px;font-size:14px}
+  .status-banner{
+    display:none; margin:0 16px 14px; padding:12px 14px; border-radius:12px;
+    font-size:13px; line-height:1.7; text-align:right; border:1px solid transparent;
+  }
+  .status-banner.show{display:block}
+  .status-banner.error{background:rgba(255,84,112,.12); border-color:rgba(255,84,112,.4); color:var(--danger)}
+  .status-banner.warn{background:rgba(255,176,32,.12); border-color:rgba(255,176,32,.4); color:var(--accent-2)}
 
   /* Modal */
   .overlay{
@@ -136,6 +143,8 @@
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
   </div>
 </header>
+
+<div class="status-banner" id="statusBanner"></div>
 
 <main>
   <div class="grid" id="grid"></div>
@@ -196,7 +205,16 @@ const SUPABASE_ANON_KEY = "sb_publishable_tIG9XDZeHVZpZjz74e-dBA_ui5GIYw7";
 // اسم صفحة تسجيل الدخول بتاعة الموقع الأساسي - غيّرها لو المسار مختلف
 const LOGIN_URL = "index.html";
 const configured = !SUPABASE_URL.includes("YOUR_") && !SUPABASE_ANON_KEY.includes("YOUR_");
-const supa = configured ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+let supa = null;
+let sdkLoadError = null;
+try{
+  if(configured){
+    if(typeof supabase === 'undefined') throw new Error('مكتبة Supabase (supabase-js) ما اتحمّلتش من الـ CDN');
+    supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+} catch(err){
+  sdkLoadError = err;
+}
 
 let currentUser = null;
 let unlockedIds = new Set();
@@ -328,35 +346,80 @@ document.getElementById('logoutBtn').onclick = async () => {
   window.location.href = LOGIN_URL;
 };
 
+function setStatus(message, kind){
+  const el = document.getElementById('statusBanner');
+  if(!message){ el.className = 'status-banner'; el.textContent = ''; return; }
+  el.textContent = message;
+  el.className = 'status-banner show ' + (kind || 'error');
+}
+function showEmptyMessage(msg){
+  const empty = document.getElementById('emptyState');
+  empty.textContent = msg;
+  empty.style.display = 'block';
+  document.getElementById('grid').innerHTML = '';
+}
+
+// أي خطأ غير متوقع في الصفحة يظهر هنا بدل ما الصفحة تفضل فاضية من غير سبب
+window.addEventListener('error', (e) => {
+  setStatus('حصل خطأ غير متوقع في الصفحة: ' + (e.message || 'unknown error'), 'error');
+});
+window.addEventListener('unhandledrejection', (e) => {
+  setStatus('حصل خطأ غير متوقع أثناء تحميل البيانات: ' + (e.reason && e.reason.message ? e.reason.message : e.reason), 'error');
+});
+
 async function load(){
+  setStatus(null);
+
   if(!supa){
-    document.getElementById('emptyState').textContent = "لازم تظبط بيانات الاتصال بـ Supabase الأول";
-    document.getElementById('emptyState').style.display = 'block';
+    showEmptyMessage("فشل الربط: بيانات الاتصال بـ Supabase (الرابط أو المفتاح) غير مضبوطة في الصفحة");
+    if(sdkLoadError) setStatus('فشل الربط: ' + sdkLoadError.message, 'error');
     return;
   }
 
-  const { data: { session } } = await supa.auth.getSession();
+  let session;
+  try{
+    const res = await supa.auth.getSession();
+    session = res.data.session;
+  } catch(err){
+    setStatus('فشل استيراد الحساب: تعذر التحقق من تسجيل الدخول (' + err.message + ')', 'error');
+    session = null;
+  }
   currentUser = session ? session.user : null;
   document.getElementById('logoutBtn').style.display = currentUser ? 'inline-block' : 'none';
 
   // Apps are public — anyone can browse the store, logged in or not.
-  const { data: appsData } = await supa.from('apps').select('*').order('created_at', {ascending:false});
+  const { data: appsData, error: appsError } = await supa.from('apps').select('*').order('created_at', {ascending:false});
+  if(appsError){
+    showEmptyMessage("فشل الربط: تعذر تحميل البرامج من قاعدة البيانات");
+    setStatus('فشل تحميل البرامج: ' + appsError.message, 'error');
+    return;
+  }
   allApps = appsData || [];
+  if(!allApps.length){
+    showEmptyMessage("لا يوجد برامج متاحة حاليًا");
+  }
 
   if(currentUser){
-    const [{data: settingsRows}, {data: unlockedData}] = await Promise.all([
+    const [settingsRes, unlockedRes] = await Promise.all([
       supa.from('app_settings').select('key,value').in('key', ['payment_number','store_payment_method']),
       supa.from('unlocked_apps').select('app_id').eq('user_id', currentUser.id)
     ]);
-    if(settingsRows){
-      const map = Object.fromEntries(settingsRows.map(r=>[r.key, r.value]));
+    if(settingsRes.error){
+      setStatus('تعذر تحميل إعدادات الدفع: ' + settingsRes.error.message, 'warn');
+    } else if(settingsRes.data){
+      const map = Object.fromEntries(settingsRes.data.map(r=>[r.key, r.value]));
       paySettings = { pay_phone: map.payment_number || "-", pay_method: map.store_payment_method || "فودافون كاش" };
     }
-    unlockedIds = new Set((unlockedData || []).map(r => r.app_id));
+    if(unlockedRes.error){
+      setStatus('تعذر التحقق من البرامج المشتراة سابقًا: ' + unlockedRes.error.message, 'warn');
+      unlockedIds = new Set();
+    } else {
+      unlockedIds = new Set((unlockedRes.data || []).map(r => r.app_id));
+    }
   } else {
     unlockedIds = new Set();
   }
-  renderGrid(allApps);
+  if(allApps.length) renderGrid(allApps);
 }
 
 supa && supa.auth.onAuthStateChange((event) => {
@@ -364,7 +427,10 @@ supa && supa.auth.onAuthStateChange((event) => {
   if(event === 'SIGNED_IN') load();
 });
 
-load();
+load().catch(err => {
+  showEmptyMessage("فشل الربط: تعذر تحميل صفحة المتجر");
+  setStatus('خطأ غير متوقع: ' + (err && err.message ? err.message : err), 'error');
+});
 </script>
 </body>
 </html>
