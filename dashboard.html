@@ -553,34 +553,42 @@ html,body{background:#050505!important}
   <div class="brand">Media Buyer <span>Hub</span></div>
   <div class="topbar-spacer"></div>
 
- <!-- ====== فتح صفحة المتجر ====== -->
 <button
-  class="install-btn"
-  id="installBtn"
-  title="فتح متجر Media Buyer"
-  onclick="handleInstallClick()"
+  onclick="window.location.href='store.html'"
+  title="المتجر"
+  style="
+    width: 52px;
+    height: 52px;
+    border: none;
+    border-radius: 14px;
+    background: #ffffff;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+    transition: 0.2s;
+  "
+  onmouseover="this.style.transform='scale(1.08)'"
+  onmouseout="this.style.transform='scale(1)'"
 >
-  <span class="pulse-ring"></span>
-
   <svg
+    width="28"
+    height="28"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
-    stroke-width="2.2"
+    stroke-width="2"
     stroke-linecap="round"
     stroke-linejoin="round"
   >
-    <path d="M12 3v12"/>
-    <path d="M7 10l5 5 5-5"/>
-    <path d="M5 21h14"/>
+    <path d="M3 9l1-5h16l1 5"/>
+    <path d="M5 9v11h14V9"/>
+    <path d="M3 9h18"/>
+    <path d="M8 20v-6h8v6"/>
   </svg>
 </button>
-
-<script>
-function handleInstallClick() {
-  window.location.href = "store.html";
-}
-</script>
 
   
   
