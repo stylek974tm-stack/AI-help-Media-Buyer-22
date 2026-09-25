@@ -4,12 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>المتجر</title>
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.45.4/dist/umd/supabase.min.js"></script>
-
 <style>
   :root{
     --bg:#0d0e12;
@@ -25,1634 +22,378 @@
     --radius:16px;
     --mono:'JetBrains Mono', monospace;
   }
-
   *{box-sizing:border-box}
-
-  html,body{
-    margin:0;
-    padding:0;
-    height:100%;
-  }
-
+  html,body{margin:0;padding:0;height:100%}
   body{
-    background:var(--bg);
-    color:var(--text);
-    font-family:'Cairo',sans-serif;
-    padding-top:env(safe-area-inset-top,0);
-    padding-bottom:env(safe-area-inset-bottom,0);
+    background:var(--bg);color:var(--text);font-family:'Cairo',sans-serif;
+    padding-top:env(safe-area-inset-top,0); padding-bottom:env(safe-area-inset-bottom,0);
   }
-
   header{
-    position:sticky;
-    top:0;
-    z-index:20;
-    background:rgba(13,14,18,.92);
-    backdrop-filter:blur(10px);
+    position:sticky; top:0; z-index:20;
+    background:rgba(13,14,18,.92); backdrop-filter:blur(10px);
     border-bottom:1px solid var(--line);
     padding:calc(16px + env(safe-area-inset-top,0)) 18px 14px;
   }
-
-  .headtop{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    margin-bottom:14px;
-  }
-
-  .headtop h1{
-    font-size:19px;
-    margin:0;
-    font-weight:800;
-  }
-
-  .searchbar{
-    position:relative;
-  }
-
+  .headtop{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .headtop h1{font-size:19px;margin:0;font-weight:800}
+  .searchbar{position:relative}
   .searchbar input{
-    width:100%;
-    background:var(--panel-2);
-    border:1px solid var(--line);
-    border-radius:999px;
-    padding:12px 44px 12px 16px;
-    color:var(--text);
-    font-family:'Cairo',sans-serif;
-    font-size:14.5px;
-    outline:none;
+    width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:999px;
+    padding:12px 44px 12px 16px;color:var(--text);font-family:'Cairo',sans-serif;font-size:14.5px;outline:none;
   }
+  .searchbar input:focus{border-color:var(--accent)}
+  .searchbar svg{position:absolute;right:16px;top:50%;transform:translateY(-50%);opacity:.55}
 
-  .searchbar input:focus{
-    border-color:var(--accent);
-  }
-
-  .searchbar svg{
-    position:absolute;
-    right:16px;
-    top:50%;
-    transform:translateY(-50%);
-    opacity:.55;
-  }
-
-  main{
-    max-width:1100px;
-    margin:0 auto;
-    padding:20px 16px 90px;
-  }
-
+  main{max-width:1100px;margin:0 auto;padding:20px 16px 90px}
   .grid{
     display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+    grid-template-columns:repeat(auto-fill, minmax(200px,1fr));
     gap:14px;
   }
-
   .card{
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:var(--radius);
-    padding:16px;
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-    position:relative;
-    overflow:hidden;
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:16px; display:flex; flex-direction:column; gap:10px; position:relative; overflow:hidden;
     transition:border-color .15s;
   }
-
-  .card:hover{
-    border-color:#3a3d4a;
-  }
-
+  .card:hover{border-color:#3a3d4a}
   .lock-badge{
-    position:absolute;
-    top:12px;
-    left:12px;
-    width:26px;
-    height:26px;
-    border-radius:50%;
-    background:rgba(0,0,0,.55);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    z-index:2;
+    position:absolute; top:12px; left:12px; width:26px; height:26px; border-radius:50%;
+    background:rgba(0,0,0,.55); display:flex; align-items:center; justify-content:center; z-index:2;
   }
-
-  .card-top{
-    display:flex;
-    align-items:center;
-    gap:10px;
-  }
-
-  .card-top img{
-    width:52px;
-    height:52px;
-    border-radius:13px;
-    object-fit:cover;
-    background:var(--panel-2);
-    flex-shrink:0;
-  }
-
-  .card-top .noimg{
-    width:52px;
-    height:52px;
-    border-radius:13px;
-    background:var(--panel-2);
-    flex-shrink:0;
-  }
-
-  .card-name{
-    font-size:14.5px;
-    font-weight:700;
-    line-height:1.3;
-  }
-
-  .card-rating{
-    font-family:var(--mono);
-    font-size:11.5px;
-    color:var(--accent-2);
-    margin-top:2px;
-  }
-
-  .card-desc{
-    font-size:12.8px;
-    color:var(--muted);
-    line-height:1.6;
-    display:-webkit-box;
-    -webkit-line-clamp:2;
-    -webkit-box-orient:vertical;
-    overflow:hidden;
-    min-height:2.6em;
-  }
-
-  .card-update{
-    font-size:11.5px;
-    color:var(--muted);
-    background:var(--panel-2);
-    border-radius:8px;
-    padding:6px 9px;
-    line-height:1.5;
-  }
-
-  .card-update b{
-    color:var(--text);
-    font-weight:600;
-  }
-
-  .card-bottom{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    margin-top:auto;
-    gap:8px;
-  }
-
-  .price{
-    font-family:var(--mono);
-    font-size:13px;
-  }
-
-  .price.free{
-    color:var(--good);
-    font-weight:600;
-  }
-
-  .price .old{
-    color:var(--muted);
-    text-decoration:line-through;
-    font-size:11px;
-    margin-left:5px;
-  }
-
+  .card-top{display:flex;align-items:center;gap:10px}
+  .card-top img{width:52px;height:52px;border-radius:13px;object-fit:cover;background:var(--panel-2);flex-shrink:0}
+  .card-top .noimg{width:52px;height:52px;border-radius:13px;background:var(--panel-2);flex-shrink:0}
+  .card-name{font-size:14.5px;font-weight:700;line-height:1.3}
+  .card-rating{font-family:var(--mono);font-size:11.5px;color:var(--accent-2);margin-top:2px}
+  .card-desc{font-size:12.8px;color:var(--muted);line-height:1.6;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.6em}
+  .card-update{font-size:11.5px;color:var(--muted);background:var(--panel-2);border-radius:8px;padding:6px 9px;line-height:1.5}
+  .card-update b{color:var(--text);font-weight:600}
+  .card-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:auto;gap:8px}
+  .price{font-family:var(--mono);font-size:13px}
+  .price.free{color:var(--good);font-weight:600}
+  .price .old{color:var(--muted);text-decoration:line-through;font-size:11px;margin-left:5px}
   .btn-install{
-    font-family:'Cairo',sans-serif;
-    font-weight:700;
-    font-size:13px;
-    border:none;
-    border-radius:9px;
-    padding:9px 16px;
-    cursor:pointer;
-    background:var(--accent);
-    color:#fff;
-    white-space:nowrap;
+    font-family:'Cairo',sans-serif; font-weight:700; font-size:13px; border:none; border-radius:9px;
+    padding:9px 16px; cursor:pointer; background:var(--accent); color:#fff; white-space:nowrap;
   }
-
-  .btn-install.owned{
-    background:var(--good);
-  }
-
-  .btn-install:hover{
-    filter:brightness(1.08);
-  }
-
-  .empty-state{
-    text-align:center;
-    color:var(--muted);
-    padding:60px 20px;
-    font-size:14px;
-  }
+  .btn-install.owned{background:var(--good)}
+  .btn-install:hover{filter:brightness(1.08)}
+  .empty-state{text-align:center;color:var(--muted);padding:60px 20px;font-size:14px}
 
   /* Modal */
   .overlay{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.6);
-    backdrop-filter:blur(3px);
-    display:none;
-    align-items:flex-end;
-    justify-content:center;
-    z-index:100;
+    position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(3px);
+    display:none;align-items:flex-end;justify-content:center;z-index:100;
   }
-
-  .overlay.active{
-    display:flex;
-  }
-
+  .overlay.active{display:flex}
   .sheet{
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:20px 20px 0 0;
-    width:100%;
-    max-width:480px;
-    padding:22px 20px calc(22px + env(safe-area-inset-bottom,0));
+    background:var(--panel); border:1px solid var(--line); border-radius:20px 20px 0 0;
+    width:100%; max-width:480px; padding:22px 20px calc(22px + env(safe-area-inset-bottom,0));
     animation:up .2s ease;
   }
-
   @media(min-width:600px){
-    .overlay{
-      align-items:center;
-    }
-
-    .sheet{
-      border-radius:18px;
-    }
+    .overlay{align-items:center}
+    .sheet{border-radius:18px}
   }
-
-  @keyframes up{
-    from{
-      transform:translateY(30px);
-      opacity:0;
-    }
-    to{
-      transform:translateY(0);
-      opacity:1;
-    }
-  }
-
-  .sheet h3{
-    margin:0 0 6px;
-    font-size:17px;
-    font-weight:800;
-  }
-
-  .sheet p{
-    margin:0 0 16px;
-    font-size:13.5px;
-    color:var(--muted);
-    line-height:1.7;
-  }
-
+  @keyframes up{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+  .sheet h3{margin:0 0 6px;font-size:17px;font-weight:800}
+  .sheet p{margin:0 0 16px;font-size:13.5px;color:var(--muted);line-height:1.7}
   .pay-box{
-    background:var(--panel-2);
-    border:1px solid var(--line);
-    border-radius:12px;
-    padding:16px;
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-    margin-bottom:16px;
+    background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:16px;
+    display:flex;flex-direction:column;gap:8px;margin-bottom:16px;
   }
-
-  .pay-row{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-  }
-
-  .pay-row .lbl{
-    font-size:12.5px;
-    color:var(--muted);
-  }
-
-  .pay-row .val{
-    font-family:var(--mono);
-    font-size:16px;
-    font-weight:600;
-  }
-
-  .copy-btn{
-    background:transparent;
-    border:1px solid var(--line);
-    color:var(--text);
-    border-radius:7px;
-    padding:5px 10px;
-    font-size:11.5px;
-    cursor:pointer;
-  }
-
-  .sheet-actions{
-    display:flex;
-    gap:10px;
-  }
-
-  .sheet-actions button{
-    flex:1;
-    font-family:'Cairo',sans-serif;
-    font-weight:700;
-    font-size:14px;
-    border-radius:10px;
-    padding:13px;
-    cursor:pointer;
-    border:none;
-  }
-
-  .btn-confirm{
-    background:var(--accent);
-    color:#fff;
-  }
-
-  .btn-cancel{
-    background:transparent;
-    border:1px solid var(--line);
-    color:var(--text);
-  }
+  .pay-row{display:flex;justify-content:space-between;align-items:center}
+  .pay-row .lbl{font-size:12.5px;color:var(--muted)}
+  .pay-row .val{font-family:var(--mono);font-size:16px;font-weight:600}
+  .copy-btn{background:transparent;border:1px solid var(--line);color:var(--text);border-radius:7px;padding:5px 10px;font-size:11.5px;cursor:pointer}
+  .sheet-actions{display:flex;gap:10px}
+  .sheet-actions button{flex:1;font-family:'Cairo',sans-serif;font-weight:700;font-size:14px;border-radius:10px;padding:13px;cursor:pointer;border:none}
+  .btn-confirm{background:var(--accent);color:#fff}
+  .btn-cancel{background:transparent;border:1px solid var(--line);color:var(--text)}
 
   /* App viewer */
-  .viewer{
-    position:fixed;
-    inset:0;
-    background:#000;
-    z-index:200;
-    display:none;
-    flex-direction:column;
-  }
-
-  .viewer.active{
-    display:flex;
-  }
-
+  .viewer{position:fixed;inset:0;background:#000;z-index:200;display:none;flex-direction:column}
+  .viewer.active{display:flex}
   .viewer-bar{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding:calc(10px + env(safe-area-inset-top,0)) 14px 10px;
-    background:var(--panel);
-    border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0)) 14px 10px;
+    background:var(--panel); border-bottom:1px solid var(--line);
   }
-
-  .viewer-bar button{
-    background:var(--panel-2);
-    border:1px solid var(--line);
-    color:var(--text);
-    border-radius:8px;
-    padding:8px 12px;
-    font-family:'Cairo',sans-serif;
-    font-size:13px;
-    cursor:pointer;
-  }
-
-  .viewer-bar span{
-    font-size:13.5px;
-    font-weight:700;
-  }
-
-  .viewer iframe{
-    flex:1;
-    border:none;
-    width:100%;
-    background:#fff;
-  }
-
-  /* Error box */
-  .error-box{
-    margin:25px auto;
-    max-width:700px;
-    background:rgba(255,84,112,.08);
-    border:1px solid rgba(255,84,112,.35);
-    border-radius:14px;
-    padding:18px;
-    color:#ff8da0;
-    direction:rtl;
-    text-align:right;
-  }
-
-  .error-box b{
-    display:block;
-    margin-bottom:8px;
-    color:#ff5470;
-  }
-
-  .error-box code{
-    display:block;
-    direction:ltr;
-    text-align:left;
-    background:#090a0d;
-    padding:12px;
-    border-radius:8px;
-    margin-top:10px;
-    white-space:pre-wrap;
-    word-break:break-word;
-    font-family:var(--mono);
-    font-size:11px;
-  }
+  .viewer-bar button{background:var(--panel-2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px 12px;font-family:'Cairo',sans-serif;font-size:13px;cursor:pointer}
+  .viewer-bar span{font-size:13.5px;font-weight:700}
+  .viewer iframe{flex:1;border:none;width:100%;background:#fff}
 </style>
 </head>
-
 <body>
 
 <header>
   <div class="headtop">
     <h1>المتجر</h1>
-
-    <button
-      id="logoutBtn"
-      style="display:none;background:var(--panel-2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px 12px;font-family:'Cairo',sans-serif;font-size:12.5px;cursor:pointer">
-      تسجيل الخروج
-    </button>
+    <button id="logoutBtn" style="display:none;background:var(--panel-2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px 12px;font-family:'Cairo',sans-serif;font-size:12.5px;cursor:pointer">تسجيل الخروج</button>
   </div>
-
   <div class="searchbar">
     <input type="text" id="searchInput" placeholder="دور على برنامج...">
-
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2">
-      <circle cx="11" cy="11" r="7"></circle>
-      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-    </svg>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
   </div>
 </header>
 
 <main>
-
   <div class="grid" id="grid"></div>
-
-  <div
-    class="empty-state"
-    id="emptyState"
-    style="display:none">
-    مفيش برامج متاحة دلوقتي
-  </div>
-
+  <div class="empty-state" id="emptyState" style="display:none">مفيش برامج متاحة دلوقتي</div>
 </main>
 
 <!-- Login gate -->
-<div
-  class="overlay active"
-  id="loginGate"
-  style="align-items:center">
-
-  <div
-    class="sheet"
-    style="text-align:center;border-radius:18px">
-
+<div class="overlay active" id="loginGate" style="align-items:center">
+  <div class="sheet" style="text-align:center;border-radius:18px">
     <h3>سجّل الدخول الأول</h3>
-
-    <p>
-      لازم تكون مسجل دخول في حسابك عشان تقدر تشوف المتجر وتفتح البرامج.
-    </p>
-
+    <p>لازم تكون مسجل دخول في حسابك عشان تقدر تشوف المتجر وتفتح البرامج.</p>
     <div class="sheet-actions">
-
-      <a
-        href="index.html"
-        style="flex:1;text-decoration:none"
-        id="loginGateBtn">
-
-        <button
-          class="btn-confirm"
-          style="width:100%">
-          تسجيل الدخول
-        </button>
-
+      <a href="index.html" style="flex:1;text-decoration:none" id="loginGateBtn">
+        <button class="btn-confirm" style="width:100%">تسجيل الدخول</button>
       </a>
-
     </div>
   </div>
 </div>
 
 <!-- Payment sheet -->
-<div
-  class="overlay"
-  id="payOverlay">
-
+<div class="overlay" id="payOverlay">
   <div class="sheet">
-
-    <h3 id="payTitle">
-      تفعيل البرنامج
-    </h3>
-
-    <p>
-      حوّل قيمة البرنامج على الرقم التالي، وبعد التحويل اضغط
-      "تم التحويل" عشان يتفتح البرنامج.
-    </p>
-
+    <h3 id="payTitle">تفعيل البرنامج</h3>
+    <p>حوّل قيمة البرنامج على الرقم التالي، وبعد التحويل اضغط "تم التحويل" عشان يتفتح البرنامج.</p>
     <div class="pay-box">
-
       <div class="pay-row">
-        <span class="lbl" id="payMethodLbl">
-          المحفظة
-        </span>
-
-        <span class="val" id="payAmount">
-          0 ج
+        <span class="lbl" id="payMethodLbl">المحفظة</span>
+        <span class="val" id="payAmount">0 ج</span>
+      </div>
+      <div class="pay-row">
+        <span class="lbl">الرقم</span>
+        <span class="row" style="display:flex;align-items:center;gap:8px">
+          <span class="val" id="payPhoneVal">-</span>
+          <button class="copy-btn" id="copyPhoneBtn">نسخ</button>
         </span>
       </div>
-
-      <div class="pay-row">
-
-        <span class="lbl">
-          الرقم
-        </span>
-
-        <span
-          class="row"
-          style="display:flex;align-items:center;gap:8px">
-
-          <span
-            class="val"
-            id="payPhoneVal">
-            -
-          </span>
-
-          <button
-            class="copy-btn"
-            id="copyPhoneBtn">
-            نسخ
-          </button>
-
-        </span>
-
-      </div>
-
     </div>
-
     <div class="sheet-actions">
-
-      <button
-        class="btn-cancel"
-        id="payCancelBtn">
-        إلغاء
-      </button>
-
-      <button
-        class="btn-confirm"
-        id="payConfirmBtn">
-        تم التحويل، افتح البرنامج
-      </button>
-
+      <button class="btn-cancel" id="payCancelBtn">إلغاء</button>
+      <button class="btn-confirm" id="payConfirmBtn">تم التحويل، افتح البرنامج</button>
     </div>
-
   </div>
 </div>
 
 <!-- App viewer -->
-<div
-  class="viewer"
-  id="viewer">
-
+<div class="viewer" id="viewer">
   <div class="viewer-bar">
-
-    <button id="closeViewerBtn">
-      إغلاق ✕
-    </button>
-
+    <button id="closeViewerBtn">إغلاق ✕</button>
     <span id="viewerTitle"></span>
-
   </div>
-
   <iframe id="viewerFrame"></iframe>
-
 </div>
 
 <script>
-
-const SUPABASE_URL =
-  "https://zphepebjpxrzpudncuas.supabase.co";
-
-const SUPABASE_ANON_KEY =
-  "sb_publishable_tIG9XDZeHVZpZjz74e-dBA_ui5GIYw7";
-
-const LOGIN_URL =
-  "index.html";
-
-const configured =
-  !SUPABASE_URL.includes("YOUR_") &&
-  !SUPABASE_ANON_KEY.includes("YOUR_");
-
-const supa =
-  configured
-    ? supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_ANON_KEY
-      )
-    : null;
-
-
-/* =========================
-   GLOBAL VARIABLES
-========================= */
+const SUPABASE_URL = "https://zphepebjpxrzpudncuas.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_tIG9XDZeHVZpZjz74e-dBA_ui5GIYw7";
+// اسم صفحة تسجيل الدخول بتاعة الموقع الأساسي - غيّرها لو المسار مختلف
+const LOGIN_URL = "index.html";
+const configured = !SUPABASE_URL.includes("YOUR_") && !SUPABASE_ANON_KEY.includes("YOUR_");
+const supa = configured ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
 let currentUser = null;
-
-let unlockedIds =
-  new Set();
-
-let allApps = [];
-
-let paySettings = {
-  pay_phone: "-",
-  pay_method: "فودافون كاش"
-};
-
-let pendingApp = null;
-
-
-/* =========================
-   UNLOCK
-========================= */
+let unlockedIds = new Set();
 
 async function unlock(appId){
-
-  if(!currentUser){
-    return;
-  }
-
+  if(!currentUser) return;
   unlockedIds.add(appId);
-
-  const { error } =
-    await supa
-      .from("unlocked_apps")
-      .upsert(
-        {
-          user_id: currentUser.id,
-          app_id: appId
-        },
-        {
-          onConflict: "user_id,app_id"
-        }
-      );
-
-  if(error){
-
-    console.warn(
-      "unlock save failed:",
-      error.message
-    );
-
-  }
-
+  const { error } = await supa.from('unlocked_apps')
+    .upsert({ user_id: currentUser.id, app_id: appId }, { onConflict: 'user_id,app_id' });
+  if(error) console.warn('unlock save failed:', error.message);
 }
-
-
-/* =========================
-   CHECK UNLOCKED
-========================= */
-
 function isUnlocked(app){
-
-  return (
-    app.is_free ||
-    unlockedIds.has(app.id)
-  );
-
+  return app.is_free || unlockedIds.has(app.id);
 }
 
-
-/* =========================
-   FINAL PRICE
-========================= */
+let allApps = [];
+let paySettings = { pay_phone: "-", pay_method: "فودافون كاش" };
+let pendingApp = null;
 
 function finalPrice(app){
-
-  if(app.is_free){
-    return 0;
-  }
-
-  const p =
-    Number(app.price) || 0;
-
-  const d =
-    Number(app.discount) || 0;
-
-  return d
-    ? Math.round(
-        (p - (p * d / 100)) * 100
-      ) / 100
-    : p;
-
+  if(app.is_free) return 0;
+  const p = Number(app.price)||0;
+  const d = Number(app.discount)||0;
+  return d ? Math.round((p - (p*d/100))*100)/100 : p;
 }
-
-
-/* =========================
-   RENDER APPS
-========================= */
 
 function renderGrid(list){
-
-  const grid =
-    document.getElementById("grid");
-
-  const empty =
-    document.getElementById("emptyState");
-
+  const grid = document.getElementById('grid');
+  const empty = document.getElementById('emptyState');
   grid.innerHTML = "";
+  if(!list.length){ empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
 
-  if(!list.length){
+  list.forEach(app=>{
+    const unlocked = isUnlocked(app);
+    const fp = finalPrice(app);
+    const priceHtml = app.is_free
+      ? '<span class="price free">مجاني</span>'
+      : `<span class="price">${fp} ج${app.discount ? `<span class="old">${app.price} ج</span>`:''}</span>`;
 
-    empty.style.display =
-      "block";
-
-    return;
-  }
-
-  empty.style.display =
-    "none";
-
-
-  list.forEach(app => {
-
-    const unlocked =
-      isUnlocked(app);
-
-    const fp =
-      finalPrice(app);
-
-
-    const priceHtml =
-      app.is_free
-
-        ? `
-          <span class="price free">
-            مجاني
-          </span>
-        `
-
-        : `
-          <span class="price">
-            ${fp} ج
-
-            ${
-              app.discount
-                ? `
-                  <span class="old">
-                    ${app.price} ج
-                  </span>
-                `
-                : ""
-            }
-
-          </span>
-        `;
-
-
-    const card =
-      document.createElement("div");
-
-    card.className =
-      "card";
-
-
+    const card = document.createElement('div');
+    card.className = 'card';
     card.innerHTML = `
-
-      ${
-        !unlocked
-          ? `
-            <div class="lock-badge">
-              ${lockIconSvg()}
-            </div>
-          `
-          : ""
-      }
-
-
+      ${!unlocked ? `<div class="lock-badge">${lockIconSvg()}</div>` : ''}
       <div class="card-top">
-
-        ${
-          app.logo_url
-
-            ? `
-              <img
-                src="${escapeAttribute(app.logo_url)}"
-                alt=""
-              >
-            `
-
-            : `
-              <div class="noimg"></div>
-            `
-        }
-
-
+        ${app.logo_url ? `<img src="${app.logo_url}">` : `<div class="noimg"></div>`}
         <div>
-
-          <div class="card-name">
-            ${escapeHtml(app.name)}
-          </div>
-
-
-          ${
-            app.rating
-
-              ? `
-                <div class="card-rating">
-                  ${"★".repeat(
-                    Math.round(app.rating)
-                  )}
-                  ${app.rating}
-                </div>
-              `
-
-              : ""
-          }
-
+          <div class="card-name">${escapeHtml(app.name)}</div>
+          ${app.rating ? `<div class="card-rating">${'★'.repeat(Math.round(app.rating))} ${app.rating}</div>` : ''}
         </div>
-
       </div>
-
-
-      <div class="card-desc">
-        ${escapeHtml(
-          app.description || ""
-        )}
-      </div>
-
-
-      ${
-        app.changelog
-
-          ? `
-            <div class="card-update">
-              <b>جديد:</b>
-              ${escapeHtml(
-                app.changelog
-              )}
-            </div>
-          `
-
-          : ""
-      }
-
-
+      <div class="card-desc">${escapeHtml(app.description || "")}</div>
+      ${app.changelog ? `<div class="card-update"><b>جديد:</b> ${escapeHtml(app.changelog)}</div>` : ''}
       <div class="card-bottom">
-
         ${priceHtml}
-
-        <button
-          class="btn-install ${
-            unlocked ? "owned" : ""
-          }">
-
-          ${
-            unlocked
-              ? "فتح"
-              : "تثبيت"
-          }
-
-        </button>
-
+        <button class="btn-install ${unlocked ? 'owned':''}">${unlocked ? 'فتح' : 'تثبيت'}</button>
       </div>
-
     `;
-
-
-    card
-      .querySelector(".btn-install")
-      .onclick = () =>
-        handleInstallClick(app);
-
-
+    card.querySelector('.btn-install').onclick = () => handleInstallClick(app);
     grid.appendChild(card);
-
   });
-
 }
-
-
-/* =========================
-   LOCK ICON
-========================= */
 
 function lockIconSvg(){
-
-  return `
-    <svg
-      width="13"
-      height="13"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="#fff"
-      stroke-width="2.2">
-
-      <rect
-        x="5"
-        y="11"
-        width="14"
-        height="9"
-        rx="2">
-      </rect>
-
-      <path
-        d="M8 11V7a4 4 0 0 1 8 0v4">
-      </path>
-
-    </svg>
-  `;
-
+  return `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>`;
 }
-
-
-/* =========================
-   ESCAPE HTML
-========================= */
-
 function escapeHtml(s){
-
-  const d =
-    document.createElement("div");
-
-  d.textContent =
-    s || "";
-
-  return d.innerHTML;
-
+  const d = document.createElement('div'); d.textContent = s || ""; return d.innerHTML;
 }
-
-
-/* =========================
-   ESCAPE ATTRIBUTE
-========================= */
-
-function escapeAttribute(s){
-
-  return String(s || "")
-    .replace(/&/g,"&amp;")
-    .replace(/"/g,"&quot;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;");
-
-}
-
-
-/* =========================
-   INSTALL CLICK
-========================= */
 
 function handleInstallClick(app){
-
-  if(isUnlocked(app)){
-
-    openApp(app);
-
-    return;
-  }
-
+  if(isUnlocked(app)){ openApp(app); return; }
   openPaySheet(app);
-
 }
-
-
-/* =========================
-   PAYMENT SHEET
-========================= */
 
 function openPaySheet(app){
+  pendingApp = app;
+  document.getElementById('payTitle').textContent = "تفعيل: " + app.name;
+  document.getElementById('payMethodLbl').textContent = paySettings.pay_method;
+  document.getElementById('payAmount').textContent = finalPrice(app) + " ج";
+  document.getElementById('payPhoneVal').textContent = paySettings.pay_phone;
+  document.getElementById('payOverlay').classList.add('active');
+}
+document.getElementById('payCancelBtn').onclick = () => {
+  document.getElementById('payOverlay').classList.remove('active');
+  pendingApp = null;
+};
+document.getElementById('copyPhoneBtn').onclick = () => {
+  navigator.clipboard.writeText(paySettings.pay_phone).catch(()=>{});
+  const b = document.getElementById('copyPhoneBtn');
+  b.textContent = "اتنسخ"; setTimeout(()=>b.textContent="نسخ", 1500);
+};
+document.getElementById('payConfirmBtn').onclick = async () => {
+  if(!pendingApp) return;
+  await unlock(pendingApp.id);
+  document.getElementById('payOverlay').classList.remove('active');
+  const app = pendingApp; pendingApp = null;
+  renderGrid(filterApps(document.getElementById('searchInput').value));
+  openApp(app);
+};
 
-  pendingApp =
-    app;
+function openApp(app){
+  if(!app.file_url){ alert("ملف البرنامج لسه متضافش"); return; }
+  document.getElementById('viewerTitle').textContent = app.name;
+  document.getElementById('viewerFrame').src = app.file_url;
+  document.getElementById('viewer').classList.add('active');
+}
+document.getElementById('closeViewerBtn').onclick = () => {
+  document.getElementById('viewer').classList.remove('active');
+  document.getElementById('viewerFrame').src = "about:blank";
+};
 
-  document.getElementById(
-    "payTitle"
-  ).textContent =
-    "تفعيل: " + app.name;
+function filterApps(q){
+  q = (q||"").trim();
+  if(!q) return allApps;
+  return allApps.filter(a => (a.name||"").includes(q) || (a.description||"").includes(q));
+}
+document.getElementById('searchInput').addEventListener('input', (e)=>{
+  renderGrid(filterApps(e.target.value));
+});
 
+document.getElementById('loginGateBtn').href = LOGIN_URL;
+document.getElementById('logoutBtn').onclick = async () => {
+  await supa.auth.signOut();
+  window.location.href = LOGIN_URL;
+};
 
-  document.getElementById(
-    "payMethodLbl"
-  ).textContent =
-    paySettings.pay_method;
-
-
-  document.getElementById(
-    "payAmount"
-  ).textContent =
-    finalPrice(app) + " ج";
-
-
-  document.getElementById(
-    "payPhoneVal"
-  ).textContent =
-    paySettings.pay_phone;
-
-
-  document.getElementById(
-    "payOverlay"
-  ).classList.add("active");
-
+function showFatalError(msg){
+  const empty = document.getElementById('emptyState');
+  const grid = document.getElementById('grid');
+  grid.innerHTML = "";
+  empty.style.display = 'block';
+  empty.style.whiteSpace = 'pre-wrap';
+  empty.style.color = 'var(--danger)';
+  empty.textContent = "حصل خطأ:\n" + msg;
 }
 
+// أي خطأ JavaScript عام (حتى لو خارج load) هيتسجل ويتعرض بدل ما الصفحة تفضل فاضية بصمت
+window.addEventListener('error', (e) => {
+  console.error('Global error:', e.error || e.message);
+  showFatalError(e.message || 'خطأ غير معروف في الصفحة');
+});
+window.addEventListener('unhandledrejection', (e) => {
+  console.error('Unhandled rejection:', e.reason);
+  showFatalError((e.reason && (e.reason.message || JSON.stringify(e.reason))) || 'فشل في تحميل البيانات');
+});
 
-/* =========================
-   CANCEL PAYMENT
-========================= */
-
-document.getElementById(
-  "payCancelBtn"
-).onclick = () => {
-
-  document.getElementById(
-    "payOverlay"
-  ).classList.remove("active");
-
-  pendingApp = null;
-
-};
-
-
-/* =========================
-   COPY PHONE
-========================= */
-
-document.getElementById(
-  "copyPhoneBtn"
-).onclick = () => {
-
-  navigator.clipboard
-    .writeText(
-      paySettings.pay_phone
-    )
-    .catch(() => {});
-
-
-  const b =
-    document.getElementById(
-      "copyPhoneBtn"
-    );
-
-
-  b.textContent =
-    "اتنسخ";
-
-
-  setTimeout(
-    () => {
-      b.textContent =
-        "نسخ";
-    },
-    1500
-  );
-
-};
-
-
-/* =========================
-   PAYMENT CONFIRM
-========================= */
-
-document.getElementById(
-  "payConfirmBtn"
-).onclick =
-  async () => {
-
-    if(!pendingApp){
+async function load(){
+  try{
+    if(!supa){
+      document.getElementById('emptyState').textContent = "لازم تظبط بيانات الاتصال بـ Supabase الأول";
+      document.getElementById('emptyState').style.display = 'block';
       return;
     }
 
-
-    await unlock(
-      pendingApp.id
-    );
-
-
-    document.getElementById(
-      "payOverlay"
-    ).classList.remove(
-      "active"
-    );
-
-
-    const app =
-      pendingApp;
-
-    pendingApp = null;
-
-
-    renderGrid(
-      filterApps(
-        document.getElementById(
-          "searchInput"
-        ).value
-      )
-    );
-
-
-    openApp(app);
-
-  };
-
-
-/* =========================
-   OPEN APP
-========================= */
-
-function openApp(app){
-
-  if(!app.file_url){
-
-    alert(
-      "ملف البرنامج لسه متضافش"
-    );
-
-    return;
-  }
-
-
-  document.getElementById(
-    "viewerTitle"
-  ).textContent =
-    app.name;
-
-
-  document.getElementById(
-    "viewerFrame"
-  ).src =
-    app.file_url;
-
-
-  document.getElementById(
-    "viewer"
-  ).classList.add(
-    "active"
-  );
-
-}
-
-
-/* =========================
-   CLOSE VIEWER
-========================= */
-
-document.getElementById(
-  "closeViewerBtn"
-).onclick = () => {
-
-  document.getElementById(
-    "viewer"
-  ).classList.remove(
-    "active"
-  );
-
-
-  document.getElementById(
-    "viewerFrame"
-  ).src =
-    "about:blank";
-
-};
-
-
-/* =========================
-   FILTER
-========================= */
-
-function filterApps(q){
-
-  q =
-    (q || "")
-      .trim();
-
-
-  if(!q){
-    return allApps;
-  }
-
-
-  return allApps.filter(
-    a =>
-      (a.name || "")
-        .includes(q)
-
-      ||
-
-      (a.description || "")
-        .includes(q)
-  );
-
-}
-
-
-/* =========================
-   SEARCH
-========================= */
-
-document.getElementById(
-  "searchInput"
-).addEventListener(
-  "input",
-  e => {
-
-    renderGrid(
-      filterApps(
-        e.target.value
-      )
-    );
-
-  }
-);
-
-
-/* =========================
-   LOGIN URL
-========================= */
-
-document.getElementById(
-  "loginGateBtn"
-).href =
-  LOGIN_URL;
-
-
-/* =========================
-   LOGOUT
-========================= */
-
-document.getElementById(
-  "logoutBtn"
-).onclick =
-  async () => {
-
-    await supa.auth.signOut();
-
-    window.location.href =
-      LOGIN_URL;
-
-  };
-
-
-/* =========================
-   SHOW ERROR
-========================= */
-
-function showLoadError(
-  title,
-  error
-){
-
-  const grid =
-    document.getElementById(
-      "grid"
-    );
-
-  const empty =
-    document.getElementById(
-      "emptyState"
-    );
-
-
-  grid.innerHTML = "";
-
-
-  empty.style.display =
-    "none";
-
-
-  const box =
-    document.createElement(
-      "div"
-    );
-
-
-  box.className =
-    "error-box";
-
-
-  box.innerHTML = `
-
-    <b>
-      ${escapeHtml(title)}
-    </b>
-
-    <div>
-      المتجر مش قادر يقرأ البيانات من Supabase.
-    </div>
-
-    <code>
-${escapeHtml(
-  error?.message ||
-  error?.details ||
-  error?.hint ||
-  String(error || "Unknown error")
-)}
-    </code>
-
-  `;
-
-
-  grid.appendChild(box);
-
-}
-
-
-/* =========================
-   LOAD STORE
-========================= */
-
-async function load(){
-
-  console.log(
-    "STORE: starting..."
-  );
-
-
-  /* Supabase not configured */
-
-  if(!supa){
-
-    showLoadError(
-      "خطأ في إعداد Supabase",
-      "بيانات الاتصال بـ Supabase غير مضبوطة."
-    );
-
-    return;
-  }
-
-
-  /* Get session */
-
-  const {
-    data: {
-      session
-    },
-    error: sessionError
-  } =
-    await supa.auth.getSession();
-
-
-  if(sessionError){
-
-    showLoadError(
-      "خطأ في تسجيل الدخول",
-      sessionError
-    );
-
-    return;
-  }
-
-
-  /* No session */
-
-  if(!session){
-
-    document
-      .getElementById(
-        "loginGate"
-      )
-      .classList.add(
-        "active"
-      );
-
-    return;
-  }
-
-
-  /* Logged in */
-
-  currentUser =
-    session.user;
-
-
-  document
-    .getElementById(
-      "loginGate"
-    )
-    .classList.remove(
-      "active"
-    );
-
-
-  document
-    .getElementById(
-      "logoutBtn"
-    )
-    .style.display =
-      "inline-block";
-
-
-  console.log(
-    "STORE USER:",
-    currentUser.id
-  );
-
-
-  /* =========================
-     LOAD ALL DATA
-  ========================= */
-
-  const [
-    settingsResult,
-    appsResult,
-    unlockedResult
-  ] = await Promise.all([
-
-    supa
-      .from("app_settings")
-      .select("key,value")
-      .in(
-        "key",
-        [
-          "payment_number",
-          "store_payment_method"
-        ]
-      ),
-
-    supa
-      .from("apps")
-      .select("*")
-      .order(
-        "created_at",
-        {
-          ascending:false
-        }
-      ),
-
-    supa
-      .from("unlocked_apps")
-      .select("app_id")
-      .eq(
-        "user_id",
-        currentUser.id
-      )
-
-  ]);
-
-
-  /* =========================
-     CHECK SETTINGS ERROR
-  ========================= */
-
-  if(
-    settingsResult.error
-  ){
-
-    console.error(
-      "APP SETTINGS ERROR:",
-      settingsResult.error
-    );
-
-  }
-
-
-  /* =========================
-     CHECK APPS ERROR
-  ========================= */
-
-  if(
-    appsResult.error
-  ){
-
-    console.error(
-      "APPS ERROR:",
-      appsResult.error
-    );
-
-
-    showLoadError(
-      "خطأ في تحميل البرامج",
-      appsResult.error
-    );
-
-
-    return;
-  }
-
-
-  /* =========================
-     CHECK UNLOCKED ERROR
-  ========================= */
-
-  if(
-    unlockedResult.error
-  ){
-
-    console.error(
-      "UNLOCKED APPS ERROR:",
-      unlockedResult.error
-    );
-
-  }
-
-
-  /* =========================
-     SETTINGS
-  ========================= */
-
-  if(
-    settingsResult.data
-  ){
-
-    const map =
-      Object.fromEntries(
-        settingsResult.data.map(
-          r => [
-            r.key,
-            r.value
-          ]
-        )
-      );
-
-
-    paySettings = {
-
-      pay_phone:
-        map.payment_number ||
-        "-",
-
-      pay_method:
-        map.store_payment_method ||
-        "فودافون كاش"
-
-    };
-
-  }
-
-
-  /* =========================
-     APPS
-  ========================= */
-
-  allApps =
-    appsResult.data || [];
-
-
-  console.log(
-    "APPS LOADED:",
-    allApps
-  );
-
-
-  /* =========================
-     UNLOCKED
-  ========================= */
-
-  unlockedIds =
-    new Set(
-      (
-        unlockedResult.data ||
-        []
-      ).map(
-        r => r.app_id
-      )
-    );
-
-
-  /* =========================
-     RENDER
-  ========================= */
-
-  renderGrid(
-    allApps
-  );
-
-}
-
-
-/* =========================
-   AUTH STATE
-========================= */
-
-if(supa){
-
-  supa.auth.onAuthStateChange(
-    (event) => {
-
-      console.log(
-        "AUTH EVENT:",
-        event
-      );
-
-
-      if(
-        event === "SIGNED_OUT"
-      ){
-
-        location.reload();
-
-      }
-
+    const { data: { session }, error: sessionErr } = await supa.auth.getSession();
+    if(sessionErr) throw sessionErr;
+    if(!session){
+      document.getElementById('loginGate').classList.add('active');
+      return;
     }
-  );
+    currentUser = session.user;
+    document.getElementById('loginGate').classList.remove('active');
+    document.getElementById('logoutBtn').style.display = 'inline-block';
 
+    const [settingsRes, appsRes, unlockedRes] = await Promise.all([
+      supa.from('app_settings').select('key,value').in('key', ['payment_number','store_payment_method']),
+      supa.from('apps').select('*').order('created_at', {ascending:false}),
+      supa.from('unlocked_apps').select('app_id').eq('user_id', currentUser.id)
+    ]);
+
+    // كل استعلام بيتفحص لوحده عشان لو واحد غلط نعرف بالظبط مين
+    if(settingsRes.error) throw new Error('app_settings: ' + settingsRes.error.message);
+    if(appsRes.error) throw new Error('apps: ' + appsRes.error.message);
+    if(unlockedRes.error) throw new Error('unlocked_apps: ' + unlockedRes.error.message);
+
+    const settingsRows = settingsRes.data;
+    const appsData = appsRes.data;
+    const unlockedData = unlockedRes.data;
+
+    if(settingsRows){
+      const map = Object.fromEntries(settingsRows.map(r=>[r.key, r.value]));
+      paySettings = { pay_phone: map.payment_number || "-", pay_method: map.store_payment_method || "فودافون كاش" };
+    }
+    allApps = appsData || [];
+    unlockedIds = new Set((unlockedData || []).map(r => r.app_id));
+    renderGrid(allApps);
+  }catch(err){
+    console.error('load() failed:', err);
+    showFatalError(err && err.message ? err.message : String(err));
+  }
 }
 
-
-/* =========================
-   START
-========================= */
+supa && supa.auth.onAuthStateChange((event) => {
+  if(event === 'SIGNED_OUT') location.reload();
+});
 
 load();
-
 </script>
-
 </body>
 </html>
