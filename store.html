@@ -130,6 +130,27 @@
   .viewer-bar button{background:var(--panel-2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px 12px;font-family:'Cairo',sans-serif;font-size:13px;cursor:pointer}
   .viewer-bar span{font-size:13.5px;font-weight:700}
   .viewer iframe{flex:1;border:none;width:100%;background:#fff}
+
+/* MBH SECURITY + SMART STORE THEME */
+:root{
+  --bg:#000;--panel:#0d0d0d;--panel-2:#151515;--line:#272727;
+  --text:#f5f5f5;--muted:#9b9b9b;--accent:#fff;--accent-2:#d7d7d7;
+  --danger:#fff;--good:#fff;
+}
+body{min-height:100dvh;overscroll-behavior-y:none}
+button,input{touch-action:manipulation}
+.btn-install,.btn-confirm{background:#fff!important;color:#000!important}
+.btn-install.owned{background:#fff!important;color:#000!important}
+.status-banner.error,.status-banner.warn{background:#101010;border-color:#444;color:#fff}
+.payment-security{font-size:12px;color:var(--muted);line-height:1.7;margin:0 0 12px}
+.payment-security strong{color:var(--text)}
+.form-field{display:flex;flex-direction:column;gap:6px;margin-bottom:11px}
+.form-field label{font-size:12px;color:var(--muted);font-weight:600}
+.form-field input{width:100%;background:#0a0a0a;border:1px solid var(--line);border-radius:10px;padding:11px 12px;color:var(--text);font-family:'Cairo',sans-serif;font-size:13px;outline:none}
+.form-field input:focus{border-color:#777}
+.form-field input[readonly]{opacity:.8}
+.pending-badge{display:inline-flex;align-items:center;gap:6px;border:1px solid #3a3a3a;background:#111;border-radius:999px;padding:5px 9px;font-size:11px;color:#ddd;margin-top:6px}
+#payConfirmBtn:disabled{opacity:.45;cursor:not-allowed}
 </style>
 </head>
 <body>
@@ -170,23 +191,36 @@
 <div class="overlay" id="payOverlay">
   <div class="sheet">
     <h3 id="payTitle">تفعيل البرنامج</h3>
-    <p>حوّل قيمة البرنامج على الرقم التالي، وبعد التحويل اضغط "تم التحويل" عشان يتفتح البرنامج.</p>
+    <p>بعد التحويل، أدخل رقم الهاتف الذي تم التحويل منه. بعد تأكيد البيانات سيتم تفعيل البرنامج على حسابك.</p>
     <div class="pay-box">
       <div class="pay-row">
         <span class="lbl" id="payMethodLbl">المحفظة</span>
         <span class="val" id="payAmount">0 ج</span>
       </div>
       <div class="pay-row">
-        <span class="lbl">الرقم</span>
+        <span class="lbl">رقم الاستلام</span>
         <span class="row" style="display:flex;align-items:center;gap:8px">
           <span class="val" id="payPhoneVal">-</span>
           <button class="copy-btn" id="copyPhoneBtn">نسخ</button>
         </span>
       </div>
     </div>
+    <p class="payment-security"><strong>بيانات التفعيل:</strong> سيتم ربط عملية التفعيل بالبريد المرتبط بالحساب ورقم الهاتف الذي أدخلته. لا تشارك كلمة المرور أو رمز التحقق.</p>
+    <div class="form-field">
+      <label for="payerEmail">البريد الإلكتروني للحساب</label>
+      <input id="payerEmail" type="email" readonly autocomplete="email">
+    </div>
+    <div class="form-field">
+      <label for="payerPhone">رقم الهاتف الذي تم التحويل منه</label>
+      <input id="payerPhone" type="tel" inputmode="numeric" autocomplete="tel" maxlength="11" placeholder="01XXXXXXXXX">
+    </div>
+    <div class="form-field">
+      <label for="transferAmount">المبلغ المحوّل (ج.م)</label>
+      <input id="transferAmount" type="number" inputmode="decimal" min="0" step="0.01" autocomplete="off">
+    </div>
     <div class="sheet-actions">
       <button class="btn-cancel" id="payCancelBtn">إلغاء</button>
-      <button class="btn-confirm" id="payConfirmBtn">تم التحويل، افتح البرنامج</button>
+      <button class="btn-confirm" id="payConfirmBtn">تم التحويل وتفعيل البرنامج</button>
     </div>
   </div>
 </div>
@@ -324,7 +358,7 @@ function renderGrid(list){
     card.innerHTML = `
       ${!unlocked ? `<div class="lock-badge">${lockIconSvg()}</div>` : ''}
       <div class="card-top">
-        ${app.logo_url ? `<img src="${app.logo_url}">` : `<div class="noimg"></div>`}
+        ${safeHttpUrl(app.logo_url) ? `<img src="${escapeHtml(safeHttpUrl(app.logo_url))}" loading="lazy" referrerpolicy="no-referrer">` : `<div class="noimg"></div>`}
         <div>
           <div class="card-name">${escapeHtml(app.name)}</div>
           ${app.rating ? `<div class="card-rating">${'★'.repeat(Math.round(app.rating))} ${app.rating}</div>` : ''}
@@ -345,6 +379,7 @@ function renderGrid(list){
 
 function openDetailSheet(app){
   const unlocked = isUnlocked(app);
+  const pending = !unlocked && hasPendingPayment(app.id);
   const fp = finalPrice(app);
   const logo = document.getElementById('detailLogo');
   if(app.logo_url){ logo.src = app.logo_url; logo.style.display = ''; } else { logo.style.display = 'none'; }
@@ -357,6 +392,7 @@ function openDetailSheet(app){
   document.getElementById('detailPrice').textContent = app.is_free ? 'مجاني' : (fp + ' ج');
   const installBtn = document.getElementById('detailInstallBtn');
   installBtn.textContent = unlocked ? 'فتح' : 'تثبيت';
+  installBtn.disabled = false;
   installBtn.onclick = () => {
     document.getElementById('detailOverlay').classList.remove('active');
     handleInstallClick(app);
@@ -370,6 +406,7 @@ document.getElementById('detailCloseBtn').onclick = () => {
 function lockIconSvg(){
   return `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>`;
 }
+function safeHttpUrl(v){ try{ const u=new URL(v,location.href); return /^https?:$/.test(u.protocol) ? u.href : ''; }catch{return '';} }
 function escapeHtml(s){
   const d = document.createElement('div'); d.textContent = s || ""; return d.innerHTML;
 }
@@ -383,14 +420,30 @@ document.getElementById('loginGateCancelBtn').onclick = () => {
   document.getElementById('loginGate').classList.remove('active');
 };
 
+function normalizeEgyptPhone(v){ return String(v||'').replace(/\D/g,''); }
+function isValidEgyptPhone(v){ return /^01[0125]\d{8}$/.test(normalizeEgyptPhone(v)); }
+const STORE_ADMIN_WHATSAPP = '201108712091';
+const PENDING_KEY = 'mbh_store_pending_payments_v1';
+function getPendingPayments(){ try{return JSON.parse(localStorage.getItem(PENDING_KEY)||'[]')}catch{return[]} }
+function hasPendingPayment(appId){ return getPendingPayments().some(x=>x.userId===currentUser?.id && x.appId===appId && x.status==='pending'); }
+function savePendingPayment(row){
+  const list=getPendingPayments().filter(x=>!(x.userId===row.userId && x.appId===row.appId && x.status==='pending'));
+  list.unshift(row);
+  localStorage.setItem(PENDING_KEY, JSON.stringify(list.slice(0,30)));
+}
 function openPaySheet(app){
   pendingApp = app;
-  document.getElementById('payTitle').textContent = "تفعيل: " + app.name;
+  document.getElementById('payTitle').textContent = 'تفعيل: ' + app.name;
   document.getElementById('payMethodLbl').textContent = paySettings.pay_method;
-  document.getElementById('payAmount').textContent = finalPrice(app) + " ج";
+  document.getElementById('payAmount').textContent = finalPrice(app) + ' ج';
   document.getElementById('payPhoneVal').textContent = paySettings.pay_phone;
+  document.getElementById('payerEmail').value = currentUser?.email || '';
+  document.getElementById('payerPhone').value = '';
+  document.getElementById('transferAmount').value = finalPrice(app);
+  document.getElementById('payConfirmBtn').disabled = false;
   document.getElementById('payOverlay').classList.add('active');
 }
+
 document.getElementById('payCancelBtn').onclick = () => {
   document.getElementById('payOverlay').classList.remove('active');
   pendingApp = null;
@@ -401,30 +454,58 @@ document.getElementById('copyPhoneBtn').onclick = () => {
   b.textContent = "اتنسخ"; setTimeout(()=>b.textContent="نسخ", 1500);
 };
 document.getElementById('payConfirmBtn').onclick = async () => {
-  if(!pendingApp) return;
-  await unlock(pendingApp.id);
-  document.getElementById('payOverlay').classList.remove('active');
-  const app = pendingApp; pendingApp = null;
-  renderGrid(filterApps(document.getElementById('searchInput').value));
-  openApp(app);
+  if(!pendingApp || !currentUser) return;
+  const app = pendingApp;
+  const phone = normalizeEgyptPhone(document.getElementById('payerPhone').value);
+  const email = (currentUser.email || '').trim();
+  const amount = Number(document.getElementById('transferAmount').value);
+  if(!email){ setStatus('تعذر تحديد البريد الإلكتروني للحساب. سجّل الدخول مرة أخرى.', 'error'); return; }
+  if(!isValidEgyptPhone(phone)){ setStatus('أدخل رقم الهاتف الذي تم التحويل منه بصيغة مصرية صحيحة مكونة من 11 رقمًا.', 'error'); return; }
+  if(!amount || amount <= 0){ setStatus('أدخل المبلغ الذي تم تحويله.', 'error'); return; }
+  if(amount < finalPrice(app)){ setStatus('المبلغ المدخل أقل من قيمة البرنامج.', 'error'); return; }
+
+  const btn=document.getElementById('payConfirmBtn');
+  btn.disabled=true;
+  try{
+    await unlock(app.id);
+    const msg = [
+      'تفعيل برنامج — Media Buyer Hub',
+      `البرنامج: ${app.name}`,
+      `البريد: ${email}`,
+      `رقم التحويل: ${phone}`,
+      `المبلغ: ${amount} ج.م`,
+      `طريقة الدفع: ${paySettings.pay_method}`,
+      `رقم الاستلام: ${paySettings.pay_phone}`
+    ].join('\n');
+    try{ window.open('https://wa.me/'+STORE_ADMIN_WHATSAPP+'?text='+encodeURIComponent(msg),'_blank','noopener,noreferrer'); }catch(e){}
+    document.getElementById('payOverlay').classList.remove('active');
+    pendingApp=null;
+    setStatus('تم تفعيل البرنامج على حسابك. يمكنك فتحه الآن.', 'success');
+    renderGrid(filterApps(document.getElementById('searchInput').value));
+    openApp(app);
+  }catch(err){
+    setStatus('تعذر تفعيل البرنامج. حاول مرة أخرى.', 'error');
+    console.warn('activation failed:', err);
+  }finally{ btn.disabled=false; }
 };
 
 let pendingDownloadApp = null;
 
 function openApp(app){
-  if(!app.file_url){ alert("ملف البرنامج لسه متضافش"); return; }
+  const fileUrl=safeHttpUrl(app.file_url);
+  if(!fileUrl){ setStatus('ملف البرنامج غير متاح أو أن الرابط غير آمن.', 'error'); return; }
 
   // ملفات زي APK / ZIP / EXE مينفعش تتعرض جوه iframe - نعرض تنبيه الأول
   // إن الملف هينزل ويتثبت على الجهاز، وبعدين ننزّله فعليًا.
   const downloadExtensions = /\.(apk|zip|exe|ipa|pdf)(\?|#|$)/i;
-  if(downloadExtensions.test(app.file_url)){
+  if(downloadExtensions.test(fileUrl)){
     pendingDownloadApp = app;
     document.getElementById('apkConfirmOverlay').classList.add('active');
     return;
   }
 
   document.getElementById('viewerTitle').textContent = app.name;
-  document.getElementById('viewerFrame').src = app.file_url;
+  document.getElementById('viewerFrame').src = fileUrl;
   document.getElementById('viewer').classList.add('active');
 }
 document.getElementById('apkCancelBtn').onclick = () => {
@@ -436,7 +517,7 @@ document.getElementById('apkConfirmBtn').onclick = () => {
   if(!pendingDownloadApp) return;
   const app = pendingDownloadApp; pendingDownloadApp = null;
   const a = document.createElement('a');
-  a.href = app.file_url;
+  a.href = fileUrl;
   a.download = (app.name || 'app').replace(/[^\p{L}\p{N}_-]+/gu, '_');
   a.target = '_blank';
   a.rel = 'noopener';
@@ -553,6 +634,19 @@ boot().catch(err => {
   showEmptyMessage("فشل الربط: تعذر تحميل صفحة المتجر");
   setStatus('خطأ غير متوقع: ' + (err && err.message ? err.message : err), 'error');
 });
+
+/* Program language: follows the language selected in Settings, not the device language. */
+(function(){
+  const lang=(localStorage.getItem('mbh_lang')||localStorage.getItem('language')||'ar').toLowerCase();
+  const en=lang==='en' || lang.startsWith('en-');
+  if(!en) return;
+  document.documentElement.lang='en'; document.documentElement.dir='ltr';
+  const map={
+    'المتجر':'Store','دور على برنامج...':'Search applications...','لا يوجد برامج متاحة حاليًا':'No applications are currently available','مجاني':'Free','جديد:':'New:','فتح':'Open','تثبيت':'Install','تفعيل البرنامج':'Activate application','إلغاء':'Cancel','نسخ':'Copy','تم التحويل وتفعيل البرنامج':'Confirm payment & activate','البريد الإلكتروني للحساب':'Account email','رقم الهاتف الذي تم التحويل منه':'Transfer sender phone number','المبلغ المحوّل (ج.م)':'Transferred amount (EGP)','رقم الاستلام':'Recipient number','تفعيل:':'Activate:','تسجيل الخروج':'Log out','تسجيل الدخول':'Sign in','إغلاق':'Close','تحميل الآن':'Download now','هيتم تحميل البرنامج':'Application download','بيانات التفعيل:':'Activation details:','بعد التحويل، أدخل رقم الهاتف الذي تم التحويل منه. بعد تأكيد البيانات سيتم تفعيل البرنامج على حسابك.':'After the transfer, enter the phone number used for the transfer. The application will be activated on your account after confirmation.','تم تفعيل البرنامج على حسابك. يمكنك فتحه الآن.':'The application has been activated on your account. You can open it now.'
+  };
+  function walk(){ const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT); let n; while(n=w.nextNode()){ let v=n.nodeValue; for(const [a,b] of Object.entries(map)) v=v.split(a).join(b); n.nodeValue=v; } }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',walk); else walk();
+})();
 </script>
 </body>
 </html>
