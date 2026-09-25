@@ -56,6 +56,7 @@
     transition:border-color .15s;
   }
   .card:hover{border-color:#3a3d4a}
+  .card{cursor:pointer}
   .lock-badge{
     position:absolute; top:12px; left:12px; width:26px; height:26px; border-radius:50%;
     background:rgba(0,0,0,.55); display:flex; align-items:center; justify-content:center; z-index:2;
@@ -190,6 +191,40 @@
   </div>
 </div>
 
+<!-- App detail sheet -->
+<div class="overlay" id="detailOverlay">
+  <div class="sheet" style="max-height:82vh;overflow-y:auto">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+      <img id="detailLogo" style="width:56px;height:56px;border-radius:14px;object-fit:cover;background:var(--panel-2);display:none">
+      <div style="flex:1;min-width:0">
+        <h3 id="detailName" style="margin:0 0 4px;font-size:17px"></h3>
+        <div class="card-rating" id="detailRating"></div>
+      </div>
+    </div>
+    <p id="detailDesc" style="color:var(--text);font-size:13.5px;line-height:1.8;margin:0 0 12px;white-space:pre-wrap"></p>
+    <div class="card-update" id="detailChangelog" style="display:none;margin-bottom:14px"></div>
+    <div class="pay-box" style="margin-bottom:16px">
+      <div class="pay-row"><span class="lbl">السعر</span><span class="val" id="detailPrice"></span></div>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn-cancel" id="detailCloseBtn">إغلاق</button>
+      <button class="btn-confirm" id="detailInstallBtn">تثبيت</button>
+    </div>
+  </div>
+</div>
+
+<!-- Pre-download notice for APK / installable files -->
+<div class="overlay" id="apkConfirmOverlay">
+  <div class="sheet" style="text-align:center">
+    <h3>هيتم تحميل البرنامج</h3>
+    <p>الملف هيتنزل على تليفونك دلوقتي. بعد ما ينزل، افتحه من الإشعارات أو من مجلد التنزيلات عشان تثبته على الجهاز.</p>
+    <div class="sheet-actions">
+      <button class="btn-cancel" id="apkCancelBtn">إلغاء</button>
+      <button class="btn-confirm" id="apkConfirmBtn">تحميل الآن</button>
+    </div>
+  </div>
+</div>
+
 <!-- App viewer -->
 <div class="viewer" id="viewer">
   <div class="viewer-bar">
@@ -302,10 +337,35 @@ function renderGrid(list){
         <button class="btn-install ${unlocked ? 'owned':''}">${unlocked ? 'فتح' : 'تثبيت'}</button>
       </div>
     `;
-    card.querySelector('.btn-install').onclick = () => handleInstallClick(app);
+    card.querySelector('.btn-install').onclick = (e) => { e.stopPropagation(); handleInstallClick(app); };
+    card.onclick = () => openDetailSheet(app);
     grid.appendChild(card);
   });
 }
+
+function openDetailSheet(app){
+  const unlocked = isUnlocked(app);
+  const fp = finalPrice(app);
+  const logo = document.getElementById('detailLogo');
+  if(app.logo_url){ logo.src = app.logo_url; logo.style.display = ''; } else { logo.style.display = 'none'; }
+  document.getElementById('detailName').textContent = app.name;
+  document.getElementById('detailRating').textContent = app.rating ? ('★'.repeat(Math.round(app.rating)) + ' ' + app.rating) : '';
+  document.getElementById('detailDesc').textContent = app.description || '';
+  const cl = document.getElementById('detailChangelog');
+  if(app.changelog){ cl.style.display = 'block'; cl.innerHTML = '<b>جديد:</b> ' + escapeHtml(app.changelog); }
+  else { cl.style.display = 'none'; }
+  document.getElementById('detailPrice').textContent = app.is_free ? 'مجاني' : (fp + ' ج');
+  const installBtn = document.getElementById('detailInstallBtn');
+  installBtn.textContent = unlocked ? 'فتح' : 'تثبيت';
+  installBtn.onclick = () => {
+    document.getElementById('detailOverlay').classList.remove('active');
+    handleInstallClick(app);
+  };
+  document.getElementById('detailOverlay').classList.add('active');
+}
+document.getElementById('detailCloseBtn').onclick = () => {
+  document.getElementById('detailOverlay').classList.remove('active');
+};
 
 function lockIconSvg(){
   return `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>`;
@@ -349,21 +409,17 @@ document.getElementById('payConfirmBtn').onclick = async () => {
   openApp(app);
 };
 
+let pendingDownloadApp = null;
+
 function openApp(app){
   if(!app.file_url){ alert("ملف البرنامج لسه متضافش"); return; }
 
-  // ملفات زي APK / ZIP / EXE مينفعش تتعرض جوه iframe - المفروض تتنزل عشان
-  // الموبايل يقترح تثبيتها زي أي تطبيق عادي.
+  // ملفات زي APK / ZIP / EXE مينفعش تتعرض جوه iframe - نعرض تنبيه الأول
+  // إن الملف هينزل ويتثبت على الجهاز، وبعدين ننزّله فعليًا.
   const downloadExtensions = /\.(apk|zip|exe|ipa|pdf)(\?|#|$)/i;
   if(downloadExtensions.test(app.file_url)){
-    const a = document.createElement('a');
-    a.href = app.file_url;
-    a.download = (app.name || 'app').replace(/[^\p{L}\p{N}_-]+/gu, '_');
-    a.target = '_blank';
-    a.rel = 'noopener';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+    pendingDownloadApp = app;
+    document.getElementById('apkConfirmOverlay').classList.add('active');
     return;
   }
 
@@ -371,6 +427,23 @@ function openApp(app){
   document.getElementById('viewerFrame').src = app.file_url;
   document.getElementById('viewer').classList.add('active');
 }
+document.getElementById('apkCancelBtn').onclick = () => {
+  document.getElementById('apkConfirmOverlay').classList.remove('active');
+  pendingDownloadApp = null;
+};
+document.getElementById('apkConfirmBtn').onclick = () => {
+  document.getElementById('apkConfirmOverlay').classList.remove('active');
+  if(!pendingDownloadApp) return;
+  const app = pendingDownloadApp; pendingDownloadApp = null;
+  const a = document.createElement('a');
+  a.href = app.file_url;
+  a.download = (app.name || 'app').replace(/[^\p{L}\p{N}_-]+/gu, '_');
+  a.target = '_blank';
+  a.rel = 'noopener';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+};
 document.getElementById('closeViewerBtn').onclick = () => {
   document.getElementById('viewer').classList.remove('active');
   document.getElementById('viewerFrame').src = "about:blank";
