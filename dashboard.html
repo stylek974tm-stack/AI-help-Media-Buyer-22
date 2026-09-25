@@ -543,6 +543,86 @@ html,body{background:#050505!important}
 }
 
 </style>
+
+<style id="mbh-reference-design">
+:root{
+  --ref-blue:#087cff;--ref-cyan:#18d7e9;--ref-purple:#7655ff;--ref-green:#16d6a2;
+  --ref-bg:#06101f;--ref-panel:#0b1a30;--ref-panel2:#102440;--ref-border:rgba(70,151,255,.28);
+}
+html{background:var(--ref-bg)!important;}
+body{
+  background:
+    radial-gradient(circle at 10% 0%,rgba(0,150,255,.12),transparent 28%),
+    radial-gradient(circle at 100% 30%,rgba(118,85,255,.10),transparent 30%),
+    var(--ref-bg)!important;
+  padding-bottom:calc(84px + env(safe-area-inset-bottom))!important;
+}
+.topbar{
+  position:sticky!important;top:env(safe-area-inset-top)!important;z-index:120!important;
+  min-height:62px!important;padding:10px 14px!important;
+  background:rgba(4,14,29,.94)!important;border-bottom:1px solid var(--ref-border)!important;
+  box-shadow:0 8px 28px rgba(0,0,0,.20)!important;
+}
+.brand{font-size:15px!important;font-weight:800!important;letter-spacing:0!important;color:#fff!important}
+.brand span{color:#16bff5!important}
+.icon-btn{width:38px!important;height:38px!important;border-radius:12px!important;background:#0b203b!important;border:1px solid var(--ref-border)!important;color:#dcecff!important}
+.icon-btn svg{width:19px!important;height:19px!important}
+.topbar > button[title="المتجر"]{display:none!important}
+.content{max-width:760px!important;padding:18px 14px calc(105px + env(safe-area-inset-bottom))!important}
+.page-head{display:none!important}
+.top-status{min-height:0!important;margin:0 0 12px!important}
+.mbh-welcome{
+  position:relative;overflow:hidden;margin:4px 0 14px;padding:18px 17px;border-radius:20px;
+  background:linear-gradient(135deg,#0c315f,#0a1b33 58%,#0b1630);
+  border:1px solid rgba(62,151,255,.42);box-shadow:0 12px 35px rgba(0,0,0,.22);
+}
+.mbh-welcome:after{content:"";position:absolute;width:150px;height:150px;left:-65px;top:-75px;border-radius:50%;background:rgba(17,200,255,.10)}
+.mbh-welcome h1{position:relative;z-index:1;margin:0 0 6px;font-size:20px;color:#fff;font-weight:800}
+.mbh-welcome p{position:relative;z-index:1;margin:0;color:#9db5d3;font-size:12px;line-height:1.8}
+.mbh-welcome .welcome-chip{position:relative;z-index:1;display:inline-flex;align-items:center;gap:6px;margin-top:11px;padding:6px 10px;border-radius:999px;background:rgba(19,143,255,.13);border:1px solid rgba(19,143,255,.3);color:#58c8ff;font-size:10.5px}
+.summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;margin-bottom:14px!important}
+.summary-box{
+  min-height:112px!important;padding:14px!important;text-align:right!important;border-radius:17px!important;
+  background:linear-gradient(145deg,#0c223e,#09172b)!important;border:1px solid var(--ref-border)!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.16)!important;
+}
+.summary-box .lbl{font-size:11px!important;color:#89a4c4!important;margin-bottom:8px!important}
+.summary-box .val{font-size:21px!important;color:#f5f9ff!important}
+.summary-box .trend{font-size:10px!important}
+.tokens-row{display:none!important}
+.filters-bar{
+  background:#09192d!important;border:1px solid var(--ref-border)!important;border-radius:17px!important;
+  padding:10px!important;gap:8px!important;margin-bottom:13px!important;box-shadow:none!important;
+}
+.filter-group label{color:#7892b2!important;font-size:10px!important}
+.filter-group select,.filter-group input{background:#0d213a!important;border-color:#21466e!important;color:#eaf4ff!important;border-radius:11px!important}
+.ai-note{margin:0 0 13px!important;border-radius:17px!important;background:linear-gradient(135deg,#0c2745,#0b1a2d)!important;border-color:#1d4c79!important}
+.section-title{margin:18px 0 10px!important;color:#e8f2ff!important}
+.ad-card,.token-box,.summary-box,.rank-card,.wallet-card,.goal-card,.hours-card,.forecast-card{border-color:var(--ref-border)!important}
+.ads-grid{grid-template-columns:1fr!important}
+.mbh-bottom-nav{
+  position:fixed;z-index:180;left:0;right:0;bottom:0;padding:8px 10px calc(8px + env(safe-area-inset-bottom));
+  background:rgba(5,15,29,.96);backdrop-filter:blur(18px);border-top:1px solid rgba(71,143,222,.28);
+  display:grid;grid-template-columns:repeat(4,1fr);gap:6px;box-shadow:0 -10px 30px rgba(0,0,0,.28)
+}
+.mbh-nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:52px;border-radius:14px;color:#7088a5;text-decoration:none;font-size:9.5px;font-weight:700;transition:.18s}
+.mbh-nav-item svg{width:20px;height:20px}
+.mbh-nav-item.active{color:#39bfff;background:rgba(17,124,255,.11)}
+.mbh-nav-item:active{transform:scale(.97)}
+.ai-fab{bottom:calc(92px + env(safe-area-inset-bottom))!important;right:14px!important;width:48px!important;height:48px!important;border-radius:16px!important;background:linear-gradient(135deg,#087cff,#12cbe7)!important;box-shadow:0 10px 28px rgba(0,125,255,.28)!important}
+@media(min-width:700px){
+  body{padding-bottom:0!important}
+  .content{max-width:1120px!important;padding-left:24px!important;padding-right:24px!important}
+  .summary-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+  .mbh-bottom-nav{left:50%;right:auto;transform:translateX(-50%);width:min(620px,calc(100% - 28px));border:1px solid var(--ref-border);border-bottom:0;border-radius:18px 18px 0 0}
+}
+@media(max-width:430px){
+  .summary-box{min-height:105px!important}
+  .summary-box .val{font-size:19px!important}
+  .content{padding-left:12px!important;padding-right:12px!important}
+}
+</style>
+
 </head>
 <body>
 
@@ -619,6 +699,12 @@ html,body{background:#050505!important}
 </aside>
 
 <main class="content">
+  <section class="mbh-welcome" aria-label="الترحيب">
+    <h1>مرحبًا بك في Media Buyer Hub</h1>
+    <p>تابع أداء حملاتك واتخذ قراراتك الإعلانية من مكان واحد.</p>
+    <span class="welcome-chip">● لوحة التحكم</span>
+  </section>
+
   <div class="page-head">
     <h1>مركز الربح</h1>
   </div>
@@ -686,6 +772,22 @@ html,body{background:#050505!important}
   <div id="sectionsWrap"></div>
   <div id="forecastWrap"></div>
 </main>
+
+
+<nav class="mbh-bottom-nav" aria-label="التنقل الرئيسي">
+  <a class="mbh-nav-item active" href="dashboard.html" aria-current="page">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span>لوحة التحكم</span>
+  </a>
+  <a class="mbh-nav-item" href="automation-rules.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><circle cx="12" cy="12" r="4"/></svg><span>الأتمتة</span>
+  </a>
+  <a class="mbh-nav-item" href="insights.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5M4 19h16"/><path d="M7 15l4-5 3 3 5-7"/></svg><span>التحليلات</span>
+  </a>
+  <a class="mbh-nav-item" href="account.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3"/><path d="M5 21a7 7 0 0 1 14 0"/><path d="M19 3h2v2"/></svg><span>الإعدادات</span>
+  </a>
+</nav>
 
 <button class="ai-fab" id="aiFab" onclick="openAiPanel()" title="مركز القرارات">
   <span class="dot" id="aiFabDot"></span>
