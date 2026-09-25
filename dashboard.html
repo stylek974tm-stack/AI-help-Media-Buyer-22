@@ -552,11 +552,38 @@ html,body{background:#050505!important}
   </button>
   <div class="brand">Media Buyer <span>Hub</span></div>
   <div class="topbar-spacer"></div>
-  <!-- ====== PWA: install icon (يظهر بس لو التطبيق لسه مش متثبت) ====== -->
-  <button class="install-btn" id="installBtn" title="تثبيت تطبيق AI Media Buyer" onclick="handleInstallClick()">
-    <span class="pulse-ring"></span>
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>
-  </button>
+
+ <!-- ====== فتح صفحة المتجر ====== -->
+<button
+  class="install-btn"
+  id="installBtn"
+  title="فتح متجر AI Media Buyer"
+  onclick="handleInstallClick()"
+>
+  <span class="pulse-ring"></span>
+
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2.2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path d="M12 3v12"/>
+    <path d="M7 10l5 5 5-5"/>
+    <path d="M5 21h14"/>
+  </svg>
+</button>
+
+<script>
+function handleInstallClick() {
+  window.location.href = "store.html";
+}
+</script>
+
+  
+  
   <button class="icon-btn" id="feedbackBtn" title="مشاكل الحملات والحلول المقترحة" onclick="openCampaignIssues()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v13H7l-3 3V4z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg>
   </button>
