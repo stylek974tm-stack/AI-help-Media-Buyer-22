@@ -181,6 +181,26 @@
   .quality-card.mid .qval{ color:var(--mid); }
   .quality-card.bad .qval{ color:var(--bad); }
 
+  /* ---------- Comments & auto-reply ---------- */
+  .comments-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:20px; }
+  .autoreply-bar{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:12px; background:var(--bg-soft); border:1px solid var(--border-soft); border-radius:12px; margin-bottom:14px; }
+  .switch{ position:relative; display:inline-block; width:38px; height:22px; flex-shrink:0; }
+  .switch input{ opacity:0; width:0; height:0; }
+  .switch .slider{ position:absolute; inset:0; background:#2c313d; border-radius:20px; transition:.2s; cursor:pointer; }
+  .switch .slider:before{ content:''; position:absolute; width:16px; height:16px; right:3px; bottom:3px; background:#fff; border-radius:50%; transition:.2s; }
+  .switch input:checked + .slider{ background:var(--accent); }
+  .switch input:checked + .slider:before{ transform:translateX(-16px); }
+  .autoreply-msg{ flex:1 1 220px; min-width:180px; }
+  .autoreply-msg input{ width:100%; padding:8px 10px; border-radius:8px; border:1px solid var(--border); background:var(--surface-2); color:var(--text); font-family:inherit; font-size:12.5px; }
+  .autoreply-note{ font-size:10.5px; color:var(--text-faint); margin-top:8px; line-height:1.7; }
+  .comment-row{ padding:11px 4px; border-bottom:1px solid var(--border-soft); }
+  .comment-row:last-child{ border-bottom:none; }
+  .comment-head{ display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+  .comment-name{ font-size:12.5px; font-weight:700; }
+  .comment-time{ font-size:10.5px; color:var(--text-faint); }
+  .comment-msg{ font-size:12.5px; color:#c7cddb; line-height:1.6; }
+  .comment-reply-tag{ display:inline-flex; align-items:center; gap:5px; font-size:10px; color:var(--good); background:var(--good-bg); border:1px solid var(--good-bd); padding:2px 8px; border-radius:20px; margin-top:6px; }
+
   /* ---------- Ad actions ---------- */
   .ad-actions{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px; }
   .mini-btn{
@@ -269,6 +289,8 @@
   <div id="metricsWrap"></div>
 
   <div id="qualityWrap"></div>
+
+  <div id="commentsWrap"></div>
 
   <div id="actionsWrap"></div>
 </main>
@@ -400,7 +422,7 @@ async function init(){
       until: qs.get('until')
     };
     if (!PARAMS.adId || !PARAMS.actId || !PARAMS.token){
-      setTopStatus('مفيش إعلان محدد — ارجع لصفحة تحليل البيانات واختار إعلان.', true);
+      setTopStatus('لا يوجد إعلان محدد — يُرجى العودة إلى صفحة تحليل البيانات واختيار إعلان.', true);
       return;
     }
     if (!PARAMS.since || !PARAMS.until){
@@ -420,7 +442,7 @@ async function init(){
 async function loadAdDetails(){
   setTopStatus('جاري تحميل بيانات الإعلان...');
   const timeRange = JSON.stringify({ since: PARAMS.since, until: PARAMS.until });
-  const adFields = 'id,name,status,effective_status,adset_id,campaign_id,created_time,creative{name,thumbnail_url,image_url}';
+  const adFields = 'id,name,status,effective_status,adset_id,campaign_id,created_time,creative{name,thumbnail_url,image_url,effective_object_story_id}';
   const insightFields = 'impressions,reach,clicks,spend,ctr,cpc,cpm,conversions,actions,action_values,quality_ranking,engagement_rate_ranking,conversion_rate_ranking';
 
   const [adRes, insRes, dailyRes] = await Promise.all([
@@ -450,6 +472,7 @@ function renderAll(){
   renderMetrics();
   renderQuality();
   renderActions();
+  loadComments();
 }
 
 function metricBoxes(ins){
@@ -459,10 +482,10 @@ function metricBoxes(ins){
 function getVerdict(ctrRate, cpmRate, cpcRate){
   const scores = { good:2, mid:1, bad:0 };
   const total = scores[ctrRate] + scores[cpmRate] + scores[cpcRate];
-  if (ctrRate === 'good' && cpmRate === 'good' && cpcRate === 'good') return { level:'good', label:'الكريتف ممتاز' };
-  if (ctrRate === 'bad') return { level:'bad', label:'مشكلة في الكريتف' };
-  if (total >= 4) return { level:'good', label:'أداء كويس' };
-  if (cpcRate === 'bad' || cpmRate === 'bad') return { level:'mid', label:'الميزانية/المزاد محتاج مراجعة' };
+  if (ctrRate === 'good' && cpmRate === 'good' && cpcRate === 'good') return { level:'good', label:'الكرييتف ممتاز' };
+  if (ctrRate === 'bad') return { level:'bad', label:'مشكلة في الكرييتف' };
+  if (total >= 4) return { level:'good', label:'أداء جيد' };
+  if (cpcRate === 'bad' || cpmRate === 'bad') return { level:'mid', label:'الميزانية/المزاد بحاجة إلى مراجعة' };
   return { level:'mid', label:'أداء متوسط' };
 }
 function badgeClass(level){ return level === 'good' ? 'verdict-good' : (level === 'mid' ? 'verdict-mid' : 'verdict-bad'); }
@@ -481,7 +504,7 @@ function renderHeader(){
         <div class="ad-head-title">${AD.name}</div>
         ${creative.name && creative.name !== AD.name ? `<div class="ad-head-creative-name">${creative.name}</div>` : ''}
         <div class="ad-head-sub">
-          <span class="status-dot ${AD.status==='ACTIVE'?'on':'off'}"></span>${AD.status === 'ACTIVE' ? 'شغّال' : 'متوقف'}
+          <span class="status-dot ${AD.status==='ACTIVE'?'on':'off'}"></span>${AD.status === 'ACTIVE' ? 'نشط' : 'متوقف'}
           ${PARAMS.accLabel ? `<span class="acc-tag">${PARAMS.accLabel}</span>` : ''}
           <span>· الفترة: ${PARAMS.since} إلى ${PARAMS.until}</span>
         </div>
@@ -609,7 +632,7 @@ function renderQuality(){
     <div class="section-title">جودة العميل والأداء<div class="section-line"></div></div>
     <div class="quality-grid">
       <div class="quality-card ${qr.cls}"><div class="qlbl">جودة العميل (معدل التحويل)</div><div class="qval">${qr.label}</div></div>
-      <div class="quality-card ${qq.cls}"><div class="qlbl">جودة الكريتف</div><div class="qval">${qq.label}</div></div>
+      <div class="quality-card ${qq.cls}"><div class="qlbl">جودة الكرييتف</div><div class="qval">${qq.label}</div></div>
       <div class="quality-card ${qe.cls}"><div class="qlbl">معدل التفاعل</div><div class="qval">${qe.label}</div></div>
     </div>
   `;
@@ -618,9 +641,9 @@ function renderQuality(){
 function renderActions(){
   document.getElementById('actionsWrap').innerHTML = `
     <div class="ad-actions">
-      ${AD.adset_id ? `<button class="mini-btn go" onclick="openBudgetModal()">زوّد الميزانية</button>` : ''}
-      <button class="mini-btn ${AD.status==='ACTIVE'?'danger':''}" onclick="toggleStatus()">${AD.status==='ACTIVE'?'أوقف الإعلان':'شغّل الإعلان'}</button>
-      ${AD.campaign_id ? `<button class="mini-btn" onclick="openInAdsManager()">افتح في مدير الإعلانات (استهداف/جمهور)</button>` : ''}
+      ${AD.adset_id ? `<button class="mini-btn go" onclick="openBudgetModal()">زيادة الميزانية</button>` : ''}
+      <button class="mini-btn ${AD.status==='ACTIVE'?'danger':''}" onclick="toggleStatus()">${AD.status==='ACTIVE'?'إيقاف الإعلان':'تشغيل الإعلان'}</button>
+      ${AD.campaign_id ? `<button class="mini-btn" onclick="openInAdsManager()">فتح في مدير الإعلانات (الاستهداف/الجمهور)</button>` : ''}
     </div>
   `;
 }
@@ -628,14 +651,14 @@ function renderActions(){
 /* ---------------- إجراءات حقيقية على فيسبوك — كلها بضغطة زر يدوية من المستخدم ---------------- */
 async function toggleStatus(){
   const newStatus = AD.status === 'ACTIVE' ? 'PAUSED' : 'ACTIVE';
-  const confirmMsg = newStatus === 'PAUSED' ? 'متأكد إنك عايز توقف ده على فيسبوك؟' : 'متأكد إنك عايز تشغّل ده تاني على فيسبوك؟';
+  const confirmMsg = newStatus === 'PAUSED' ? 'هل تريد بالتأكيد إيقاف هذا الإعلان على فيسبوك؟' : 'هل تريد بالتأكيد تشغيل هذا الإعلان مجددًا على فيسبوك؟';
   if (!confirm(confirmMsg)) return;
   try{
     await gpost(AD.id, { status: newStatus, access_token: PARAMS.token });
-    setTopStatus(newStatus === 'PAUSED' ? 'تم إيقاف الإعلان على فيسبوك.' : 'تم تشغيل الإعلان على فيسبوك.');
+    setTopStatus(newStatus === 'PAUSED' ? 'تم إيقاف الإعلان على فيسبوك بنجاح.' : 'تم تشغيل الإعلان على فيسبوك بنجاح.');
     await loadAdDetails();
   } catch(err){
-    alert('حصل خطأ من فيسبوك: ' + err.message);
+    alert('حدث خطأ من فيسبوك: ' + err.message);
   }
 }
 function openInAdsManager(){
@@ -643,9 +666,9 @@ function openInAdsManager(){
   window.open(url, '_blank');
 }
 function openBudgetModal(){
-  if (!ADSET){ alert('معرفتش ألاقي بيانات مجموعة الإعلانات دي.'); return; }
+  if (!ADSET){ alert('تعذّر العثور على بيانات مجموعة الإعلانات هذه.'); return; }
   BUDGET_TARGET = { adsetId: ADSET.id, currentBudget: num(ADSET.daily_budget)/100, name: ADSET.name };
-  document.getElementById('budgetModalSub').textContent = `تعديل ميزانية "${ADSET.name}" — هيتبعت مباشرة لفيسبوك بمجرد الضغط على تنفيذ.`;
+  document.getElementById('budgetModalSub').textContent = `سيتم تعديل ميزانية "${ADSET.name}" وإرسالها مباشرة إلى فيسبوك فور الضغط على "تنفيذ".`;
   document.getElementById('budgetCurrentDisplay').value = money(BUDGET_TARGET.currentBudget) + ' / يوم';
   document.getElementById('budgetMode').value = 'pct20';
   onBudgetModeChange();
@@ -670,15 +693,128 @@ async function submitBudgetChange(){
   else if (mode === 'pct20') newBudget = BUDGET_TARGET.currentBudget * 1.20;
   else if (mode === 'pct50') newBudget = BUDGET_TARGET.currentBudget * 1.50;
   else newBudget = num(document.getElementById('budgetCustomValue').value);
-  if (!newBudget || newBudget <= 0){ alert('حط قيمة ميزانية صحيحة.'); return; }
+  if (!newBudget || newBudget <= 0){ alert('الرجاء إدخال قيمة ميزانية صحيحة.'); return; }
 
   try{
     await gpost(BUDGET_TARGET.adsetId, { daily_budget: Math.round(newBudget * 100), access_token: PARAMS.token });
-    setTopStatus(`تم تعديل ميزانية "${BUDGET_TARGET.name}" إلى ${money(newBudget)}/يوم على فيسبوك.`);
+    setTopStatus(`تم تعديل ميزانية "${BUDGET_TARGET.name}" إلى ${money(newBudget)} يوميًا على فيسبوك بنجاح.`);
     closeBudgetModal();
     await loadAdDetails();
   } catch(err){
-    alert('حصل خطأ من فيسبوك وإحنا بنعدّل الميزانية: ' + err.message);
+    alert('حدث خطأ من فيسبوك أثناء تعديل الميزانية: ' + err.message);
+  }
+}
+
+/* ---------------- التعليقات + الرد التلقائي على المنشور الإعلاني (يعمل في الخلفية عبر السيرفر) ---------------- */
+let COMMENTS = [];
+let PAGE_TOKEN = null;
+let AUTOREPLY = { enabled: false, message: 'تم الرد عليكم عبر الرسائل الخاصة.' };
+
+async function getPageToken(pageId){
+  if (PAGE_TOKEN) return PAGE_TOKEN;
+  const r = await gget(pageId, { fields:'access_token', access_token: PARAMS.token });
+  PAGE_TOKEN = r.access_token || null;
+  return PAGE_TOKEN;
+}
+
+async function loadAutoReplySetting(){
+  const { data } = await sbClient.from('ad_autoreply').select('*').eq('user_id', CURRENT_USER.id).eq('ad_id', AD.id).maybeSingle();
+  if (data) AUTOREPLY = { enabled: !!data.enabled, message: data.message || AUTOREPLY.message };
+}
+
+async function loadComments(){
+  const storyId = AD && AD.creative ? AD.creative.effective_object_story_id : null;
+  const wrap = document.getElementById('commentsWrap');
+  if (!storyId){ wrap.innerHTML = ''; return; }
+
+  await loadAutoReplySetting();
+
+  try{
+    const res = await gget(`${storyId}/comments`, { fields:'id,message,from,created_time,comments.limit(20){from,message}', filter:'stream', order:'chronological', limit:50, access_token: PARAMS.token });
+    COMMENTS = res.data || [];
+  } catch(err){
+    wrap.innerHTML = `<div class="section-title">التعليقات<div class="section-line"></div></div><div class="placeholder-box">تعذّر تحميل التعليقات: ${err.message}</div>`;
+    return;
+  }
+
+  renderComments();
+}
+
+function renderComments(){
+  const wrap = document.getElementById('commentsWrap');
+  const on = AUTOREPLY.enabled;
+  const msg = AUTOREPLY.message;
+
+  const rows = COMMENTS.length
+    ? COMMENTS.map(c => {
+        const replied = (c.comments && c.comments.data || []).some(r => r.message === msg);
+        return `<div class="comment-row">
+          <div class="comment-head"><span class="comment-name">${(c.from && c.from.name) || 'مستخدم'}</span><span class="comment-time">${new Date(c.created_time).toLocaleString('ar-EG')}</span></div>
+          <div class="comment-msg">${(c.message || '').replace(/</g,'&lt;')}</div>
+          ${replied ? `<span class="comment-reply-tag">✓ تم الرد تلقائيًا</span>` : `<button class="mini-btn" style="margin-top:7px;font-size:11px;padding:5px 10px;" onclick="manualReplyPrompt('${c.id}')">رد يدوي</button>`}
+        </div>`;
+      }).join('')
+    : `<div class="placeholder-box">لا توجد تعليقات على هذا الإعلان حتى الآن.</div>`;
+
+  wrap.innerHTML = `
+    <div class="section-title">التعليقات على الإعلان<div class="section-line"></div></div>
+    <div class="comments-card">
+      <div class="autoreply-bar">
+        <label class="switch"><input type="checkbox" ${on?'checked':''} onchange="toggleAutoReply(this.checked)"><span class="slider"></span></label>
+        <div class="autoreply-msg"><input type="text" id="autoReplyMsgInput" value="${msg}" onchange="saveAutoReplyMsg(this.value)" placeholder="نص الرد التلقائي"></div>
+      </div>
+      <div class="autoreply-note">عند التفعيل، يُنشر هذا الرد تلقائيًا أسفل أي تعليق جديد على هذا الإعلان تحديدًا، دون إرسال أي رسالة خاصة فعليًا — ويعمل ذلك عبر السيرفر حتى لو كانت هذه الصفحة مغلقة، بشرط إتمام إعداد الـ Webhook مرة واحدة (راجع التعليمات المرفقة).</div>
+      <div style="margin-top:14px;">${rows}</div>
+    </div>`;
+}
+
+async function toggleAutoReply(checked){
+  const storyId = AD && AD.creative ? AD.creative.effective_object_story_id : null;
+  if (!storyId){ alert('تعذّر تحديد المنشور المرتبط بهذا الإعلان.'); return; }
+  const [pageId, postId] = storyId.split('_');
+
+  if (checked){
+    try{
+      const pageToken = await getPageToken(pageId);
+      // اشتراك الصفحة في استقبال أحداث التعليقات — إجراء آمن ويمكن تكراره دون أي أثر جانبي
+      await gpost(`${pageId}/subscribed_apps`, { subscribed_fields: 'feed', access_token: pageToken });
+      await sbClient.from('ad_autoreply').upsert({ user_id: CURRENT_USER.id, ad_id: AD.id, page_id: pageId, post_id: postId, enabled: true, message: AUTOREPLY.message, updated_at: new Date().toISOString() }, { onConflict: 'user_id,ad_id' });
+      AUTOREPLY.enabled = true;
+      setTopStatus('تم تفعيل الرد التلقائي، وسيعمل تلقائيًا في الخلفية بمجرد إتمام إعداد الـ Webhook.');
+    } catch(err){
+      alert('حدث خطأ أثناء تفعيل الرد التلقائي: ' + err.message);
+      renderComments();
+      return;
+    }
+  } else {
+    await sbClient.from('ad_autoreply').update({ enabled: false, updated_at: new Date().toISOString() }).eq('user_id', CURRENT_USER.id).eq('ad_id', AD.id);
+    AUTOREPLY.enabled = false;
+  }
+  renderComments();
+}
+
+async function saveAutoReplyMsg(v){
+  const val = (v || '').trim() || 'تم الرد عليكم عبر الرسائل الخاصة.';
+  AUTOREPLY.message = val;
+  const storyId = AD && AD.creative ? AD.creative.effective_object_story_id : null;
+  const [pageId, postId] = storyId ? storyId.split('_') : [null, null];
+  await sbClient.from('ad_autoreply').upsert({ user_id: CURRENT_USER.id, ad_id: AD.id, page_id: pageId, post_id: postId, enabled: AUTOREPLY.enabled, message: val, updated_at: new Date().toISOString() }, { onConflict: 'user_id,ad_id' });
+  renderComments();
+}
+
+async function manualReplyPrompt(commentId){
+  const text = prompt('اكتب نص الرد على هذا التعليق:');
+  if (!text || !text.trim()) return;
+  const storyId = AD && AD.creative ? AD.creative.effective_object_story_id : null;
+  const pageId = storyId ? storyId.split('_')[0] : null;
+  if (!pageId){ alert('تعذّر تحديد الصفحة المرتبطة بهذا الإعلان.'); return; }
+  try{
+    const pageToken = await getPageToken(pageId);
+    await gpost(`${commentId}/comments`, { message: text.trim(), access_token: pageToken });
+    setTopStatus('تم إرسال الرد على التعليق بنجاح.');
+    await loadComments();
+  } catch(err){
+    alert('حدث خطأ من فيسبوك أثناء إرسال الرد: ' + err.message);
   }
 }
 
