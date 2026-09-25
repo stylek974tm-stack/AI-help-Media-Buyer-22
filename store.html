@@ -36,6 +36,8 @@
   }
   .headtop{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
   .headtop h1{font-size:19px;margin:0;font-weight:800}
+  .headtop .heading-wrap{display:flex;flex-direction:column;gap:2px}
+  .user-email{font-size:11px;color:var(--muted);font-weight:400}
   .searchbar{position:relative}
   .searchbar input{
     width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:999px;
@@ -128,8 +130,10 @@
 
 <header>
   <div class="headtop">
-    <h1>المتجر</h1>
-    <button id="logoutBtn" style="display:none;background:var(--panel-2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px 12px;font-family:'Cairo',sans-serif;font-size:12.5px;cursor:pointer">تسجيل الخروج</button>
+    <div class="heading-wrap">
+      <h1>المتجر</h1>
+      <span class="user-email" id="userEmail"></span>
+    </div>
   </div>
   <div class="searchbar">
     <input type="text" id="searchInput" placeholder="دور على برنامج...">
@@ -141,19 +145,6 @@
   <div class="grid" id="grid"></div>
   <div class="empty-state" id="emptyState" style="display:none">مفيش برامج متاحة دلوقتي</div>
 </main>
-
-<!-- Login gate -->
-<div class="overlay active" id="loginGate" style="align-items:center">
-  <div class="sheet" style="text-align:center;border-radius:18px">
-    <h3>سجّل الدخول الأول</h3>
-    <p>لازم تكون مسجل دخول في حسابك عشان تقدر تشوف المتجر وتفتح البرامج.</p>
-    <div class="sheet-actions">
-      <a href="index.html" style="flex:1;text-decoration:none" id="loginGateBtn">
-        <button class="btn-confirm" style="width:100%">تسجيل الدخول</button>
-      </a>
-    </div>
-  </div>
-</div>
 
 <!-- Payment sheet -->
 <div class="overlay" id="payOverlay">
@@ -192,20 +183,32 @@
 <script>
 const SUPABASE_URL = "https://zphepebjpxrzpudncuas.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_tIG9XDZeHVZpZjz74e-dBA_ui5GIYw7";
-// اسم صفحة تسجيل الدخول بتاعة الموقع الأساسي - غيّرها لو المسار مختلف
-const LOGIN_URL = "index.html";
 const configured = !SUPABASE_URL.includes("YOUR_") && !SUPABASE_ANON_KEY.includes("YOUR_");
 const supa = configured ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
-let currentUser = null;
-let unlockedIds = new Set();
+// مفتاح تخزين البرامج المفتوحة في كاش المتصفح (localStorage) بدل ما يتربط بحساب مستخدم
+const UNLOCK_STORAGE_KEY = "store_unlocked_apps";
 
-async function unlock(appId){
-  if(!currentUser) return;
+function readUnlockedFromCache(){
+  try{
+    const raw = localStorage.getItem(UNLOCK_STORAGE_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return new Set(Array.isArray(arr) ? arr : []);
+  }catch(e){
+    return new Set();
+  }
+}
+function saveUnlockedToCache(set){
+  try{
+    localStorage.setItem(UNLOCK_STORAGE_KEY, JSON.stringify(Array.from(set)));
+  }catch(e){ /* تجاهل لو الكاش مقفول */ }
+}
+
+let unlockedIds = readUnlockedFromCache();
+
+function unlock(appId){
   unlockedIds.add(appId);
-  const { error } = await supa.from('unlocked_apps')
-    .upsert({ user_id: currentUser.id, app_id: appId }, { onConflict: 'user_id,app_id' });
-  if(error) console.warn('unlock save failed:', error.message);
+  saveUnlockedToCache(unlockedIds);
 }
 function isUnlocked(app){
   return app.is_free || unlockedIds.has(app.id);
@@ -288,9 +291,9 @@ document.getElementById('copyPhoneBtn').onclick = () => {
   const b = document.getElementById('copyPhoneBtn');
   b.textContent = "اتنسخ"; setTimeout(()=>b.textContent="نسخ", 1500);
 };
-document.getElementById('payConfirmBtn').onclick = async () => {
+document.getElementById('payConfirmBtn').onclick = () => {
   if(!pendingApp) return;
-  await unlock(pendingApp.id);
+  unlock(pendingApp.id);
   document.getElementById('payOverlay').classList.remove('active');
   const app = pendingApp; pendingApp = null;
   renderGrid(filterApps(document.getElementById('searchInput').value));
@@ -317,12 +320,6 @@ document.getElementById('searchInput').addEventListener('input', (e)=>{
   renderGrid(filterApps(e.target.value));
 });
 
-document.getElementById('loginGateBtn').href = LOGIN_URL;
-document.getElementById('logoutBtn').onclick = async () => {
-  await supa.auth.signOut();
-  window.location.href = LOGIN_URL;
-};
-
 function showFatalError(msg){
   const empty = document.getElementById('emptyState');
   const grid = document.getElementById('grid');
@@ -333,7 +330,6 @@ function showFatalError(msg){
   empty.textContent = "حصل خطأ:\n" + msg;
 }
 
-// أي خطأ JavaScript عام (حتى لو خارج load) هيتسجل ويتعرض بدل ما الصفحة تفضل فاضية بصمت
 window.addEventListener('error', (e) => {
   console.error('Global error:', e.error || e.message);
   showFatalError(e.message || 'خطأ غير معروف في الصفحة');
@@ -351,47 +347,33 @@ async function load(){
       return;
     }
 
-    const { data: { session }, error: sessionErr } = await supa.auth.getSession();
-    if(sessionErr) throw sessionErr;
-    if(!session){
-      document.getElementById('loginGate').classList.add('active');
-      return;
+    const { data: { session } } = await supa.auth.getSession();
+    if(session && session.user && session.user.email){
+      document.getElementById('userEmail').textContent = session.user.email;
     }
-    currentUser = session.user;
-    document.getElementById('loginGate').classList.remove('active');
-    document.getElementById('logoutBtn').style.display = 'inline-block';
 
-    const [settingsRes, appsRes, unlockedRes] = await Promise.all([
+    const [settingsRes, appsRes] = await Promise.all([
       supa.from('app_settings').select('key,value').in('key', ['payment_number','store_payment_method']),
-      supa.from('apps').select('*').order('created_at', {ascending:false}),
-      supa.from('unlocked_apps').select('app_id').eq('user_id', currentUser.id)
+      supa.from('apps').select('*').order('created_at', {ascending:false})
     ]);
 
-    // كل استعلام بيتفحص لوحده عشان لو واحد غلط نعرف بالظبط مين
     if(settingsRes.error) throw new Error('app_settings: ' + settingsRes.error.message);
     if(appsRes.error) throw new Error('apps: ' + appsRes.error.message);
-    if(unlockedRes.error) throw new Error('unlocked_apps: ' + unlockedRes.error.message);
 
     const settingsRows = settingsRes.data;
     const appsData = appsRes.data;
-    const unlockedData = unlockedRes.data;
 
     if(settingsRows){
       const map = Object.fromEntries(settingsRows.map(r=>[r.key, r.value]));
       paySettings = { pay_phone: map.payment_number || "-", pay_method: map.store_payment_method || "فودافون كاش" };
     }
     allApps = appsData || [];
-    unlockedIds = new Set((unlockedData || []).map(r => r.app_id));
     renderGrid(allApps);
   }catch(err){
     console.error('load() failed:', err);
     showFatalError(err && err.message ? err.message : String(err));
   }
 }
-
-supa && supa.auth.onAuthStateChange((event) => {
-  if(event === 'SIGNED_OUT') location.reload();
-});
 
 load();
 </script>
