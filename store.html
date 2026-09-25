@@ -351,6 +351,22 @@ document.getElementById('payConfirmBtn').onclick = async () => {
 
 function openApp(app){
   if(!app.file_url){ alert("ملف البرنامج لسه متضافش"); return; }
+
+  // ملفات زي APK / ZIP / EXE مينفعش تتعرض جوه iframe - المفروض تتنزل عشان
+  // الموبايل يقترح تثبيتها زي أي تطبيق عادي.
+  const downloadExtensions = /\.(apk|zip|exe|ipa|pdf)(\?|#|$)/i;
+  if(downloadExtensions.test(app.file_url)){
+    const a = document.createElement('a');
+    a.href = app.file_url;
+    a.download = (app.name || 'app').replace(/[^\p{L}\p{N}_-]+/gu, '_');
+    a.target = '_blank';
+    a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    return;
+  }
+
   document.getElementById('viewerTitle').textContent = app.name;
   document.getElementById('viewerFrame').src = app.file_url;
   document.getElementById('viewer').classList.add('active');
