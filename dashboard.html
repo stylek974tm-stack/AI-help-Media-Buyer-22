@@ -542,87 +542,54 @@ html,body{background:#050505!important}
   .filter-group select,.filter-group input{font-size:12px!important;padding:0 9px!important}
 }
 
-</style>
 
-<style id="mbh-reference-design">
+<style id="mbh-final-system-polish">
+/* Unified Media Buyer Hub visual system — frontend only */
 :root{
-  --ref-blue:#087cff;--ref-cyan:#18d7e9;--ref-purple:#7655ff;--ref-green:#16d6a2;
-  --ref-bg:#06101f;--ref-panel:#0b1a30;--ref-panel2:#102440;--ref-border:rgba(70,151,255,.28);
+  --mbh-cyan:#29d8ff; --mbh-cyan-2:#16b9df; --mbh-cyan-soft:rgba(41,216,255,.13);
+  --accent:var(--mbh-cyan)!important; --accent-2:var(--mbh-cyan)!important;
+  --accent-soft:var(--mbh-cyan-soft)!important;
+  --good:var(--mbh-cyan)!important; --bad:var(--mbh-cyan)!important; --mid:var(--mbh-cyan)!important;
+  --good-bg:var(--mbh-cyan-soft)!important; --bad-bg:var(--mbh-cyan-soft)!important;
+  --good-bd:rgba(41,216,255,.34)!important; --bad-bd:rgba(41,216,255,.34)!important;
+  --bg:#071019!important; --surface:#0c1720!important; --surface-2:#101e29!important; --surface-3:#142633!important;
+  --border:#1b3947!important; --border-soft:#142934!important;
+  --text:#f3fbff!important; --text-dim:#a5c0cb!important; --text-faint:#68808a!important;
 }
-html{background:var(--ref-bg)!important;}
-body{
-  background:
-    radial-gradient(circle at 10% 0%,rgba(0,150,255,.12),transparent 28%),
-    radial-gradient(circle at 100% 30%,rgba(118,85,255,.10),transparent 30%),
-    var(--ref-bg)!important;
-  padding-bottom:calc(84px + env(safe-area-inset-bottom))!important;
-}
-.topbar{
-  position:sticky!important;top:env(safe-area-inset-top)!important;z-index:120!important;
-  min-height:62px!important;padding:10px 14px!important;
-  background:rgba(4,14,29,.94)!important;border-bottom:1px solid var(--ref-border)!important;
-  box-shadow:0 8px 28px rgba(0,0,0,.20)!important;
-}
-.brand{font-size:15px!important;font-weight:800!important;letter-spacing:0!important;color:#fff!important}
-.brand span{color:#16bff5!important}
-.icon-btn{width:38px!important;height:38px!important;border-radius:12px!important;background:#0b203b!important;border:1px solid var(--ref-border)!important;color:#dcecff!important}
-.icon-btn svg{width:19px!important;height:19px!important}
-.topbar > button[title="المتجر"]{display:none!important}
-.content{max-width:760px!important;padding:18px 14px calc(105px + env(safe-area-inset-bottom))!important}
-.page-head{display:none!important}
-.top-status{min-height:0!important;margin:0 0 12px!important}
-.mbh-welcome{
-  position:relative;overflow:hidden;margin:4px 0 14px;padding:18px 17px;border-radius:20px;
-  background:linear-gradient(135deg,#0c315f,#0a1b33 58%,#0b1630);
-  border:1px solid rgba(62,151,255,.42);box-shadow:0 12px 35px rgba(0,0,0,.22);
-}
-.mbh-welcome:after{content:"";position:absolute;width:150px;height:150px;left:-65px;top:-75px;border-radius:50%;background:rgba(17,200,255,.10)}
-.mbh-welcome h1{position:relative;z-index:1;margin:0 0 6px;font-size:20px;color:#fff;font-weight:800}
-.mbh-welcome p{position:relative;z-index:1;margin:0;color:#9db5d3;font-size:12px;line-height:1.8}
-.mbh-welcome .welcome-chip{position:relative;z-index:1;display:inline-flex;align-items:center;gap:6px;margin-top:11px;padding:6px 10px;border-radius:999px;background:rgba(19,143,255,.13);border:1px solid rgba(19,143,255,.3);color:#58c8ff;font-size:10.5px}
-.summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;margin-bottom:14px!important}
-.summary-box{
-  min-height:112px!important;padding:14px!important;text-align:right!important;border-radius:17px!important;
-  background:linear-gradient(145deg,#0c223e,#09172b)!important;border:1px solid var(--ref-border)!important;
-  box-shadow:0 8px 22px rgba(0,0,0,.16)!important;
-}
-.summary-box .lbl{font-size:11px!important;color:#89a4c4!important;margin-bottom:8px!important}
-.summary-box .val{font-size:21px!important;color:#f5f9ff!important}
-.summary-box .trend{font-size:10px!important}
-.tokens-row{display:none!important}
-.filters-bar{
-  background:#09192d!important;border:1px solid var(--ref-border)!important;border-radius:17px!important;
-  padding:10px!important;gap:8px!important;margin-bottom:13px!important;box-shadow:none!important;
-}
-.filter-group label{color:#7892b2!important;font-size:10px!important}
-.filter-group select,.filter-group input{background:#0d213a!important;border-color:#21466e!important;color:#eaf4ff!important;border-radius:11px!important}
-.ai-note{margin:0 0 13px!important;border-radius:17px!important;background:linear-gradient(135deg,#0c2745,#0b1a2d)!important;border-color:#1d4c79!important}
-.section-title{margin:18px 0 10px!important;color:#e8f2ff!important}
-.ad-card,.token-box,.summary-box,.rank-card,.wallet-card,.goal-card,.hours-card,.forecast-card{border-color:var(--ref-border)!important}
-.ads-grid{grid-template-columns:1fr!important}
-.mbh-bottom-nav{
-  position:fixed;z-index:180;left:0;right:0;bottom:0;padding:8px 10px calc(8px + env(safe-area-inset-bottom));
-  background:rgba(5,15,29,.96);backdrop-filter:blur(18px);border-top:1px solid rgba(71,143,222,.28);
-  display:grid;grid-template-columns:repeat(4,1fr);gap:6px;box-shadow:0 -10px 30px rgba(0,0,0,.28)
-}
-.mbh-nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:52px;border-radius:14px;color:#7088a5;text-decoration:none;font-size:9.5px;font-weight:700;transition:.18s}
-.mbh-nav-item svg{width:20px;height:20px}
-.mbh-nav-item.active{color:#39bfff;background:rgba(17,124,255,.11)}
-.mbh-nav-item:active{transform:scale(.97)}
-.ai-fab{bottom:calc(92px + env(safe-area-inset-bottom))!important;right:14px!important;width:48px!important;height:48px!important;border-radius:16px!important;background:linear-gradient(135deg,#087cff,#12cbe7)!important;box-shadow:0 10px 28px rgba(0,125,255,.28)!important}
-@media(min-width:700px){
-  body{padding-bottom:0!important}
-  .content{max-width:1120px!important;padding-left:24px!important;padding-right:24px!important}
-  .summary-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
-  .mbh-bottom-nav{left:50%;right:auto;transform:translateX(-50%);width:min(620px,calc(100% - 28px));border:1px solid var(--ref-border);border-bottom:0;border-radius:18px 18px 0 0}
-}
-@media(max-width:430px){
-  .summary-box{min-height:105px!important}
-  .summary-box .val{font-size:19px!important}
-  .content{padding-left:12px!important;padding-right:12px!important}
-}
+html,body{background:#071019!important;color:var(--text)!important}
+body{background:radial-gradient(circle at 50% -15%,rgba(41,216,255,.08),transparent 34%),#071019!important}
+.topbar{background:rgba(7,16,25,.94)!important;border-bottom:1px solid rgba(41,216,255,.12)!important}
+.brand span,.sidebar-head b,.section-title svg,.today-head h2 svg,.ad-creative-name,.ai-note b{color:var(--mbh-cyan)!important}
+.nav-item.active{background:var(--mbh-cyan-soft)!important;border-color:rgba(41,216,255,.2)!important;color:#d9f8ff!important}
+.nav-item:hover{background:rgba(41,216,255,.08)!important}
+.icon-btn{background:#0c1a23!important;border-color:#1b3947!important;color:#eafaff!important}
+.filter-group select,.filter-group input{background:#0a1821!important;border-color:#214252!important;color:#f1fbff!important}
+.filter-group select:focus,.filter-group input:focus{outline:2px solid rgba(41,216,255,.15)!important;border-color:var(--mbh-cyan)!important}
+.summary-box,.ad-card,.camp-row,.wallets-card,.goal-card,.hours-card,.forecast-card,.section-card,.ranking-card,.card{border-color:rgba(41,216,255,.14)!important}
+.summary-box:hover,.ad-card:hover,.section-card:hover,.ranking-card:hover{border-color:rgba(41,216,255,.34)!important}
+.metric-box.good,.metric-box.bad,.profit-focus{border-color:rgba(41,216,255,.28)!important;background:rgba(41,216,255,.07)!important}
+.alert-row,.budget-spike-note{background:rgba(41,216,255,.07)!important;border-color:rgba(41,216,255,.28)!important}
+.alert-row svg,.alert-row b,.issue-panel b,.analysis-tip .green,.analysis-tip .red,.analysis-tip .yellow,.analysis-tile.good .a-val,.analysis-tile.bad .a-val,.analysis-tile.warn .a-val,.cap-bar-fill.warn,.cap-note.over,.hierarchy-status.is-on .hs-dot,.hierarchy-status.is-off .hs-dot{color:var(--mbh-cyan)!important;background-color:var(--mbh-cyan)!important;border-color:rgba(41,216,255,.3)!important}
+.analysis-tip .green,.analysis-tip .red,.analysis-tip .yellow,.analysis-tile.good .a-val,.analysis-tile.bad .a-val,.analysis-tile.warn .a-val,.cap-note.over{background:transparent!important}
+.decision-item .decision-action,.decision-item.watch .decision-action{background:rgba(41,216,255,.08)!important;color:var(--mbh-cyan)!important;border-color:rgba(41,216,255,.24)!important}
+.status-dot.on,.hierarchy-status.is-on .hs-dot,.hierarchy-status.is-off .hs-dot{background:var(--mbh-cyan)!important;box-shadow:0 0 8px rgba(41,216,255,.28)!important}
+.verdict-good,.age-badge.watch,.act.scale{background:rgba(41,216,255,.08)!important;color:var(--mbh-cyan)!important;border-color:rgba(41,216,255,.25)!important}
+.btn.primary,.hero-btn.primary{background:var(--mbh-cyan)!important;color:#04131a!important;border-color:var(--mbh-cyan)!important;box-shadow:0 8px 24px rgba(41,216,255,.14)!important}
+.btn.primary:hover,.hero-btn.primary:hover{background:var(--mbh-cyan-2)!important}
+.btn.ghost,.mini-btn,.account-more-btn{border-color:rgba(41,216,255,.22)!important}
+.mini-btn.go,.mini-btn.danger{border-color:rgba(41,216,255,.28)!important;color:var(--mbh-cyan)!important}
+.top-status.error,.status-ok,.status-soon,.status-on,.status-off{color:var(--mbh-cyan)!important}
+.top-status{color:var(--mbh-cyan)!important}
+.topbar button[title="المتجر"]{background:var(--mbh-cyan)!important;color:#04131a!important;border:1px solid var(--mbh-cyan)!important;box-shadow:0 6px 18px rgba(41,216,255,.14)!important}
+.topbar button[title="المتجر"] svg{stroke:#04131a!important}
+/* No sliders/carousels: dashboard is a fixed, scrollable layout. */
+.slider,.sliders,.slide,.slides,.carousel,.swiper,.swiper-container,.swiper-wrapper,.swiper-slide{display:none!important}
+/* Safe areas */
+body{padding-bottom:env(safe-area-inset-bottom,0)!important}
+.topbar{padding-top:max(9px,env(safe-area-inset-top,0))!important}
+@media(max-width:700px){.content{padding-bottom:max(70px,calc(60px + env(safe-area-inset-bottom,0)))!important}.topbar{padding-inline:12px!important}}
 </style>
-
+</style>
 </head>
 <body>
 
@@ -675,7 +642,7 @@ body{
   <button class="icon-btn" id="feedbackBtn" title="مشاكل الحملات والحلول المقترحة" onclick="openCampaignIssues()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v13H7l-3 3V4z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg>
   </button>
-  <button class="icon-btn" id="settingsBtn" title="إعدادات الربح" onclick="openSettings()">
+  <button class="icon-btn" id="settingsBtn" title="الإعدادات" onclick="window.location.href='settings.html'">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
   </button>
 </div>
@@ -693,20 +660,15 @@ body{
   <a class="nav-item" href="team-quality.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>أداء الموظفين</a>
   <a class="nav-item" href="subscription.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>الاشتراك والدفع</a>
   <div class="nav-divider"></div>
+  <a class="nav-item" href="settings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .3 1.8l.1.1-2.7 2.7-.1-.1a1.65 1.65 0 0 0-1.8-.3 1.65 1.65 0 0 0-1.1 1.5V22H10v-.3a1.65 1.65 0 0 0-1.1-1.5 1.65 1.65 0 0 0-1.8.3l-.1.1-2.7-2.7.1-.1a1.65 1.65 0 0 0 .3-1.8 1.65 1.65 0 0 0-1.5-1.1H2v-4h.3a1.65 1.65 0 0 0 1.5-1.1 1.65 1.65 0 0 0-.3-1.8l-.1-.1 2.7-2.7.1.1a1.65 1.65 0 0 0 1.8.3A1.65 1.65 0 0 0 9 4.2V4h4v.2a1.65 1.65 0 0 0 1.1 1.5 1.65 1.65 0 0 0 1.8-.3l.1-.1 2.7 2.7-.1.1a1.65 1.65 0 0 0-.3 1.8 1.65 1.65 0 0 0 1.5 1.1h.3v4h-.3a1.65 1.65 0 0 0-1.7 1z"/></svg>الإعدادات</a>
   <a class="nav-item" href="pricing_calculator.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>التسعير</a>
   <a class="nav-item" href="#" onclick="handleInstallClick();return false;"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>تثبيت التطبيق</a>
   <a class="nav-item" href="https://wa.me/201108712091" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>الدعم <span class="nav-tag">9ص - 5م</span></a>
 </aside>
 
 <main class="content">
-  <section class="mbh-welcome" aria-label="الترحيب">
-    <h1>مرحبًا بك في Media Buyer Hub</h1>
-    <p>تابع أداء حملاتك واتخذ قراراتك الإعلانية من مكان واحد.</p>
-    <span class="welcome-chip">● لوحة التحكم</span>
-  </section>
-
   <div class="page-head">
-    <h1>مركز الربح</h1>
+    <h1>لوحة التحكم</h1>
   </div>
 
   <div class="top-status" id="topStatus"></div>
@@ -754,9 +716,9 @@ body{
       <label>المستوى</label>
       <select id="fLevel" onchange="renderAll()">
         <option value="all">الكل (إعلانات + حملات + حساب)</option>
-        <option value="ad">إعلانات بس</option>
-        <option value="campaign">حملات بس</option>
-        <option value="account">حساب إعلاني بس</option>
+        <option value="ad">إعلانات فقط</option>
+        <option value="campaign">حملات فقط</option>
+        <option value="account">حساب إعلاني فقط</option>
       </select>
     </div>
   </div>
@@ -772,22 +734,6 @@ body{
   <div id="sectionsWrap"></div>
   <div id="forecastWrap"></div>
 </main>
-
-
-<nav class="mbh-bottom-nav" aria-label="التنقل الرئيسي">
-  <a class="mbh-nav-item active" href="dashboard.html" aria-current="page">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span>لوحة التحكم</span>
-  </a>
-  <a class="mbh-nav-item" href="automation-rules.html">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><circle cx="12" cy="12" r="4"/></svg><span>الأتمتة</span>
-  </a>
-  <a class="mbh-nav-item" href="insights.html">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5M4 19h16"/><path d="M7 15l4-5 3 3 5-7"/></svg><span>التحليلات</span>
-  </a>
-  <a class="mbh-nav-item" href="account.html">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3"/><path d="M5 21a7 7 0 0 1 14 0"/><path d="M19 3h2v2"/></svg><span>الإعدادات</span>
-  </a>
-</nav>
 
 <button class="ai-fab" id="aiFab" onclick="openAiPanel()" title="مركز القرارات">
   <span class="dot" id="aiFabDot"></span>
@@ -816,7 +762,7 @@ body{
 <div class="modal-backdrop" id="settingsBackdrop" onclick="closeSettings()"></div>
 <div class="modal" id="settingsModal">
   <h3>إعدادات حساب الربح</h3>
-  <p>البيانات دي بتتخزن على جهازك بس، وبتُستخدم لحساب صافي الربح الحقيقي فوق أرقام فيسبوك (الإنفاق والمبيعات). من غيرها هنعرض الإنفاق والإيراد بس بدون صافي ربح.</p>
+  <p>البيانات دي بتتخزن على جهازك فقط، وبتُستخدم لحساب صافي الربح الحقيقي فوق أرقام فيسبوك (الإنفاق والمبيعات). من غيرها هنعرض الإنفاق والإيراد فقط بدون صافي ربح.</p>
   <label>تكلفة المنتج (% من سعر البيع)</label>
   <input type="number" id="setCogsPct" placeholder="مثال: 35" step="0.1">
   <label>تكلفة الشحن لكل طلب ($)</label>
@@ -977,7 +923,7 @@ function trackBudgetHistory(adsetId, currentBudget){
   const last = hist[hist.length - 1];
   if (!last || Math.abs(last.b - currentBudget) > 0.01){
     hist.push({ t: Date.now(), b: currentBudget });
-    hist = hist.filter(h => Date.now() - h.t < 14 * 86400000); // نحتفظ بـ 14 يوم بس
+    hist = hist.filter(h => Date.now() - h.t < 14 * 86400000); // نحتفظ بـ 14 يوم فقط
     localStorage.setItem(key, JSON.stringify(hist));
   }
 }
@@ -1139,14 +1085,14 @@ function updateInstallButtonVisibility(){
   btn.classList.add('show');
 }
 
-// أندرويد/كروم بيبعت الحدث ده لما الموقع يبقى قابل للتثبيت فعليًا
+// أندرويد/كروم بيبعت الحدث ده عندما الموقع يبقى قابل للتثبيت فعليًا
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredInstallPrompt = e;
   updateInstallButtonVisibility();
 });
 
-// لما المستخدم يثبت فعليًا (سواء من زرارنا أو من قائمة المتصفح) نسجل ده عشان الأيقونة متظهرش تاني
+// عندما المستخدم يثبت فعليًا (سواء من زرارنا أو من قائمة المتصفح) نسجل ده عشان الأيقونة متظهرش مرة أخرى
 window.addEventListener('appinstalled', () => {
   localStorage.setItem(INSTALLED_FLAG_KEY, '1');
   updateInstallButtonVisibility();
@@ -1219,7 +1165,7 @@ async function init(){
     setTopStatus('خطأ أثناء تحميل الصفحة: ' + err.message, true);
   }
 }
-/* التحديث ثابت كل 10 دقائق — مفيش خيار للمستخدم يغيّره، وده نفس المدة اللي بيتقاس بيها الكاش تحت */
+/* التحديث ثابت كل 10 دقائق — لا توجد خيار للمستخدم يغيّره، وده نفس المدة اللي بيتقاس بيها الكاش تحت */
 const REFRESH_SECONDS = 600;
 function setRefreshInterval(){
   if (refreshTimer) clearInterval(refreshTimer);
@@ -1259,7 +1205,7 @@ async function loadConnections(){
 
   if (error){ setTopStatus('تعذر تحميل الحسابات المتصلة: ' + error.message, true); CONNECTIONS = []; return; }
   if (!data || data.length === 0){
-    tokensRow.innerHTML = '<div class="note">مفيش حسابات متصلة بالحساب ده لسه - روح صفحة "ربط الحسابات الإعلانية" وضيف رقم الحساب والتوكن الأول، وارجع هنا تاني.</div>';
+    tokensRow.innerHTML = '<div class="note">لا توجد حسابات متصلة بالحساب ده بعد - انتقل إلى صفحة "ربط الحسابات الإعلانية" وأضف رقم الحساب والتوكن الأول، وارجع هنا مرة أخرى.</div>';
     CONNECTIONS = []; return;
   }
   CONNECTIONS = data;
@@ -1282,10 +1228,10 @@ async function loadConnections(){
 
 /* ---------------- كاش مشترك بين الداشبورد والرسوم البيانية وأداء الموظفين ----------------
    أي طلب لنفس المسار بنفس البارامترات (نفس الحساب/المستوى/الفترة) بيتخزن في localStorage.
-   مدة الكاش ثابتة على REFRESH_SECONDS (10 دقايق بالظبط) — مفيش خيار للمستخدم يغيّرها.
+   مدة الكاش ثابتة على REFRESH_SECONDS (10 دقايق بالظبط) — لا توجد خيار للمستخدم يغيّرها.
    لو المستخدم دخل وخرج من الصفحة مليون مرة خلال العشر دقايق دي، هياخد نفس البيانات
    المخزنة من غير ما يضرب Graph API خالص ومن غير ما يستهلك التوكن. بعد ما المدة تعدي،
-   أول طلب جديد بيجيب بيانات حية ويحدّث الكاش من تاني. */
+   أول طلب جديد بيجيب بيانات حية ويحدّث الكاش من مرة أخرى. */
 function getCacheTTLMs(){
   return REFRESH_SECONDS * 1000; // ثابتة على 10 دقايق — نفس مدة التحديث بالظبط
 }
@@ -1321,7 +1267,7 @@ function toMap(list, idField){
 /* ---------------- تفادي "Application request limit reached" من فيسبوك ----------------
    بدل ما كل طلبات الحساب العشرة تتبعت في نفس اللحظة (burst)، بنبعتها بفاصل 600ms بينها
    (يعني بتستغرق حوالي 5-6 ثواني تتبعت كلها، بدل ما تتبعت مرة واحدة)، وبنسيب نفس الفاصل
-   كمان بين كل حساب إعلاني والتاني لو المستخدم عنده أكتر من حساب. الدفعة دي كلها بتحصل
+   كمان بين كل حساب إعلاني والمرة أخرى لو المستخدم عنده أكتر من حساب. الدفعة دي كلها بتحصل
    مرة واحدة فقط كل REFRESH_SECONDS (10 دقايق)، مش مع كل دخول وخروج. */
 function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
 async function staggeredAll(factories, gapMs){
@@ -1381,7 +1327,7 @@ async function fetchDashboard(){
       try{
         const [campaigns, campaignIns, adsets, adsetIns, ads, adIns, prevCampaignIns, todayAdIns, accountDailyIns, hourlyIns] = await staggeredAll([
           // كل الطلبات دي بتتبعت متباعدة عن بعضها (مش دفعة واحدة) وبتتخزن في الكاش لمدة REFRESH_SECONDS كاملة،
-          // فحتى لو المستخدم دخل وخرج مليون مرة خلال العشر دقايق، مفيش أي طلب جديد لفيسبوك هيتبعت غير أول مرة.
+          // فحتى لو المستخدم دخل وخرج مليون مرة خلال العشر دقايق، لا توجد أي طلب جديد لفيسبوك هيتبعت غير أول مرة.
           () => gget(`${actId}/campaigns`, { fields:'id,name,status,effective_status,objective', limit:300, access_token:token }),
           () => gget(`${actId}/insights`, { level:'campaign', fields:'campaign_id,'+insightFields, time_range:timeRange, limit:300, access_token:token }),
           () => gget(`${actId}/adsets`, { fields:'id,name,status,effective_status,campaign_id,daily_budget,lifetime_budget', limit:500, access_token:token }),
@@ -1416,7 +1362,7 @@ async function fetchDashboard(){
         anyError = `خطأ من فيسبوك في حساب ${conn.ad_account_id}: ${err.message}`;
         console.error(anyError);
       }
-      // فاصل بسيط قبل الانتقال لحساب إعلاني تاني (لو المستخدم عنده أكتر من حساب متصل)
+      // فاصل فقطيط قبل الانتقال لحساب إعلاني مرة أخرى (لو المستخدم عنده أكتر من حساب متصل)
       if (conn !== metaConns[metaConns.length - 1]) await sleep(400);
     }
 
@@ -1427,7 +1373,7 @@ async function fetchDashboard(){
 
   renderAll();
 
-  // نرجّع فتح لوحات المشاكل اللي كانت متفتحة، ونحافظ على مكان السكرول عشان مفيش "قفزة" للصفحة
+  // نرجّع فتح لوحات المشاكل اللي كانت متفتحة، ونحافظ على مكان السكرول عشان لا توجد "قفزة" للصفحة
   openIssueIds.forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('open'); });
   window.scrollTo(0, scrollY);
 }
@@ -1446,9 +1392,9 @@ function buildIssueText(ctrRate, cpmRate, cpcRate, extra){
   const issues = [];
   if (extra && extra.addToCart > 0 && (extra.purchases || 0) === 0) issues.push({ title:'اهتمام دون شراء', cause:`قام ${extra.addToCart} من الأشخاص بإضافة المنتج إلى السلة من هذا الإعلان، دون إتمام عملية شراء.`, fix:'الحل ليس زيادة ميزانية هذا الإعلان — أنشئ جمهور ريتارجتنج يستهدف هؤلاء الأشخاص تحديدًا، وقدّم لهم كرييتف يتضمن خصمًا أو تذكيرًا، بدلًا من انتظار عودتهم من تلقاء أنفسهم.', act:'retarget' });
   if (ctrRate === 'bad') issues.push({ title:'CTR ضعيف', cause:'الكرييتف لا يوقف عملية التمرير (Scroll)، أو أن الافتتاحية (Hook) الأولى ضعيفة، أو أن دعوة اتخاذ الإجراء (CTA) غير واضحة.', fix:'جرّب كريتف جديد بهوك مختلف في أول 3 ثواني، وغيّر الـ CTA.', act:'watch' });
-  if (cpmRate === 'bad') issues.push({ title:'CPM مرتفع', cause:'المزاد على الجمهور ده مكلف — استهداف واسع/ضيق جدًا، أو منافسة عالية.', fix:'راجع حجم الجمهور، جرّب Broad أو Lookalike جديد، زوّد الميزانية شوية للخروج من مرحلة التعلم.', act:'watch' });
+  if (cpmRate === 'bad') issues.push({ title:'CPM مرتفع', cause:'المزاد على الجمهور ده مكلف — استهداف واسع/ضيق جدًا، أو منافسة عالية.', fix:'راجع حجم الجمهور، جرّب Broad أو Lookalike جديد، زيادة الميزانية شوية للخروج من مرحلة التعلم.', act:'watch' });
   if (cpcRate === 'bad') issues.push({ title:'CPC مرتفع', cause:'تنافس عالي في المزاد، أو صفحة الهبوط بطيئة.', fix:'راجع استراتيجية المزايدة، وحسّن سرعة ووضوح صفحة الهبوط.', act:'watch' });
-  if (extra && extra.spendNoPurchase) issues.push({ title:'صرف بدون مبيعات', cause:`صرف ${money(extra.spend)} في الفترة المختارة من غير أي عملية شراء مسجّلة.`, fix:'أوقف الإعلان مؤقتًا أو راجع صفحة الهبوط والبيكسل قبل استمراره في الصرف.', act:'pause' });
+  if (extra && extra.spendNoPurchase) issues.push({ title:'صرف بدون مبيعات', cause:`صرف ${money(extra.spend)} في الفترة المختارة من غير أي عملية شراء مسجّلة.`, fix:'إيقاف الإعلان مؤقتًا أو راجع صفحة الهبوط والبيكسل قبل استمراره في الصرف.', act:'pause' });
   return issues.length ? issues : null;
 }
 function badgeClass(level){ return level === 'good' ? 'verdict-good' : (level === 'mid' ? 'verdict-mid' : 'verdict-bad'); }
@@ -1546,7 +1492,7 @@ function renderWallets(){
   if (otherPlatforms.length){
     otherHtml = otherPlatforms.map(c => {
       const label = c.pixel_type === 'tiktok' ? 'TikTok' : (c.pixel_type === 'snapchat' ? 'Snapchat' : 'Google');
-      return `<div class="wallet-box"><div class="wname">${label} — ${c.ad_account_id || '-'}</div><div class="wline"><span>الحالة</span><span>قريبًا (لسه مش متكامل بالبيانات الحية)</span></div></div>`;
+      return `<div class="wallet-box"><div class="wname">${label} — ${c.ad_account_id || '-'}</div><div class="wline"><span>الحالة</span><span>قريبًا (بعد مش متكامل بالبيانات الحية)</span></div></div>`;
     }).join('');
   }
 
@@ -1636,7 +1582,7 @@ function renderGoalPanel(){
       const s = window._SUMMARY_CACHE || { totSpend: 0 };
       note = `عشان توصل لـ <b>${goal}</b> أوردر خلال أسبوع، وبناءً على متوسط تكلفة الشراء الحالي (${money(matureAvgCpp)})، محتاج ميزانية يومية إجمالية تقريبًا <b>${money(neededDailyBudget)}</b>.`;
     } else {
-      note = `حطيت هدف <b>${goal}</b> أوردر في الأسبوع، بس لسه معندناش عدد كافٍ من المبيعات الناضجة في الحساب عشان نحسب تكلفة شراء موثوقة ونقترح ميزانية.`;
+      note = `حطيت هدف <b>${goal}</b> أوردر في الأسبوع، فقط بعد معندناش عدد كافٍ من المبيعات الناضجة في الحساب عشان نحسب تكلفة شراء موثوقة ونقترح ميزانية.`;
     }
   }
 
@@ -1675,7 +1621,7 @@ function renderBestHours(){
       </div>
       <div class="hours-note">
         أعلى نشاط أوردرات في الفترة المختارة حوالي الساعة <b>${peakHours.map(h => (h+':00')).join(' و ')}</b> (بتوقيت حسابك الإعلاني).
-        نصيحة: لو محتاج تزوّد الميزانية عشان تلحق أوقات الذروة، الأفضل تزوّدها قبل الساعة دي بشوية مش وقتها بالظبط، عشان فيسبوك ياخد وقت يتصرف في المزاد.
+        نصيحة: لو محتاج تزيادة الميزانية عشان تلحق أوقات الذروة، الأفضل تزوّدها قبل الساعة دي بشوية مش وقتها بالظبط، عشان فيسبوك ياخد وقت يتصرف في المزاد.
       </div>
     </div>`;
 }
@@ -1742,13 +1688,13 @@ function renderSummary(){
   const aiEl = document.getElementById('aiNote');
   let tips = [];
   if (totClicks === 0 && totImp === 0){
-    tips.push('مفيش بيانات ظهرت لسه في الفترة دي - وسّع الفترة الزمنية أو تأكد إن الحساب فيه حملات شغالة.');
+    tips.push('لا توجد بيانات ظهرت بعد في الفترة دي - وسّع الفترة الزمنية أو تأكد إن الحساب فيه حملات شغالة.');
   } else {
     if (avgCtr < 1) tips.push('متوسط CTR ضعيف - غالبًا الكرييتف محتاج هوك أقوى في أول 3 ثواني.');
     else if (avgCtr >= 1.5) tips.push('متوسط CTR جيد — الكرييتف يجذب انتباه الجمهور بفعالية.');
     if (convRate < 1.5 && totClicks > 20) tips.push('نسبة تحويل الزوار لمبيعات ضعيفة - المشكلة غالبًا في صفحة الهبوط أو السعر مش في الإعلان نفسه.');
     if (remaining < 0) tips.push('الإنفاق تخطى الميزانية اليومية المحددة للمجموعات النشطة - راجع الميزانيات.');
-    if (!PROFIT_SETTINGS) tips.push('حط بيانات تكلفة المنتج والشحن من إعدادات الربح (⚙) عشان تشوف صافي ربحك الحقيقي مش بس الإيراد.');
+    if (!PROFIT_SETTINGS) tips.push('حط بيانات تكلفة المنتج والشحن من إعدادات الربح (⚙) عشان تشوف صافي ربحك الحقيقي مش فقط الإيراد.');
   }
   aiEl.innerHTML = '<b>تحليل تلقائي:</b><br>' + (tips.length ? tips.map(t => '• ' + t).join('<br>') : 'الأرقام في المدى الطبيعي، استمر في المتابعة.');
 
@@ -1811,7 +1757,7 @@ function collectCampaignIssues(){
       campaignToken: c._token, campaignActId: c._actId, spend, cpm: m.cpm, ...i
     }));
   });
-  return list.sort((a, b) => b.spend - a.spend); // الأكتر صرفًا يظهر الأول — هو اللي محتاج قرار بسرعة
+  return list.sort((a, b) => b.spend - a.spend); // الأكتر صرفًا يظهر الأول — هو اللي محتاج قرار فقطرعة
 }
 function collectOpportunities(){
   const list = [];
@@ -1862,7 +1808,7 @@ function renderAlerts(){
     if (spike){
       rows.push(`<div class="alert-row">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        <div><b>${a.name}</b> انت رفعت الميزانية اليومية بنسبة <b>${spike.pct.toFixed(0)}%</b> (من ${money(spike.from)} لـ ${money(spike.to)}) خلال آخر 48 ساعة — خليك واخد بالك من المزاد قبل ما تزوّد تاني.</div>
+        <div><b>${a.name}</b> انت رفعت الميزانية اليومية بنسبة <b>${spike.pct.toFixed(0)}%</b> (من ${money(spike.from)} لـ ${money(spike.to)}) خلال آخر 48 ساعة — خليك واخد بالك من المزاد قبل ما تزوّد مرة أخرى.</div>
       </div>`);
     }
   });
@@ -1936,25 +1882,25 @@ function renderAiPanel(){
     alerts.forEach(([id,v]) => {
       const ad = DATA.ads.find(a => a.id === id);
       if (!ad) return;
-      html += `<div class="ai-item"><b>${ad.name}</b><div class="cause">صرف ${money(v.spend)} النهاردة بدون مبيعات.</div><span class="act pause">أوقف الإعلان</span></div>`;
+      html += `<div class="ai-item"><b>${ad.name}</b><div class="cause">صرف ${money(v.spend)} النهاردة بدون مبيعات.</div><span class="act pause">إيقاف الإعلان</span></div>`;
     });
     html += `</div>`;
   }
 
   html += `<div class="ai-block"><div class="ab-title" style="color:var(--bad)">المشاكل (${issues.length})</div>`;
   html += issues.length
-    ? issues.map(i => `<div class="ai-item"><b>${i.adName} — ${i.title}</b><div class="cause">${i.cause}</div><div class="fix">الحل: ${i.fix}</div><span class="act ${i.act}">${i.act==='pause'?'أوقف':'راقب وعدّل'}</span></div>`).join('')
-    : '<div class="ai-item">مفيش مشاكل واضحة دلوقتي.</div>';
+    ? issues.map(i => `<div class="ai-item"><b>${i.adName} — ${i.title}</b><div class="cause">${i.cause}</div><div class="fix">الحل: ${i.fix}</div><span class="act ${i.act}">${i.act==='pause'?'إيقاف':'راقب وعدّل'}</span></div>`).join('')
+    : '<div class="ai-item">لا توجد مشاكل واضحة حاليًا.</div>';
   html += `</div>`;
 
   html += `<div class="ai-block"><div class="ab-title" style="color:var(--good)">الفرص (${opps.length})</div>`;
   html += opps.length
     ? opps.map(o => `<div class="ai-item"><b>${o.adName}</b><div class="cause">${o.text}</div><span class="act scale">وسّع الميزانية</span></div>`).join('')
-    : '<div class="ai-item">مفيش فرص واضحة للتوسع دلوقتي.</div>';
+    : '<div class="ai-item">لا توجد فرص واضحة للتوسع حاليًا.</div>';
   html += `</div>`;
 
   const s = window._SUMMARY_CACHE || { totSpend:0, totRevenue:0, roas:0 };
-  html += `<div class="ai-block"><div class="ab-title" style="color:var(--accent-2)">الحالة المالية</div>
+  html += `<div class="ai-block"><div class="ab-title" style="color:var(--accent-2)">الحالة اعندمالية</div>
     <div class="ai-item">
       <div class="money-row"><span>الإنفاق</span><b>${money(s.totSpend)}</b></div>
       <div class="money-row"><span>الإيراد</span><b>${money(s.totRevenue)}</b></div>
@@ -1972,7 +1918,7 @@ function renderSections(){
   cardCounter = 0;
 
   if (CONNECTIONS.filter(c=>c.pixel_type==='facebook').length === 0){
-    wrap.innerHTML = '<div class="placeholder-box">مفيش حساب Meta متصل. روح صفحة "ربط الحسابات الإعلانية" وضيف التوكن ورقم الحساب الأول.</div>';
+    wrap.innerHTML = '<div class="placeholder-box">لا توجد حساب Meta متصل. انتقل إلى صفحة "ربط الحسابات الإعلانية" وأضف التوكن ورقم الحساب الأول.</div>';
     return;
   }
 
@@ -1981,7 +1927,7 @@ function renderSections(){
   if (level === 'all' || level === 'ad'){
     wrap.insertAdjacentHTML('beforeend', sectionTitle('الإعلانات', 'grid'));
     if (DATA.ads.length === 0){
-      wrap.insertAdjacentHTML('beforeend', '<div class="placeholder-box">مفيش إعلانات في الفترة المختارة</div>');
+      wrap.insertAdjacentHTML('beforeend', '<div class="placeholder-box">لا توجد إعلانات في الفترة المختارة</div>');
     } else {
       const grid = document.createElement('div');
       grid.className = 'ads-grid';
@@ -2001,12 +1947,12 @@ function renderSections(){
 
         let issuesHtml = issues
           ? issues.map(i => `<div><b>${i.title}</b><br>${i.cause}<br><span class="fix">✔ الحل: ${i.fix}</span></div>`).join('<hr style="border-color:var(--border-soft);margin:8px 0;">')
-          : '<div>مفيش مشاكل واضحة في الأرقام دي، الأداء كويس.</div>';
+          : '<div>لا توجد مشاكل واضحة في الأرقام دي، الأداء كويس.</div>';
         issuesHtml += `<div class="quality-line">جودة العميل (معدل التحويل): <b class="${qr.cls==='good'?'fix':''}">${qr.label}</b></div>`;
 
         let estHtml = '';
         if (purchases === 0 && matureAvgCpp){
-          estHtml = `<div class="est-line">لسه معندوش مبيعات كفاية للحكم عليه — تكلفة الشراء المتوقعة تقريبًا <b>${money(matureAvgCpp)}</b> (بناءً على متوسط إعلاناتك الناضجة في نفس الحساب، مش رقم فعلي للإعلان ده لسه).</div>`;
+          estHtml = `<div class="est-line">بعد معندوش مبيعات كفاية للحكم عليه — تكلفة الشراء المتوقعة تقريبًا <b>${money(matureAvgCpp)}</b> (بناءً على متوسط إعلاناتك الناضجة في نفس الحساب، مش رقم فعلي للإعلان ده بعد).</div>`;
         }
 
         const creative = ad.creative || {};
@@ -2039,9 +1985,9 @@ function renderSections(){
         // إجراءات حقيقية على فيسبوك — كلها بضغطة زر يدوية من المستخدم
         const adset = DATA.adsets.find(x => x.id === ad.adset_id);
         const actionsHtml = `<div class="ad-actions" onclick="event.stopPropagation()">
-          ${adset ? `<button class="mini-btn go" onclick="openBudgetModal('${ad.adset_id}')">زوّد الميزانية</button>` : ''}
-          <button class="mini-btn ${ad.status==='ACTIVE'?'danger':''}" onclick="toggleStatus('${ad.id}', '${ad.status}', '${ad._token}', 'ad')">${ad.status==='ACTIVE'?'أوقف الإعلان':'شغّل الإعلان'}</button>
-          ${ad.campaign_id ? `<button class="mini-btn" onclick="openInAdsManager('${ad._actId}', '${ad.campaign_id}')">افتح في مدير الإعلانات (استهداف/جمهور)</button>` : ''}
+          ${adset ? `<button class="mini-btn go" onclick="openBudgetModal('${ad.adset_id}')">زيادة الميزانية</button>` : ''}
+          <button class="mini-btn ${ad.status==='ACTIVE'?'danger':''}" onclick="toggleStatus('${ad.id}', '${ad.status}', '${ad._token}', 'ad')">${ad.status==='ACTIVE'?'إيقاف الإعلان':'تشغيل الإعلان'}</button>
+          ${ad.campaign_id ? `<button class="mini-btn" onclick="openInAdsManager('${ad._actId}', '${ad.campaign_id}')">فتح في مدير الإعلانات (استهداف/جمهور)</button>` : ''}
         </div>`;
 
         grid.insertAdjacentHTML('beforeend', `
@@ -2082,7 +2028,7 @@ function renderSections(){
   if (level === 'all' || level === 'campaign'){
     wrap.insertAdjacentHTML('beforeend', sectionTitle('الحملات', 'folder'));
     if (DATA.campaigns.length === 0){
-      wrap.insertAdjacentHTML('beforeend', '<div class="placeholder-box">مفيش حملات في الفترة المختارة</div>');
+      wrap.insertAdjacentHTML('beforeend', '<div class="placeholder-box">لا توجد حملات في الفترة المختارة</div>');
     } else {
       DATA.campaigns.forEach(camp => {
         const ins = DATA.campaignIns[camp.id];
@@ -2104,9 +2050,9 @@ function renderSections(){
               <span class="verdict-badge ${badgeClass(m.cpcRate)}" style="cursor:default; padding:4px 9px; font-size:11px;">CPC ${money(m.cpc)}</span>
             </div>
             <div class="ad-actions" style="border-top:none; padding-top:0; margin-top:0;">
-              <button class="mini-btn ${camp.status==='ACTIVE'?'danger':''}" onclick="toggleStatus('${camp.id}', '${camp.status}', '${camp._token}', 'campaign')">${camp.status==='ACTIVE'?'أوقف':'شغّل'}</button>
-              <button class="mini-btn go" onclick="duplicateCampaign('${camp.id}', '${camp._token}', '${camp.name.replace(/'/g,"\\'")}')">اعمل نسخة (دبليكيت)</button>
-              <button class="mini-btn" onclick="openInAdsManager('${camp._actId}', '${camp.id}')">افتح في مدير الإعلانات</button>
+              <button class="mini-btn ${camp.status==='ACTIVE'?'danger':''}" onclick="toggleStatus('${camp.id}', '${camp.status}', '${camp._token}', 'campaign')">${camp.status==='ACTIVE'?'إيقاف':'تشغيل'}</button>
+              <button class="mini-btn go" onclick="duplicateCampaign('${camp.id}', '${camp._token}', '${camp.name.replace(/'/g,"\\'")}')">إنشاء نسخة (دبليكيت)</button>
+              <button class="mini-btn" onclick="openInAdsManager('${camp._actId}', '${camp.id}')">فتح في مدير الإعلانات</button>
             </div>
           </div>
         `);
@@ -2157,7 +2103,7 @@ function toggleIssue(id){ document.getElementById('issue-' + id).classList.toggl
 
 /* ==================================================================
    New: أزرار تنفيذ حقيقية على فيسبوك — كل حاجة هنا يدوية بضغطة زر
-   من المستخدم بس، ومفيش أي حاجة بتتنفذ تلقائي من غير ما هو يضغط.
+   من المستخدم فقط، ولا توجد أي حاجة بتتنفذ تلقائي من غير ما هو يضغط.
    ================================================================== */
 async function gpost(path, params){
   const p = new URLSearchParams(params);
@@ -2202,7 +2148,7 @@ async function submitBudgetChange(){
   else if (mode === 'pct20') newBudget = BUDGET_TARGET.currentBudget * 1.20;
   else if (mode === 'pct50') newBudget = BUDGET_TARGET.currentBudget * 1.50;
   else newBudget = num(document.getElementById('budgetCustomValue').value);
-  if (!newBudget || newBudget <= 0){ alert('حط قيمة ميزانية صحيحة.'); return; }
+  if (!newBudget || newBudget <= 0){ alert('أدخل قيمة ميزانية صحيحة.'); return; }
 
   try{
     await gpost(BUDGET_TARGET.adsetId, { daily_budget: Math.round(newBudget * 100), access_token: BUDGET_TARGET.token });
@@ -2326,7 +2272,7 @@ function updateHero(){
   const ar=document.getElementById('heroAccount'), rr=document.getElementById('heroRange'), hh=document.getElementById('heroHealth');
   const acc=document.getElementById('fAccount'); const range=document.getElementById('fRange');
   if(ar&&acc) ar.textContent=acc.selectedOptions[0]?.textContent||'كل الحسابات'; if(rr&&range) rr.textContent=range.selectedOptions[0]?.textContent||'اليوم';
-  if(hh){hh.textContent=n===0?'الحساب مستقر':(n<=3?'يحتاج متابعة':'يحتاج قرارات');hh.style.color=n===0?'var(--good)':(n<=3?'var(--mid)':'var(--bad)');}
+  if(hh){hh.textContent=n===0?'الحساب مستقر':(n<=3?'يحتاج متابعة':'يحتاج إلى قرارات');hh.style.color=n===0?'var(--good)':(n<=3?'var(--mid)':'var(--bad)');}
 }
 function scrollToAds(){ document.getElementById('sectionsWrap')?.scrollIntoView({behavior:'smooth',block:'start'}); }
 function renderAiPanel(){
@@ -2336,10 +2282,10 @@ function renderAiPanel(){
   if(badge){badge.textContent=issues.length>99?'99+':issues.length;badge.classList.toggle('zero',issues.length===0)}
   const grouped={}; issues.forEach(i=>{const k=i.title||'مشكلة أخرى';(grouped[k]??=[]).push(i)});
   let html=`<div class="inbox-summary"><div class="inbox-stat"><span>قرارات مطلوبة</span><b style="color:var(--bad)">${issues.length}</b></div><div class="inbox-stat"><span>تنبيهات اليوم</span><b>${alerts.length}</b></div><div class="inbox-stat"><span>فرص توسع</span><b style="color:var(--good)">${opps.length}</b></div></div>`;
-  if(alerts.length){html+=`<div class="decision-group"><div class="decision-group-head"><span style="color:var(--bad)">${iconAlert()}</span><b>تنبيهات اليوم</b><span class="dg-count">${alerts.length}</span></div>`; alerts.forEach(([id,v])=>{const ad=DATA.ads.find(a=>a.id===id);if(ad) html+=`<div class="decision-item"><strong>${ad.name}</strong><div class="decision-meta">صرف ${money(v.spend)} اليوم بدون مبيعات</div><div class="decision-fix">قرار سريع: راجع الإعلان قبل استمرار الإنفاق.</div><span class="decision-action">أوقف أو راجع</span></div>`});html+='</div>'}
+  if(alerts.length){html+=`<div class="decision-group"><div class="decision-group-head"><span style="color:var(--bad)">${iconAlert()}</span><b>تنبيهات اليوم</b><span class="dg-count">${alerts.length}</span></div>`; alerts.forEach(([id,v])=>{const ad=DATA.ads.find(a=>a.id===id);if(ad) html+=`<div class="decision-item"><strong>${ad.name}</strong><div class="decision-meta">صرف ${money(v.spend)} اليوم بدون مبيعات</div><div class="decision-fix">قرار سريع: راجع الإعلان قبل استمرار الإنفاق.</div><span class="decision-action">إيقاف أو راجع</span></div>`});html+='</div>'}
   const keys=Object.keys(grouped);
   if(keys.length){html+=keys.map(k=>`<div class="decision-group"><div class="decision-group-head"><span style="color:var(--bad)">${iconAlert()}</span><b>${k}</b><span class="dg-count">${grouped[k].length}</span></div>${grouped[k].map(i=>`<div class="decision-item ${i.act==='watch'?'watch':''}"><strong>${i.adName}</strong><div class="decision-fix">${i.cause}</div><div class="decision-fix"><b style="color:var(--accent-2)">الحل:</b> ${i.fix}</div>${i.act==='retarget'?`<button class="mini-btn go" onclick="createCartAbandonerAudience('${i.adId}')">استهداف من أضافوا المنتج إلى السلة</button>`:`<span class="decision-action">${i.act==='pause'?'إيقاف مطلوب':'مراجعة مطلوبة'}</span>`}</div>`).join('')}</div>`).join('')}
-  if(!issues.length&&!alerts.length) html+=`<div class="ai-item" style="text-align:center;padding:25px">${iconTrophy()}<br><b>مفيش قرارات عاجلة دلوقتي.</b><div class="cause">الأرقام الحالية لا تحتوي على مشكلة واضحة تحتاج تدخل سريع.</div></div>`;
+  if(!issues.length&&!alerts.length) html+=`<div class="ai-item" style="text-align:center;padding:25px">${iconTrophy()}<br><b>لا توجد قرارات عاجلة حاليًا.</b><div class="cause">الأرقام الحالية لا تحتوي على مشكلة واضحة تحتاج تدخل سريع.</div></div>`;
   if(opps.length){html+=`<div class="decision-group"><div class="decision-group-head"><span style="color:var(--good)">${iconTrophy()}</span><b>فرص تستاهل التوسع</b><span class="dg-count">${opps.length}</span></div>${opps.slice(0,8).map(o=>`<div class="decision-item"><strong>${o.adName}</strong><div class="decision-fix">${o.text}</div><span class="decision-action" style="background:var(--good-bg);color:var(--good);border-color:var(--good-bd)">فكّر في التوسيع</span></div>`).join('')}</div>`}
   body.innerHTML=html; document.getElementById('aiFabDot')?.classList.toggle('show',issues.length>0||alerts.length>0); updateHero();
 }
@@ -2359,7 +2305,7 @@ function renderCampaignIssuesPanel(){
   </div>`;
 
   if (!issues.length){
-    html += `<div class="ai-item" style="text-align:center;padding:25px">${iconTrophy()}<br><b>مفيش مشاكل واضحة على مستوى الحملات دلوقتي.</b><div class="cause">الأرقام الحالية على مستوى الحملة مفيهاش حاجة تحتاج قرار سريع.</div></div>`;
+    html += `<div class="ai-item" style="text-align:center;padding:25px">${iconTrophy()}<br><b>لا توجد مشاكل واضحة على مستوى الحملات حاليًا.</b><div class="cause">الأرقام الحالية على مستوى الحملة مفيهاش حاجة تحتاج قرار سريع.</div></div>`;
   } else {
     html += Object.keys(grouped).map(k => `
       <div class="decision-group">
@@ -2373,17 +2319,17 @@ function campaignIssueItemHtml(i){
   const adsets = DATA.adsets.filter(a => a.campaign_id === i.campaignId && (a.effective_status || a.status) === 'ACTIVE');
   let actionHtml;
   if (i.act === 'pause'){
-    actionHtml = `<button class="mini-btn danger" onclick="toggleStatus('${i.campaignId}','${i.campaignStatus}','${i.campaignToken}','campaign')">أوقف الحملة</button>`;
+    actionHtml = `<button class="mini-btn danger" onclick="toggleStatus('${i.campaignId}','${i.campaignStatus}','${i.campaignToken}','campaign')">إيقاف الحملة</button>`;
   } else if (i.title === 'CPM مرتفع'){
     const smartEgp = EGP_RATE ? Math.min(300, Math.max(50, Math.round((i.spend * EGP_RATE * 0.15) / 10) * 10)) : 50;
     actionHtml = adsets.length ? adsets.map(a => {
         const recentIncreases = countRecentBudgetIncreases(a.id, 3);
         const stuckWarning = recentIncreases >= 2
-          ? `<div style="font-size:10.5px;color:var(--mid);background:var(--mid-bg);border-radius:7px;padding:6px 8px;margin-top:6px;">⚠️ زودت الميزانية ${recentIncreases} مرات في آخر 3 أيام والـCPM لسه مرتفع — المشكلة على الأغلب مش في الميزانية، المزاد نفسه غالي على الجمهور ده. زيادة تالتة غالبًا مش هتحل حاجة؛ راجع حجم/نوع الجمهور أو جرّب كريتف جديد الأول.</div>
-             <button class="mini-btn" style="margin-top:6px;" onclick="openInAdsManager('${i.campaignActId}','${i.campaignId}')">افتح في مدير الإعلانات لمراجعة الجمهور</button>`
+          ? `<div style="font-size:10.5px;color:var(--mid);background:var(--mid-bg);border-radius:7px;padding:6px 8px;margin-top:6px;">⚠️ زودت الميزانية ${recentIncreases} مرات في آخر 3 أيام والـCPM بعد مرتفع — المشكلة على الأغلب مش في الميزانية، المزاد نفسه غالي على الجمهور ده. زيادة تالتة غالبًا مش هتحل حاجة؛ راجع حجم/نوع الجمهور أو جرّب كريتف جديد الأول.</div>
+             <button class="mini-btn" style="margin-top:6px;" onclick="openInAdsManager('${i.campaignActId}','${i.campaignId}')">فتح في مدير الإعلانات لمراجعة الجمهور</button>`
           : '';
         const moneyButtons = recentIncreases >= 2
-          ? `<button class="mini-btn go" style="opacity:.55;" onclick="quickIncreaseBudget('${a.id}',${smartEgp})">زوّد برضه +${smartEgp} ج.م</button>`
+          ? `<button class="mini-btn go" style="opacity:.55;" onclick="quickIncreaseBudget('${a.id}',${smartEgp})">زيادة أيضًا +${smartEgp} ج.م</button>`
           : `<button class="mini-btn go" style="border-color:var(--accent);font-weight:800;" onclick="quickIncreaseBudget('${a.id}',${smartEgp})">🎯 اقتراح ذكي +${smartEgp} ج.م</button>
              <button class="mini-btn go" onclick="quickIncreaseBudget('${a.id}',50)">+50 ج.م</button>
              <button class="mini-btn go" onclick="quickIncreaseBudget('${a.id}',100)">+100 ج.م</button>`;
@@ -2396,9 +2342,9 @@ function campaignIssueItemHtml(i){
           ${stuckWarning}
         </div>`;
       }).join('')
-      : `<span class="decision-action">مفيش مجموعات إعلانية نشطة تحت الحملة دي</span>`;
+      : `<span class="decision-action">لا توجد مجموعات إعلانية نشطة تحت الحملة دي</span>`;
   } else {
-    actionHtml = `<button class="mini-btn" onclick="openInAdsManager('${i.campaignActId}','${i.campaignId}')">افتح في مدير الإعلانات لمراجعتها</button>`;
+    actionHtml = `<button class="mini-btn" onclick="openInAdsManager('${i.campaignActId}','${i.campaignId}')">فتح في مدير الإعلانات لمراجعتها</button>`;
   }
   return `<div class="decision-item ${i.act==='watch'?'watch':''}">
     <strong>${i.campaignName} — ${i.title}</strong>
@@ -2420,6 +2366,35 @@ onRangeChange=function(){ _oldOnRangeChange(); saveDashboardState(); };
 init();
 </script>
 
+
+<script id="mbh-preferences-bridge">
+(function(){
+  const savedTheme=localStorage.getItem('mbh_theme')||'dark';
+  const savedLang=localStorage.getItem('mbh_lang')||'ar';
+  function applyTheme(){
+    const root=document.documentElement;
+    root.dataset.theme=savedTheme;
+    if(savedTheme==='light'){
+      root.style.setProperty('--bg','#f3f7f9'); root.style.setProperty('--surface','#ffffff'); root.style.setProperty('--surface-2','#eef4f7');
+      root.style.setProperty('--surface-3','#e5eef2'); root.style.setProperty('--border','#cfe0e7'); root.style.setProperty('--border-soft','#dce9ee');
+      root.style.setProperty('--text','#0b2028'); root.style.setProperty('--text-dim','#526c76'); root.style.setProperty('--text-faint','#78909a');
+    } else if(savedTheme==='system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches){
+      root.style.setProperty('--bg','#f3f7f9'); root.style.setProperty('--surface','#ffffff'); root.style.setProperty('--surface-2','#eef4f7');
+      root.style.setProperty('--surface-3','#e5eef2'); root.style.setProperty('--border','#cfe0e7'); root.style.setProperty('--border-soft','#dce9ee');
+      root.style.setProperty('--text','#0b2028'); root.style.setProperty('--text-dim','#526c76'); root.style.setProperty('--text-faint','#78909a');
+    }
+  }
+  function applyLang(){
+    document.documentElement.lang=savedLang==='en'?'en':'ar'; document.documentElement.dir=savedLang==='en'?'ltr':'rtl';
+    if(savedLang!=='en') return;
+    const map={
+      'تحليل البيانات':'Analytics','الرسوم البيانية':'Insights','قواعد الأتمتة':'Automation Rules','أداء الموظفين':'Team Performance','الاشتراك والدفع':'Subscription & Billing','التسعير':'Pricing','تثبيت التطبيق':'Install App','الدعم':'Support','الإعدادات':'Settings','ربط الحسابات الإعلانية':'Ad Accounts','تسجيل خروج':'Log out','مركز الربح':'Profit Center','الفترة':'Period','المنصة':'Platform','الحساب':'Account','المستوى':'Level','الكل':'All','اليوم':'Today','أمس':'Yesterday','آخر 7 أيام':'Last 7 days','آخر 30 يوم':'Last 30 days','آخر 14 يوم':'Last 14 days','آخر 3 أيام':'Last 3 days','مخصص':'Custom','من':'From','إلى':'To'
+    };
+    const walk=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT); let n; while(n=walk.nextNode()){ let v=n.nodeValue; for(const [ar,en] of Object.entries(map)) v=v.split(ar).join(en); n.nodeValue=v; }
+  }
+  applyTheme(); applyLang();
+})();
+</script>
 </body>
 </html>
 
@@ -2636,7 +2611,7 @@ function accountTotals(){
   return {imp,reach,clicks,spend,purchases,revenue,ctr,cpm,cpc,cpp,roas,visitors,carts,dailyBudget,netProfit};
 }
 function chartSvg(rows){
-  if(!rows.length) return `<div class="chart-empty">لسه مفيش بيانات يومية كفاية للرسم.</div>`;
+  if(!rows.length) return `<div class="chart-empty">بعد لا توجد بيانات يومية كفاية للرسم.</div>`;
   const w=700,h=145,p=18, max=Math.max(...rows.map(r=>r.spend),1), step=rows.length===1?w-2*p:(w-2*p)/(rows.length-1);
   const pts=rows.map((r,i)=>`${p+i*step},${h-p-(r.spend/max)*(h-2*p)}`).join(' ');
   const bars=rows.map((r,i)=>{const x=p+i*step-4; const bh=(r.spend/max)*(h-2*p); return `<rect x="${x}" y="${h-p-bh}" width="8" height="${bh}" rx="4" fill="rgba(72,224,139,.34)"/>`}).join('');
@@ -2648,7 +2623,7 @@ function buildAccountRecommendations(t){
   const out=[];
   const dailySpend=t.spend/Math.max(1,aggregateAccountDaily().length||1);
   const qualityBudget=Math.max(dailySpend*1.5, t.cpp>0?t.cpp*2:50);
-  if(t.cpc>BENCHMARKS.cpc.mid) out.push(`<div class="analysis-tip"><strong>CPC مرتفع:</strong> الحالي <span class="red">${money(t.cpc)}</span>. حاول تنزل به إلى <span class="green">${money(BENCHMARKS.cpc.good)}</span> أو أقل. لو الكرييتف كويس ولسه محتاج بيانات أكثر، جرّب ميزانية يومية حوالي <strong>${money(qualityBudget)}</strong> بدل القفزات الكبيرة.</div>`);
+  if(t.cpc>BENCHMARKS.cpc.mid) out.push(`<div class="analysis-tip"><strong>CPC مرتفع:</strong> الحالي <span class="red">${money(t.cpc)}</span>. حاول تنزل به إلى <span class="green">${money(BENCHMARKS.cpc.good)}</span> أو أقل. لو الكرييتف كويس وبعد محتاج بيانات أكثر، جرّب ميزانية يومية حوالي <strong>${money(qualityBudget)}</strong> بدل القفزات الكبيرة.</div>`);
   else if(t.cpm>BENCHMARKS.cpm.mid) out.push(`<div class="analysis-tip"><strong>CPM مرتفع:</strong> الحالي <span class="red">${money(t.cpm)}</span>. استهدف أقل من <span class="green">${money(BENCHMARKS.cpm.mid)}</span> وراجع الجمهور قبل زيادة الميزانية. للبيانات الأسرع جرّب حوالي <strong>${money(qualityBudget)}</strong>/يوم.`);
   else if(t.ctr<BENCHMARKS.ctr.good) out.push(`<div class="analysis-tip"><strong>CTR محتاج يتحسن:</strong> الحالي <span class="yellow">${t.ctr.toFixed(2)}%</span>. الهدف المبدئي <span class="green">${BENCHMARKS.ctr.good.toFixed(2)}%</span>+ قبل ما تكبّر الإنفاق بقوة.`);
   else out.push(`<div class="analysis-tip"><strong>الحساب مستقر:</strong> الأرقام الأساسية كويسة. لو عايز بيانات أسرع، جرّب ميزانية يومية حوالي <strong>${money(qualityBudget)}</strong> مع متابعة CPP وعدم زيادة الميزانية فجأة.</div>`);
