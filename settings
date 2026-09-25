@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0d12">
+<title>الإعدادات — Media Buyer Hub</title>
+<style>
+:root{
+  --bg:#0b0d12;--surface:#12151c;--surface2:#181c24;--surface3:#20252f;
+  --border:#292f3a;--text:#f5f7fa;--muted:#9ca5b3;--accent:#7c5cff;
+  --accent2:#9a84ff;--danger:#ef6262;--good:#45c98a;
+  --radius:18px;--safe-top:env(safe-area-inset-top);--safe-bottom:env(safe-area-inset-bottom);
+}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif}
+body{padding-top:var(--safe-top);padding-bottom:calc(82px + var(--safe-bottom))}
+a{text-decoration:none;color:inherit}
+.app{width:min(1100px,100%);margin:auto;padding:16px 14px 28px}
+.header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.title h1{font-size:24px;margin:0 0 5px;font-weight:850}.title p{margin:0;color:var(--muted);font-size:13px}
+.avatar{width:44px;height:44px;border:1px solid var(--border);background:var(--surface);border-radius:14px;display:grid;place-items:center;font-weight:800;color:var(--accent2)}
+.section{margin:20px 0 10px;font-size:12px;color:var(--muted);font-weight:800}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.item{min-height:66px;padding:13px 15px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);transition:.18s}
+.item:last-child{border-bottom:0}.item:hover{background:var(--surface2)}
+.icon{width:40px;height:40px;flex:0 0 40px;border-radius:13px;background:var(--surface2);display:grid;place-items:center;color:var(--accent2)}
+.icon svg{width:20px;height:20px}.item-main{min-width:0;flex:1}.item-title{font-weight:800;font-size:14px}.item-sub{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.5}
+.chev{color:#687181;font-size:20px}
+.account{padding:16px;background:linear-gradient(135deg,#171526,#12151c);display:flex;align-items:center;gap:12px}
+.account .big{width:50px;height:50px;border-radius:16px;background:var(--accent);display:grid;place-items:center;font-weight:900;font-size:18px}
+.badge{display:inline-flex;margin-top:6px;padding:3px 8px;border-radius:999px;background:#202a24;color:var(--good);font-size:10px;font-weight:800}
+.theme-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px}
+.theme{border:1px solid var(--border);background:var(--surface2);border-radius:14px;padding:12px 8px;text-align:center;font-size:11px;color:var(--muted);cursor:pointer}
+.theme.active{border-color:var(--accent);color:var(--text);box-shadow:0 0 0 1px var(--accent) inset}.theme-preview{height:28px;border-radius:8px;margin-bottom:8px;background:#0b0d12;border:1px solid #333}
+.theme.light .theme-preview{background:#f3f5f8}.theme.system .theme-preview{background:linear-gradient(90deg,#0b0d12 50%,#f3f5f8 50%)}
+.bottom{position:fixed;z-index:20;bottom:0;left:0;right:0;padding:8px 10px calc(8px + var(--safe-bottom));background:rgba(11,13,18,.94);backdrop-filter:blur(18px);border-top:1px solid var(--border)}
+.nav{width:min(620px,100%);margin:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.nav a{min-height:54px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#808a99;font-size:9px;font-weight:750}
+.nav a.active{background:var(--surface2);color:var(--text)}.nav svg{width:20px;height:20px}.nav a.active svg{color:var(--accent2)}
+@media(min-width:800px){
+ body{padding-bottom:20px}.app{padding:28px}.bottom{position:sticky;bottom:0;margin:0 auto 20px;width:min(760px,calc(100% - 40px));border:1px solid var(--border);border-radius:20px}.nav{grid-template-columns:repeat(4,1fr)}
+}
+</style>
+</head>
+<body>
+<main class="app">
+  <header class="header">
+    <div class="title"><h1>الإعدادات</h1><p>إدارة الحساب، الصفحات، المظهر والتفضيلات</p></div>
+    <div class="avatar">MB</div>
+  </header>
+
+  <div class="section">الحساب</div>
+  <div class="card">
+    <a class="item account" href="account.html">
+      <div class="big">M</div><div class="item-main"><div class="item-title">حساب الإعلانات</div><div class="item-sub">إدارة وربط حسابات Meta الإعلانية</div><span class="badge">الحسابات والربط</span></div><span class="chev">‹</span>
+    </a>
+    <a class="item" href="subscription.html"><span class="icon">◈</span><div class="item-main"><div class="item-title">الاشتراك</div><div class="item-sub">الباقة وحالة الاشتراك والدفع</div></div><span class="chev">‹</span></a>
+  </div>
+
+  <div class="section">مساحة العمل</div>
+  <div class="card">
+    <a class="item" href="dashboard.html"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span><div class="item-main"><div class="item-title">لوحة التحكم</div><div class="item-sub">ملخص الأداء والحملات والإشعارات</div></div><span class="chev">‹</span></a>
+    <a class="item" href="automation-rules.html"><span class="icon">⚙</span><div class="item-main"><div class="item-title">قواعد الأتمتة</div><div class="item-sub">إنشاء وإدارة قواعد تشغيل الحملات</div></div><span class="chev">‹</span></a>
+    <a class="item" href="insights.html"><span class="icon">⌁</span><div class="item-main"><div class="item-title">التحليلات والرسوم البيانية</div><div class="item-sub">قراءة الاتجاهات ومؤشرات الأداء</div></div><span class="chev">‹</span></a>
+  </div>
+
+  <div class="section">المظهر</div>
+  <div class="card">
+    <div class="theme-grid">
+      <button class="theme active" data-theme="dark"><div class="theme-preview"></div>داكن</button>
+      <button class="theme light" data-theme="light"><div class="theme-preview"></div>فاتح</button>
+      <button class="theme system" data-theme="system"><div class="theme-preview"></div>النظام</button>
+    </div>
+  </div>
+
+  <div class="section">الدعم</div>
+  <div class="card">
+    <a class="item" href="https://wa.me/201108712091" target="_blank" rel="noopener"><span class="icon">?</span><div class="item-main"><div class="item-title">الدعم والشكاوى</div><div class="item-sub">التواصل مع فريق الدعم وإرسال مشكلة أو ملاحظة</div></div><span class="chev">‹</span></a>
+  </div>
+
+  <div class="section">اللغة</div>
+  <div class="card">
+    <button class="item" id="langBtn" style="width:100%;border:0;background:transparent;color:inherit;text-align:right">
+      <span class="icon">文</span><div class="item-main"><div class="item-title">لغة الواجهة</div><div class="item-sub" id="langText">العربية</div></div><span class="chev">‹</span>
+    </button>
+  </div>
+</main>
+
+<nav class="bottom">
+ <div class="nav">
+  <a href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>الرئيسية</a>
+  <a href="automation-rules.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/></svg>الأتمتة</a>
+  <a href="insights.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5M4 19h16"/><path d="M7 15l3-4 3 2 4-6"/></svg>التحليلات</a>
+  <a href="settings.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-2.6V20a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1-1.8-1.8.1-.1A1.7 1.7 0 0 0 8 15a1.7 1.7 0 0 0-1.6-1H6v-2.6h.4A1.7 1.7 0 0 0 8 10a1.7 1.7 0 0 0-.3-1.9l-.1-.1 1.8-1.8.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6v-.2h2.6V5a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1 1.8 1.8-.1.1A1.7 1.7 0 0 0 19.4 10a1.7 1.7 0 0 0 1.6 1h.2v2.6H21a1.7 1.7 0 0 0-1.6 1.4z"/></svg>الإعدادات</a>
+ </div>
+</nav>
+<script>
+const key='mbh_theme';
+function applyTheme(v){
+  document.documentElement.dataset.theme=v;
+  document.querySelectorAll('.theme').forEach(x=>x.classList.toggle('active',x.dataset.theme===v));
+  localStorage.setItem(key,v);
+}
+document.querySelectorAll('.theme').forEach(x=>x.onclick=()=>applyTheme(x.dataset.theme));
+applyTheme(localStorage.getItem(key)||'dark');
+document.getElementById('langBtn').onclick=()=>{
+  const cur=localStorage.getItem('mbh_lang')||'ar';
+  const next=cur==='ar'?'en':'ar';
+  localStorage.setItem('mbh_lang',next);
+  document.getElementById('langText').textContent=next==='ar'?'العربية':'English';
+};
+document.getElementById('langText').textContent=(localStorage.getItem('mbh_lang')||'ar')==='ar'?'العربية':'English';
+</script>
+</body>
+</html>
