@@ -21,14 +21,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#090b0f; --bg-soft:#0d1016;
-    --surface:#12151c; --surface-2:#171b24; --surface-3:#1c2029;
-    --border:#20242e; --border-soft:#191c24;
-    --text:#eef1f6; --text-dim:#98a2b3; --text-faint:#5c6474;
-    --accent:#4f7dfb; --accent-2:#22d3ee; --accent-soft:rgba(79,125,251,.14);
-    --good:#22c55e; --good-bg:rgba(34,197,94,.12); --good-bd:rgba(34,197,94,.4);
-    --mid:#eab308; --mid-bg:rgba(234,179,8,.12); --mid-bd:rgba(234,179,8,.4);
-    --bad:#f43f5e; --bad-bg:rgba(244,63,94,.13); --bad-bd:rgba(244,63,94,.45);
+    --bg:#000; --bg-soft:#080808;
+    --surface:#0d0d0d; --surface-2:#141414; --surface-3:#1b1b1b;
+    --border:#262626; --border-soft:#1a1a1a;
+    --text:#fff; --text-dim:#b8b8b8; --text-faint:#777;
+    --accent:#fff; --accent-2:#fff; --accent-soft:rgba(255,255,255,.10);
+    --good:#fff; --good-bg:rgba(255,255,255,.10); --good-bd:rgba(255,255,255,.30);
+    --mid:#cfcfcf; --mid-bg:rgba(255,255,255,.07); --mid-bd:rgba(255,255,255,.22);
+    --bad:#fff; --bad-bg:rgba(255,255,255,.06); --bad-bd:rgba(255,255,255,.28);
     --radius:16px; --radius-sm:10px;
     --font-ui:'Cairo',system-ui,sans-serif;
     --font-num:'JetBrains Mono','Cairo',monospace;
@@ -37,7 +37,7 @@
   html,body{margin:0;padding:0;}
   body{
     font-family:var(--font-ui); background:var(--bg); color:var(--text);
-    min-height:100vh; -webkit-font-smoothing:antialiased;
+    min-height:100vh; -webkit-font-smoothing:antialiased; padding-bottom:env(safe-area-inset-bottom);
   }
   ::selection{ background:var(--accent-soft); color:#fff; }
   ::-webkit-scrollbar{ width:8px; height:8px; }
@@ -47,6 +47,18 @@
 
   .num{ font-family:var(--font-num); font-variant-numeric:tabular-nums; }
 
+
+  /* Unified monochrome UI + system-language navigation */
+  .sidebar,.backdrop{display:none!important;}
+  .topbar{background:rgba(0,0,0,.92);}
+  
+.bottom-nav-item{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:7px 4px;border-radius:12px;color:#777;text-decoration:none;font-size:10px;font-weight:700;}
+  .bottom-nav-item svg{width:20px;height:20px;}
+  .bottom-nav-item.active{color:#fff;background:#181818;}
+  .content{padding-bottom:110px;}
+  @media(min-width:800px){.bottom-nav{left:50%;right:auto;width:min(620px,calc(100% - 40px));transform:translateX(-50%);border:1px solid var(--border);border-bottom:0;border-radius:20px 20px 0 0}.content{padding-bottom:120px;}}
+  @supports(padding:max(0px)){.bottom-nav{padding-left:max(8px,env(safe-area-inset-left));padding-right:max(8px,env(safe-area-inset-right));}}
+  .system-lang-badge{font-size:10px;color:var(--text-faint);border:1px solid var(--border);border-radius:999px;padding:3px 8px;}
   /* ---------- Topbar ---------- */
   .topbar{
     position:sticky; top:0; z-index:120;
@@ -181,26 +193,6 @@
   .quality-card.mid .qval{ color:var(--mid); }
   .quality-card.bad .qval{ color:var(--bad); }
 
-  /* ---------- Comments & auto-reply ---------- */
-  .comments-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:20px; }
-  .autoreply-bar{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:12px; background:var(--bg-soft); border:1px solid var(--border-soft); border-radius:12px; margin-bottom:14px; }
-  .switch{ position:relative; display:inline-block; width:38px; height:22px; flex-shrink:0; }
-  .switch input{ opacity:0; width:0; height:0; }
-  .switch .slider{ position:absolute; inset:0; background:#2c313d; border-radius:20px; transition:.2s; cursor:pointer; }
-  .switch .slider:before{ content:''; position:absolute; width:16px; height:16px; right:3px; bottom:3px; background:#fff; border-radius:50%; transition:.2s; }
-  .switch input:checked + .slider{ background:var(--accent); }
-  .switch input:checked + .slider:before{ transform:translateX(-16px); }
-  .autoreply-msg{ flex:1 1 220px; min-width:180px; }
-  .autoreply-msg input{ width:100%; padding:8px 10px; border-radius:8px; border:1px solid var(--border); background:var(--surface-2); color:var(--text); font-family:inherit; font-size:12.5px; }
-  .autoreply-note{ font-size:10.5px; color:var(--text-faint); margin-top:8px; line-height:1.7; }
-  .comment-row{ padding:11px 4px; border-bottom:1px solid var(--border-soft); }
-  .comment-row:last-child{ border-bottom:none; }
-  .comment-head{ display:flex; align-items:center; gap:8px; margin-bottom:4px; }
-  .comment-name{ font-size:12.5px; font-weight:700; }
-  .comment-time{ font-size:10.5px; color:var(--text-faint); }
-  .comment-msg{ font-size:12.5px; color:#c7cddb; line-height:1.6; }
-  .comment-reply-tag{ display:inline-flex; align-items:center; gap:5px; font-size:10px; color:var(--good); background:var(--good-bg); border:1px solid var(--good-bd); padding:2px 8px; border-radius:20px; margin-top:6px; }
-
   /* ---------- Ad actions ---------- */
   .ad-actions{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px; }
   .mini-btn{
@@ -229,14 +221,27 @@
   .btn{ padding:9px 16px; border-radius:10px; border:1px solid var(--border); background:var(--surface-3); color:var(--text); font-size:12.5px; font-weight:700; cursor:pointer; }
   .btn.primary{ background:var(--accent); border-color:var(--accent); color:#fff; flex:1; }
   .btn.ghost{ background:transparent; }
+
+  .intel-card{margin:14px 0;padding:18px;border:1px solid var(--border);background:linear-gradient(180deg,var(--surface),var(--surface-2));border-radius:16px;box-shadow:0 10px 28px rgba(0,0,0,.16)}
+  .intel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}
+  .intel-title{font-size:16px;font-weight:900;letter-spacing:-.2px}.intel-sub{margin-top:5px;color:var(--text-dim);font-size:11.5px;line-height:1.7}
+  .intel-confidence{min-width:88px;text-align:center;border:1px solid var(--border);border-radius:12px;padding:8px 10px;background:var(--surface-3)}
+  .intel-confidence .n{font-size:20px;font-weight:900}.intel-confidence .l{font-size:10px;color:var(--text-dim)}
+  .intel-verdict{padding:14px;border:1px solid var(--border);border-radius:14px;background:var(--bg-soft);margin-bottom:12px}
+  .intel-verdict .label{font-size:17px;font-weight:900}.intel-verdict .desc{margin-top:6px;font-size:12px;color:var(--text-dim);line-height:1.75}
+  .intel-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0}.intel-mini{padding:11px;border:1px solid var(--border);border-radius:12px;background:var(--surface-3)}
+  .intel-mini .k{font-size:10px;color:var(--text-dim)}.intel-mini .v{margin-top:5px;font-weight:900;font-size:13px}
+  .intel-block{border-top:1px solid var(--border);padding-top:13px;margin-top:13px}.intel-block h4{margin:0 0 9px;font-size:12px}
+  .intel-list{display:grid;gap:8px}.intel-item{display:grid;grid-template-columns:7px 1fr;gap:9px;padding:9px 0}.intel-dot{width:7px;height:7px;border-radius:50%;background:var(--text-dim);margin-top:6px}.intel-item.good .intel-dot{background:var(--good)}.intel-item.bad .intel-dot{background:var(--bad)}.intel-item.mid .intel-dot{background:var(--mid)}
+  .intel-item strong{font-size:12px}.intel-item span{display:block;color:var(--text-dim);font-size:11px;line-height:1.65;margin-top:2px}
+  .intel-actions{display:grid;gap:7px}.intel-action{padding:10px 11px;border:1px solid var(--border);border-radius:11px;background:var(--surface-3);font-size:11.5px;line-height:1.65}
+  @media(max-width:520px){.intel-head{flex-direction:column}.intel-confidence{width:100%;display:flex;align-items:center;justify-content:center;gap:8px}.intel-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <button class="icon-btn" id="menuBtn" aria-label="القائمة" onclick="toggleSidebar(event)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
-  </button>
+  <div class="system-lang-badge" id="systemLangBadge">SYS</div>
   <div class="brand">Media Buyer <span>Hub</span></div>
   <div class="topbar-spacer"></div>
   <div class="live-status">
@@ -261,7 +266,6 @@
   <a class="nav-item disabled"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>الدعم <span class="nav-tag">قريبًا</span></a>
   <div class="sidebar-foot">جميع البيانات مرتبطة بحسابك ومحمية — لا تتم مشاركتها مع أي طرف تالت.</div>
 </aside>
-
 <main class="content">
   <div class="back-row">
     <a class="back-link" href="dashboard.html">
@@ -288,9 +292,9 @@
   <div id="summaryWrap"></div>
   <div id="metricsWrap"></div>
 
-  <div id="qualityWrap"></div>
+  <div id="intelligenceWrap"></div>
 
-  <div id="commentsWrap"></div>
+  <div id="qualityWrap"></div>
 
   <div id="actionsWrap"></div>
 </main>
@@ -404,6 +408,91 @@ async function gpost(path, params){
   return json;
 }
 
+/* ---------------- System language + formal UI ---------------- */
+const SYSTEM_LANG = (navigator.languages && navigator.languages[0] || navigator.language || 'en').toLowerCase().startsWith('ar') ? 'ar' : 'en';
+const I18N = {
+  ar:{
+    title:'تفاصيل الإعلان - Media Buyer Hub', back:'العودة إلى تحليل البيانات', update:'آخر تحديث', now:'الآن', loading:'جاري تحميل بيانات الإعلان...',
+    noAd:'لم يتم تحديد إعلان — ارجع إلى تحليل البيانات واختر إعلانًا.', active:'نشط', paused:'متوقف', period:'الفترة',
+    financial:'الأداء المالي خلال الفترة', revenue:'الإيراد', spend:'الإنفاق', adQuality:'جودة العميل والأداء', customerQuality:'جودة العميل (معدل التحويل)', creativeQuality:'جودة الكرييتف', engagement:'معدل التفاعل',
+    comments:'التعليقات على الإعلان', noComments:'لا توجد تعليقات متاحة لهذا الإعلان حتى الآن.', replyManual:'رد يدوي', autoReply:'الرد التلقائي', autoReplyPlaceholder:'نص الرد التلقائي', autoReplyNote:'عند التفعيل، يتم نشر الرد تلقائيًا أسفل التعليقات الجديدة على هذا الإعلان. يتطلب ذلك إعداد Webhook مرة واحدة.',
+    replyDone:'تم الرد تلقائيًا', sendReply:'إرسال الرد', loadingComments:'جاري تحميل التعليقات...', noStory:'لا يتوفر منشور مرتبط بهذا الإعلان.',
+    budget:'تعديل الميزانية اليومية', cancel:'إلغاء', execute:'تنفيذ', currentBudget:'الميزانية الحالية', changeType:'نوع التعديل',
+    increase10:'زيادة 10%',increase20:'زيادة 20%',increase50:'زيادة 50%',customBudget:'مبلغ مخصص ($ / يوم)',newBudget:'الميزانية الجديدة ($ / يوم)',
+    increaseBudget:'زيادة الميزانية', stopAd:'إيقاف الإعلان', startAd:'تشغيل الإعلان', adsManager:'فتح في مدير الإعلانات',
+    conversionRate:'معدل التحويل', sales:'عدد المبيعات', impressions:'الظهور', clicks:'النقرات', roas:'ROAS',
+    excellent:'ممتازة', average:'متوسطة', weak:'ضعيفة', creativeExcellent:'الكرييتف ممتاز', goodPerformance:'أداء جيد', creativeProblem:'مشكلة في الكرييتف', reviewAuction:'الميزانية/المزاد بحاجة إلى مراجعة', averagePerformance:'أداء متوسط',
+    above:'أعلى من المتوسط', below:'أقل من المتوسط', muchBelow:'أقل بكتير', unavailable:'غير متاح',
+    errorLoad:'خطأ أثناء تحميل تفاصيل الإعلان: ', errorFb:'حدث خطأ من فيسبوك: ', successPaused:'تم إيقاف الإعلان على فيسبوك بنجاح.', successStarted:'تم تشغيل الإعلان على فيسبوك بنجاح.',
+    noData:'لا توجد بيانات متاحة.', commentError:'تعذّر تحميل التعليقات: ', replyPrompt:'اكتب ردك على هذا التعليق:', replySuccess:'تم إرسال الرد بنجاح.',
+    autoEnabled:'تم تفعيل الرد التلقائي. سيعمل في الخلفية بعد إتمام إعداد Webhook.', autoDisabled:'تم إيقاف الرد التلقائي.', invalidBudget:'يرجى إدخال قيمة صحيحة للميزانية.',
+    budgetSuccess:'تم تعديل الميزانية بنجاح.', confirmPause:'هل تريد بالتأكيد إيقاف هذا الإعلان على فيسبوك؟', confirmStart:'هل تريد بالتأكيد تشغيل هذا الإعلان مجددًا على فيسبوك؟',
+    intelligence:'المحرك الذكي للإعلان', intelligenceSubtitle:'تحليل متعدد الإشارات يقرأ الكفاءة، مسار التحويل، الاتجاه، التذبذب، وجودة البيانات قبل إصدار التشخيص.',
+    diagnosis:'التشخيص النهائي', confidence:'درجة الثقة', signals:'الإشارات المكتشفة', critical:'حرج', warning:'تحذير', positive:'إيجابي', neutral:'مراقبة',
+    rootCause:'السبب المرجح', actionPlan:'خطة الإجراء', evidence:'الأدلة', dataQuality:'جودة البيانات',
+    scale:'مرشح للتوسيع', hold:'استمر مع المراقبة', optimize:'يحتاج تحسينًا', stop:'يحتاج إيقافًا مؤقتًا', insufficient:'بيانات غير كافية للحكم',
+    funnel:'مسار التحويل', trend:'الاتجاه', volatility:'التذبذب', efficiency:'الكفاءة', fatigue:'إشارة تشبع/إرهاق',
+    noStrongIssue:'لا توجد مشكلة قوية مكتشفة ضمن البيانات المتاحة. يوصى بالاستمرار مع المراقبة.',
+    spendNoPurchase:'إنفاق قائم دون تسجيل مبيعات', clickLeak:'تسرب مرتفع بين النقرات والمبيعات', cartLeak:'إضافة إلى السلة دون إتمام شراء',
+    cpmHigh:'CPM مرتفع نسبيًا', ctrLow:'CTR منخفض نسبيًا', cpcHigh:'CPC مرتفع نسبيًا', postClick:'المشكلة تبدو بعد النقر وليس في جذب الزيارة',
+    trendDown:'الاتجاه العام يتدهور', trendUp:'الاتجاه العام يتحسن', unstable:'الأداء متذبذب', stable:'الأداء مستقر',
+    budgetAction:'القرار المقترح للميزانية', doNotScale:'لا يُنصح بالتوسيع الآن', scaleCarefully:'التوسيع التدريجي ممكن مع المراقبة',
+    investigateCreative:'اختبر الكرييتف/الرسالة', investigateOffer:'راجع العرض والصفحة بعد النقر', reviewAuctionAction:'راجع المزاد والجمهور والتكلفة',
+    keep:'حافظ على الإعداد الحالي', collect:'اجمع بيانات إضافية قبل القرار',
+    dataLimited:'العينة الحالية محدودة؛ أي استنتاج يجب اعتباره مبدئيًا.', dataStrong:'العينة كافية نسبيًا لإصدار تشخيص أولي.',
+    currentVsPeriod:'مقارنة داخل الفترة', dailyPattern:'النمط اليومي', anomaly:'شذوذ',
+    bestDay:'أفضل يوم', worstDay:'أضعف يوم',
+  },
+  en:{
+    title:'Ad Details - Media Buyer Hub', back:'Back to Data Analysis', update:'Last update', now:'Now', loading:'Loading ad data...',
+    noAd:'No ad selected — please return to Data Analysis and select an ad.', active:'Active', paused:'Paused', period:'Period',
+    financial:'Financial performance for the selected period', revenue:'Revenue', spend:'Spend', adQuality:'Customer and performance quality', customerQuality:'Customer quality (conversion rate)', creativeQuality:'Creative quality', engagement:'Engagement rate',
+    comments:'Ad comments', noComments:'No comments are available for this ad yet.', replyManual:'Reply manually', autoReply:'Auto-reply', autoReplyPlaceholder:'Auto-reply message', autoReplyNote:'When enabled, the reply is published automatically under new comments on this ad. A one-time Webhook setup is required.',
+    replyDone:'Auto-replied', sendReply:'Send reply', loadingComments:'Loading comments...', noStory:'No related post is available for this ad.',
+    budget:'Edit daily budget', cancel:'Cancel', execute:'Apply', currentBudget:'Current budget', changeType:'Adjustment type',
+    increase10:'Increase by 10%',increase20:'Increase by 20%',increase50:'Increase by 50%',customBudget:'Custom amount ($ / day)',newBudget:'New budget ($ / day)',
+    increaseBudget:'Increase budget', stopAd:'Pause ad', startAd:'Resume ad', adsManager:'Open in Ads Manager',
+    conversionRate:'Conversion rate', sales:'Purchases', impressions:'Impressions', clicks:'Clicks', roas:'ROAS',
+    excellent:'Excellent', average:'Average', weak:'Weak', creativeExcellent:'Excellent creative', goodPerformance:'Good performance', creativeProblem:'Creative issue', reviewAuction:'Budget/auction requires review', averagePerformance:'Average performance',
+    above:'Above average', below:'Below average', muchBelow:'Far below average', unavailable:'Unavailable',
+    errorLoad:'Error while loading ad details: ', errorFb:'Facebook error: ', successPaused:'The ad was paused successfully on Facebook.', successStarted:'The ad was resumed successfully on Facebook.',
+    noData:'No data is available.', commentError:'Unable to load comments: ', replyPrompt:'Enter your reply to this comment:', replySuccess:'The reply was sent successfully.',
+    autoEnabled:'Auto-reply is enabled. It will run in the background after Webhook setup is completed.', autoDisabled:'Auto-reply is disabled.', invalidBudget:'Please enter a valid budget amount.',
+    budgetSuccess:'The budget was updated successfully.', confirmPause:'Are you sure you want to pause this ad on Facebook?', confirmStart:'Are you sure you want to resume this ad on Facebook?',
+    intelligence:'Ad Intelligence Engine', intelligenceSubtitle:'A multi-signal analysis of efficiency, funnel behavior, trend, volatility, and data quality before issuing a diagnosis.',
+    diagnosis:'Final diagnosis', confidence:'Confidence', signals:'Detected signals', critical:'Critical', warning:'Warning', positive:'Positive', neutral:'Monitor',
+    rootCause:'Likely root cause', actionPlan:'Action plan', evidence:'Evidence', dataQuality:'Data quality',
+    scale:'Scale candidate', hold:'Hold with monitoring', optimize:'Needs optimization', stop:'Pause/review', insufficient:'Insufficient data',
+    funnel:'Funnel', trend:'Trend', volatility:'Volatility', efficiency:'Efficiency', fatigue:'Fatigue/saturation signal',
+    noStrongIssue:'No strong issue was detected in the available data. Continue with monitoring.',
+    spendNoPurchase:'Spend without recorded purchases', clickLeak:'High leakage from clicks to purchases', cartLeak:'Add-to-cart without completed purchase',
+    cpmHigh:'Relatively high CPM', ctrLow:'Relatively low CTR', cpcHigh:'Relatively high CPC', postClick:'The issue appears after the click rather than in acquisition',
+    trendDown:'Overall trend is deteriorating', trendUp:'Overall trend is improving', unstable:'Performance is volatile', stable:'Performance is stable',
+    budgetAction:'Suggested budget decision', doNotScale:'Do not scale yet', scaleCarefully:'Gradual scaling is possible with monitoring',
+    investigateCreative:'Test creative/message', investigateOffer:'Review offer and post-click experience', reviewAuctionAction:'Review auction, audience, and cost',
+    keep:'Keep the current setup', collect:'Collect more data before deciding',
+    dataLimited:'The current sample is limited; treat conclusions as preliminary.', dataStrong:'The sample is reasonably sufficient for an initial diagnosis.',
+    currentVsPeriod:'Within-period comparison', dailyPattern:'Daily pattern', anomaly:'Anomaly',
+    bestDay:'Best day', worstDay:'Weakest day'
+  }
+};
+function t(k){ return I18N[SYSTEM_LANG][k] ?? k; }
+function applySystemLanguage(){
+  document.documentElement.lang=SYSTEM_LANG; document.documentElement.dir=SYSTEM_LANG==='ar'?'rtl':'ltr';
+  document.title=t('title'); const lb=document.getElementById('systemLangBadge'); if(lb) lb.textContent=SYSTEM_LANG==='ar'?'العربية':'English';
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ const k=el.getAttribute('data-i18n'); if(k.includes('.')) el.textContent=t(k.split('.').pop()); });
+  const nav=document.getElementById('bottomNav'); if(nav) nav.setAttribute('aria-label',SYSTEM_LANG==='ar'?'التنقل الرئيسي':'Primary navigation');
+  const back=document.querySelector('.back-link'); if(back){ const txt=back.lastChild; if(txt) txt.textContent=' '+t('back'); }
+}
+function esc(v){ return String(v??'').replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m])); }
+function smartCommentState(c){
+  const msg=String(c?.message||'').trim();
+  const replies=(c?.comments?.data||[]).filter(x=>String(x?.message||'').trim());
+  if(!msg) return {level:'neutral',label:t('unavailable')};
+  if(replies.length) return {level:'good',label:t('replyDone')};
+  return {level:'mid',label:SYSTEM_LANG==='ar'?'يحتاج إلى رد':'Reply recommended'};
+}
+
 /* ---------------- Init ---------------- */
 async function init(){
   try{
@@ -422,7 +511,7 @@ async function init(){
       until: qs.get('until')
     };
     if (!PARAMS.adId || !PARAMS.actId || !PARAMS.token){
-      setTopStatus('لا يوجد إعلان محدد — يُرجى العودة إلى صفحة تحليل البيانات واختيار إعلان.', true);
+      setTopStatus('مفيش إعلان محدد — ارجع لصفحة تحليل البيانات واختار إعلان.', true);
       return;
     }
     if (!PARAMS.since || !PARAMS.until){
@@ -433,16 +522,16 @@ async function init(){
     }
 
     await loadAdDetails();
-    document.getElementById('lastUpdate').textContent = 'الآن';
+    document.getElementById('lastUpdate').textContent = t('now');
   } catch(err){
-    setTopStatus('خطأ أثناء تحميل تفاصيل الإعلان: ' + err.message, true);
+    setTopStatus(t('errorLoad') + err.message, true);
   }
 }
 
 async function loadAdDetails(){
-  setTopStatus('جاري تحميل بيانات الإعلان...');
+  setTopStatus(t('loading'));
   const timeRange = JSON.stringify({ since: PARAMS.since, until: PARAMS.until });
-  const adFields = 'id,name,status,effective_status,adset_id,campaign_id,created_time,creative{name,thumbnail_url,image_url,effective_object_story_id}';
+  const adFields = 'id,name,status,effective_status,adset_id,campaign_id,created_time,creative{name,thumbnail_url,image_url}';
   const insightFields = 'impressions,reach,clicks,spend,ctr,cpc,cpm,conversions,actions,action_values,quality_ranking,engagement_rate_ranking,conversion_rate_ranking';
 
   const [adRes, insRes, dailyRes] = await Promise.all([
@@ -465,14 +554,101 @@ async function loadAdDetails(){
   renderAll();
 }
 
+/* ---------------- Deep ad intelligence: frontend-only, multi-signal ---------------- */
+function arrAction(ins, pattern){
+  return Array.isArray(ins?.actions) ? num((ins.actions.find(a=>pattern.test(String(a.action_type||'')))||{}).value) : 0;
+}
+function percentileVals(vals,p){
+  const a=vals.filter(Number.isFinite).sort((x,y)=>x-y); if(!a.length)return 0;
+  const i=(a.length-1)*p, lo=Math.floor(i), hi=Math.ceil(i); return a[lo]+(a[hi]-a[lo])*(i-lo);
+}
+function medianVals(vals){return percentileVals(vals,.5)}
+function dailySeries(){
+  return (DAILY||[]).map(d=>({date:d.date_start,spend:num(d.spend),purchases:getPurchases(d.actions,d.conversions),clicks:num(d.clicks),impressions:num(d.impressions),revenue:getRevenue(d.action_values)}));
+}
+function smartAdIntelligence(){
+  const ins=INS, days=dailySeries();
+  if(!ins) return {confidence:0,verdict:t('insufficient'),desc:t('insufficient'),signals:[],actions:[t('collect')],metrics:{},bestDay:null,worstDay:null};
+  const spend=num(ins.spend), clicks=num(ins.clicks), impressions=num(ins.impressions), purchases=getPurchases(ins.actions,ins.conversions), revenue=getRevenue(ins.action_values);
+  const ctr=num(ins.ctr), cpm=num(ins.cpm), cpc=num(ins.cpc), roas=spend?revenue/spend:0, cr=clicks?100*purchases/clicks:0;
+  const carts=arrAction(ins,/add_to_cart/i), lpv=arrAction(ins,/landing_page_view/i)||arrAction(ins,/viewcontent/i);
+  const signals=[], actions=[];
+  const add=(level,title,detail)=>signals.push({level,title,detail});
+  const purchaseDays=days.filter(d=>d.purchases>0), activeDays=days.filter(d=>d.spend>0);
+  const dailyCpa=purchaseDays.map(d=>d.spend/d.purchases), dailyRoas=activeDays.filter(d=>d.revenue>0).map(d=>d.revenue/d.spend);
+  const cpa= purchases>0 ? spend/purchases : 0;
+  const medianCpa=medianVals(dailyCpa), medianRoas=medianVals(dailyRoas);
+  const first=days.slice(0,Math.max(1,Math.floor(days.length/2))), second=days.slice(Math.max(1,Math.floor(days.length/2)));
+  const avg=(a,k)=>{const v=a.map(x=>x[k]).filter(Number.isFinite);return v.length?v.reduce((x,y)=>x+y,0)/v.length:0};
+  const firstSpend=avg(first,'spend'), secondSpend=avg(second,'spend'), firstPurch=avg(first,'purchases'), secondPurch=avg(second,'purchases');
+  const firstCpa=firstPurch?firstSpend/firstPurch:0, secondCpa=secondPurch?secondSpend/secondPurch:0;
+  const firstCr=avg(first,'clicks')?100*avg(first,'purchases')/avg(first,'clicks'):0, secondCr=avg(second,'clicks')?100*avg(second,'purchases')/avg(second,'clicks'):0;
+  const dailySpend=activeDays.map(d=>d.spend), spendQ90=percentileVals(dailySpend,.9);
+  const highSpendDays=activeDays.filter(d=>spendQ90&&d.spend>spendQ90*1.5);
+  const dataPoints=(impressions>0?1:0)+(clicks>0?1:0)+(spend>0?1:0)+(purchases>0?1:0)+(days.length>1?1:0);
+  const confidence=Math.round(Math.min(96,38+dataPoints*9+Math.min(15,Math.log10(Math.max(1,impressions))*2)));
+  if(spend>0 && purchases===0){
+    add('bad',t('spendNoPurchase'),t('spendNoPurchase')+'.');
+    actions.push(t('collect'));
+  }
+  if(clicks>=20 && purchases>0 && cr<0.7) add('bad',t('clickLeak'),`${clicks.toFixed(0)} clicks مقابل ${purchases.toFixed(0)} purchases (${cr.toFixed(2)}%).`);
+  if(carts>=3 && purchases>0 && carts>purchases*3) add('bad',t('cartLeak'),`${carts.toFixed(0)} add-to-cart مقابل ${purchases.toFixed(0)} purchases.`);
+  if(carts>=3 && purchases===0) add('bad',t('cartLeak'),`${carts.toFixed(0)} add-to-cart دون شراء مسجل.`);
+  if(cpm>0 && ctr>0 && cpm>=20 && ctr>=1.5) add('mid',t('cpmHigh'),'الجذب موجود لكن تكلفة الظهور مرتفعة؛ راجع المزاد والجمهور قبل زيادة الإنفاق.');
+  if(ctr>0 && ctr<0.8) add('bad',t('ctrLow'),`CTR ${ctr.toFixed(2)}%؛ الإشارة الأساسية هنا هي ضعف جذب الانتباه.`);
+  if(cpc>0 && cpc>=1.2) add('mid',t('cpcHigh'),`CPC ${money(cpc)}؛ التكلفة لكل نقرة مرتفعة نسبيًا.`);
+  if(lpv>0 && clicks>=20 && lpv/clicks<0.55) add('bad',t('postClick'),`Landing/Page View ${lpv.toFixed(0)} من ${clicks.toFixed(0)} clicks؛ يوجد فقد كبير بعد النقر.`);
+  if(firstCpa>0 && secondCpa>0 && secondCpa>firstCpa*1.35 && purchases>=4) add('bad',t('trendDown'),`CPA انتقل من ${money(firstCpa)} إلى ${money(secondCpa)} في النصف الأحدث من الفترة.`);
+  else if(firstCpa>0 && secondCpa>0 && secondCpa<firstCpa*.75 && purchases>=4) add('good',t('trendUp'),`CPA تحسن من ${money(firstCpa)} إلى ${money(secondCpa)} في النصف الأحدث.`);
+  if(firstCr>0 && secondCr>0 && secondCr<firstCr*.65 && clicks>=30) add('bad',t('trendDown'),`معدل التحويل من النقرات انخفض من ${firstCr.toFixed(2)}% إلى ${secondCr.toFixed(2)}%.`);
+  const dayCpa=days.filter(d=>d.purchases>0).map(d=>d.spend/d.purchases);
+  if(dayCpa.length>=4 && medianCpa>0 && Math.max(...dayCpa)>medianCpa*2.2) add('mid',t('unstable'),'هناك أيام بتكلفة شراء أعلى بكثير من المستوى المعتاد.');
+  if(highSpendDays.length>=1 && purchases===0) add('bad',t('anomaly'),`${highSpendDays.length} day(s) showed unusually high spend without a purchase.`);
+  const fatigue = secondCr>0 && firstCr>0 && secondCr<firstCr*.75 && ctr>0 && cpm>0;
+  if(fatigue) add('mid',t('fatigue'),'الهبوط المتأخر في التحويل قد يشير إلى تشبع أو إرهاق في الرسالة/الجمهور.');
+  if(roas>0 && roas>=2 && (!secondCpa || secondCpa<=medianCpa*1.1) && !signals.some(x=>x.level==='bad')) add('good',t('scale'),`ROAS ${roas.toFixed(2)}x مع غياب إشارة سلبية قوية.`);
+  if(!signals.length) add('good',t('noStrongIssue'),t('keep'));
+
+  const badCount=signals.filter(x=>x.level==='bad').length, midCount=signals.filter(x=>x.level==='mid').length;
+  let verdict, desc;
+  if(!dataPoints || impressions<100){ verdict=t('insufficient'); desc=t('dataLimited'); }
+  else if(badCount>=2 || (badCount>=1 && spend>0 && purchases===0)){ verdict=t('stop'); desc=SYSTEM_LANG==='ar'?'هناك أكثر من إشارة سلبية مترابطة؛ لا تتعامل مع المشكلة برفع الميزانية قبل معالجة السبب.':'Multiple negative signals are connected; do not scale before addressing the root cause.'; }
+  else if(badCount===1 || midCount>=2){ verdict=t('optimize'); desc=SYSTEM_LANG==='ar'?'الأداء قابل للتحسين، لكن السبب يحتاج اختبارًا محددًا بدل تعديل عشوائي.':'The ad needs targeted optimization rather than a broad or random change.'; }
+  else if(signals.some(x=>x.level==='good')){ verdict=t('scale'); desc=SYSTEM_LANG==='ar'?'توجد مؤشرات إيجابية، لكن أي توسع يجب أن يبقى تدريجيًا مع مراقبة تكلفة الشراء والتحويل.':'Positive signals exist; any scaling should remain gradual while monitoring CPA and conversion.'; }
+  else { verdict=t('hold'); desc=t('keep'); }
+
+  if(badCount>=1) actions.push(t('investigateCreative'));
+  if(clicks>=20 && (carts>purchases*2 || (lpv>0 && lpv/clicks<.7))) actions.push(t('investigateOffer'));
+  if(cpm>=20) actions.push(t('reviewAuctionAction'));
+  if(!badCount && roas>=2) actions.push(t('scaleCarefully'));
+  if(!actions.length) actions.push(t('keep'));
+  const best=activeDays.slice().sort((a,b)=>(b.revenue-b.spend)-(a.revenue-a.spend))[0]||null;
+  const worst=activeDays.slice().sort((a,b)=>(a.revenue-a.spend)-(b.revenue-b.spend))[0]||null;
+  return {confidence,verdict,desc,signals,actions:[...new Set(actions)],bestDay:best,worstDay:worst,metrics:{spend,revenue,purchases,clicks,impressions,ctr,cpm,cpc,roas,cr,cpa,carts,lpv,medianCpa,medianRoas},trend:{firstCpa,secondCpa,firstCr,secondCr}};
+}
+function renderIntelligence(){
+  const el=document.getElementById('intelligenceWrap'); if(!el)return;
+  const x=smartAdIntelligence(), m=x.metrics||{};
+  const level=x.signals?.some(s=>s.level==='bad')?'bad':(x.signals?.some(s=>s.level==='mid')?'mid':'good');
+  const metric=(k,v)=>`<div class="intel-mini"><div class="k">${k}</div><div class="v">${v}</div></div>`;
+  el.innerHTML=`<section class="intel-card">
+    <div class="intel-head"><div><div class="intel-title">${t('intelligence')}</div><div class="intel-sub">${t('intelligenceSubtitle')}</div></div><div class="intel-confidence"><div class="n">${x.confidence}%</div><div class="l">${t('confidence')}</div></div></div>
+    <div class="intel-verdict"><div class="label">${x.verdict}</div><div class="desc">${x.desc}</div></div>
+    <div class="intel-grid">${metric(t('efficiency'),m.roas?`ROAS ${m.roas.toFixed(2)}x`:'—')}${metric(t('funnel'),m.clicks?`${m.purchases.toFixed(0)} / ${m.clicks.toFixed(0)}`:'—')}${metric(t('trend'),x.trend?.secondCpa&&x.trend?.firstCpa?`${money(x.trend.firstCpa)} → ${money(x.trend.secondCpa)}`:'—')}${metric(t('volatility'),x.signals?.some(s=>s.title===t('unstable'))?t('unstable'):t('stable'))}</div>
+    <div class="intel-block"><h4>${t('signals')}</h4><div class="intel-list">${(x.signals||[]).map(s=>`<div class="intel-item ${s.level}"><i class="intel-dot"></i><div><strong>${esc(s.title)}</strong><span>${esc(s.detail)}</span></div></div>`).join('')}</div></div>
+    <div class="intel-block"><h4>${t('actionPlan')}</h4><div class="intel-actions">${(x.actions||[]).map(a=>`<div class="intel-action">${esc(a)}</div>`).join('')}</div></div>
+    ${x.bestDay||x.worstDay?`<div class="intel-block"><h4>${t('dailyPattern')}</h4><div class="intel-grid">${x.bestDay?metric(t('bestDay'),`${x.bestDay.date} · ${money(x.bestDay.spend)}`):''}${x.worstDay?metric(t('worstDay'),`${x.worstDay.date} · ${money(x.worstDay.spend)}`):''}</div></div>`:''}
+  </section>`;
+}
+
 function renderAll(){
   renderHeader();
+  renderIntelligence();
   renderChart();
   renderSummary();
   renderMetrics();
   renderQuality();
   renderActions();
-  loadComments();
 }
 
 function metricBoxes(ins){
@@ -482,11 +658,11 @@ function metricBoxes(ins){
 function getVerdict(ctrRate, cpmRate, cpcRate){
   const scores = { good:2, mid:1, bad:0 };
   const total = scores[ctrRate] + scores[cpmRate] + scores[cpcRate];
-  if (ctrRate === 'good' && cpmRate === 'good' && cpcRate === 'good') return { level:'good', label:'الكرييتف ممتاز' };
-  if (ctrRate === 'bad') return { level:'bad', label:'مشكلة في الكرييتف' };
-  if (total >= 4) return { level:'good', label:'أداء جيد' };
-  if (cpcRate === 'bad' || cpmRate === 'bad') return { level:'mid', label:'الميزانية/المزاد بحاجة إلى مراجعة' };
-  return { level:'mid', label:'أداء متوسط' };
+  if (ctrRate === 'good' && cpmRate === 'good' && cpcRate === 'good') return { level:'good', label:t('creativeExcellent') };
+  if (ctrRate === 'bad') return { level:'bad', label:t('creativeProblem') };
+  if (total >= 4) return { level:'good', label:t('goodPerformance') };
+  if (cpcRate === 'bad' || cpmRate === 'bad') return { level:'mid', label:t('reviewAuction') };
+  return { level:'mid', label:t('averagePerformance') };
 }
 function badgeClass(level){ return level === 'good' ? 'verdict-good' : (level === 'mid' ? 'verdict-mid' : 'verdict-bad'); }
 function iconImage(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`; }
@@ -504,9 +680,9 @@ function renderHeader(){
         <div class="ad-head-title">${AD.name}</div>
         ${creative.name && creative.name !== AD.name ? `<div class="ad-head-creative-name">${creative.name}</div>` : ''}
         <div class="ad-head-sub">
-          <span class="status-dot ${AD.status==='ACTIVE'?'on':'off'}"></span>${AD.status === 'ACTIVE' ? 'نشط' : 'متوقف'}
+          <span class="status-dot ${AD.status==='ACTIVE'?'on':'off'}"></span>${AD.status === 'ACTIVE' ? t('active') : t('paused')}
           ${PARAMS.accLabel ? `<span class="acc-tag">${PARAMS.accLabel}</span>` : ''}
-          <span>· الفترة: ${PARAMS.since} إلى ${PARAMS.until}</span>
+          <span>· ${t('period')}: ${PARAMS.since} → ${PARAMS.until}</span>
         </div>
         <div class="verdict-badge ${badgeClass(verdict.level)}">${verdict.label}</div>
       </div>
@@ -624,15 +800,14 @@ function renderMetrics(){
 }
 
 function renderQuality(){
-  const qr = INS ? (RANK_LABELS[INS.conversion_rate_ranking] || RANK_LABELS.UNKNOWN) : RANK_LABELS.UNKNOWN;
-  const qq = INS ? (RANK_LABELS[INS.quality_ranking] || RANK_LABELS.UNKNOWN) : RANK_LABELS.UNKNOWN;
-  const qe = INS ? (RANK_LABELS[INS.engagement_rate_ranking] || RANK_LABELS.UNKNOWN) : RANK_LABELS.UNKNOWN;
+  const rank = code => { const x=INS ? INS[code] : 'UNKNOWN'; const cls=(x==='ABOVE_AVERAGE')?'good':(x==='AVERAGE'||x==='UNKNOWN'?'mid':'bad'); const label=x==='ABOVE_AVERAGE'?t('above'):x==='AVERAGE'?t('average'):x==='UNKNOWN'?t('unavailable'):x==='BELOW_AVERAGE_10'?t('muchBelow'):t('below'); return {cls,label}; };
+  const qr=rank('conversion_rate_ranking'), qq=rank('quality_ranking'), qe=rank('engagement_rate_ranking');
 
   document.getElementById('qualityWrap').innerHTML = `
     <div class="section-title">جودة العميل والأداء<div class="section-line"></div></div>
     <div class="quality-grid">
       <div class="quality-card ${qr.cls}"><div class="qlbl">جودة العميل (معدل التحويل)</div><div class="qval">${qr.label}</div></div>
-      <div class="quality-card ${qq.cls}"><div class="qlbl">جودة الكرييتف</div><div class="qval">${qq.label}</div></div>
+      <div class="quality-card ${qq.cls}"><div class="qlbl">جودة الكريتف</div><div class="qval">${qq.label}</div></div>
       <div class="quality-card ${qe.cls}"><div class="qlbl">معدل التفاعل</div><div class="qval">${qe.label}</div></div>
     </div>
   `;
@@ -641,9 +816,9 @@ function renderQuality(){
 function renderActions(){
   document.getElementById('actionsWrap').innerHTML = `
     <div class="ad-actions">
-      ${AD.adset_id ? `<button class="mini-btn go" onclick="openBudgetModal()">زيادة الميزانية</button>` : ''}
-      <button class="mini-btn ${AD.status==='ACTIVE'?'danger':''}" onclick="toggleStatus()">${AD.status==='ACTIVE'?'إيقاف الإعلان':'تشغيل الإعلان'}</button>
-      ${AD.campaign_id ? `<button class="mini-btn" onclick="openInAdsManager()">فتح في مدير الإعلانات (الاستهداف/الجمهور)</button>` : ''}
+      ${AD.adset_id ? `<button class="mini-btn go" onclick="openBudgetModal()">زوّد الميزانية</button>` : ''}
+      <button class="mini-btn ${AD.status==='ACTIVE'?'danger':''}" onclick="toggleStatus()">${AD.status==='ACTIVE'?'أوقف الإعلان':'شغّل الإعلان'}</button>
+      ${AD.campaign_id ? `<button class="mini-btn" onclick="openInAdsManager()">افتح في مدير الإعلانات (استهداف/جمهور)</button>` : ''}
     </div>
   `;
 }
@@ -651,14 +826,14 @@ function renderActions(){
 /* ---------------- إجراءات حقيقية على فيسبوك — كلها بضغطة زر يدوية من المستخدم ---------------- */
 async function toggleStatus(){
   const newStatus = AD.status === 'ACTIVE' ? 'PAUSED' : 'ACTIVE';
-  const confirmMsg = newStatus === 'PAUSED' ? 'هل تريد بالتأكيد إيقاف هذا الإعلان على فيسبوك؟' : 'هل تريد بالتأكيد تشغيل هذا الإعلان مجددًا على فيسبوك؟';
+  const confirmMsg = newStatus === 'PAUSED' ? 'متأكد إنك عايز توقف ده على فيسبوك؟' : 'متأكد إنك عايز تشغّل ده تاني على فيسبوك؟';
   if (!confirm(confirmMsg)) return;
   try{
     await gpost(AD.id, { status: newStatus, access_token: PARAMS.token });
-    setTopStatus(newStatus === 'PAUSED' ? 'تم إيقاف الإعلان على فيسبوك بنجاح.' : 'تم تشغيل الإعلان على فيسبوك بنجاح.');
+    setTopStatus(newStatus === 'PAUSED' ? 'تم إيقاف الإعلان على فيسبوك.' : 'تم تشغيل الإعلان على فيسبوك.');
     await loadAdDetails();
   } catch(err){
-    alert('حدث خطأ من فيسبوك: ' + err.message);
+    alert('حصل خطأ من فيسبوك: ' + err.message);
   }
 }
 function openInAdsManager(){
@@ -666,9 +841,9 @@ function openInAdsManager(){
   window.open(url, '_blank');
 }
 function openBudgetModal(){
-  if (!ADSET){ alert('تعذّر العثور على بيانات مجموعة الإعلانات هذه.'); return; }
+  if (!ADSET){ alert('معرفتش ألاقي بيانات مجموعة الإعلانات دي.'); return; }
   BUDGET_TARGET = { adsetId: ADSET.id, currentBudget: num(ADSET.daily_budget)/100, name: ADSET.name };
-  document.getElementById('budgetModalSub').textContent = `سيتم تعديل ميزانية "${ADSET.name}" وإرسالها مباشرة إلى فيسبوك فور الضغط على "تنفيذ".`;
+  document.getElementById('budgetModalSub').textContent = `تعديل ميزانية "${ADSET.name}" — هيتبعت مباشرة لفيسبوك بمجرد الضغط على تنفيذ.`;
   document.getElementById('budgetCurrentDisplay').value = money(BUDGET_TARGET.currentBudget) + ' / يوم';
   document.getElementById('budgetMode').value = 'pct20';
   onBudgetModeChange();
@@ -693,131 +868,19 @@ async function submitBudgetChange(){
   else if (mode === 'pct20') newBudget = BUDGET_TARGET.currentBudget * 1.20;
   else if (mode === 'pct50') newBudget = BUDGET_TARGET.currentBudget * 1.50;
   else newBudget = num(document.getElementById('budgetCustomValue').value);
-  if (!newBudget || newBudget <= 0){ alert('الرجاء إدخال قيمة ميزانية صحيحة.'); return; }
+  if (!newBudget || newBudget <= 0){ alert('حط قيمة ميزانية صحيحة.'); return; }
 
   try{
     await gpost(BUDGET_TARGET.adsetId, { daily_budget: Math.round(newBudget * 100), access_token: PARAMS.token });
-    setTopStatus(`تم تعديل ميزانية "${BUDGET_TARGET.name}" إلى ${money(newBudget)} يوميًا على فيسبوك بنجاح.`);
+    setTopStatus(`تم تعديل ميزانية "${BUDGET_TARGET.name}" إلى ${money(newBudget)}/يوم على فيسبوك.`);
     closeBudgetModal();
     await loadAdDetails();
   } catch(err){
-    alert('حدث خطأ من فيسبوك أثناء تعديل الميزانية: ' + err.message);
+    alert('حصل خطأ من فيسبوك وإحنا بنعدّل الميزانية: ' + err.message);
   }
 }
 
-/* ---------------- التعليقات + الرد التلقائي على المنشور الإعلاني (يعمل في الخلفية عبر السيرفر) ---------------- */
-let COMMENTS = [];
-let PAGE_TOKEN = null;
-let AUTOREPLY = { enabled: false, message: 'تم الرد عليكم عبر الرسائل الخاصة.' };
-
-async function getPageToken(pageId){
-  if (PAGE_TOKEN) return PAGE_TOKEN;
-  const r = await gget(pageId, { fields:'access_token', access_token: PARAMS.token });
-  PAGE_TOKEN = r.access_token || null;
-  return PAGE_TOKEN;
-}
-
-async function loadAutoReplySetting(){
-  const { data } = await sbClient.from('ad_autoreply').select('*').eq('user_id', CURRENT_USER.id).eq('ad_id', AD.id).maybeSingle();
-  if (data) AUTOREPLY = { enabled: !!data.enabled, message: data.message || AUTOREPLY.message };
-}
-
-async function loadComments(){
-  const storyId = AD && AD.creative ? AD.creative.effective_object_story_id : null;
-  const wrap = document.getElementById('commentsWrap');
-  if (!storyId){ wrap.innerHTML = ''; return; }
-
-  await loadAutoReplySetting();
-
-  try{
-    const res = await gget(`${storyId}/comments`, { fields:'id,message,from,created_time,comments.limit(20){from,message}', filter:'stream', order:'chronological', limit:50, access_token: PARAMS.token });
-    COMMENTS = res.data || [];
-  } catch(err){
-    wrap.innerHTML = `<div class="section-title">التعليقات<div class="section-line"></div></div><div class="placeholder-box">تعذّر تحميل التعليقات: ${err.message}</div>`;
-    return;
-  }
-
-  renderComments();
-}
-
-function renderComments(){
-  const wrap = document.getElementById('commentsWrap');
-  const on = AUTOREPLY.enabled;
-  const msg = AUTOREPLY.message;
-
-  const rows = COMMENTS.length
-    ? COMMENTS.map(c => {
-        const replied = (c.comments && c.comments.data || []).some(r => r.message === msg);
-        return `<div class="comment-row">
-          <div class="comment-head"><span class="comment-name">${(c.from && c.from.name) || 'مستخدم'}</span><span class="comment-time">${new Date(c.created_time).toLocaleString('ar-EG')}</span></div>
-          <div class="comment-msg">${(c.message || '').replace(/</g,'&lt;')}</div>
-          ${replied ? `<span class="comment-reply-tag">✓ تم الرد تلقائيًا</span>` : `<button class="mini-btn" style="margin-top:7px;font-size:11px;padding:5px 10px;" onclick="manualReplyPrompt('${c.id}')">رد يدوي</button>`}
-        </div>`;
-      }).join('')
-    : `<div class="placeholder-box">لا توجد تعليقات على هذا الإعلان حتى الآن.</div>`;
-
-  wrap.innerHTML = `
-    <div class="section-title">التعليقات على الإعلان<div class="section-line"></div></div>
-    <div class="comments-card">
-      <div class="autoreply-bar">
-        <label class="switch"><input type="checkbox" ${on?'checked':''} onchange="toggleAutoReply(this.checked)"><span class="slider"></span></label>
-        <div class="autoreply-msg"><input type="text" id="autoReplyMsgInput" value="${msg}" onchange="saveAutoReplyMsg(this.value)" placeholder="نص الرد التلقائي"></div>
-      </div>
-      <div class="autoreply-note">عند التفعيل، يُنشر هذا الرد تلقائيًا أسفل أي تعليق جديد على هذا الإعلان تحديدًا، دون إرسال أي رسالة خاصة فعليًا — ويعمل ذلك عبر السيرفر حتى لو كانت هذه الصفحة مغلقة، بشرط إتمام إعداد الـ Webhook مرة واحدة (راجع التعليمات المرفقة).</div>
-      <div style="margin-top:14px;">${rows}</div>
-    </div>`;
-}
-
-async function toggleAutoReply(checked){
-  const storyId = AD && AD.creative ? AD.creative.effective_object_story_id : null;
-  if (!storyId){ alert('تعذّر تحديد المنشور المرتبط بهذا الإعلان.'); return; }
-  const [pageId, postId] = storyId.split('_');
-
-  if (checked){
-    try{
-      const pageToken = await getPageToken(pageId);
-      // اشتراك الصفحة في استقبال أحداث التعليقات — إجراء آمن ويمكن تكراره دون أي أثر جانبي
-      await gpost(`${pageId}/subscribed_apps`, { subscribed_fields: 'feed', access_token: pageToken });
-      await sbClient.from('ad_autoreply').upsert({ user_id: CURRENT_USER.id, ad_id: AD.id, page_id: pageId, post_id: postId, enabled: true, message: AUTOREPLY.message, updated_at: new Date().toISOString() }, { onConflict: 'user_id,ad_id' });
-      AUTOREPLY.enabled = true;
-      setTopStatus('تم تفعيل الرد التلقائي، وسيعمل تلقائيًا في الخلفية بمجرد إتمام إعداد الـ Webhook.');
-    } catch(err){
-      alert('حدث خطأ أثناء تفعيل الرد التلقائي: ' + err.message);
-      renderComments();
-      return;
-    }
-  } else {
-    await sbClient.from('ad_autoreply').update({ enabled: false, updated_at: new Date().toISOString() }).eq('user_id', CURRENT_USER.id).eq('ad_id', AD.id);
-    AUTOREPLY.enabled = false;
-  }
-  renderComments();
-}
-
-async function saveAutoReplyMsg(v){
-  const val = (v || '').trim() || 'تم الرد عليكم عبر الرسائل الخاصة.';
-  AUTOREPLY.message = val;
-  const storyId = AD && AD.creative ? AD.creative.effective_object_story_id : null;
-  const [pageId, postId] = storyId ? storyId.split('_') : [null, null];
-  await sbClient.from('ad_autoreply').upsert({ user_id: CURRENT_USER.id, ad_id: AD.id, page_id: pageId, post_id: postId, enabled: AUTOREPLY.enabled, message: val, updated_at: new Date().toISOString() }, { onConflict: 'user_id,ad_id' });
-  renderComments();
-}
-
-async function manualReplyPrompt(commentId){
-  const text = prompt('اكتب نص الرد على هذا التعليق:');
-  if (!text || !text.trim()) return;
-  const storyId = AD && AD.creative ? AD.creative.effective_object_story_id : null;
-  const pageId = storyId ? storyId.split('_')[0] : null;
-  if (!pageId){ alert('تعذّر تحديد الصفحة المرتبطة بهذا الإعلان.'); return; }
-  try{
-    const pageToken = await getPageToken(pageId);
-    await gpost(`${commentId}/comments`, { message: text.trim(), access_token: pageToken });
-    setTopStatus('تم إرسال الرد على التعليق بنجاح.');
-    await loadComments();
-  } catch(err){
-    alert('حدث خطأ من فيسبوك أثناء إرسال الرد: ' + err.message);
-  }
-}
-
+applySystemLanguage();
 init();
 </script>
 
