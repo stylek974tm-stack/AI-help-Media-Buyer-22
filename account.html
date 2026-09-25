@@ -2,1970 +2,598 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>ربط الحسابات الإعلانية</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ربط الحسابات الإعلانية - Media Buyer Hub</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
 :root{
-  --bg:#090b0f;
-  --bg-soft:#0d1016;
-  --surface:#12151c;
-  --surface-2:#171b24;
-  --surface-3:#1c2029;
-  --border:#20242e;
-  --border-soft:#191c24;
-  --text:#eef1f6;
-  --text-dim:#98a2b3;
-  --text-faint:#5c6474;
-  --accent:#4f7dfb;
-  --accent-2:#22d3ee;
-  --accent-soft:rgba(79,125,251,.14);
-  --good:#22c55e;
-  --bad:#f43f5e;
-  --mid:#eab308;
-  --radius:16px;
-  --radius-sm:10px;
-  --font-ui:'Cairo',system-ui,sans-serif;
-  --font-num:'JetBrains Mono','Cairo',monospace;
+  --bg:#090b0f;--bg-soft:#0d1016;
+  --surface:#12151c;--surface-2:#171b24;--surface-3:#1c2029;
+  --border:#20242e;--border-soft:#191c24;
+  --text:#eef1f6;--text-dim:#98a2b3;--text-faint:#5c6474;
+  --accent:#4f7dfb;--accent-2:#22d3ee;--accent-soft:rgba(79,125,251,.14);
+  --good:#22c55e;--bad:#f43f5e;--mid:#eab308;
+  --radius:16px;--radius-sm:10px;
+  --font-ui:'Cairo',system-ui,sans-serif;--font-num:'JetBrains Mono','Cairo',monospace;
 }
-
-*{
-  box-sizing:border-box;
+html[data-theme="light"]{
+  --bg:#f3f7f9;--bg-soft:#eaf2f5;--surface:#fff;--surface-2:#eef4f7;--surface-3:#e5eef2;
+  --border:#cfe0e7;--border-soft:#dce9ee;--text:#0b2028;--text-dim:#526c76;--text-faint:#78909a;
+  --accent:#3970e8;--accent-2:#089db8;--accent-soft:rgba(57,112,232,.12);
 }
-
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;min-height:100%;background:var(--bg)}
 body{
-  font-family:var(--font-ui);
-  background:var(--bg);
-  color:var(--text);
-  margin:0;
+  font-family:var(--font-ui);color:var(--text);background:var(--bg);
+  min-height:100vh;min-height:100dvh;-webkit-font-smoothing:antialiased;
+  transition:background .2s,color .2s;
 }
-
-.content{
-  padding:20px clamp(14px,3vw,28px) 60px;
-  max-width:900px;
-  margin:0 auto;
-}
-
-h1{
-  font-size:19px;
-  color:#fff;
-  margin-top:0;
-}
-
-.page-toolbar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:18px;
-}
-
-.user-chip{
-  font-size:12px;
-  color:#888;
-}
-
-.logout-btn{
-  font-size:12px;
-  background:#241417;
-  color:#e74c3c;
-  border:1px solid #e74c3c;
-  border-radius:8px;
-  padding:6px 12px;
-  cursor:pointer;
-}
-
-.form-card{
-  background:#1b1e26;
-  border-radius:14px;
-  padding:20px;
-  margin-bottom:22px;
-  max-width:520px;
-}
-
-label{
-  display:block;
-  margin-top:12px;
-  margin-bottom:4px;
-  font-size:12px;
-  color:#aaa;
-}
-
-input,
-select{
-  width:100%;
-  padding:10px;
-  border-radius:8px;
-  border:1px solid #333;
-  background:#10121a;
-  color:#fff;
-  font-size:14px;
-}
-
-button.primary{
-  margin-top:16px;
-  width:100%;
-  padding:11px;
-  background:#4da3ff;
-  border:none;
-  border-radius:8px;
-  font-size:14px;
-  font-weight:bold;
-  color:#0f1115;
-  cursor:pointer;
-  transition:.15s;
-}
-
-button.primary:hover{
-  filter:brightness(1.08);
-}
-
-button.primary:disabled{
-  opacity:.6;
-  cursor:not-allowed;
-}
-
-.status{
-  text-align:center;
-  margin-top:10px;
-  font-size:13px;
-  color:#f0c040;
-  white-space:pre-wrap;
-}
-
-.status.error{
-  color:#ff6a6a;
-}
-
-.status.ok{
-  color:#2ecc71;
-}
-
-.security-note{
-  background:#1a1512;
-  border:1px solid #4a3418;
-  border-radius:10px;
-  padding:12px 14px;
-  font-size:12px;
-  color:#e0b568;
-  line-height:1.8;
-  margin-bottom:20px;
-  max-width:520px;
-}
-
-.meta-card{
-  background:linear-gradient(
-    145deg,
-    rgba(79,125,251,.10),
-    rgba(34,211,238,.04)
-  );
-  border:1px solid rgba(79,125,251,.25);
-  border-radius:14px;
-  padding:20px;
-  margin-bottom:22px;
-  max-width:520px;
-}
-
-.meta-title{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-bottom:8px;
-}
-
-.meta-icon{
-  width:38px;
-  height:38px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:10px;
-  background:#1877f2;
-  color:#fff;
-  font-size:20px;
-  font-weight:800;
-}
-
-.meta-title b{
-  font-size:15px;
-  color:#fff;
-}
-
-.meta-description{
-  color:#929aaa;
-  font-size:12px;
-  line-height:1.8;
-  margin-bottom:12px;
-}
-
-.conn-card{
-  background:#171a22;
-  border:1px solid #262a34;
-  border-radius:12px;
-  padding:14px 16px;
-  margin-bottom:12px;
-  max-width:520px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-  flex-wrap:wrap;
-}
-
-.conn-info b{
-  color:#fff;
-  font-size:14px;
-}
-
-.conn-info .sub{
-  color:#888;
-  font-size:12px;
-  margin-top:3px;
-}
-
-.del-btn{
-  font-size:12px;
-  border:1px solid #e74c3c;
-  color:#e74c3c;
-  background:transparent;
-  border-radius:8px;
-  padding:6px 10px;
-  cursor:pointer;
-}
-
-.platform-icon{
-  font-size:18px;
-  margin-left:6px;
-}
+button,input,select{font:inherit}
+button{cursor:pointer}
+a{color:inherit}
+::selection{background:var(--accent-soft);color:var(--text)}
 
 .topbar{
-  position:sticky;
-  top:0;
-  z-index:120;
-  display:flex;
-  align-items:center;
-  gap:12px;
-  padding:12px clamp(14px,3vw,28px);
-  background:rgba(9,11,15,.86);
-  backdrop-filter:blur(10px);
+  position:sticky;top:0;z-index:20;
+  min-height:62px;padding:10px max(16px,env(safe-area-inset-left)) 10px max(16px,env(safe-area-inset-right));
+  display:flex;align-items:center;justify-content:center;
+  background:color-mix(in srgb,var(--bg) 88%,transparent);
   border-bottom:1px solid var(--border-soft);
+  backdrop-filter:blur(14px);
+}
+.brand{font-size:16px;font-weight:800;letter-spacing:.2px}
+.brand span{color:var(--accent-2)}
+
+.content{
+  width:min(900px,100%);margin:0 auto;
+  padding:20px 16px calc(36px + env(safe-area-inset-bottom));
+}
+.page-head{margin-bottom:18px}
+.page-head h1{margin:0;font-size:21px;font-weight:800}
+.page-head p{margin:6px 0 0;color:var(--text-dim);font-size:12px;line-height:1.8}
+
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:18px;margin-bottom:16px;
+  box-shadow:0 12px 35px rgba(0,0,0,.10);
+}
+.card-title{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.card-title b{font-size:15px}
+.meta-icon{
+  width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
+  background:#1877f2;color:#fff;font-size:19px;font-weight:800;
+}
+.description{color:var(--text-dim);font-size:12px;line-height:1.9;margin:0 0 14px}
+
+.primary{
+  width:100%;border:0;border-radius:11px;padding:12px 14px;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  color:#061016;font-weight:800;transition:.18s;
+}
+.primary:hover{filter:brightness(1.07);transform:translateY(-1px)}
+.primary:disabled{opacity:.6;cursor:not-allowed;transform:none}
+
+.security{
+  border:1px solid color-mix(in srgb,var(--mid) 28%,var(--border));
+  background:color-mix(in srgb,var(--mid) 7%,var(--surface));
+  color:color-mix(in srgb,var(--mid) 70%,var(--text));
+  border-radius:12px;padding:12px 14px;margin-bottom:16px;
+  font-size:12px;line-height:1.9;
 }
 
-.icon-btn{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  width:38px;
-  height:38px;
-  border-radius:11px;
-  flex-shrink:0;
-  background:var(--surface);
-  border:1px solid var(--border);
-  color:var(--text);
-  cursor:pointer;
-  transition:.15s;
-  text-decoration:none;
+.form-grid{display:grid;gap:2px}
+label{display:block;color:var(--text-dim);font-size:12px;margin:10px 0 5px}
+input,select{
+  width:100%;padding:11px 12px;border-radius:10px;
+  border:1px solid var(--border);background:var(--surface-2);color:var(--text);
+  outline:none;transition:.15s;
 }
+input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.status{text-align:center;margin-top:10px;white-space:pre-wrap;font-size:12px;line-height:1.7}
+.status.ok{color:var(--good)}.status.error{color:var(--bad)}.status.warn{color:var(--mid)}
 
-.icon-btn:hover{
-  background:var(--surface-3);
-  border-color:#2c313d;
+.section-title{font-size:15px;margin:22px 2px 10px}
+.connections{display:grid;gap:10px}
+.conn-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:13px;padding:13px 14px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
 }
-
-.icon-btn svg{
-  width:19px;
-  height:19px;
+.conn-info{min-width:0}
+.conn-main{display:flex;align-items:center;gap:8px}
+.platform-icon{font-size:17px}.conn-main b{font-size:13px}
+.sub{color:var(--text-dim);font-size:11px;line-height:1.8;margin-top:3px;word-break:break-word}
+.del-btn{
+  flex:0 0 auto;border:1px solid color-mix(in srgb,var(--bad) 70%,var(--border));
+  color:var(--bad);background:transparent;border-radius:9px;padding:7px 10px;font-size:11px;
 }
+.del-btn:hover{background:color-mix(in srgb,var(--bad) 9%,transparent)}
 
-.brand{
-  font-weight:800;
-  font-size:15px;
-  letter-spacing:.2px;
-  white-space:nowrap;
-  color:var(--text);
-}
-
-.brand span{
-  color:var(--accent-2);
-}
-
-.topbar-spacer{
-  flex:1;
-}
-
-/* Sidebar */
-
-.backdrop{
-  position:fixed;
-  inset:0;
-  background:rgba(4,5,8,.55);
-  backdrop-filter:blur(2px);
-  z-index:180;
-  opacity:0;
-  pointer-events:none;
-  transition:opacity .2s ease;
-}
-
-.backdrop.show{
-  opacity:1;
-  pointer-events:auto;
-}
-
-.sidebar{
-  position:fixed;
-  top:0;
-  bottom:0;
-  right:0;
-  width:min(280px,84vw);
-  background:var(--surface);
-  border-left:1px solid var(--border);
-  padding:20px 14px;
-  z-index:190;
-  overflow-y:auto;
-  transform:translateX(100%);
-  transition:transform .25s cubic-bezier(.4,0,.2,1);
-  box-shadow:-20px 0 60px rgba(0,0,0,.4);
-}
-
-.sidebar.open{
-  transform:translateX(0);
-}
-
-.sidebar-head{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin-bottom:18px;
-  padding:0 4px;
-}
-
-.sidebar-head b{
-  font-size:15px;
-  color:var(--accent-2);
-  letter-spacing:.2px;
-}
-
-.nav-item{
-  display:flex;
-  align-items:center;
-  gap:11px;
-  padding:11px 12px;
-  border-radius:11px;
-  font-size:13.5px;
-  color:var(--text-dim);
-  text-decoration:none;
-  margin-bottom:4px;
-  font-weight:500;
-}
-
-.nav-item svg{
-  width:17px;
-  height:17px;
-  flex-shrink:0;
-  opacity:.85;
-}
-
-.nav-item:hover{
-  background:var(--surface-3);
-  color:var(--text);
-}
-
-.nav-item.active{
-  background:var(--accent-soft);
-  color:#bcd0ff;
-  font-weight:700;
-}
-
-.nav-item.active svg{
-  opacity:1;
-}
-
-.nav-item.disabled{
-  color:#454b57;
-  cursor:not-allowed;
-  pointer-events:none;
-}
-
-.nav-divider{
-  height:1px;
-  background:var(--border-soft);
-  margin:12px 4px;
-}
-
-.nav-tag{
-  margin-right:auto;
-  font-size:10px;
-  background:var(--surface-3);
-  color:var(--text-faint);
-  padding:2px 7px;
-  border-radius:20px;
-}
-
-.sidebar-foot{
-  margin-top:16px;
-  padding:10px 12px;
-  font-size:10.5px;
-  color:var(--text-faint);
-  border-top:1px solid var(--border-soft);
-  line-height:1.7;
+@media (min-width:720px){
+  .content{padding-left:28px;padding-right:28px}
+  .form-card,.meta-card,.security-card{max-width:620px}
 }
 </style>
 </head>
 
 <body>
+<header class="topbar">
+  <div class="brand">Media Buyer <span>Hub</span></div>
+</header>
 
-<!-- TOP BAR -->
-<div class="topbar">
-
-  <button class="icon-btn" id="menuBtn" aria-label="القائمة">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <line x1="4" y1="7" x2="20" y2="7"/>
-      <line x1="4" y1="12" x2="20" y2="12"/>
-      <line x1="4" y1="17" x2="20" y2="17"/>
-    </svg>
-  </button>
-
-  <div class="brand">
-    Media Buyer <span>Hub</span>
+<main class="content">
+  <div class="page-head">
+    <h1 data-i18n="title">ربط الحسابات الإعلانية</h1>
+    <p data-i18n="subtitle">إدارة الحسابات الإعلانية المتصلة بحسابك.</p>
   </div>
 
-  <div class="topbar-spacer"></div>
-
-</div>
-
-
-<!-- BACKDROP -->
-<div class="backdrop" id="backdrop"></div>
-
-
-<!-- SIDEBAR -->
-<aside class="sidebar" id="sidebar">
-
-  <div class="sidebar-head">
-
-    <b>Media Buyer Hub</b>
-
-    <button class="icon-btn" id="closeSidebarBtn" aria-label="إغلاق">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="5" y1="5" x2="19" y2="19"/>
-        <line x1="19" y1="5" x2="5" y2="19"/>
-      </svg>
-    </button>
-
-  </div>
-
-
-  <a class="nav-item" href="index.html">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
-      <polyline points="10 17 15 12 10 7"/>
-      <line x1="15" y1="12" x2="3" y2="12"/>
-    </svg>
-    تسجيل الدخول
-  </a>
-
-
-  <a class="nav-item active" href="account.html">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="3" y="4" width="18" height="16" rx="3"/>
-      <path d="M3 9h18"/>
-    </svg>
-    ربط الحسابات الإعلانية
-  </a>
-
-
-  <a class="nav-item" href="dashboard.html">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M3 3v18h18"/>
-      <path d="M7 15l4-5 3 3 5-7"/>
-    </svg>
-    تحليل البيانات
-  </a>
-
-
-  <a class="nav-item" href="insights.html">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M3 3v18h18"/>
-      <rect x="7" y="12" width="3" height="6"/>
-      <rect x="12" y="8" width="3" height="10"/>
-      <rect x="17" y="4" width="3" height="14"/>
-    </svg>
-    الرسوم البيانية
-  </a>
-
-
-  <a class="nav-item" href="automation-rules.html">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <line x1="4" y1="21" x2="4" y2="14"/>
-      <line x1="4" y1="10" x2="4" y2="3"/>
-      <line x1="12" y1="21" x2="12" y2="12"/>
-      <line x1="12" y1="8" x2="12" y2="3"/>
-      <line x1="20" y1="21" x2="20" y2="16"/>
-      <line x1="20" y1="12" x2="20" y2="3"/>
-      <line x1="1" y1="14" x2="7" y2="14"/>
-      <line x1="9" y1="8" x2="15" y2="8"/>
-      <line x1="17" y1="16" x2="23" y2="16"/>
-    </svg>
-    قواعد الأتمتة
-  </a>
-
-
-  <a class="nav-item" href="team-quality.html">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-      <circle cx="9" cy="7" r="4"/>
-      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-    </svg>
-    أداء الموظفين
-  </a>
-
-
-  <a class="nav-item" href="subscription.html">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="1" y="4" width="22" height="16" rx="2"/>
-      <line x1="1" y1="10" x2="23" y2="10"/>
-    </svg>
-    الاشتراك والدفع
-  </a>
-
-
-  <div class="nav-divider"></div>
-
-
-  <a class="nav-item" href="pricing_calculator.html">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <line x1="19" y1="5" x2="5" y2="19"/>
-      <circle cx="6.5" cy="6.5" r="2.5"/>
-      <circle cx="17.5" cy="17.5" r="2.5"/>
-    </svg>
-    التسعير
-  </a>
-
-
-  <a class="nav-item disabled">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-    </svg>
-    الدعم
-    <span class="nav-tag">قريبًا</span>
-  </a>
-
-
-  <div class="sidebar-foot">
-    جميع البيانات مرتبطة بحسابك ومحمية — لا تتم مشاركتها مع أي طرف تالت.
-  </div>
-
-</aside>
-
-
-<!-- CONTENT -->
-<div class="content">
-
-  <div class="page-toolbar">
-
-    <h1>ربط الحسابات الإعلانية</h1>
-
-    <div>
-
-      <span class="user-chip" id="userChip"></span>
-
-      <button class="logout-btn" id="logoutBtn">
-        تسجيل خروج
-      </button>
-
+  <section class="card">
+    <div class="card-title">
+      <div class="meta-icon">f</div>
+      <b data-i18n="metaTitle">ربط حساب Meta Ads</b>
     </div>
+    <p class="description" data-i18n="metaDesc">
+      اربط حسابك الإعلاني في Meta مباشرة بحسابك في Media Buyer Hub دون الحاجة إلى إعدادات API يدوية.
+    </p>
+    <button class="primary" id="connectMetaBtn" type="button" data-i18n="connectMeta">ربط حساب Meta Ads</button>
+    <div class="status" id="oauthStatus"></div>
+  </section>
 
-  </div>
+  <section class="security">
+    <b data-i18n="securityTitle">ملاحظة أمنية:</b>
+    <span data-i18n="securityText">عند ربط Meta بالطريقة الجديدة، يتم تحويلك إلى Meta للموافقة على الاتصال. لا تشارك Access Token مع أي شخص.</span>
+  </section>
 
+  <section class="card">
+    <div class="form-grid">
+      <label for="platform" data-i18n="platform">المنصة</label>
+      <select id="platform">
+        <option value="facebook">Facebook / Meta</option>
+        <option value="tiktok">TikTok</option>
+        <option value="snapchat">Snapchat</option>
+        <option value="google">Google</option>
+      </select>
 
-  <!-- META CONNECTION -->
-  <div class="meta-card">
+      <label for="adAccountId" data-i18n="adAccount">رقم الحساب الإعلاني</label>
+      <input id="adAccountId" type="text" placeholder="مثال: 775043705559371">
 
-    <div class="meta-title">
+      <label for="pixelId" data-i18n="pixel">رقم البيكسل (اختياري)</label>
+      <input id="pixelId" type="text" placeholder="مثال: 1234567890">
 
-      <div class="meta-icon">
-        f
-      </div>
+      <label for="tokenInput">Access Token</label>
+      <input id="tokenInput" type="password" placeholder="أدخل التوكن هنا">
 
-      <div>
-        <b>ربط حساب Meta Ads</b>
-      </div>
+      <label for="noteInput" data-i18n="note">ملاحظة (اختياري)</label>
+      <input id="noteInput" type="text" placeholder="مثال: حساب المتجر الرئيسي">
 
+      <button class="primary" id="saveBtn" type="button" data-i18n="save">حفظ الاتصال</button>
+      <div class="status" id="status"></div>
     </div>
+  </section>
 
-
-    <div class="meta-description">
-      اربط حسابك الإعلاني في Meta مباشرة بحسابك في Media Buyer Hub.
-      مش محتاج تدخل Access Token أو تعمل إعدادات API يدويًا.
-    </div>
-
-
-    <button
-      class="primary"
-      id="connectMetaBtn"
-      type="button"
-    >
-      ربط حساب Meta Ads
-    </button>
-
-
-    <div
-      class="status"
-      id="oauthStatus"
-    ></div>
-
+  <h2 class="section-title" data-i18n="connected">الحسابات المتصلة</h2>
+  <div class="connections" id="connectionsList">
+    <div class="sub" data-i18n="loading">جاري التحميل...</div>
   </div>
-
-
-  <!-- SECURITY NOTE -->
-  <div class="security-note">
-
-    🔐 <b>ملاحظة أمنية:</b>
-    عند ربط Meta بالطريقة الجديدة، يتم تحويلك إلى Meta للموافقة
-    على الاتصال، ويتم التعامل مع بيانات الاتصال من خلال النظام.
-    لا تشارك Access Token مع أي شخص.
-
-  </div>
-
-
-  <!-- MANUAL CONNECTION -->
-  <div class="form-card">
-
-    <label>المنصة</label>
-
-    <select id="platform">
-
-      <option value="facebook">
-        Facebook / Meta
-      </option>
-
-      <option value="tiktok">
-        TikTok
-      </option>
-
-      <option value="snapchat">
-        Snapchat
-      </option>
-
-      <option value="google">
-        Google
-      </option>
-
-    </select>
-
-
-    <label>
-      رقم الحساب الإعلاني (Ad Account ID)
-    </label>
-
-    <input
-      id="adAccountId"
-      type="text"
-      placeholder="مثال: 775043705559371"
-    >
-
-
-    <label>
-      رقم البيكسل (اختياري - لو معندكش سيبه فاضي)
-    </label>
-
-    <input
-      id="pixelId"
-      type="text"
-      placeholder="مثال: 1234567890"
-    >
-
-
-    <label>
-      Access Token
-    </label>
-
-    <input
-      id="tokenInput"
-      type="password"
-      placeholder="ألصق التوكن هنا"
-    >
-
-
-    <label>
-      ملاحظة (اختياري)
-    </label>
-
-    <input
-      id="noteInput"
-      type="text"
-      placeholder="مثال: حساب المتجر الرئيسي"
-    >
-
-
-    <button
-      class="primary"
-      id="saveBtn"
-      type="button"
-    >
-      حفظ الاتصال
-    </button>
-
-
-    <div
-      class="status"
-      id="status"
-    ></div>
-
-  </div>
-
-
-  <h2 style="font-size:15px;color:#ccc;">
-    الحسابات المتصلة
-  </h2>
-
-
-  <div id="connectionsList">
-    <div style="color:#666;font-size:13px;">
-      جاري التحميل...
-    </div>
-  </div>
-
-</div>
-
+</main>
 
 <script>
 (function(){
+  /* =========================
+     Shared theme / language
+     Uses the same localStorage keys
+     as the Media Buyer Hub settings page.
+  ========================= */
+  const themeKey='mbh_theme';
+  const langKey='mbh_lang';
+
+  const I18N={
+    ar:{
+      title:'ربط الحسابات الإعلانية',
+      subtitle:'إدارة الحسابات الإعلانية المتصلة بحسابك.',
+      metaTitle:'ربط حساب Meta Ads',
+      metaDesc:'اربط حسابك الإعلاني في Meta مباشرة بحسابك في Media Buyer Hub دون الحاجة إلى إعدادات API يدوية.',
+      connectMeta:'ربط حساب Meta Ads',
+      openingMeta:'جاري فتح Meta...',
+      preparingMeta:'جاري تجهيز الاتصال بـ Meta...',
+      securityTitle:'ملاحظة أمنية:',
+      securityText:'عند ربط Meta بالطريقة الجديدة، يتم تحويلك إلى Meta للموافقة على الاتصال. لا تشارك Access Token مع أي شخص.',
+      platform:'المنصة',
+      adAccount:'رقم الحساب الإعلاني (Ad Account ID)',
+      pixel:'رقم البيكسل (اختياري - اتركه فارغًا إذا لم يكن متاحًا)',
+      note:'ملاحظة (اختياري)',
+      save:'حفظ الاتصال',
+      connected:'الحسابات المتصلة',
+      loading:'جاري التحميل...',
+      guest:'زائر تجريبي',
+      sessionError:'انتهت جلسة تسجيل الدخول. سجّل الدخول مرة أخرى.',
+      connectLoading:'جاري تحميل الحساب، حاول مرة أخرى...',
+      metaSuccess:'تم ربط حساب Meta Ads بنجاح.',
+      metaFail:'فشل ربط حساب Meta Ads.',
+      metaError:'خطأ في ربط Meta:\n',
+      missing:'رقم الحساب والتوكن مطلوبان.',
+      saving:'جاري الحفظ...',
+      saved:'تم حفظ الاتصال بنجاح.',
+      loadError:'تعذر تحميل الحسابات: ',
+      none:'لا توجد حسابات متصلة بعد.',
+      deleteConfirm:'هل أنت متأكد من حذف هذا الحساب؟',
+      deleteError:'خطأ: ',
+      unexpected:'حدث خطأ غير متوقع: ',
+      token:'توكن',
+      account:'حساب',
+      pixelShort:'بيكسل',
+      delete:'حذف',
+      tokenPlaceholder:'أدخل التوكن هنا'
+    },
+    en:{
+      title:'Ad Accounts',
+      subtitle:'Manage the advertising accounts connected to your account.',
+      metaTitle:'Connect Meta Ads',
+      metaDesc:'Connect your Meta advertising account directly to Media Buyer Hub without manual API setup.',
+      connectMeta:'Connect Meta Ads',
+      openingMeta:'Opening Meta...',
+      preparingMeta:'Preparing Meta connection...',
+      securityTitle:'Security note:',
+      securityText:'With the new Meta connection flow, you will be redirected to Meta to approve the connection. Never share your Access Token.',
+      platform:'Platform',
+      adAccount:'Ad Account ID',
+      pixel:'Pixel ID (optional)',
+      note:'Note (optional)',
+      save:'Save connection',
+      connected:'Connected accounts',
+      loading:'Loading...',
+      guest:'Demo guest',
+      sessionError:'Your login session has expired. Please sign in again.',
+      connectLoading:'Loading your account, please try again...',
+      metaSuccess:'Meta Ads account connected successfully.',
+      metaFail:'Failed to connect Meta Ads.',
+      metaError:'Meta connection error:\n',
+      missing:'Ad Account ID and token are required.',
+      saving:'Saving...',
+      saved:'Connection saved successfully.',
+      loadError:'Could not load accounts: ',
+      none:'No connected accounts yet.',
+      deleteConfirm:'Are you sure you want to delete this account?',
+      deleteError:'Error: ',
+      unexpected:'Unexpected error: ',
+      token:'Token',
+      account:'Account',
+      pixelShort:'Pixel',
+      delete:'Delete',
+      tokenPlaceholder:'Enter the token here'
+    }
+  };
+
+  function getLang(){
+    return localStorage.getItem(langKey)==='en'?'en':'ar';
+  }
+  function T(key){
+    return I18N[getLang()][key] || I18N.ar[key] || key;
+  }
+
+  function applyTheme(){
+    const saved=localStorage.getItem(themeKey)||'dark';
+    document.documentElement.dataset.theme=saved;
+    if(saved==='system'){
+      const light=window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+      document.documentElement.dataset.theme=light?'light':'dark';
+    }
+  }
+
+  function applyLanguage(){
+    const lang=getLang();
+    document.documentElement.lang=lang;
+    document.documentElement.dir=lang==='ar'?'rtl':'ltr';
+
+    document.querySelectorAll('[data-i18n]').forEach(el=>{
+      const key=el.dataset.i18n;
+      if(I18N[lang][key]) el.textContent=I18N[lang][key];
+    });
+
+    const tokenInput=document.getElementById('tokenInput');
+    if(tokenInput) tokenInput.placeholder=T('tokenPlaceholder');
+  }
+
+  applyTheme();
+  applyLanguage();
+
+  window.addEventListener('storage',e=>{
+    if(e.key===themeKey){ applyTheme(); }
+    if(e.key===langKey){ applyLanguage(); }
+  });
+
+  if(window.matchMedia){
+    const mq=window.matchMedia('(prefers-color-scheme: light)');
+    mq.addEventListener?.('change',()=>{
+      if((localStorage.getItem(themeKey)||'dark')==='system') applyTheme();
+    });
+  }
 
   /* =========================
      SUPABASE
   ========================= */
+  const SUPABASE_URL='https://zphepebjpxrzpudncuas.supabase.co';
+  const SUPABASE_KEY='sb_publishable_tIG9XDZeHVZpZjz74e-dBA_ui5GIYw7';
+  const sbClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+  let CURRENT_USER=null;
 
-  const SUPABASE_URL =
-    'https://zphepebjpxrzpudncuas.supabase.co';
-
-  const SUPABASE_KEY =
-    'sb_publishable_tIG9XDZeHVZpZjz74e-dBA_ui5GIYw7';
-
-  const sbClient =
-    supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
-
-
-  let CURRENT_USER = null;
-
-
-  const PLATFORM_LABELS = {
-
-    facebook: {
-      label: 'Facebook / Meta',
-      icon: '📘'
-    },
-
-    tiktok: {
-      label: 'TikTok',
-      icon: '🎵'
-    },
-
-    snapchat: {
-      label: 'Snapchat',
-      icon: '👻'
-    },
-
-    google: {
-      label: 'Google',
-      icon: '🔍'
-    }
-
+  const PLATFORM_LABELS={
+    facebook:{label:'Facebook / Meta',icon:'📘'},
+    tiktok:{label:'TikTok',icon:'🎵'},
+    snapchat:{label:'Snapchat',icon:'👻'},
+    google:{label:'Google',icon:'🔍'}
   };
 
-
-  /* =========================
-     STATUS
-  ========================= */
-
-  function setStatus(msg, type){
-
-    const el =
-      document.getElementById('status');
-
-    if(!el) return;
-
-    el.textContent = msg;
-
-    el.className =
-      'status' +
-      (type ? ' ' + type : '');
-
+  function setStatus(msg,type){
+    const el=document.getElementById('status');
+    if(!el)return;
+    el.textContent=msg;
+    el.className='status'+(type?' '+type:'');
   }
-
-
-  function setOAuthStatus(msg, type){
-
-    const el =
-      document.getElementById('oauthStatus');
-
-    if(!el) return;
-
-    el.textContent = msg;
-
-    el.className =
-      'status' +
-      (type ? ' ' + type : '');
-
+  function setOAuthStatus(msg,type){
+    const el=document.getElementById('oauthStatus');
+    if(!el)return;
+    el.textContent=msg;
+    el.className='status'+(type?' '+type:'');
   }
-
-
-  /* =========================
-     TOKEN MASK
-  ========================= */
-
   function maskToken(token){
-
-    if(!token) return '-';
-
-    if(token.length > 8){
-
-      return '••••••••' +
-             token.slice(-4);
-
-    }
-
-    return '••••••••';
-
+    if(!token)return '-';
+    return token.length>8?'••••••••'+token.slice(-4):'••••••••';
   }
-
-
-  /* =========================
-     INIT
-  ========================= */
 
   async function init(){
-
     try{
-
-      const {
-        data,
-        error
-      } = await sbClient.auth.getSession();
-
-
-      if(error){
-
-        console.error(
-          'Supabase session error:',
-          error
-        );
-
-        return;
-
-      }
-
-
+      const {data,error}=await sbClient.auth.getSession();
+      if(error){ console.error('Supabase session error:',error); return; }
       if(!data.session){
-
-        window.location.href =
-          'index.html';
-
+        window.location.href='index.html';
         return;
-
       }
 
-
-      CURRENT_USER =
-        data.session.user;
-
-
-      const userChip =
-        document.getElementById(
-          'userChip'
-        );
-
-
-      if(userChip){
-
-        userChip.textContent =
-          CURRENT_USER.is_anonymous
-            ? 'زائر تجريبي'
-            : (
-                CURRENT_USER.email ||
-                CURRENT_USER.phone ||
-                ''
-              );
-
-      }
-
-
+      CURRENT_USER=data.session.user;
       await loadConnections();
-
-
       handleOAuthReturn();
-
     }catch(err){
-
-      console.error(
-        'INIT ERROR:',
-        err
-      );
-
+      console.error('INIT ERROR:',err);
     }
-
   }
-
-
-  /* =========================
-     OAUTH RETURN
-  ========================= */
 
   function handleOAuthReturn(){
+    const params=new URLSearchParams(window.location.search);
+    const connected=params.get('meta_connected');
+    const errorMessage=params.get('meta_error');
 
-    const params =
-      new URLSearchParams(
-        window.location.search
-      );
-
-
-    const connected =
-      params.get(
-        'meta_connected'
-      );
-
-
-    const errorMessage =
-      params.get(
-        'meta_error'
-      );
-
-
-    if(connected === '1'){
-
-      setOAuthStatus(
-        'تم ربط حساب Meta Ads بنجاح ✅',
-        'ok'
-      );
-
-
+    if(connected==='1'){
+      setOAuthStatus(T('metaSuccess'),'ok');
       loadConnections();
-
-
-      /* تنظيف الرابط */
-
-      window.history.replaceState(
-        {},
-        document.title,
-        window.location.pathname
-      );
-
+      window.history.replaceState({},document.title,window.location.pathname);
       return;
-
     }
-
-
-    if(connected === '0'){
-
+    if(connected==='0'){
       setOAuthStatus(
-        errorMessage
-          ? 'فشل ربط Meta: ' +
-            errorMessage
-          : 'فشل ربط حساب Meta Ads.',
+        errorMessage?T('metaFail')+'\n'+errorMessage:T('metaFail'),
         'error'
       );
-
-
-      window.history.replaceState(
-        {},
-        document.title,
-        window.location.pathname
-      );
-
+      window.history.replaceState({},document.title,window.location.pathname);
     }
-
   }
-
-
-  /* =========================
-     START META OAUTH
-  ========================= */
 
   async function startMetaOAuth(){
-
-    const btn =
-      document.getElementById(
-        'connectMetaBtn'
-      );
-
-
-    if(!btn){
-
-      console.error(
-        'connectMetaBtn not found'
-      );
-
-      return;
-
-    }
-
+    const btn=document.getElementById('connectMetaBtn');
+    if(!btn)return;
 
     if(!CURRENT_USER){
-
-      setOAuthStatus(
-        'جاري تحميل الحساب، حاول مرة تانية...',
-        'error'
-      );
-
+      setOAuthStatus(T('connectLoading'),'error');
       return;
-
     }
 
-
     try{
+      btn.disabled=true;
+      btn.textContent=T('openingMeta');
+      setOAuthStatus(T('preparingMeta'));
 
-      btn.disabled = true;
+      const {data:sessionData,error:sessionError}=await sbClient.auth.getSession();
+      if(sessionError)throw sessionError;
 
-      btn.textContent =
-        'جاري فتح Meta...';
+      const session=sessionData.session;
+      if(!session)throw new Error(T('sessionError'));
 
+      const accessToken=session.access_token;
+      const returnTo=window.location.origin+window.location.pathname;
 
-      setOAuthStatus(
-        'جاري تجهيز الاتصال بـ Meta...'
+      const response=await fetch(
+        SUPABASE_URL+'/functions/v1/meta-oauth-start',
+        {
+          method:'POST',
+          headers:{
+            'Authorization':'Bearer '+accessToken,
+            'Content-Type':'application/json'
+          },
+          body:JSON.stringify({returnTo:returnTo})
+        }
       );
 
-
-      const {
-        data: sessionData,
-        error: sessionError
-      } = await sbClient.auth.getSession();
-
-
-      if(sessionError){
-
-        throw sessionError;
-
-      }
-
-
-      const session =
-        sessionData.session;
-
-
-      if(!session){
-
-        throw new Error(
-          'انتهت جلسة تسجيل الدخول. سجل دخول مرة أخرى.'
-        );
-
-      }
-
-
-      const accessToken =
-        session.access_token;
-
-
-      const returnTo =
-        window.location.origin +
-        window.location.pathname;
-
-
-      const response =
-        await fetch(
-          SUPABASE_URL +
-          '/functions/v1/meta-oauth-start',
-          {
-            method:'POST',
-
-            headers:{
-              'Authorization':
-                'Bearer ' +
-                accessToken,
-
-              'Content-Type':
-                'application/json'
-            },
-
-            body:JSON.stringify({
-              returnTo:returnTo
-            })
-          }
-        );
-
-
-      const responseText =
-        await response.text();
-
-
-      let result = null;
-
-
-      try{
-
-        result =
-          JSON.parse(
-            responseText
-          );
-
-      }catch(e){
-
-        result = null;
-
-      }
-
+      const responseText=await response.text();
+      let result=null;
+      try{ result=JSON.parse(responseText); }catch(e){ result=null; }
 
       if(!response.ok){
-
         throw new Error(
-          (
-            result &&
-            (
-              result.error ||
-              result.message
-            )
-          ) ||
+          (result&&(result.error||result.message)) ||
           responseText ||
-          'تعذر بدء اتصال Meta'
+          T('metaFail')
         );
-
       }
 
-
-      /*
-       * المفروض Edge Function
-       * ترجع redirect_url
-       */
-
-      const redirectUrl =
-        result &&
-        (
-          result.redirect_url ||
-          result.url
-        );
-
-
+      const redirectUrl=result&&(result.redirect_url||result.url);
       if(redirectUrl){
-
-        window.location.href =
-          redirectUrl;
-
+        window.location.href=redirectUrl;
         return;
-
       }
 
-
-      /*
-       * لو الـ Edge Function
-       * رجعت Redirect مباشرة
-       * بدل JSON، نستخدم الرابط الحالي
-       */
-
-      if(response.redirected &&
-         response.url){
-
-        window.location.href =
-          response.url;
-
+      if(response.redirected&&response.url){
+        window.location.href=response.url;
         return;
-
       }
 
-
-      throw new Error(
-        'لم يتم استلام رابط Meta من السيرفر.'
-      );
-
-
+      throw new Error(T('metaFail'));
     }catch(err){
-
-      console.error(
-        'META OAUTH ERROR:',
-        err
-      );
-
-
-      setOAuthStatus(
-        'خطأ في ربط Meta:\n' +
-        (err.message ||
-         'حدث خطأ غير معروف'),
-        'error'
-      );
-
-
-      btn.disabled = false;
-
-      btn.textContent =
-        'ربط حساب Meta Ads';
-
+      console.error('META OAUTH ERROR:',err);
+      setOAuthStatus(T('metaError')+(err.message||''),'error');
+      btn.disabled=false;
+      btn.textContent=T('connectMeta');
     }
-
   }
-
-
-  /* =========================
-     SAVE MANUAL CONNECTION
-  ========================= */
 
   async function saveConnection(){
-
     if(!CURRENT_USER){
-
-      setStatus(
-        'لم يتم تحميل حساب المستخدم.',
-        'error'
-      );
-
+      setStatus(T('sessionError'),'error');
       return;
-
     }
 
+    const platform=document.getElementById('platform').value;
+    const adAccountId=document.getElementById('adAccountId').value.trim();
+    let pixelId=document.getElementById('pixelId').value.trim();
+    const token=document.getElementById('tokenInput').value.trim();
+    const note=document.getElementById('noteInput').value.trim();
+    const btn=document.getElementById('saveBtn');
 
-    const platform =
-      document.getElementById(
-        'platform'
-      ).value;
-
-
-    const adAccountId =
-      document.getElementById(
-        'adAccountId'
-      ).value.trim();
-
-
-    let pixelId =
-      document.getElementById(
-        'pixelId'
-      ).value.trim();
-
-
-    const token =
-      document.getElementById(
-        'tokenInput'
-      ).value.trim();
-
-
-    const note =
-      document.getElementById(
-        'noteInput'
-      ).value.trim();
-
-
-    const btn =
-      document.getElementById(
-        'saveBtn'
-      );
-
-
-    if(!adAccountId || !token){
-
-      setStatus(
-        'رقم الحساب والتوكن مطلوبين',
-        'error'
-      );
-
+    if(!adAccountId||!token){
+      setStatus(T('missing'),'error');
       return;
-
     }
+    if(!pixelId)pixelId=adAccountId;
 
-
-    if(!pixelId){
-
-      pixelId =
-        adAccountId;
-
-    }
-
-
-    btn.disabled = true;
-
-    setStatus(
-      'جاري الحفظ...'
-    );
-
+    btn.disabled=true;
+    setStatus(T('saving'));
 
     try{
-
-      const {
-        error
-      } =
-      await sbClient
-        .from('ad_pixels')
-        .insert({
-
-          user_id:
-            CURRENT_USER.id,
-
-          pixel_type:
-            platform,
-
-          pixel_id:
-            pixelId,
-
-          pixel_token:
-            token,
-
-          ad_account_id:
-            adAccountId,
-
-          note:
-            note || null
-
-        });
-
+      const {error}=await sbClient.from('ad_pixels').insert({
+        user_id:CURRENT_USER.id,
+        pixel_type:platform,
+        pixel_id:pixelId,
+        pixel_token:token,
+        ad_account_id:adAccountId,
+        note:note||null
+      });
 
       if(error){
-
-        console.error(
-          'ad_pixels insert error:',
-          error
-        );
-
-
-        let msg =
-          'خطأ: ' +
-          error.message;
-
-
-        if(error.details){
-
-          msg +=
-            '\nتفاصيل: ' +
-            error.details;
-
-        }
-
-
-        if(error.hint){
-
-          msg +=
-            '\nحل مقترح: ' +
-            error.hint;
-
-        }
-
-
-        if(error.code){
-
-          msg +=
-            '\nكود: ' +
-            error.code;
-
-        }
-
-
-        setStatus(
-          msg,
-          'error'
-        );
-
-
+        console.error('ad_pixels insert error:',error);
+        setStatus(T('unexpected')+error.message,'error');
         return;
-
       }
 
-
-      setStatus(
-        'تم الحفظ بنجاح ✅',
-        'ok'
-      );
-
-
-      document.getElementById(
-        'adAccountId'
-      ).value = '';
-
-
-      document.getElementById(
-        'pixelId'
-      ).value = '';
-
-
-      document.getElementById(
-        'tokenInput'
-      ).value = '';
-
-
-      document.getElementById(
-        'noteInput'
-      ).value = '';
-
-
+      setStatus(T('saved'),'ok');
+      document.getElementById('adAccountId').value='';
+      document.getElementById('pixelId').value='';
+      document.getElementById('tokenInput').value='';
+      document.getElementById('noteInput').value='';
       await loadConnections();
-
-
     }catch(err){
-
       console.error(err);
-
-      setStatus(
-        'حدث خطأ غير متوقع: ' +
-        err.message,
-        'error'
-      );
-
-
+      setStatus(T('unexpected')+err.message,'error');
     }finally{
-
-      btn.disabled = false;
-
+      btn.disabled=false;
     }
-
   }
-
-
-  /* =========================
-     LOAD CONNECTIONS
-  ========================= */
 
   async function loadConnections(){
+    if(!CURRENT_USER)return;
 
-    if(!CURRENT_USER){
+    const wrap=document.getElementById('connectionsList');
+    if(!wrap)return;
 
-      return;
+    wrap.innerHTML='<div class="sub">'+T('loading')+'</div>';
 
-    }
-
-
-    const wrap =
-      document.getElementById(
-        'connectionsList'
-      );
-
-
-    if(!wrap){
-
-      return;
-
-    }
-
-
-    wrap.innerHTML =
-      '<div style="color:#666;font-size:13px;">جاري التحميل...</div>';
-
-
-    const {
-      data,
-      error
-    } =
-    await sbClient
+    const {data,error}=await sbClient
       .from('ad_pixels')
       .select('*')
-      .eq(
-        'user_id',
-        CURRENT_USER.id
-      )
-      .order(
-        'created_at',
-        {
-          ascending:false
-        }
-      );
-
+      .eq('user_id',CURRENT_USER.id)
+      .order('created_at',{ascending:false});
 
     if(error){
-
-      console.error(
-        'loadConnections error:',
-        error
-      );
-
-
-      wrap.innerHTML =
-        '<div style="color:#ff6a6a;">' +
-        'تعذر تحميل الحسابات: ' +
-        escapeHtml(error.message) +
-        '</div>';
-
+      console.error('loadConnections error:',error);
+      wrap.innerHTML='<div class="status error">'+
+        escapeHtml(T('loadError')+error.message)+'</div>';
       return;
-
     }
 
-
-    if(!data ||
-       data.length === 0){
-
-      wrap.innerHTML =
-        '<div style="color:#666;font-size:13px;">' +
-        'مفيش حسابات متصلة لسه' +
-        '</div>';
-
+    if(!data||data.length===0){
+      wrap.innerHTML='<div class="sub">'+T('none')+'</div>';
       return;
-
     }
 
-
-    wrap.innerHTML =
-      data.map(
-        row => {
-
-          const p =
-            PLATFORM_LABELS[
-              row.pixel_type
-            ] ||
-            {
-              label:
-                row.pixel_type ||
-                'غير معروف',
-
-              icon:'🔗'
-            };
-
-
-          return `
-
-            <div class="conn-card">
-
-              <div class="conn-info">
-
-                <span class="platform-icon">
-                  ${p.icon}
-                </span>
-
-                <b>
-                  ${escapeHtml(p.label)}
-                </b>
-
-                <div class="sub">
-                  حساب:
-                  ${escapeHtml(row.ad_account_id || '-')}
-                  |
-                  بيكسل:
-                  ${escapeHtml(row.pixel_id || '-')}
-                  |
-                  توكن:
-                  ${maskToken(row.pixel_token)}
-                </div>
-
-                ${
-                  row.note
-                    ? `
-                      <div class="sub">
-                        ${escapeHtml(row.note)}
-                      </div>
-                    `
-                    : ''
-                }
-
-              </div>
-
-
-              <button
-                class="del-btn delete-connection-btn"
-                type="button"
-                data-id="${escapeHtml(row.id)}"
-              >
-                حذف
-              </button>
-
+    wrap.innerHTML=data.map(row=>{
+      const p=PLATFORM_LABELS[row.pixel_type]||{label:row.pixel_type||'Unknown',icon:'🔗'};
+      return `
+        <div class="conn-card">
+          <div class="conn-info">
+            <div class="conn-main">
+              <span class="platform-icon">${p.icon}</span>
+              <b>${escapeHtml(p.label)}</b>
             </div>
+            <div class="sub">
+              ${escapeHtml(T('account'))}: ${escapeHtml(row.ad_account_id||'-')}
+              &nbsp;•&nbsp;
+              ${escapeHtml(T('pixelShort'))}: ${escapeHtml(row.pixel_id||'-')}
+              &nbsp;•&nbsp;
+              ${escapeHtml(T('token'))}: ${maskToken(row.pixel_token)}
+            </div>
+            ${row.note?`<div class="sub">${escapeHtml(row.note)}</div>`:''}
+          </div>
+          <button class="del-btn delete-connection-btn" type="button" data-id="${escapeHtml(row.id)}">${T('delete')}</button>
+        </div>
+      `;
+    }).join('');
 
-          `;
-
-        }
-      ).join('');
-
-
-    /*
-     * ربط أزرار الحذف بعد إنشاء العناصر
-     */
-
-    wrap
-      .querySelectorAll(
-        '.delete-connection-btn'
-      )
-      .forEach(
-        button => {
-
-          button.addEventListener(
-            'click',
-            function(){
-
-              deleteConnection(
-                this.dataset.id
-              );
-
-            }
-          );
-
-        }
-      );
-
+    wrap.querySelectorAll('.delete-connection-btn').forEach(button=>{
+      button.addEventListener('click',()=>deleteConnection(button.dataset.id));
+    });
   }
 
-
-  /* =========================
-     ESCAPE HTML
-  ========================= */
-
   function escapeHtml(value){
-
-    if(value === null ||
-       value === undefined){
-
-      return '';
-
-    }
-
-
+    if(value===null||value===undefined)return '';
     return String(value)
       .replaceAll('&','&amp;')
       .replaceAll('<','&lt;')
       .replaceAll('>','&gt;')
       .replaceAll('"','&quot;')
       .replaceAll("'","&#039;");
-
   }
-
-
-  /* =========================
-     DELETE
-  ========================= */
 
   async function deleteConnection(id){
-
-    if(!id){
-
-      return;
-
-    }
-
-
-    const confirmed =
-      confirm(
-        'متأكد إنك عايز تحذف الحساب ده؟'
-      );
-
-
-    if(!confirmed){
-
-      return;
-
-    }
-
+    if(!id)return;
+    if(!confirm(T('deleteConfirm')))return;
 
     try{
-
-      const {
-        error
-      } =
-      await sbClient
-        .from('ad_pixels')
-        .delete()
-        .eq(
-          'id',
-          id
-        );
-
-
+      const {error}=await sbClient.from('ad_pixels').delete().eq('id',id);
       if(error){
-
-        alert(
-          'خطأ: ' +
-          error.message
-        );
-
+        alert(T('deleteError')+error.message);
         return;
-
       }
-
-
       await loadConnections();
-
-
     }catch(err){
-
-      alert(
-        'حدث خطأ: ' +
-        err.message
-      );
-
+      alert(T('unexpected')+err.message);
     }
-
   }
 
-
-  /* =========================
-     LOGOUT
-  ========================= */
-
-  async function doLogout(){
-
-    try{
-
-      await sbClient.auth.signOut();
-
-    }finally{
-
-      window.location.href =
-        'index.html';
-
-    }
-
-  }
-
-
-  /* =========================
-     SIDEBAR
-  ========================= */
-
-  function openSidebar(){
-
-    document
-      .getElementById('sidebar')
-      .classList.add('open');
-
-
-    document
-      .getElementById('backdrop')
-      .classList.add('show');
-
-  }
-
-
-  function closeSidebar(){
-
-    document
-      .getElementById('sidebar')
-      .classList.remove('open');
-
-
-    document
-      .getElementById('backdrop')
-      .classList.remove('show');
-
-  }
-
-
-  function toggleSidebar(){
-
-    const sidebar =
-      document.getElementById(
-        'sidebar'
-      );
-
-
-    if(
-      sidebar.classList.contains(
-        'open'
-      )
-    ){
-
-      closeSidebar();
-
-    }else{
-
-      openSidebar();
-
-    }
-
-  }
-
-
-  /* =========================
-     EVENTS
-  ========================= */
-
-  document.addEventListener(
-    'DOMContentLoaded',
-    function(){
-
-      /*
-       * زر Meta
-       * مربوط مباشرة هنا
-       */
-
-      const connectMetaBtn =
-        document.getElementById(
-          'connectMetaBtn'
-        );
-
-
-      if(connectMetaBtn){
-
-        connectMetaBtn.addEventListener(
-          'click',
-          startMetaOAuth
-        );
-
-      }
-
-
-      /*
-       * تسجيل الخروج
-       */
-
-      const logoutBtn =
-        document.getElementById(
-          'logoutBtn'
-        );
-
-
-      if(logoutBtn){
-
-        logoutBtn.addEventListener(
-          'click',
-          doLogout
-        );
-
-      }
-
-
-      /*
-       * حفظ الاتصال اليدوي
-       */
-
-      const saveBtn =
-        document.getElementById(
-          'saveBtn'
-        );
-
-
-      if(saveBtn){
-
-        saveBtn.addEventListener(
-          'click',
-          saveConnection
-        );
-
-      }
-
-
-      /*
-       * القائمة
-       */
-
-      const menuBtn =
-        document.getElementById(
-          'menuBtn'
-        );
-
-
-      if(menuBtn){
-
-        menuBtn.addEventListener(
-          'click',
-          function(e){
-
-            e.stopPropagation();
-
-            toggleSidebar();
-
-          }
-        );
-
-      }
-
-
-      /*
-       * إغلاق القائمة
-       */
-
-      const closeBtn =
-        document.getElementById(
-          'closeSidebarBtn'
-        );
-
-
-      if(closeBtn){
-
-        closeBtn.addEventListener(
-          'click',
-          closeSidebar
-        );
-
-      }
-
-
-      /*
-       * الضغط خارج القائمة
-       */
-
-      const backdrop =
-        document.getElementById(
-          'backdrop'
-        );
-
-
-      if(backdrop){
-
-        backdrop.addEventListener(
-          'click',
-          closeSidebar
-        );
-
-      }
-
-
-      /*
-       * ESC
-       */
-
-      document.addEventListener(
-        'keydown',
-        function(e){
-
-          if(e.key === 'Escape'){
-
-            closeSidebar();
-
-          }
-
-        }
-      );
-
-    }
-  );
-
-
-  /* =========================
-     GLOBAL FUNCTIONS
-  ========================= */
-
-  /*
-   * نخليهم متاحين لو أي جزء
-   * تاني من الموقع محتاجهم
-   */
-
-  window.startMetaOAuth =
-    startMetaOAuth;
-
-  window.saveConnection =
-    saveConnection;
-
-  window.deleteConnection =
-    deleteConnection;
-
-  window.doLogout =
-    doLogout;
-
-  window.openSidebar =
-    openSidebar;
-
-  window.closeSidebar =
-    closeSidebar;
-
-  window.toggleSidebar =
-    toggleSidebar;
-
-
-  /* =========================
-     START
-  ========================= */
+  document.addEventListener('DOMContentLoaded',()=>{
+    document.getElementById('connectMetaBtn')?.addEventListener('click',startMetaOAuth);
+    document.getElementById('saveBtn')?.addEventListener('click',saveConnection);
+  });
+
+  window.startMetaOAuth=startMetaOAuth;
+  window.saveConnection=saveConnection;
+  window.deleteConnection=deleteConnection;
+  window.applyMBHTheme=applyTheme;
+  window.applyMBHLang=applyLanguage;
 
   init();
-
 })();
 </script>
-
 </body>
 </html>
