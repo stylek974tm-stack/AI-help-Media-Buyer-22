@@ -114,62 +114,103 @@
   .brand span{ color:var(--accent-2); }
   .topbar-spacer{ flex:1; }
 
-  /* ---------- Unified navigation (sidebar) ---------- */
-  .backdrop{
-    position:fixed; inset:0; background:rgba(4,5,8,.55); backdrop-filter:blur(2px);
-    z-index:180; opacity:0; pointer-events:none; transition:opacity .2s ease;
+
+  /* ===== Unified visual theme: no slider / no bottom navigation ===== */
+  :root{
+    --bg:#0b0d12;
+    --bg-soft:#0f1218;
+    --surface:#12161d;
+    --surface-2:#171c24;
+    --surface-3:#1d232d;
+    --border:#252c37;
+    --border-soft:#1b2029;
+    --text:#f3f5f8;
+    --text-dim:#9aa4b3;
+    --text-faint:#687384;
+    --accent:#6d7cff;
+    --accent-2:#62d9ff;
+    --accent-soft:rgba(109,124,255,.14);
+    --good:#39d98a;
+    --bad:#ff5c73;
+    --mid:#f2c14e;
   }
-  .backdrop.show{ opacity:1; pointer-events:auto; }
-  .sidebar{
-    position:fixed; top:0; bottom:0; right:0; width:min(280px,84vw);
-    background:var(--surface); border-left:1px solid var(--border);
-    padding:20px 14px; z-index:190; overflow-y:auto;
-    transform:translateX(100%); transition:transform .25s cubic-bezier(.4,0,.2,1);
-    box-shadow:-20px 0 60px rgba(0,0,0,.4);
+  html{background:var(--bg);}
+  body{
+    min-height:100dvh;
+    background:
+      radial-gradient(circle at 50% -10%, rgba(98,217,255,.055), transparent 34%),
+      var(--bg);
+    color:var(--text);
+    padding-top:env(safe-area-inset-top);
+    padding-bottom:env(safe-area-inset-bottom);
   }
-  .sidebar.open{ transform:translateX(0); }
-  .sidebar-head{
-    display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; padding:0 4px;
+  .topbar{
+    position:sticky;
+    top:0;
+    z-index:20;
+    min-height:58px;
+    padding:10px max(16px, env(safe-area-inset-left)) 10px max(16px, env(safe-area-inset-right));
+    background:rgba(11,13,18,.88);
+    border-bottom:1px solid var(--border-soft);
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
   }
-  .sidebar-head b{ font-size:15px; color:var(--accent-2); letter-spacing:.2px; }
-  .nav-item{
-    display:flex; align-items:center; gap:11px; padding:11px 12px; border-radius:11px;
-    font-size:13.5px; color:var(--text-dim); text-decoration:none; margin-bottom:4px; font-weight:500;
+  .brand{font-size:16px;}
+  .brand span{color:var(--accent-2);}
+  .content{padding:22px 16px 34px;}
+  .wrap{max-width:560px;}
+  .plan-card{
+    background:linear-gradient(180deg,rgba(23,28,36,.96),rgba(16,19,26,.98));
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:22px;
+    box-shadow:0 18px 50px rgba(0,0,0,.24);
   }
-  .nav-item svg{ width:17px; height:17px; flex-shrink:0; opacity:.85; }
-  .nav-item:hover{ background:var(--surface-3); color:var(--text); }
-  .nav-item.active{ background:var(--accent-soft); color:#bcd0ff; font-weight:700; }
-  .nav-item.active svg{ opacity:1; }
-  .nav-item.disabled{ color:#454b57; cursor:not-allowed; pointer-events:none; }
-  .nav-divider{ height:1px; background:var(--border-soft); margin:12px 4px; }
-  .nav-tag{ margin-right:auto; font-size:10px; background:var(--surface-3); color:var(--text-faint); padding:2px 7px; border-radius:20px; }
-  .sidebar-foot{ margin-top:16px; padding:10px 12px; font-size:10.5px; color:var(--text-faint); border-top:1px solid var(--border-soft); line-height:1.7; }
+  .plan-card h1{font-size:20px;}
+  .plan-card .sub{color:var(--text-dim);line-height:1.8;}
+  .status-banner.active{background:rgba(57,217,138,.09);border-color:rgba(57,217,138,.28)}
+  .status-banner.pending,.status-banner.grace{background:rgba(242,193,78,.09);border-color:rgba(242,193,78,.28)}
+  .status-banner.expired{background:rgba(255,92,115,.09);border-color:rgba(255,92,115,.28)}
+  .status-banner.active .big{color:var(--good)}
+  .status-banner.pending .big,.status-banner.grace .big{color:var(--mid)}
+  .status-banner.expired .big{color:var(--bad)}
+  .countdown{color:var(--text);}
+  .countdown-lbl,.hint{color:var(--text-faint);}
+  .offer-box,.pay-panel{
+    background:var(--bg-soft);
+    border-color:var(--border);
+  }
+  .offer-box .tag{background:var(--good);color:#08110d;}
+  .offer-box .price{color:var(--text)}
+  .offer-box .price small,.offer-box p,.field-lbl{color:var(--text-dim)}
+  .egp-price,.pay-number-box .num{color:var(--accent-2)}
+  button.primary{
+    background:var(--accent);
+    color:#fff;
+    box-shadow:0 8px 22px rgba(109,124,255,.18);
+  }
+  button.primary.green{background:var(--good);color:#07110c;box-shadow:none}
+  button.primary:disabled{background:var(--surface-3);color:var(--text-faint)}
+  button.ghost{border-color:var(--border);color:var(--text-dim)}
+  .method-tab{border-color:var(--border);color:var(--text-dim)}
+  .method-tab.active{background:var(--accent-soft);border-color:var(--accent);color:#cbd1ff}
+  .pay-number-box,input.pay-input{background:var(--surface-2);border-color:var(--border)}
+  input.pay-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .copy-btn{background:var(--surface-3);border-color:var(--border);color:var(--text)}
+  .pay-msg.ok{color:var(--good)}
+  .pay-msg.err{color:var(--bad)}
+  .pay-msg.info{color:var(--mid)}
+  @media (min-width:800px){
+    .content{padding-top:34px;padding-bottom:50px;}
+    .plan-card{padding:28px;}
+  }
+
 </style>
 </head>
 <body>
 <div class="topbar">
-  <button class="icon-btn" id="menuBtn" aria-label="القائمة" onclick="toggleSidebar(event)"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg></button>
   <div class="brand">Media Buyer <span>Hub</span></div>
-  <div class="topbar-spacer"></div>
 </div>
-
-<div class="backdrop" id="backdrop" onclick="closeSidebar()"></div>
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-head"><b>Media Buyer Hub</b>
-    <button class="icon-btn" onclick="closeSidebar()" aria-label="إغلاق"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></button>
-  </div>
-  <a class="nav-item" href="index.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>تسجيل الدخول</a>
-  <a class="nav-item" href="account.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18"/></svg>ربط الحسابات الإعلانية</a>
-  <a class="nav-item" href="dashboard.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>تحليل البيانات</a>
-  <a class="nav-item" href="insights.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="4" width="3" height="14"/></svg>الرسوم البيانية</a>
-  <a class="nav-item" href="automation-rules.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>قواعد الأتمتة</a>
-  <a class="nav-item" href="team-quality.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>أداء الموظفين</a>
-  <a class="nav-item active" href="subscription.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>الاشتراك والدفع</a>
-  <div class="nav-divider"></div>
-  <a class="nav-item" href="pricing_calculator.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>التسعير</a>
-  <a class="nav-item disabled"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>الدعم <span class="nav-tag">قريبًا</span></a>
-  <div class="sidebar-foot">جميع البيانات مرتبطة بحسابك ومحمية — لا تتم مشاركتها مع أي طرف تالت.</div>
-</aside>
 
 <div class="content">
   <div class="wrap">
@@ -483,24 +524,5 @@ async function submitPayment(){
 init();
 </script>
 
-<script>
-function openSidebar(){
-  document.getElementById('sidebar').classList.add('open');
-  document.getElementById('backdrop').classList.add('show');
-}
-function closeSidebar(){
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('backdrop').classList.remove('show');
-}
-function toggleSidebar(e){
-  if (e) e.stopPropagation();
-  document.getElementById('sidebar').classList.contains('open') ? closeSidebar() : openSidebar();
-}
-document.addEventListener('click', (e) => {
-  const sb = document.getElementById('sidebar');
-  if (sb && sb.classList.contains('open') && !sb.contains(e.target) && e.target.id !== 'menuBtn' && !e.target.closest('#menuBtn')) closeSidebar();
-});
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSidebar(); });
-</script>
 </body>
 </html>
