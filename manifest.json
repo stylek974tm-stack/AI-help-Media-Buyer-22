@@ -1,0 +1,30 @@
+{
+  "background_color": "#ffffff",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "mediabuyerhub",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "mediabuyerhub",
+  "start_url": "https://mediabuyerhub.online",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "https://mediabuyerhub.online/(2).jpeg",
+      "type": "image/png",
+      "sizes": "512x512",
+      "isSquare": true,
+      "isPng": true,
+      "isWebp": false,
+      "isJpg": true,
+      "width": 512,
+      "is512x512": true,
+      "is256x256": false,
+      "is192x192": false
+    }
+  ],
+  "lang": "ar",
+  "categories": [
+    "shopping"
+  ]
+}
