@@ -1,26 +1,26 @@
 {
-  "background_color": "#ffffff",
-  "dir": "ltr",
+  "background_color": "#0b1b3d",
+  "dir": "rtl",
   "display": "standalone",
-  "name": "mediabuyerhub",
+  "name": "Media Buyer Hub",
+  "short_name": "MBH",
+  "description": "منصة إدارة حسابات وبيكسلات الإعلانات",
   "orientation": "any",
   "scope": "/",
-  "short_name": "mediabuyerhub",
   "start_url": "https://mediabuyerhub.online",
-  "theme_color": "#ffffff",
+  "theme_color": "#0b1b3d",
   "icons": [
     {
-      "src": "https://mediabuyerhub.online/(2).jpeg",
+      "src": "https://mediabuyerhub.online/icon-192.png",
       "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "https://mediabuyerhub.online/(2).jpeg",
+      "type": "image/jpeg",
       "sizes": "512x512",
-      "isSquare": true,
-      "isPng": true,
-      "isWebp": false,
-      "isJpg": true,
-      "width": 512,
-      "is512x512": true,
-      "is256x256": false,
-      "is192x192": false
+      "purpose": "any"
     }
   ],
   "lang": "ar",
