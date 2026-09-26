@@ -623,6 +623,23 @@ html[data-theme="light"] .goal-progress-fill,html[data-theme="light"] .goal-prog
 }
 
 </style>
+
+<style id="mbh-unified-system">
+:root{--mbh-bg:#0b0d12;--mbh-surface:#12151c;--mbh-surface2:#181c24;--mbh-border:#292f3a;--mbh-text:#f5f7fa;--mbh-muted:#9ca5b3;--mbh-accent:#7c5cff;--mbh-accent2:#9a84ff;--mbh-nav-bg:rgba(11,13,18,.96)}
+html[data-theme="light"]{--mbh-bg:#f3f5f8;--mbh-surface:#ffffff;--mbh-surface2:#eef1f5;--mbh-border:#d9dee7;--mbh-text:#171a20;--mbh-muted:#687180;--mbh-accent:#6047d8;--mbh-accent2:#7057e8;--mbh-nav-bg:rgba(255,255,255,.96)}
+html,body{color:var(--mbh-text)!important}
+.mbh-unified-nav{position:fixed!important;z-index:99999!important;left:0!important;right:0!important;bottom:0!important;width:100%!important;display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:4px!important;padding:7px 9px calc(7px + env(safe-area-inset-bottom))!important;background:var(--mbh-nav-bg)!important;border-top:1px solid var(--mbh-border)!important;box-shadow:0 -10px 30px rgba(0,0,0,.14)!important;backdrop-filter:blur(18px)!important;direction:rtl!important}
+.mbh-unified-nav a{min-width:0!important;min-height:54px!important;border-radius:14px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;color:var(--mbh-muted)!important;background:transparent!important;text-decoration:none!important;font:700 9px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;transition:background .18s,color .18s,transform .18s!important}
+.mbh-unified-nav a svg{width:20px!important;height:20px!important;color:currentColor!important}
+.mbh-unified-nav a.active{background:var(--mbh-surface2)!important;color:var(--mbh-accent2)!important;box-shadow:inset 0 0 0 1px var(--mbh-border)!important}
+.mbh-unified-nav a:active{transform:scale(.96)!important}
+body{padding-bottom:calc(82px + env(safe-area-inset-bottom))!important}
+html[data-theme="light"] body{background:var(--mbh-bg)!important}
+/* All four pages use the exact Settings palette */
+.card,.form-card,.rule-card,.chart-card,.filters,.summary-box,.section-card{border-color:var(--mbh-border)!important}
+@media(min-width:800px){.mbh-unified-nav{left:50%!important;right:auto!important;transform:translateX(-50%)!important;width:min(620px,calc(100% - 40px))!important;border:1px solid var(--mbh-border)!important;border-bottom:0!important;border-radius:20px 20px 0 0!important}.mbh-unified-nav a{min-height:56px!important}}
+</style>
+
 </head>
 <body>
 
@@ -2481,24 +2498,41 @@ init();
 </style>
 
 <!-- Primary bottom navigation -->
-<nav class="mbh-bottom-nav" aria-label="التنقل الرئيسي">
-  <a class="mbh-nav active" href="dashboard.html" aria-current="page" data-nav-label="home">
-    <span class="mbh-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
-    <span>الرئيسية</span>
-  </a>
-  <a class="mbh-nav" href="automation-rules.html" data-nav-label="automation">
-    <span class="mbh-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="3"/></svg></span>
-    <span>قواعد الأتمتة</span>
-  </a>
-  <a class="mbh-nav" href="insights.html" data-nav-label="insights">
-    <span class="mbh-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5M4 19h16"/><path d="M7 15l4-5 3 3 5-7"/></svg></span>
-    <span>التحليل</span>
-  </a>
-  <a class="mbh-nav" href="settings.html" data-nav-label="settings">
-    <span class="mbh-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-1.9 1.9-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.04 1.56V22h-2.68v-.09a1.7 1.7 0 0 0-1.04-1.56 1.7 1.7 0 0 0-1.88.34l-.06.06-1.9-1.9.06-.06A1.7 1.7 0 0 0 7.76 15a1.7 1.7 0 0 0-1.56-1.04H6v-2.68h.2A1.7 1.7 0 0 0 7.76 10a1.7 1.7 0 0 0-.34-1.88l-.06-.06 1.9-1.9.06.06a1.7 1.7 0 0 0 1.88.34A1.7 1.7 0 0 0 12.24 5V4h2.68v1a1.7 1.7 0 0 0 1.04 1.56 1.7 1.7 0 0 0 1.88-.34l.06-.06 1.9 1.9-.06.06A1.7 1.7 0 0 0 19.4 10a1.7 1.7 0 0 0 1.56 1.04H21v2.68h-.04A1.7 1.7 0 0 0 19.4 15Z"/></svg></span>
-    <span>الإعدادات</span>
-  </a>
+
+<nav class="mbh-unified-nav" aria-label="التنقل الرئيسي">
+  <a data-page="home" href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span data-nav="home">الرئيسية</span></a>
+  <a data-page="automation" href="automation-rules.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 1.8-.1-.1A1.7 1.7 0 0 0 16 18a1.7 1.7 0 0 0-1.9.3l-.1.1h-2.6l-.1-.1A1.7 1.7 0 0 0 9.4 18a1.7 1.7 0 0 0-1.9.3l-.1.1-1.8-1.8.1-.1A1.7 1.7 0 0 0 6 15a1.7 1.7 0 0 0-.3-1.9l-.1-.1v-2.6l.1-.1A1.7 1.7 0 0 0 6 8.4a1.7 1.7 0 0 0-.3-1.9l-.1-.1 1.8-1.8.1.1A1.7 1.7 0 0 0 9.4 5a1.7 1.7 0 0 0 1.9-.3l.1-.1h2.6l.1.1A1.7 1.7 0 0 0 16 5a1.7 1.7 0 0 0 1.9-.3l.1-.1 1.8 1.8-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 .3 1.9l.1.1v2.6l-.1.1a1.7 1.7 0 0 0-.3 1.9z"/></svg><span data-nav="automation">الأتمتة</span></a>
+  <a data-page="insights" href="insights.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5M4 19h16"/><path d="M7 15l3-4 3 2 5-6"/></svg><span data-nav="insights">التحليلات</span></a>
+  <a data-page="settings" href="settings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19 15l2 1-2 3-2-1a7 7 0 0 1-2 1l-.3 2h-3.4l-.3-2a7 7 0 0 1-2-1l-2 1-2-3 2-1a7 7 0 0 1 0-2l-2-1 2-3 2 1a7 7 0 0 1 2-1l.3-2h3.4l.3 2a7 7 0 0 1 2 1l2-1 2 3-2 1a7 7 0 0 1 0 2z"/></svg><span data-nav="settings">الإعدادات</span></a>
 </nav>
+
+<script id="mbh-unified-system-js">
+(function(){
+  const THEME_KEY='mbh_theme', LANG_KEY='mbh_lang';
+  let theme=localStorage.getItem(THEME_KEY)||'dark';
+  if(!['dark','light','system'].includes(theme)) theme='dark';
+  function applyTheme(){
+    const effective=theme==='system'?(matchMedia('(prefers-color-scheme:light)').matches?'light':'dark'):theme;
+    document.documentElement.dataset.theme=effective;
+    document.documentElement.dataset.themeSetting=theme;
+  }
+  applyTheme();
+  if(theme==='system') matchMedia('(prefers-color-scheme:light)').addEventListener('change',applyTheme);
+  const page=(location.pathname.split('/').pop()||'dashboard.html').toLowerCase();
+  const current=page==='automation-rules.html'?'automation':page==='insights.html'?'insights':page==='settings.html'?'settings':'home';
+  document.querySelectorAll('.mbh-unified-nav a').forEach(a=>{
+    a.classList.toggle('active',a.dataset.page===current);
+    if(a.dataset.page===current) a.setAttribute('aria-current','page');
+  });
+  const lang=(localStorage.getItem(LANG_KEY)||'ar').toLowerCase().startsWith('en')?'en':'ar';
+  const labels={ar:{home:'الرئيسية',automation:'الأتمتة',insights:'التحليلات',settings:'الإعدادات'},en:{home:'Home',automation:'Automation',insights:'Insights',settings:'Settings'}};
+  document.querySelectorAll('[data-nav]').forEach(el=>el.textContent=labels[lang][el.dataset.nav]);
+  document.documentElement.lang=lang;
+  document.documentElement.dir=lang==='ar'?'rtl':'ltr';
+  window.addEventListener('storage',e=>{if(e.key===THEME_KEY){theme=e.newValue||'dark';applyTheme()}if(e.key===LANG_KEY)location.reload()});
+})();
+</script>
+
 </body>
 </html>
 
