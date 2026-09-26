@@ -11,13 +11,13 @@
   "theme_color": "#0b1b3d",
   "icons": [
     {
-      "src": "https://mediabuyerhub.online/icon192.png",
+      "src": "https://mediabuyerhub.online/icon-192.png",
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "any"
     },
     {
-      "src": "https://mediabuyerhub.online/icon512.png",
+      "src": "https://mediabuyerhub.online/icon-512.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any"
