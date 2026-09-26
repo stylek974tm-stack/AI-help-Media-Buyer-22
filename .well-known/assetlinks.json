@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "online.mediabuyerhub.twa",
+    "sha256_cert_fingerprints": ["3F:D1:D0:90:DD:62:A9:D2:FB:A8:88:BF:DE:84:F0:8E:AB:0D:DB:17:58:27:49:EB:C7:02:04:DE:69:FE:4D:53"]
+  }
+}]
