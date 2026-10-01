@@ -218,6 +218,18 @@
   .review-notice.sending{ align-items:center; background:var(--accent-soft); border-color:rgba(109,124,255,.35); color:#cbd1ff; font-weight:700; }
   .mini-spin{ display:inline-block; flex-shrink:0; width:14px; height:14px; border:2px solid rgba(203,209,255,.3); border-top-color:#cbd1ff; border-radius:50%; animation:spin .7s linear infinite; }
 
+
+  /* ===== رفع صورة إيصال التحويل ===== */
+  .receipt-input{ display:none; }
+  .receipt-pick{
+    display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer;
+    padding:13px 12px; border:1px dashed var(--border); border-radius:10px;
+    background:var(--surface-2); color:var(--text-dim); font-size:13px; text-align:center;
+  }
+  .receipt-pick:hover{ border-color:var(--accent); color:var(--text); }
+  .receipt-preview{ display:none; margin-top:10px; text-align:center; }
+  .receipt-preview img{ max-width:100%; max-height:220px; border-radius:10px; border:1px solid var(--border); }
+  .receipt-preview .fname{ font-size:11.5px; color:var(--text-faint); margin-top:6px; direction:ltr; word-break:break-all; }
 </style>
 </head>
 <body>
@@ -365,18 +377,18 @@ function graceUntil(s){
   return new Date(new Date(s.expires_at).getTime() + Number(SETTINGS.grace_days) * 86400000).toISOString();
 }
 function isActiveNow(s){
-  return !!(s && s.status === 'active' && s.expires_at && remainingParts(s.expires_at));
+  return !!(s && (s.status === 'active' || s.status === 'trialing') && s.expires_at && remainingParts(s.expires_at));
 }
 function isGraceNow(s){
   if (!s || !s.expires_at) return false;
-  if (!['grace','past_due','active'].includes(s.status)) return false;
+  if (!['grace','past_due','active','trialing'].includes(s.status)) return false;
   if (remainingParts(s.expires_at)) return false;        // الباقة لم تنتهِ بعد
   return !!remainingParts(graceUntil(s));                 // انتهت الباقة وما زالت فترة السماح قائمة
 }
 function isExpiredNow(s){
   if (!s) return false;
   if (s.status === 'expired' || s.status === 'canceled') return true;
-  if (['grace','past_due','active'].includes(s.status) && s.expires_at && !remainingParts(s.expires_at) && !remainingParts(graceUntil(s))) return true;
+  if (['grace','past_due','active','trialing'].includes(s.status) && s.expires_at && !remainingParts(s.expires_at) && !remainingParts(graceUntil(s))) return true;
   return false;
 }
 
@@ -473,6 +485,11 @@ function buildPayPanel(){
       <input class="pay-input" id="refInput" type="tel" inputmode="numeric" maxlength="11" placeholder="01xxxxxxxxx" dir="ltr">
       <div class="hint" style="margin-top:6px; text-align:right;">نستخدم هذا الرقم في المراجعة اليدوية للتأكد من أن التحويل صادر منك فعلًا، وهو أسهل وأسرع من رقم عملية قد يُخطأ في كتابته أو يُلفَّق.</div>
 
+      <div class="field-lbl">صورة إيصال التحويل (لقطة شاشة لعملية التحويل)</div>
+      <input class="receipt-input" id="receiptInput" type="file" accept="image/*">
+      <label class="receipt-pick" for="receiptInput" id="receiptPick">📎 اضغط هنا لاختيار صورة الإيصال</label>
+      <div class="receipt-preview" id="receiptPreview"><img id="receiptImg" alt="معاينة صورة الإيصال"><div class="fname" id="receiptName"></div></div>
+
       <div class="review-notice" id="reviewNotice" aria-live="polite"></div>
 
       <button class="primary" id="submitPayBtn" style="margin-top:16px;" onclick="submitPayment()">✅ حفظ وتفعيل الباقة</button>
@@ -503,7 +520,37 @@ function wirePayPanel(){
     if (tab.dataset.m === SELECTED_METHOD) tab.classList.add('active');
     tab.onclick = () => { SELECTED_METHOD = tab.dataset.m; document.querySelectorAll('.method-tab').forEach(t=>t.classList.remove('active')); tab.classList.add('active'); };
   });
+  RECEIPT_FILE = null;
+  const inp = document.getElementById('receiptInput');
+  if (inp) inp.onchange = () => onReceiptChosen(inp.files && inp.files[0]);
   setReviewNotice(false);
+}
+
+const MAX_RECEIPT_BYTES = 5 * 1024 * 1024;
+let RECEIPT_FILE = null;
+
+function onReceiptChosen(file){
+  const prev = document.getElementById('receiptPreview');
+  const img = document.getElementById('receiptImg');
+  const pick = document.getElementById('receiptPick');
+  RECEIPT_FILE = null;
+  if (!file){ prev.style.display = 'none'; pick.textContent = '📎 اضغط هنا لاختيار صورة الإيصال'; return; }
+  if (!file.type || !file.type.startsWith('image/')){ setPayMsg('الملف المختار ليس صورة. يرجى اختيار صورة الإيصال.', 'err'); prev.style.display = 'none'; return; }
+  if (file.size > MAX_RECEIPT_BYTES){ setPayMsg('حجم الصورة كبير. الحد الأقصى 5 ميجابايت.', 'err'); prev.style.display = 'none'; return; }
+  RECEIPT_FILE = file;
+  setPayMsg('', '');
+  img.src = URL.createObjectURL(file);
+  document.getElementById('receiptName').textContent = file.name;
+  prev.style.display = 'block';
+  pick.textContent = '🔄 تغيير الصورة';
+}
+
+async function uploadReceipt(file){
+  const ext = ((file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 5)) || 'jpg';
+  const path = `${CURRENT_USER.id}/${Date.now()}.${ext}`; // لازم يبدأ بمعرّف المستخدم (سياسة التخزين)
+  const { error } = await sbClient.storage.from('payment-screenshots').upload(path, file, { contentType: file.type, upsert: false });
+  if (error) throw new Error('تعذّر رفع صورة الإيصال: ' + error.message);
+  return path;
 }
 
 function copyPayNumber(){
@@ -548,6 +595,8 @@ async function submitPayment(){
   if (!phone){ setPayMsg('يرجى إدخال رقم الهاتف الذي حوّلت منه.', 'err'); return; }
   if (!isValidEgyptPhone(phone)){ setPayMsg('رقم الهاتف غير صحيح — يجب أن يبدأ بـ 010 أو 011 أو 012 أو 015 وأن يتكوّن من 11 رقمًا.', 'err'); return; }
 
+  if (!RECEIPT_FILE){ setPayMsg('يرجى إرفاق صورة إيصال التحويل.', 'err'); return; }
+
   SUBMITTING = true;
   const btn = document.getElementById('submitPayBtn');
   btn.disabled = true;
@@ -555,6 +604,7 @@ async function submitPayment(){
   setReviewNotice(true);
 
   try{
+    const screenshotPath = await uploadReceipt(RECEIPT_FILE);
     const { data: sessionData } = await sbClient.auth.getSession();
     const res = await fetch(`${SUPABASE_URL}/functions/v1/${SUBMIT_PAYMENT_FUNCTION}`, {
       method: 'POST',
@@ -562,7 +612,7 @@ async function submitPayment(){
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${sessionData.session.access_token}`
       },
-      body: JSON.stringify({ method: SELECTED_METHOD, transfer_ref: phone, sender_phone: phone, claimed_amount_egp: amount })
+      body: JSON.stringify({ method: SELECTED_METHOD, transfer_ref: phone, sender_phone: phone, claimed_amount_egp: amount, screenshot_path: screenshotPath })
     });
     const json = await res.json();
 
