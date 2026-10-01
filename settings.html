@@ -2,7 +2,9 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b0d12">
 <title>الإعدادات — Media Buyer Hub</title>
 <style>
@@ -42,6 +44,7 @@ a{text-decoration:none;color:inherit}
 }
 </style>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style id="mbh-unified-system">
 :root{--mbh-bg:#0b0d12;--mbh-surface:#12151c;--mbh-surface2:#181c24;--mbh-border:#292f3a;--mbh-text:#f5f7fa;--mbh-muted:#9ca5b3;--mbh-accent:#7c5cff;--mbh-accent2:#9a84ff;--mbh-nav-bg:rgba(11,13,18,.96)}
 html[data-theme="light"]{--mbh-bg:#f3f5f8;--mbh-surface:#ffffff;--mbh-surface2:#eef1f5;--mbh-border:#d9dee7;--mbh-text:#171a20;--mbh-muted:#687180;--mbh-accent:#6047d8;--mbh-accent2:#7057e8;--mbh-nav-bg:rgba(255,255,255,.96)}
@@ -95,6 +98,16 @@ html[data-theme="light"] body{background:var(--mbh-bg)!important}
     <a class="item" href="https://wa.me/201108712091" target="_blank" rel="noopener"><span class="icon">?</span><div class="item-main"><div class="item-title">الدعم والشكاوى</div><div class="item-sub">التواصل مع فريق الدعم وإرسال مشكلة أو ملاحظة</div></div><span class="chev">‹</span></a>
   </div>
 
+  <div class="section">الجلسة</div>
+  <div class="card">
+    <button class="item" id="switchBtn" style="width:100%;border:0;background:transparent;color:inherit;text-align:right;cursor:pointer;font:inherit">
+      <span class="icon">⇄</span><div class="item-main"><div class="item-title">تبديل الحساب</div><div class="item-sub">الخروج من الحساب الحالي والدخول بحساب آخر</div></div><span class="chev">‹</span>
+    </button>
+    <button class="item" id="logoutBtn" style="width:100%;border:0;background:transparent;color:var(--danger);text-align:right;cursor:pointer;font:inherit">
+      <span class="icon" style="color:var(--danger)">⏻</span><div class="item-main"><div class="item-title">تسجيل الخروج</div><div class="item-sub">إنهاء الجلسة على هذا الجهاز</div></div><span class="chev">‹</span>
+    </button>
+  </div>
+
   <div class="section">اللغة</div>
   <div class="card">
     <button class="item" id="langBtn" style="width:100%;border:0;background:transparent;color:inherit;text-align:right">
@@ -115,6 +128,15 @@ function applyTheme(v){
 }
 document.querySelectorAll('.theme').forEach(x=>x.onclick=()=>applyTheme(x.dataset.theme));
 applyTheme(localStorage.getItem(key)||'dark');
+const sbClient=supabase.createClient('https://zphepebjpxrzpudncuas.supabase.co','sb_publishable_tIG9XDZeHVZpZjz74e-dBA_ui5GIYw7');
+async function leave(btn){
+  if(btn.dataset.busy) return;
+  btn.dataset.busy='1'; btn.style.opacity='.6';
+  try{ await sbClient.auth.signOut({scope:'local'}); }catch(e){}
+  window.location.replace('index.html');
+}
+document.getElementById('logoutBtn').onclick=e=>leave(e.currentTarget);
+document.getElementById('switchBtn').onclick=e=>leave(e.currentTarget);
 document.getElementById('langBtn').onclick=()=>{
   const cur=localStorage.getItem('mbh_lang')||'ar';
   const next=cur==='ar'?'en':'ar';
