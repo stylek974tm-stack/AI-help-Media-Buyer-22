@@ -619,11 +619,11 @@ async function submitPayment(){
     if (!res.ok){
       setPayMsg('حدث خطأ: ' + (json.error || res.statusText), 'err');
     } else if (json.status === 'approved'){
-      setPayMsg('تم تفعيل الباقة تلقائيًا 🎉', 'ok');
+      setPayMsg('تم إرسال البيانات إلى المسؤول وتفعيل الباقة فورًا 🎉 — سيقوم المسؤول بفحص التحويل، وإذا تبيّن أنه غير صحيح فسيتم حظر حسابك.', 'ok');
       await loadSubscription();
       render();
     } else {
-      setPayMsg('تم استلام طلبك وإرسال البيانات إلى المسؤول، وسيتم فحص التحويل خلال وقت قصير. وفي حال تبيّن أنه غير صحيح فسيتم حظر حسابك.', 'info');
+      setPayMsg((json.message || 'تم استلام طلبك وإرسال البيانات إلى المسؤول، وسيتم فحص التحويل خلال وقت قصير.') + ' وفي حال تبيّن أن التحويل غير صحيح فسيتم حظر حسابك.', 'info');
       if (json.whatsapp) window.open(json.whatsapp, '_blank');
       await loadSubscription();
       render();
