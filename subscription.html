@@ -207,6 +207,17 @@
     .plan-card{padding:28px;}
   }
 
+
+  /* ===== قسم إرسال البيانات إلى المسؤول ===== */
+  .review-notice{
+    display:flex; align-items:flex-start; gap:8px;
+    margin-top:14px; padding:11px 13px; border-radius:10px;
+    background:rgba(242,193,78,.09); border:1px solid rgba(242,193,78,.28);
+    color:var(--mid); font-size:12.5px; line-height:1.8;
+  }
+  .review-notice.sending{ align-items:center; background:var(--accent-soft); border-color:rgba(109,124,255,.35); color:#cbd1ff; font-weight:700; }
+  .mini-spin{ display:inline-block; flex-shrink:0; width:14px; height:14px; border:2px solid rgba(203,209,255,.3); border-top-color:#cbd1ff; border-radius:50%; animation:spin .7s linear infinite; }
+
 </style>
 </head>
 <body>
@@ -220,13 +231,14 @@
 
     <div class="plan-card">
       <h1>الاشتراك والدفع</h1>
+      <p class="sub">تُفعَّل التجربة المجانية تلقائيًا فور إنشاء الحساب، ويتم تفعيل الباقة المدفوعة تلقائيًا بعد التحقق من التحويل.</p>
 
       <div id="statusArea"></div>
       <div id="offersArea"></div>
       <div id="payArea"></div>
 
-      <button class="ghost" onclick="contactSupport()">📞 التواصل مع الدعم عبر واتساب</button>
-      <div class="hint">في حال تعذّر التفعيل الآلي، يمكنك التواصل مع فريق الدعم وسنقوم بمراجعة طلبك يدويًا.</div>
+      <button class="ghost" onclick="contactSupport()">📞 تواصل مع الدعم عبر واتساب</button>
+      <div class="hint">إذا واجهتك أي مشكلة في التفعيل التلقائي، يمكنك التواصل معنا هنا وسنراجعها يدويًا.</div>
     </div>
   </div>
 </div>
@@ -240,17 +252,18 @@ const ADMIN_WHATSAPP = '201108712091'; // رقم الدعم على واتساب 
 const PAY_NUMBER = '01108712171';       // رقم التحويل (فوري / محفظة)
 const SUBMIT_PAYMENT_FUNCTION = 'submit-payment';
 
-// دي قيم افتراضية للعرض بس (لحد ما app_settings تتحمل من السيرفر)،
-// المصدر الحقيقي دايمًا هو الباك إند مش الأرقام دي.
-let SETTINGS = { trial_days: 3, grace_days: 2, discount_price_usd: 1, discount_months: 3, full_price_usd: 5 };
+// قيم افتراضية للعرض فقط (إلى حين تحميل app_settings من الخادم)،
+// والمصدر الحقيقي دائمًا هو الخادم وليس هذه الأرقام.
+let SETTINGS = { trial_days: 3, grace_days: 3, discount_price_usd: 1, discount_months: 3, full_price_usd: 5 };
 
 let CURRENT_USER = null;
 let PROFILE = null;
 let EGP_RATE = null;
 let ACCOUNT_ID = null;
-let SUBSCRIPTION = null; // بييجي من جدول subscriptions فقط — للعرض، مفيش أي تعديل عليه من الصفحة دي
+let SUBSCRIPTION = null; // يأتي من جدول subscriptions فقط — للعرض، ولا يوجد أي تعديل عليه من هذه الصفحة
 let SELECTED_METHOD = 'wallet';
 let SUBMITTING = false;
+let RELOADING = false;
 
 function setTopStatus(msg, isError){
   const el = document.getElementById('topStatus');
@@ -269,10 +282,10 @@ async function init(){
     PROFILE = (rows && rows[0]) || { id: CURRENT_USER.id, settings:{} };
     if (!PROFILE.settings) PROFILE.settings = {};
 
-    // الاشتراك بيتقرأ من الباك إند فقط (جدول subscriptions عن طريق RLS) —
-    // مفيش أي كتابة على status/plan/expires_at من الصفحة دي خالص.
-    // التجربة المجانية بتتفعل أوتوماتيك من تريجر في الداتابيز أول ما الحساب
-    // يتعمل، فمفيش زرار "فعّل الباقة المجانية" هنا خالص.
+    // يُقرأ الاشتراك من الخادم فقط (جدول subscriptions عبر RLS) —
+    // ولا توجد أي كتابة على status/plan/expires_at من هذه الصفحة.
+    // تُفعَّل التجربة المجانية تلقائيًا بواسطة مشغّل (Trigger) في قاعدة البيانات فور إنشاء الحساب،
+    // لذلك لا يوجد زر "تفعيل الباقة المجانية" هنا.
     const { data: accId, error: accErr } = await sbClient.rpc('get_my_account_id');
     if (accErr){ setTopStatus('تعذّر تحميل الحساب: ' + accErr.message, true); return; }
     ACCOUNT_ID = accId;
@@ -290,7 +303,7 @@ async function loadSettings(){
     const { data, error } = await sbClient.from('app_settings').select('key,value');
     if (error || !data) return;
     data.forEach(r => { SETTINGS[r.key] = isNaN(r.value) ? r.value : Number(r.value); });
-  } catch(e){ /* هنكمل بالقيم الافتراضية لو الجدول مش قريّ للعامة */ }
+  } catch(e){ /* نكمل بالقيم الافتراضية إذا لم يكن الجدول متاحًا للقراءة العامة */ }
 }
 
 async function loadSubscription(){
@@ -308,8 +321,6 @@ async function loadExchangeRate(){
 }
 
 function sub(){ return SUBSCRIPTION; }
-// فترة السماح = past_due لحد expires_at + grace_days (زي الباك إند بالظبط)
-function graceUntil(s){ return s && s.expires_at ? new Date(new Date(s.expires_at).getTime() + SETTINGS.grace_days*86400000).toISOString() : null; }
 
 function currentPriceUsd(){
   const used = (SUBSCRIPTION && SUBSCRIPTION.discount_months_used) || 0;
@@ -321,12 +332,20 @@ function waLink(message){
 }
 function contactSupport(){
   const name = (PROFILE && PROFILE.full_name) || '';
-  window.open(waLink(`مرحبًا، أنا ${name} وأرغب في الاستفسار بخصوص حسابي في Media Buyer Hub.`), '_blank');
+  window.open(waLink(`مرحبًا، أنا ${name} وأرغب في التواصل بخصوص حسابي في Media Buyer Hub.`), '_blank');
 }
 
 function fmtEgp(usd){
-  if (!EGP_RATE) return 'تعذّر جلب سعر الصرف حاليًا';
-  return `≈ ${(usd*EGP_RATE).toFixed(2)} ج.م (سعر الصرف الحالي: ${EGP_RATE.toFixed(2)})`;
+  if (!EGP_RATE) return 'تعذّر جلب سعر الصرف الحالي';
+  return `≈ ${(usd*EGP_RATE).toFixed(2)} ج.م (حسب سعر الصرف الحالي: ${EGP_RATE.toFixed(2)})`;
+}
+
+function daysLabel(n){
+  n = Number(n);
+  if (n === 1) return 'يوم واحد';
+  if (n === 2) return 'يومان';
+  if (n >= 3 && n <= 10) return `${n} أيام`;
+  return `${n} يومًا`;
 }
 
 function remainingParts(expiresAt){
@@ -340,14 +359,38 @@ function remainingParts(expiresAt){
 }
 function pad(n){ return n.toString().padStart(2,'0'); }
 
+// نهاية فترة السماح = تاريخ انتهاء الباقة + عدد أيام السماح (3 أيام) المحدد في الخادم (app_settings.grace_days)
+function graceUntil(s){
+  if (!s || !s.expires_at) return null;
+  return new Date(new Date(s.expires_at).getTime() + Number(SETTINGS.grace_days) * 86400000).toISOString();
+}
+function isActiveNow(s){
+  return !!(s && s.status === 'active' && s.expires_at && remainingParts(s.expires_at));
+}
+function isGraceNow(s){
+  if (!s || !s.expires_at) return false;
+  if (!['grace','past_due','active'].includes(s.status)) return false;
+  if (remainingParts(s.expires_at)) return false;        // الباقة لم تنتهِ بعد
+  return !!remainingParts(graceUntil(s));                 // انتهت الباقة وما زالت فترة السماح قائمة
+}
+function isExpiredNow(s){
+  if (!s) return false;
+  if (s.status === 'expired' || s.status === 'canceled') return true;
+  if (['grace','past_due','active'].includes(s.status) && s.expires_at && !remainingParts(s.expires_at) && !remainingParts(graceUntil(s))) return true;
+  return false;
+}
+
 function tick(){
   const s = sub();
   const el = document.getElementById('countdownVal');
   if (!s || !el) return;
-  const refDate = s.status === 'past_due' ? graceUntil(s) : s.expires_at;
-  if (!refDate || (s.status !== 'active' && s.status !== 'past_due')) return;
+  const refDate = isGraceNow(s) ? graceUntil(s) : s.expires_at;
+  if (!refDate) return;
   const parts = remainingParts(refDate);
-  if (!parts){ loadSubscription().then(render); return; }
+  if (!parts){
+    if (!RELOADING){ RELOADING = true; loadSubscription().then(() => { RELOADING = false; render(); }); }
+    return;
+  }
   el.textContent = `${parts.d} يوم ${pad(parts.h)}:${pad(parts.m)}:${pad(parts.s)}`;
 }
 
@@ -355,43 +398,44 @@ function render(){
   const s = sub();
   const statusArea = document.getElementById('statusArea');
   const payArea = document.getElementById('payArea');
-  const isActive = s && s.status === 'active' && s.expires_at && remainingParts(s.expires_at);
-  const isGrace = s && s.status === 'past_due' && s.expires_at && remainingParts(graceUntil(s));
-  const needsPayment = !s || s.status === 'expired' || isGrace || (isActive && s.plan === 'free_trial');
+  const isActive = isActiveNow(s);
+  const isGrace = isGraceNow(s);
+  const isExpired = isExpiredNow(s);
+  const needsPayment = !s || isExpired || isGrace || (isActive && s.plan === 'free_trial');
 
-  // status banner
+  // شريط الحالة
   if (isActive){
-    const planLabel = s.plan === 'free_trial' ? 'الفترة التجريبية' : `الباقة الشهرية (${currentPriceUsd()}$ / شهر)`;
+    const planLabel = s.plan === 'free_trial' ? 'التجربة المجانية' : `الباقة (${currentPriceUsd()}$/شهر)`;
     statusArea.innerHTML = `
       <div class="status-banner active">
-        <div class="big">✅ ${planLabel} مفعّلة</div>
+        <div class="big">✅ ${planLabel} مفعّلة الآن</div>
         <div class="countdown num" id="countdownVal">--</div>
-        <div class="countdown-lbl">${s.plan === 'free_trial' ? 'الوقت المتبقي من الفترة التجريبية' : 'الوقت المتبقي على الاشتراك'}</div>
+        <div class="countdown-lbl">${s.plan === 'free_trial' ? 'الوقت المتبقي من التجربة المجانية' : 'الوقت المتبقي في الباقة'}</div>
       </div>`;
   } else if (isGrace){
     statusArea.innerHTML = `
       <div class="status-banner grace">
-        <div class="big">⚠️ انتهى اشتراكك — أنت الآن في فترة السماح</div>
+        <div class="big">⚠️ انتهت باقتك — أنت الآن في فترة السماح (${daysLabel(SETTINGS.grace_days)} فقط)</div>
         <div class="countdown num" id="countdownVal">--</div>
-        <div class="countdown-lbl">عند انتهاء فترة السماح دون تجديد، سيتم إيقاف الوصول إلى البيانات تلقائيًا.</div>
+        <div class="countdown-lbl">إذا انتهى هذا الوقت دون تجديد الاشتراك، سيتم إغلاق الوصول إلى البيانات (البكسل) تلقائيًا وقطع الاتصال.</div>
       </div>`;
-  } else if (s && (s.status === 'expired' || s.status === 'past_due')){
+  } else if (isExpired){
     statusArea.innerHTML = `
       <div class="status-banner expired">
-        <div class="big">⌛ انتهت مدة الاشتراك</div>
-        <div class="countdown-lbl">خدمة Media Buyer Hub لتحليل الإعلانات أصبحت مقفلة الآن. لتشغيلها عليك تجديد الاشتراك.</div>
+        <div class="big">⌛ انتهت باقتك وتم إغلاق الوصول إلى البيانات</div>
+        <div class="countdown-lbl">قم بشحن الباقة لإعادة تشغيل البكسل فورًا.</div>
       </div>`;
   } else if (s && s.status === 'pending'){
     statusArea.innerHTML = `
       <div class="status-banner pending">
-        <div class="big">⏳ طلب الدفع قيد المراجعة</div>
-        <div class="countdown-lbl">يجري التحقق من عملية التحويل. سيتم تفعيل الاشتراك تلقائيًا فور اعتماد الدفعة، ولا يلزمك أي إجراء إضافي.</div>
+        <div class="big">⏳ توجد دفعة قيد المراجعة اليدوية</div>
+        <div class="countdown-lbl">سيقوم المسؤول بفحص التحويل والتأكد من رقم الهاتف الذي حوّلت منه، وعند التأكد سيتم تفعيل الباقة هنا تلقائيًا دون أي إجراء إضافي منك. وفي حال تبيّن أن التحويل غير صحيح فسيتم حظر حسابك.</div>
       </div>`;
   } else {
     statusArea.innerHTML = '';
   }
 
-  // تظهر منطقة الدفع عند انتهاء الاشتراك أو فترة السماح أو أثناء الفترة التجريبية
+  // تظهر منطقة الدفع عند الحاجة إلى الشحن (منتهية / فترة سماح / تجربة مجانية نشطة يريد صاحبها الشحن قبل انتهائها)
   payArea.innerHTML = needsPayment ? buildPayPanel() : '';
   if (needsPayment) wirePayPanel();
 }
@@ -402,19 +446,19 @@ function buildPayPanel(){
   return `
     <div class="offer-box">
       ${isDiscount ? '<span class="tag">عرض أول ' + SETTINGS.discount_months + ' أشهر</span>' : ''}
-      <h3>🚀 تجديد الاشتراك</h3>
+      <h3>🚀 شحن الباقة</h3>
       <div class="price">
         $${price}
         ${isDiscount ? `<small style="text-decoration:line-through;margin-right:6px;">$${SETTINGS.full_price_usd}</small>` : '<small>/ شهر</small>'}
       </div>
       <div class="egp-price">${fmtEgp(price)}</div>
-      <p>${isDiscount ? `خصم لأول ${SETTINGS.discount_months} أشهر بسعر $${SETTINGS.discount_price_usd} بدلًا من $${SETTINGS.full_price_usd}، ثم يُطبَّق السعر الاعتيادي.` : 'اشتراك شهري بالسعر الاعتيادي.'}</p>
+      <p>${isDiscount ? `أول ${SETTINGS.discount_months} أشهر بسعر مخفّض $${SETTINGS.discount_price_usd} بدلًا من $${SETTINGS.full_price_usd}، ثم السعر العادي.` : 'شحن شهري بالسعر العادي.'}</p>
     </div>
 
     <div class="pay-panel">
-      <h4>💳 إتمام الدفع</h4>
+      <h4>💳 حوّل واشحن الآن</h4>
       <div class="method-tabs" id="methodTabs">
-        <div class="method-tab" data-m="wallet">محفظة إلكترونية</div>
+        <div class="method-tab" data-m="wallet">محفظة</div>
         <div class="method-tab" data-m="fawry">فوري</div>
       </div>
       <div class="pay-number-box">
@@ -422,24 +466,36 @@ function buildPayPanel(){
         <button class="copy-btn" onclick="copyPayNumber()">نسخ</button>
       </div>
 
-      <div class="field-lbl">المبلغ المحوَّل (بالجنيه المصري)</div>
+      <div class="field-lbl">المبلغ الذي حوّلته (بالجنيه المصري)</div>
       <input class="pay-input" id="amountInput" type="number" inputmode="decimal" placeholder="مثال: ${EGP_RATE ? (price*EGP_RATE).toFixed(0) : '50'}">
 
-      <div class="field-lbl">رقم الهاتف المحوَّل منه</div>
+      <div class="field-lbl">رقم الهاتف الذي حوّلت منه (نفس رقم المحفظة/فوري تمامًا)</div>
       <input class="pay-input" id="refInput" type="tel" inputmode="numeric" maxlength="11" placeholder="01xxxxxxxxx" dir="ltr">
+      <div class="hint" style="margin-top:6px; text-align:right;">نستخدم هذا الرقم في المراجعة اليدوية للتأكد من أن التحويل صادر منك فعلًا، وهو أسهل وأسرع من رقم عملية قد يُخطأ في كتابته أو يُلفَّق.</div>
 
-      <div class="field-lbl" style="margin-top:14px;">صورة إيصال التحويل</div>
-      <input class="pay-input" id="proofInput" type="file" accept="image/jpeg,image/png,image/webp">
+      <div class="review-notice" id="reviewNotice" aria-live="polite"></div>
 
-      <div class="hint" style="margin-top:6px; text-align:right;">قم بتحويل قيمة الاشتراك إلى الرقم أعلاه، ثم أدخل المبلغ والرقم المحوَّل منه وأرفق صورة الإيصال. ستتم مراجعة الإيصال وتفعيل الاشتراك في أقرب وقت.</div>
-
-      <button class="primary" id="submitPayBtn" style="margin-top:16px;" onclick="submitPayment()">📤 إرسال صورة التحويل</button>
+      <button class="primary" id="submitPayBtn" style="margin-top:16px;" onclick="submitPayment()">✅ حفظ وتفعيل الباقة</button>
       <div class="pay-msg" id="payMsg"></div>
 
-      <button class="primary green" id="quickActivateBtn" style="margin-top:10px;" onclick="quickActivateWhatsapp()">⚡ تفعيل سريع عبر خدمة العملاء</button>
-      <div class="hint" style="margin-top:6px;">سيتم فتح واتساب مع بيانات التحويل التي أدخلتها أعلاه لتسريع المراجعة اليدوية.</div>
+      <button class="primary green" id="quickActivateBtn" style="margin-top:10px;" onclick="quickActivateWhatsapp()">⚡ هل حوّلت بالفعل؟ تواصل مع خدمة العملاء للتفعيل السريع</button>
+      <div class="hint" style="margin-top:6px;">سيفتح واتساب مباشرة ومعه بيانات التحويل التي كتبتها أعلاه، ليتم التفعيل يدويًا خلال دقائق.</div>
     </div>
   `;
+}
+
+// القسم الموجود أسفل حقل رقم الهاتف:
+// أثناء الإرسال يظهر "جارٍ إرسال البيانات إلى المسؤول…"، وبعد انتهاء الإرسال يظهر تنبيه فحص التحويل.
+function setReviewNotice(sending){
+  const el = document.getElementById('reviewNotice');
+  if (!el) return;
+  if (sending){
+    el.className = 'review-notice sending';
+    el.innerHTML = '<span class="mini-spin"></span><span>جارٍ إرسال البيانات إلى المسؤول…</span>';
+  } else {
+    el.className = 'review-notice';
+    el.innerHTML = '<span>⚠️</span><span>بعد إرسال البيانات، سيقوم المسؤول بفحص التحويل، وإذا تبيّن أنه غير صحيح فسيتم حظر حسابك.</span>';
+  }
 }
 
 function wirePayPanel(){
@@ -447,6 +503,7 @@ function wirePayPanel(){
     if (tab.dataset.m === SELECTED_METHOD) tab.classList.add('active');
     tab.onclick = () => { SELECTED_METHOD = tab.dataset.m; document.querySelectorAll('.method-tab').forEach(t=>t.classList.remove('active')); tab.classList.add('active'); };
   });
+  setReviewNotice(false);
 }
 
 function copyPayNumber(){
@@ -470,14 +527,14 @@ function quickActivateWhatsapp(){
   const amount = document.getElementById('amountInput') ? document.getElementById('amountInput').value.trim() : '';
   const phone = document.getElementById('refInput') ? document.getElementById('refInput').value.trim() : '';
   const name = (PROFILE && PROFILE.full_name) || '';
-  const methodLabel = SELECTED_METHOD === 'fawry' ? 'فوري' : 'محفظة إلكترونية';
+  const methodLabel = SELECTED_METHOD === 'fawry' ? 'فوري' : 'محفظة';
   const price = currentPriceUsd();
   const isDiscount = price === SETTINGS.discount_price_usd;
-  const offerLine = isDiscount ? `تفعيل الاشتراك (عرض أول ${SETTINGS.discount_months} أشهر بسعر $${SETTINGS.discount_price_usd})` : 'تفعيل الاشتراك';
+  const offerLine = isDiscount ? `تفعيل الباقة (عرض أول ${SETTINGS.discount_months} أشهر بسعر $${SETTINGS.discount_price_usd})` : 'تفعيل الباقة';
 
   let msg = `مرحبًا، أنا ${name || 'عميل'} وأرغب في التفعيل السريع.\n${offerLine}\nطريقة التحويل: ${methodLabel}`;
-  if (amount) msg += `\nالمبلغ المحوَّل: ${amount} ج.م`;
-  if (phone) msg += `\nرقم الهاتف المحوَّل منه: ${phone}`;
+  if (amount) msg += `\nالمبلغ الذي حوّلته: ${amount} ج.م`;
+  if (phone) msg += `\nرقم الهاتف الذي حوّلت منه: ${phone}`;
 
   window.open(waLink(msg), '_blank');
 }
@@ -486,45 +543,38 @@ async function submitPayment(){
   if (SUBMITTING) return;
   const amount = Number(document.getElementById('amountInput').value);
   const phone = document.getElementById('refInput').value.trim();
-  if (!amount || amount <= 0){ setPayMsg('يرجى إدخال المبلغ المحوَّل.', 'err'); return; }
-  if (!phone){ setPayMsg('يرجى إدخال رقم الهاتف المحوَّل منه.', 'err'); return; }
-  if (!isValidEgyptPhone(phone)){ setPayMsg('رقم الهاتف غير صحيح. يجب أن يتكوّن من 11 رقمًا ويبدأ بـ 010 أو 011 أو 012 أو 015.', 'err'); return; }
 
-  const proof = document.getElementById('proofInput').files[0];
-  if (!proof){ setPayMsg('يرجى إرفاق صورة إيصال التحويل.', 'err'); return; }
-  if (!/^image\/(jpeg|png|webp)$/.test(proof.type)){ setPayMsg('صيغة الصورة غير مدعومة. الصيغ المسموحة: JPG وPNG وWEBP.', 'err'); return; }
-  if (proof.size > 5*1024*1024){ setPayMsg('حجم الصورة يتجاوز 5 ميغابايت.', 'err'); return; }
+  if (!amount || amount <= 0){ setPayMsg('يرجى إدخال المبلغ الذي حوّلته.', 'err'); return; }
+  if (!phone){ setPayMsg('يرجى إدخال رقم الهاتف الذي حوّلت منه.', 'err'); return; }
+  if (!isValidEgyptPhone(phone)){ setPayMsg('رقم الهاتف غير صحيح — يجب أن يبدأ بـ 010 أو 011 أو 012 أو 015 وأن يتكوّن من 11 رقمًا.', 'err'); return; }
 
   SUBMITTING = true;
   const btn = document.getElementById('submitPayBtn');
   btn.disabled = true;
-  setPayMsg('جارٍ إرسال الطلب…', 'info');
+  setPayMsg('', '');
+  setReviewNotice(true);
 
   try{
     const { data: sessionData } = await sbClient.auth.getSession();
-    const ext = proof.type === 'image/png' ? 'png' : proof.type === 'image/webp' ? 'webp' : 'jpg';
-    const proofPath = `${CURRENT_USER.id}/${Date.now()}.${ext}`;
-    const { error: upErr } = await sbClient.storage.from('payment-screenshots').upload(proofPath, proof, { contentType: proof.type });
-    if (upErr){ setPayMsg('تعذّر رفع الصورة: ' + upErr.message, 'err'); return; }
-    setPayMsg('جارٍ إرسال الإيصال…', 'info');
     const res = await fetch(`${SUPABASE_URL}/functions/v1/${SUBMIT_PAYMENT_FUNCTION}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${sessionData.session.access_token}`
       },
-      body: JSON.stringify({ method: SELECTED_METHOD, transfer_ref: phone, claimed_amount_egp: amount, screenshot_path: proofPath })
+      body: JSON.stringify({ method: SELECTED_METHOD, transfer_ref: phone, sender_phone: phone, claimed_amount_egp: amount })
     });
     const json = await res.json();
 
     if (!res.ok){
-      setPayMsg('تعذّر إتمام العملية: ' + (json.error || res.statusText), 'err');
+      setPayMsg('حدث خطأ: ' + (json.error || res.statusText), 'err');
     } else if (json.status === 'approved'){
-      setPayMsg((json.message || 'تم التحقق من الإيصال وتفعيل الاشتراك بنجاح.') + (json.detected_amount ? ` (المبلغ المستلم: ${json.detected_amount} ج.م)` : ''), 'ok');
+      setPayMsg('تم تفعيل الباقة تلقائيًا 🎉', 'ok');
       await loadSubscription();
       render();
     } else {
-      setPayMsg(json.message || 'تم استلام طلبك وسيتم مراجعته يدويًا في أقرب وقت.', 'info');
+      setPayMsg('تم استلام طلبك وإرسال البيانات إلى المسؤول، وسيتم فحص التحويل خلال وقت قصير. وفي حال تبيّن أنه غير صحيح فسيتم حظر حسابك.', 'info');
+      if (json.whatsapp) window.open(json.whatsapp, '_blank');
       await loadSubscription();
       render();
     }
@@ -533,6 +583,7 @@ async function submitPayment(){
   } finally {
     SUBMITTING = false;
     if (document.getElementById('submitPayBtn')) document.getElementById('submitPayBtn').disabled = false;
+    setReviewNotice(false);
   }
 }
 
