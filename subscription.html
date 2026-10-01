@@ -2,178 +2,255 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="color-scheme" content="dark">
-<meta name="theme-color" content="#0b0d12">
-<title>الاشتراك والفوترة | Media Buyer Hub</title>
+  
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الاشتراك والدفع - Media Buyer Hub</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+
   :root{
-    --bg:#0b0d12; --bg-soft:#0f1218;
-    --surface:#12161d; --surface-2:#171c24; --surface-3:#1d232d;
-    --border:#252c37; --border-soft:#1b2029;
-    --text:#f3f5f8; --text-dim:#9aa4b3; --text-faint:#7b8696;
-    --accent:#6d7cff; --accent-2:#62d9ff; --accent-soft:rgba(109,124,255,.14);
-    --good:#39d98a; --bad:#ff5c73; --mid:#f2c14e;
+    --bg:#090b0f; --bg-soft:#0d1016;
+    --surface:#12151c; --surface-2:#171b24; --surface-3:#1c2029;
+    --border:#20242e; --border-soft:#191c24;
+    --text:#eef1f6; --text-dim:#98a2b3; --text-faint:#5c6474;
+    --accent:#4f7dfb; --accent-2:#22d3ee; --accent-soft:rgba(79,125,251,.14);
+    --good:#22c55e; --bad:#f43f5e; --mid:#eab308;
+    --radius:16px; --radius-sm:10px;
     --font-ui:'Cairo',system-ui,sans-serif;
     --font-num:'JetBrains Mono','Cairo',monospace;
   }
-  *{ box-sizing:border-box; }
-  html{ background:var(--bg); -webkit-text-size-adjust:100%; }
-  body{
-    margin:0; min-height:100dvh; font-family:var(--font-ui); color:var(--text);
-    background:radial-gradient(circle at 50% -10%, rgba(98,217,255,.055), transparent 34%), var(--bg);
-    padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom);
+  * { box-sizing: border-box; }
+  body {
+    font-family: var(--font-ui);
+    background: var(--bg); color: var(--text); margin: 0;
   }
-  :focus-visible{ outline:2px solid var(--accent-2); outline-offset:2px; }
-  bdi.ltr, .ltr{ direction:ltr; unicode-bidi:isolate; display:inline-block; }
+
+  .content { padding:30px 20px; display:flex; justify-content:center; }
+  .wrap { width:100%; max-width:480px; }
+  .top-status { text-align:center; font-size:13px; color:#f0c040; margin-bottom:14px; white-space:pre-wrap; }
+  .top-status.error { color:#ff6a6a; }
+
+  .plan-card {
+    background:linear-gradient(160deg,#1b1e26,#14161d);
+    border:1px solid #262a35; border-radius:18px; padding:24px; margin-bottom:16px;
+    box-shadow:0 10px 30px rgba(0,0,0,.3);
+  }
+  .plan-card h1 { font-size:19px; margin:0 0 6px; text-align:center; }
+  .plan-card .sub { font-size:12.5px; color:#8a90a0; text-align:center; margin:0 0 20px; }
+
+  .status-banner { border-radius:14px; padding:16px; margin-bottom:18px; text-align:center; }
+  .status-banner.active { background:rgba(46,204,113,.12); border:1px solid rgba(46,204,113,.4); }
+  .status-banner.pending { background:rgba(240,192,64,.12); border:1px solid rgba(240,192,64,.4); }
+  .status-banner.expired { background:rgba(255,106,106,.12); border:1px solid rgba(255,106,106,.4); }
+  .status-banner .big { font-size:15px; font-weight:800; margin-bottom:6px; }
+  .status-banner.active .big { color:#2ecc71; }
+  .status-banner.pending .big { color:#f0c040; }
+  .status-banner.expired .big { color:#ff6a6a; }
+  .countdown { font-family:'JetBrains Mono',monospace; font-size:24px; font-weight:800; letter-spacing:1px; margin-top:6px; color:#fff; }
+  .countdown-lbl { font-size:11px; color:#8a90a0; margin-top:4px; }
+
+  .offer-box { border:1px solid #262a35; border-radius:14px; padding:18px; margin-bottom:14px; background:#10121a; position:relative; }
+  .offer-box .tag { position:absolute; top:-10px; right:16px; background:#2ecc71; color:#0f1115; font-size:10.5px; font-weight:800; padding:3px 10px; border-radius:20px; }
+  .offer-box h3 { margin:4px 0 6px; font-size:15px; }
+  .offer-box .price { font-size:22px; font-weight:800; color:#fff; }
+  .offer-box .price small { font-size:12px; color:#8a90a0; font-weight:600; }
+  .egp-price { font-size:12.5px; color:#6ab3ff; margin-top:2px; font-family:'JetBrains Mono',monospace; }
+  .offer-box p { font-size:12px; color:#9aa0ac; margin:8px 0 14px; line-height:1.7; }
+  .offer-box.locked { opacity:.55; }
+
+  button.primary {
+    width:100%; padding:13px; background:#4da3ff; border:none; border-radius:10px;
+    font-size:14.5px; font-weight:800; color:#0f1115; cursor:pointer; font-family:inherit;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  button.primary.green { background:#2ecc71; }
+  button.primary:disabled { opacity:.55; cursor:not-allowed; background:#3a3f4c; color:#8a90a0; }
+  button.ghost {
+    width:100%; padding:11px; background:transparent; border:1px solid #2a2d36; border-radius:10px;
+    font-size:13px; color:#aaa; cursor:pointer; font-family:inherit; margin-top:10px;
+  }
+  .hint { font-size:11px; color:#666; margin-top:14px; text-align:center; line-height:1.7; }
+
+  .status-banner.grace { background:rgba(240,192,64,.12); border:1px solid rgba(240,192,64,.4); }
+  .status-banner.grace .big { color:#f0c040; }
+
+  .pay-panel { border:1px solid #262a35; border-radius:14px; padding:18px; margin-top:14px; background:#0e1017; }
+  .pay-panel h4 { margin:0 0 12px; font-size:14px; }
+  .method-tabs { display:flex; gap:8px; margin-bottom:14px; }
+  .method-tab { flex:1; text-align:center; padding:9px 4px; border-radius:9px; border:1px solid #2a2d36; font-size:12.5px; color:#aaa; cursor:pointer; }
+  .method-tab.active { background:var(--accent-soft); border-color:#4f7dfb; color:#bcd0ff; font-weight:700; }
+  .pay-number-box { display:flex; align-items:center; justify-content:space-between; background:#171b24; border:1px dashed #333a48; border-radius:10px; padding:12px 14px; margin-bottom:14px; }
+  .pay-number-box .num { font-family:'JetBrains Mono',monospace; font-size:17px; font-weight:700; color:#6ab3ff; direction:ltr; }
+  .copy-btn { background:#22242c; border:1px solid #333a48; color:#ddd; border-radius:8px; padding:6px 10px; font-size:11.5px; cursor:pointer; }
+  .field-lbl { font-size:12px; color:#9aa0ac; margin:10px 0 6px; }
+  input.pay-input {
+    width:100%; padding:11px 12px; background:#171b24; border:1px solid #2a2d36; border-radius:9px;
+    color:var(--text); font-size:13.5px; font-family:inherit;
+  }
+  .pay-msg { font-size:12.5px; margin-top:12px; text-align:center; line-height:1.7; }
+  .pay-msg.ok { color:#2ecc71; }
+  .pay-msg.err { color:#ff6a6a; }
+  .pay-msg.info { color:#f0c040; }
+  .spin { display:inline-block; width:14px; height:14px; border:2px solid rgba(0,0,0,.25); border-top-color:#0f1115; border-radius:50%; animation:spin .7s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
 
   .topbar{
-    position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:12px; min-height:58px;
-    padding:10px max(16px, env(safe-area-inset-right)) 10px max(16px, env(safe-area-inset-left));
-    background:rgba(11,13,18,.88); border-bottom:1px solid var(--border-soft);
-    backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    position:sticky; top:0; z-index:120;
+    display:flex; align-items:center; gap:12px;
+    padding:12px clamp(14px,3vw,28px);
+    background:rgba(9,11,15,.86); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border-soft);
   }
-  .brand{ font-weight:800; font-size:16px; white-space:nowrap; }
+  .icon-btn{
+    display:flex; align-items:center; justify-content:center;
+    width:38px; height:38px; border-radius:11px; flex-shrink:0;
+    background:var(--surface); border:1px solid var(--border); color:var(--text);
+    cursor:pointer; transition:.15s; text-decoration:none;
+  }
+  .icon-btn:hover{ background:var(--surface-3); border-color:#2c313d; }
+  .icon-btn svg{ width:19px; height:19px; }
+  .brand{ font-weight:800; font-size:15px; letter-spacing:.2px; white-space:nowrap; color:var(--text); }
   .brand span{ color:var(--accent-2); }
+  .topbar-spacer{ flex:1; }
 
-  .content{ display:flex; justify-content:center; padding:22px 16px 34px; }
-  .wrap{ width:100%; max-width:560px; }
-  .top-status{ text-align:center; font-size:13px; color:var(--mid); margin-bottom:14px; white-space:pre-wrap; }
-  .top-status.error{ color:var(--bad); }
-  .top-status:empty{ display:none; }
 
+  /* ===== Unified visual theme: no slider / no bottom navigation ===== */
+  :root{
+    --bg:#0b0d12;
+    --bg-soft:#0f1218;
+    --surface:#12161d;
+    --surface-2:#171c24;
+    --surface-3:#1d232d;
+    --border:#252c37;
+    --border-soft:#1b2029;
+    --text:#f3f5f8;
+    --text-dim:#9aa4b3;
+    --text-faint:#687384;
+    --accent:#6d7cff;
+    --accent-2:#62d9ff;
+    --accent-soft:rgba(109,124,255,.14);
+    --good:#39d98a;
+    --bad:#ff5c73;
+    --mid:#f2c14e;
+  }
+  html{background:var(--bg);}
+  body{
+    min-height:100dvh;
+    background:
+      radial-gradient(circle at 50% -10%, rgba(98,217,255,.055), transparent 34%),
+      var(--bg);
+    color:var(--text);
+    padding-top:env(safe-area-inset-top);
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  .topbar{
+    position:sticky;
+    top:0;
+    z-index:20;
+    min-height:58px;
+    padding:10px max(16px, env(safe-area-inset-left)) 10px max(16px, env(safe-area-inset-right));
+    background:rgba(11,13,18,.88);
+    border-bottom:1px solid var(--border-soft);
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+  }
+  .brand{font-size:16px;}
+  .brand span{color:var(--accent-2);}
+  .content{padding:22px 16px 34px;}
+  .wrap{max-width:560px;}
   .plan-card{
     background:linear-gradient(180deg,rgba(23,28,36,.96),rgba(16,19,26,.98));
-    border:1px solid var(--border); border-radius:20px; padding:22px;
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:22px;
     box-shadow:0 18px 50px rgba(0,0,0,.24);
   }
-  .plan-card h1{ font-size:20px; margin:0 0 4px; text-align:center; }
-  .plan-card .sub{ font-size:13px; color:var(--text-dim); text-align:center; margin:0 0 20px; line-height:1.8; }
-
-  /* Status banner */
-  .status-banner{ border-radius:14px; padding:16px; margin-bottom:18px; text-align:center; border:1px solid; }
-  .status-banner .big{ display:flex; align-items:center; justify-content:center; gap:8px; font-size:15px; font-weight:800; margin-bottom:6px; }
-  .status-banner .big svg{ width:20px; height:20px; flex-shrink:0; }
-  .status-banner.active{ background:rgba(57,217,138,.09); border-color:rgba(57,217,138,.28); }
-  .status-banner.active .big{ color:var(--good); }
-  .status-banner.pending,.status-banner.grace{ background:rgba(242,193,78,.09); border-color:rgba(242,193,78,.28); }
-  .status-banner.pending .big,.status-banner.grace .big{ color:var(--mid); }
-  .status-banner.expired{ background:rgba(255,92,115,.09); border-color:rgba(255,92,115,.28); }
-  .status-banner.expired .big{ color:var(--bad); }
-  .countdown{ font-family:var(--font-num); font-size:24px; font-weight:800; letter-spacing:1px; margin-top:6px; direction:ltr; }
-  .countdown-lbl{ font-size:12px; color:var(--text-dim); margin-top:4px; line-height:1.8; }
-
-  .skeleton{ height:92px; border-radius:14px; margin-bottom:18px; background:linear-gradient(90deg,var(--surface-2),var(--surface-3),var(--surface-2)); background-size:200% 100%; animation:shimmer 1.4s linear infinite; }
-  @keyframes shimmer{ to{ background-position:-200% 0; } }
-
-  /* Offer */
-  .offer-box,.pay-panel{ background:var(--bg-soft); border:1px solid var(--border); border-radius:14px; padding:18px; }
-  .offer-box{ position:relative; margin-bottom:14px; }
-  .offer-box .tag{ position:absolute; top:-10px; right:16px; background:var(--good); color:#08110d; font-size:11px; font-weight:800; padding:3px 10px; border-radius:20px; }
-  .offer-box h2{ margin:4px 0 6px; font-size:15px; }
-  .offer-box .price{ font-size:22px; font-weight:800; }
-  .offer-box .price small{ font-size:12px; color:var(--text-dim); font-weight:600; }
-  .offer-box .price .old{ text-decoration:line-through; margin-inline-start:8px; }
-  .egp-price{ font-size:12.5px; color:var(--accent-2); margin-top:2px; font-family:var(--font-num); }
-  .offer-box p{ font-size:12.5px; color:var(--text-dim); margin:8px 0 0; line-height:1.8; }
-
-  /* Payment */
-  .pay-panel{ margin-top:14px; }
-  .pay-panel h2{ margin:0 0 4px; font-size:15px; }
-  .pay-panel .lead{ font-size:12.5px; color:var(--text-dim); margin:0 0 14px; line-height:1.8; }
-  .method-tabs{ display:flex; gap:8px; margin-bottom:14px; }
-  .method-tab{
-    flex:1; padding:10px 4px; border-radius:9px; border:1px solid var(--border); background:transparent;
-    font:inherit; font-size:13px; color:var(--text-dim); cursor:pointer;
+  .plan-card h1{font-size:20px;}
+  .plan-card .sub{color:var(--text-dim);line-height:1.8;}
+  .status-banner.active{background:rgba(57,217,138,.09);border-color:rgba(57,217,138,.28)}
+  .status-banner.pending,.status-banner.grace{background:rgba(242,193,78,.09);border-color:rgba(242,193,78,.28)}
+  .status-banner.expired{background:rgba(255,92,115,.09);border-color:rgba(255,92,115,.28)}
+  .status-banner.active .big{color:var(--good)}
+  .status-banner.pending .big,.status-banner.grace .big{color:var(--mid)}
+  .status-banner.expired .big{color:var(--bad)}
+  .countdown{color:var(--text);}
+  .countdown-lbl,.hint{color:var(--text-faint);}
+  .offer-box,.pay-panel{
+    background:var(--bg-soft);
+    border-color:var(--border);
   }
-  .method-tab.active{ background:var(--accent-soft); border-color:var(--accent); color:#cbd1ff; font-weight:700; }
-  .pay-number-box{ display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--surface-2); border:1px dashed #333a48; border-radius:10px; padding:12px 14px; margin-bottom:6px; }
-  .pay-number-box .num{ font-family:var(--font-num); font-size:17px; font-weight:700; color:var(--accent-2); direction:ltr; }
-  .copy-btn{ background:var(--surface-3); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:7px 12px; font:inherit; font-size:12px; cursor:pointer; }
-  .field-lbl{ display:block; font-size:12.5px; color:var(--text-dim); margin:14px 0 6px; }
-  .field-note{ font-size:11.5px; color:var(--text-faint); margin-top:5px; line-height:1.7; }
-  input.pay-input{
-    width:100%; padding:11px 12px; background:var(--surface-2); border:1px solid var(--border); border-radius:9px;
-    color:var(--text); font-size:14px; font-family:inherit;
-  }
-  input.pay-input:focus{ outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
-  input.pay-input.invalid{ border-color:var(--bad); }
-  .pay-msg{ font-size:13px; margin-top:12px; text-align:center; line-height:1.8; min-height:1em; }
-  .pay-msg.ok{ color:var(--good); } .pay-msg.err{ color:var(--bad); } .pay-msg.info{ color:var(--mid); }
-
+  .offer-box .tag{background:var(--good);color:#08110d;}
+  .offer-box .price{color:var(--text)}
+  .offer-box .price small,.offer-box p,.field-lbl{color:var(--text-dim)}
+  .egp-price,.pay-number-box .num{color:var(--accent-2)}
   button.primary{
-    width:100%; padding:13px; background:var(--accent); color:#fff; border:none; border-radius:10px;
-    font:inherit; font-size:14.5px; font-weight:800; cursor:pointer;
-    display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 8px 22px rgba(109,124,255,.18);
+    background:var(--accent);
+    color:#fff;
+    box-shadow:0 8px 22px rgba(109,124,255,.18);
   }
-  button.primary.green{ background:var(--good); color:#07110c; box-shadow:none; }
-  button.primary:disabled{ background:var(--surface-3); color:var(--text-faint); cursor:not-allowed; box-shadow:none; }
-  button.ghost{ width:100%; padding:11px; margin-top:14px; background:transparent; border:1px solid var(--border); border-radius:10px; font:inherit; font-size:13px; color:var(--text-dim); cursor:pointer; }
-  button.ghost:hover,.copy-btn:hover,.method-tab:hover{ border-color:#3a4252; }
-  .hint{ font-size:11.5px; color:var(--text-faint); margin-top:12px; text-align:center; line-height:1.8; }
-  .hint.start{ text-align:start; }
-  .spin{ display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,.3); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; }
-  @keyframes spin{ to{ transform:rotate(360deg); } }
-  .sr-only{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
-  @media (min-width:800px){ .content{ padding-top:34px; padding-bottom:50px; } .plan-card{ padding:28px; } }
-  @media (prefers-reduced-motion:reduce){ .skeleton,.spin{ animation:none; } }
+  button.primary.green{background:var(--good);color:#07110c;box-shadow:none}
+  button.primary:disabled{background:var(--surface-3);color:var(--text-faint)}
+  button.ghost{border-color:var(--border);color:var(--text-dim)}
+  .method-tab{border-color:var(--border);color:var(--text-dim)}
+  .method-tab.active{background:var(--accent-soft);border-color:var(--accent);color:#cbd1ff}
+  .pay-number-box,input.pay-input{background:var(--surface-2);border-color:var(--border)}
+  input.pay-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .copy-btn{background:var(--surface-3);border-color:var(--border);color:var(--text)}
+  .pay-msg.ok{color:var(--good)}
+  .pay-msg.err{color:var(--bad)}
+  .pay-msg.info{color:var(--mid)}
+  @media (min-width:800px){
+    .content{padding-top:34px;padding-bottom:50px;}
+    .plan-card{padding:28px;}
+  }
+
 </style>
 </head>
 <body>
-<header class="topbar">
+<div class="topbar">
   <div class="brand">Media Buyer <span>Hub</span></div>
-</header>
+</div>
 
-<main class="content">
+<div class="content">
   <div class="wrap">
-    <div class="top-status" id="topStatus" role="status" aria-live="polite"></div>
+    <div class="top-status" id="topStatus"></div>
 
     <div class="plan-card">
-      <h1>الاشتراك والفوترة</h1>
-      <p class="sub">إدارة حالة اشتراكك وتجديده من مكان واحد.</p>
+      <h1>الاشتراك والدفع</h1>
 
-      <div id="statusArea"><div class="skeleton" aria-hidden="true"></div></div>
+      <div id="statusArea"></div>
+      <div id="offersArea"></div>
       <div id="payArea"></div>
 
-      <button class="ghost" type="button" onclick="contactSupport()">التواصل مع فريق الدعم عبر واتساب</button>
-      <div class="hint">إذا تعذّر التفعيل التلقائي، تواصل مع فريق الدعم وسنراجع طلبك يدويًا.</div>
+      <button class="ghost" onclick="contactSupport()">📞 التواصل مع الدعم عبر واتساب</button>
+      <div class="hint">في حال تعذّر التفعيل الآلي، يمكنك التواصل مع فريق الدعم وسنقوم بمراجعة طلبك يدويًا.</div>
     </div>
   </div>
-</main>
+</div>
 
 <script>
 const SUPABASE_URL = 'https://zphepebjpxrzpudncuas.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_tIG9XDZeHVZpZjz74e-dBA_ui5GIYw7';
 const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const ADMIN_WHATSAPP = '201108712091';   // رقم الدعم على واتساب
-const PAY_NUMBER = '01108712171';        // رقم استلام التحويلات (محفظة إلكترونية / فوري)
+const ADMIN_WHATSAPP = '201108712091'; // رقم الدعم على واتساب - ثابت
+const PAY_NUMBER = '01108712171';       // رقم التحويل (فوري / محفظة)
 const SUBMIT_PAYMENT_FUNCTION = 'submit-payment';
-const MAX_PROOF_BYTES = 5 * 1024 * 1024;
 
-// قيم افتراضية للعرض فقط إلى حين تحميل app_settings. المصدر المعتمد هو الخادم.
-let SETTINGS = { trial_days: 2, grace_days: 2, discount_price_usd: 1, discount_months: 3, full_price_usd: 5 };
+// دي قيم افتراضية للعرض بس (لحد ما app_settings تتحمل من السيرفر)،
+// المصدر الحقيقي دايمًا هو الباك إند مش الأرقام دي.
+let SETTINGS = { trial_days: 3, grace_days: 2, discount_price_usd: 1, discount_months: 3, full_price_usd: 5 };
 
 let CURRENT_USER = null;
 let PROFILE = null;
 let EGP_RATE = null;
 let ACCOUNT_ID = null;
-let SUBSCRIPTION = null; // للقراءة فقط من جدول subscriptions؛ لا تُجرى أي كتابة على الحالة من هذه الصفحة
+let SUBSCRIPTION = null; // بييجي من جدول subscriptions فقط — للعرض، مفيش أي تعديل عليه من الصفحة دي
 let SELECTED_METHOD = 'wallet';
 let SUBMITTING = false;
-
-const METHOD_LABELS = { wallet: 'محفظة إلكترونية', fawry: 'فوري' };
-
-const ICONS = {
-  check:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 3 3 5-6"/></svg>',
-  clock:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
-  alert:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2.5 20h19L12 3z"/><path d="M12 10v4M12 17.5h.01"/></svg>',
-  lock:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>'
-};
 
 function setTopStatus(msg, isError){
   const el = document.getElementById('topStatus');
@@ -188,33 +265,32 @@ async function init(){
     CURRENT_USER = data.session.user;
 
     const { data: rows, error } = await sbClient.from('user_data').select('*').eq('id', CURRENT_USER.id).limit(1);
-    if (error){ setTopStatus('تعذّر تحميل بيانات الحساب: ' + error.message, true); clearSkeleton(); return; }
-    PROFILE = (rows && rows[0]) || { id: CURRENT_USER.id, settings: {} };
+    if (error){ setTopStatus('تعذّر تحميل بياناتك: ' + error.message, true); return; }
+    PROFILE = (rows && rows[0]) || { id: CURRENT_USER.id, settings:{} };
     if (!PROFILE.settings) PROFILE.settings = {};
 
-    // تُقرأ حالة الاشتراك من الخادم فقط (جدول subscriptions عبر RLS).
-    // تُفعَّل الفترة التجريبية تلقائيًا بواسطة trigger في قاعدة البيانات عند إنشاء الحساب.
+    // الاشتراك بيتقرأ من الباك إند فقط (جدول subscriptions عن طريق RLS) —
+    // مفيش أي كتابة على status/plan/expires_at من الصفحة دي خالص.
+    // التجربة المجانية بتتفعل أوتوماتيك من تريجر في الداتابيز أول ما الحساب
+    // يتعمل، فمفيش زرار "فعّل الباقة المجانية" هنا خالص.
     const { data: accId, error: accErr } = await sbClient.rpc('get_my_account_id');
-    if (accErr){ setTopStatus('تعذّر تحميل بيانات الحساب: ' + accErr.message, true); clearSkeleton(); return; }
+    if (accErr){ setTopStatus('تعذّر تحميل الحساب: ' + accErr.message, true); return; }
     ACCOUNT_ID = accId;
 
     await Promise.all([loadSettings(), loadSubscription(), loadExchangeRate()]);
     render();
     setInterval(tick, 1000);
   } catch(err){
-    clearSkeleton();
-    setTopStatus('حدث خطأ غير متوقع: ' + err.message, true);
+    setTopStatus('حدث خطأ: ' + err.message, true);
   }
 }
-
-function clearSkeleton(){ document.getElementById('statusArea').innerHTML = ''; }
 
 async function loadSettings(){
   try{
     const { data, error } = await sbClient.from('app_settings').select('key,value');
     if (error || !data) return;
     data.forEach(r => { SETTINGS[r.key] = isNaN(r.value) ? r.value : Number(r.value); });
-  } catch(e){ /* نستخدم القيم الافتراضية إذا لم يتوفر الجدول للقراءة العامة */ }
+  } catch(e){ /* هنكمل بالقيم الافتراضية لو الجدول مش قريّ للعامة */ }
 }
 
 async function loadSubscription(){
@@ -232,36 +308,35 @@ async function loadExchangeRate(){
 }
 
 function sub(){ return SUBSCRIPTION; }
-// فترة السماح: الحالة past_due حتى expires_at + grace_days (مطابقة لمنطق الخادم)
+// فترة السماح = past_due لحد expires_at + grace_days (زي الباك إند بالظبط)
 function graceUntil(s){ return s && s.expires_at ? new Date(new Date(s.expires_at).getTime() + SETTINGS.grace_days*86400000).toISOString() : null; }
 
 function currentPriceUsd(){
   const used = (SUBSCRIPTION && SUBSCRIPTION.discount_months_used) || 0;
   return used < SETTINGS.discount_months ? SETTINGS.discount_price_usd : SETTINGS.full_price_usd;
 }
-function usd(n){ return `<bdi class="ltr">$${n}</bdi>`; }
-function egpExpected(price){ return EGP_RATE ? Math.ceil(price * EGP_RATE) : null; }
 
-function waLink(message){ return `https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent(message)}`; }
+function waLink(message){
+  return `https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent(message)}`;
+}
 function contactSupport(){
   const name = (PROFILE && PROFILE.full_name) || '';
-  window.open(waLink(`مرحبًا، أنا ${name || 'أحد عملائكم'} وأرغب في الاستفسار عن حسابي في Media Buyer Hub.`), '_blank', 'noopener');
+  window.open(waLink(`مرحبًا، أنا ${name} وأرغب في الاستفسار بخصوص حسابي في Media Buyer Hub.`), '_blank');
 }
 
-function fmtEgp(price){
-  if (!EGP_RATE) return 'تعذّر جلب سعر الصرف حاليًا.';
-  return `≈ ${(price*EGP_RATE).toFixed(2)} ج.م (سعر الصرف: ${EGP_RATE.toFixed(2)})`;
+function fmtEgp(usd){
+  if (!EGP_RATE) return 'تعذّر جلب سعر الصرف حاليًا';
+  return `≈ ${(usd*EGP_RATE).toFixed(2)} ج.م (سعر الصرف الحالي: ${EGP_RATE.toFixed(2)})`;
 }
 
 function remainingParts(expiresAt){
   const diff = new Date(expiresAt).getTime() - Date.now();
   if (diff <= 0) return null;
-  return {
-    d: Math.floor(diff/86400000),
-    h: Math.floor((diff%86400000)/3600000),
-    m: Math.floor((diff%3600000)/60000),
-    s: Math.floor((diff%60000)/1000)
-  };
+  const d = Math.floor(diff/86400000);
+  const h = Math.floor((diff%86400000)/3600000);
+  const m = Math.floor((diff%3600000)/60000);
+  const s = Math.floor((diff%60000)/1000);
+  return { d,h,m,s };
 }
 function pad(n){ return n.toString().padStart(2,'0'); }
 
@@ -282,129 +357,102 @@ function render(){
   const payArea = document.getElementById('payArea');
   const isActive = s && s.status === 'active' && s.expires_at && remainingParts(s.expires_at);
   const isGrace = s && s.status === 'past_due' && s.expires_at && remainingParts(graceUntil(s));
-  const isTrial = isActive && s.plan === 'free_trial';
-  const needsPayment = !s || s.status === 'expired' || isGrace || isTrial || (s.status === 'past_due' && !isGrace);
+  const needsPayment = !s || s.status === 'expired' || isGrace || (isActive && s.plan === 'free_trial');
 
+  // status banner
   if (isActive){
-    const planLabel = isTrial ? 'الفترة التجريبية' : `الباقة الشهرية (${usd(currentPriceUsd())} / شهر)`;
+    const planLabel = s.plan === 'free_trial' ? 'الفترة التجريبية' : `الباقة الشهرية (${currentPriceUsd()}$ / شهر)`;
     statusArea.innerHTML = `
       <div class="status-banner active">
-        <div class="big">${ICONS.check}<span>${planLabel} نشطة</span></div>
-        <div class="countdown" id="countdownVal">--</div>
-        <div class="countdown-lbl">${isTrial ? 'المدة المتبقية من الفترة التجريبية' : 'المدة المتبقية حتى تاريخ التجديد'}</div>
+        <div class="big">✅ ${planLabel} مفعّلة</div>
+        <div class="countdown num" id="countdownVal">--</div>
+        <div class="countdown-lbl">${s.plan === 'free_trial' ? 'الوقت المتبقي من الفترة التجريبية' : 'الوقت المتبقي على الاشتراك'}</div>
       </div>`;
   } else if (isGrace){
     statusArea.innerHTML = `
       <div class="status-banner grace">
-        <div class="big">${ICONS.alert}<span>انتهى اشتراكك، وحسابك الآن في فترة السماح</span></div>
-        <div class="countdown" id="countdownVal">--</div>
-        <div class="countdown-lbl">سيُعلَّق الوصول إلى بياناتك تلقائيًا عند انتهاء فترة السماح دون تجديد.</div>
+        <div class="big">⚠️ انتهى اشتراكك — أنت الآن في فترة السماح</div>
+        <div class="countdown num" id="countdownVal">--</div>
+        <div class="countdown-lbl">عند انتهاء فترة السماح دون تجديد، سيتم إيقاف الوصول إلى البيانات تلقائيًا.</div>
       </div>`;
   } else if (s && (s.status === 'expired' || s.status === 'past_due')){
     statusArea.innerHTML = `
       <div class="status-banner expired">
-        <div class="big">${ICONS.lock}<span>انتهى الاشتراك</span></div>
-        <div class="countdown-lbl">تم تعليق الوصول إلى تحليلات الإعلانات في Media Buyer Hub. جدّد اشتراكك لاستعادة الوصول.</div>
+        <div class="big">⌛ انتهت مدة الاشتراك</div>
+        <div class="countdown-lbl">خدمة Media Buyer Hub لتحليل الإعلانات أصبحت مقفلة الآن. لتشغيلها عليك تجديد الاشتراك.</div>
       </div>`;
   } else if (s && s.status === 'pending'){
     statusArea.innerHTML = `
       <div class="status-banner pending">
-        <div class="big">${ICONS.clock}<span>طلب الدفع قيد المراجعة</span></div>
-        <div class="countdown-lbl">نتحقق من عملية التحويل. سيُفعَّل اشتراكك تلقائيًا فور اعتماد الدفعة، ولا يلزم أي إجراء إضافي.</div>
+        <div class="big">⏳ طلب الدفع قيد المراجعة</div>
+        <div class="countdown-lbl">يجري التحقق من عملية التحويل. سيتم تفعيل الاشتراك تلقائيًا فور اعتماد الدفعة، ولا يلزمك أي إجراء إضافي.</div>
       </div>`;
   } else {
     statusArea.innerHTML = '';
   }
 
-  // تظهر منطقة الدفع عند عدم وجود اشتراك، أو انتهائه، أو في فترة السماح، أو أثناء الفترة التجريبية
-  payArea.innerHTML = needsPayment ? buildPayPanel(s, isTrial) : '';
+  // تظهر منطقة الدفع عند انتهاء الاشتراك أو فترة السماح أو أثناء الفترة التجريبية
+  payArea.innerHTML = needsPayment ? buildPayPanel() : '';
   if (needsPayment) wirePayPanel();
-  tick();
 }
 
-function buildPayPanel(s, isTrial){
+function buildPayPanel(){
   const price = currentPriceUsd();
-  const isDiscount = price === SETTINGS.discount_price_usd && SETTINGS.discount_price_usd !== SETTINGS.full_price_usd;
-  const title = isTrial ? 'الترقية إلى الباقة المدفوعة' : (!s ? 'تفعيل الاشتراك' : 'تجديد الاشتراك');
-  const expected = egpExpected(price);
+  const isDiscount = price === SETTINGS.discount_price_usd;
   return `
-    <section class="offer-box" aria-labelledby="offerTitle">
-      ${isDiscount ? `<span class="tag">عرض الأشهر الأولى: ${SETTINGS.discount_months} أشهر</span>` : ''}
-      <h2 id="offerTitle">${title}</h2>
+    <div class="offer-box">
+      ${isDiscount ? '<span class="tag">عرض أول ' + SETTINGS.discount_months + ' أشهر</span>' : ''}
+      <h3>🚀 تجديد الاشتراك</h3>
       <div class="price">
-        ${usd(price)} <small>/ شهر</small>
-        ${isDiscount ? `<small class="old">${usd(SETTINGS.full_price_usd)}</small>` : ''}
+        $${price}
+        ${isDiscount ? `<small style="text-decoration:line-through;margin-right:6px;">$${SETTINGS.full_price_usd}</small>` : '<small>/ شهر</small>'}
       </div>
       <div class="egp-price">${fmtEgp(price)}</div>
-      <p>${isDiscount
-        ? `سعر مخفّض لأول ${SETTINGS.discount_months} أشهر (${usd(SETTINGS.discount_price_usd)} بدلًا من ${usd(SETTINGS.full_price_usd)})، ثم يُطبَّق السعر القياسي.`
-        : 'اشتراك شهري بالسعر القياسي.'}</p>
-    </section>
+      <p>${isDiscount ? `خصم لأول ${SETTINGS.discount_months} أشهر بسعر $${SETTINGS.discount_price_usd} بدلًا من $${SETTINGS.full_price_usd}، ثم يُطبَّق السعر الاعتيادي.` : 'اشتراك شهري بالسعر الاعتيادي.'}</p>
+    </div>
 
-    <section class="pay-panel" aria-labelledby="payTitle">
-      <h2 id="payTitle">إتمام الدفع</h2>
-      <p class="lead">حوّل المبلغ إلى الرقم أدناه، ثم أدخل بيانات التحويل وارفع الإيصال لتفعيل الاشتراك.</p>
-
-      <div class="method-tabs" id="methodTabs" role="tablist" aria-label="وسيلة الدفع">
-        <button type="button" class="method-tab" role="tab" data-m="wallet">${METHOD_LABELS.wallet}</button>
-        <button type="button" class="method-tab" role="tab" data-m="fawry">${METHOD_LABELS.fawry}</button>
+    <div class="pay-panel">
+      <h4>💳 إتمام الدفع</h4>
+      <div class="method-tabs" id="methodTabs">
+        <div class="method-tab" data-m="wallet">محفظة إلكترونية</div>
+        <div class="method-tab" data-m="fawry">فوري</div>
       </div>
-
       <div class="pay-number-box">
         <span class="num" id="payNumber">${PAY_NUMBER}</span>
-        <button type="button" class="copy-btn" id="copyBtn" onclick="copyPayNumber()">نسخ الرقم</button>
+        <button class="copy-btn" onclick="copyPayNumber()">نسخ</button>
       </div>
 
-      <label class="field-lbl" for="amountInput">المبلغ المحوَّل (بالجنيه المصري)</label>
-      <input class="pay-input" id="amountInput" type="number" inputmode="decimal" min="1" step="any" placeholder="مثال: ${expected || 50}">
-      ${expected ? `<div class="field-note">المبلغ المستحق تقريبًا: ${expected} ج.م، بحسب سعر الصرف الحالي.</div>` : ''}
+      <div class="field-lbl">المبلغ المحوَّل (بالجنيه المصري)</div>
+      <input class="pay-input" id="amountInput" type="number" inputmode="decimal" placeholder="مثال: ${EGP_RATE ? (price*EGP_RATE).toFixed(0) : '50'}">
 
-      <label class="field-lbl" for="refInput">رقم الهاتف المحوَّل منه</label>
-      <input class="pay-input ltr" id="refInput" type="tel" inputmode="numeric" maxlength="14" placeholder="01xxxxxxxxx" dir="ltr" autocomplete="tel">
-      <div class="field-note">يجب أن يطابق رقم المحفظة أو الرقم المستخدم في فوري.</div>
+      <div class="field-lbl">رقم الهاتف المحوَّل منه</div>
+      <input class="pay-input" id="refInput" type="tel" inputmode="numeric" maxlength="11" placeholder="01xxxxxxxxx" dir="ltr">
 
-      <label class="field-lbl" for="proofInput">إيصال التحويل (صورة)</label>
+      <div class="field-lbl" style="margin-top:14px;">صورة إيصال التحويل</div>
       <input class="pay-input" id="proofInput" type="file" accept="image/jpeg,image/png,image/webp">
-      <div class="hint start">يُحلَّل الإيصال آليًا للتحقق من المبلغ والمستلم وتاريخ العملية، ومن عدم استخدامه سابقًا. تأكد من وضوح الصورة واكتمال تفاصيل العملية. الصيغ المدعومة: JPG وPNG وWEBP، بحد أقصى 5 ميجابايت.</div>
 
-      <button type="button" class="primary" id="submitPayBtn" style="margin-top:16px;" onclick="submitPayment()">إرسال الإيصال وتفعيل الاشتراك</button>
-      <div class="pay-msg" id="payMsg" role="status" aria-live="polite"></div>
+      <div class="hint" style="margin-top:6px; text-align:right;">قم بتحويل قيمة الاشتراك إلى الرقم أعلاه، ثم أدخل المبلغ والرقم المحوَّل منه وأرفق صورة الإيصال. ستتم مراجعة الإيصال وتفعيل الاشتراك في أقرب وقت.</div>
 
-      <button type="button" class="primary green" id="quickActivateBtn" style="margin-top:10px;" onclick="quickActivateWhatsapp()">طلب تفعيل سريع عبر واتساب</button>
-      <div class="hint">يفتح واتساب برسالة جاهزة تتضمن بيانات التحويل المدخلة، لتسريع المراجعة اليدوية.</div>
-    </section>
+      <button class="primary" id="submitPayBtn" style="margin-top:16px;" onclick="submitPayment()">📤 إرسال صورة التحويل</button>
+      <div class="pay-msg" id="payMsg"></div>
+
+      <button class="primary green" id="quickActivateBtn" style="margin-top:10px;" onclick="quickActivateWhatsapp()">⚡ تفعيل سريع عبر خدمة العملاء</button>
+      <div class="hint" style="margin-top:6px;">سيتم فتح واتساب مع بيانات التحويل التي أدخلتها أعلاه لتسريع المراجعة اليدوية.</div>
+    </div>
   `;
 }
 
 function wirePayPanel(){
-  const tabs = document.querySelectorAll('.method-tab');
-  const sync = () => tabs.forEach(t => {
-    const on = t.dataset.m === SELECTED_METHOD;
-    t.classList.toggle('active', on);
-    t.setAttribute('aria-selected', on ? 'true' : 'false');
-  });
-  tabs.forEach(tab => { tab.onclick = () => { SELECTED_METHOD = tab.dataset.m; sync(); }; });
-  sync();
-  ['amountInput','refInput'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('input', () => el.classList.remove('invalid'));
+  document.querySelectorAll('.method-tab').forEach(tab => {
+    if (tab.dataset.m === SELECTED_METHOD) tab.classList.add('active');
+    tab.onclick = () => { SELECTED_METHOD = tab.dataset.m; document.querySelectorAll('.method-tab').forEach(t=>t.classList.remove('active')); tab.classList.add('active'); };
   });
 }
 
-async function copyPayNumber(){
-  let ok = false;
-  try{ await navigator.clipboard.writeText(PAY_NUMBER); ok = true; }
-  catch(e){
-    try{
-      const ta = document.createElement('textarea');
-      ta.value = PAY_NUMBER; ta.style.position = 'fixed'; ta.style.opacity = '0';
-      document.body.appendChild(ta); ta.select();
-      ok = document.execCommand('copy'); document.body.removeChild(ta);
-    } catch(_){ ok = false; }
-  }
-  const btn = document.getElementById('copyBtn');
-  if (ok && btn){ const t = btn.textContent; btn.textContent = 'تم النسخ'; setTimeout(() => { btn.textContent = t; }, 1600); }
-  setPayMsg(ok ? 'تم نسخ الرقم.' : 'تعذّر النسخ تلقائيًا، يرجى نسخ الرقم يدويًا.', ok ? 'ok' : 'err');
+function copyPayNumber(){
+  navigator.clipboard.writeText(PAY_NUMBER);
+  const el = document.getElementById('payMsg');
+  if (el){ el.className = 'pay-msg ok'; el.textContent = 'تم نسخ الرقم ✅'; }
 }
 
 function setPayMsg(msg, type){
@@ -414,107 +462,82 @@ function setPayMsg(msg, type){
   el.textContent = msg;
 }
 
-// تحويل الأرقام العربية/الفارسية إلى لاتينية وتوحيد صيغة رقم الهاتف المصري
-function normalizePhone(v){
-  let out = String(v || '')
-    .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
-    .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
-    .replace(/[^\d]/g, '');
-  if (out.startsWith('0020')) out = '0' + out.slice(4);
-  else if (out.startsWith('20') && out.length === 12) out = '0' + out.slice(2);
-  return out;
-}
-function isValidEgyptPhone(v){ return /^01[0125][0-9]{8}$/.test(v); }
-
-function setBusy(busy){
-  const btn = document.getElementById('submitPayBtn');
-  if (!btn) return;
-  btn.disabled = busy;
-  btn.innerHTML = busy ? '<span class="spin" aria-hidden="true"></span><span>جارٍ المعالجة…</span>' : 'إرسال الإيصال وتفعيل الاشتراك';
+function isValidEgyptPhone(v){
+  return /^01[0125][0-9]{8}$/.test(v);
 }
 
 function quickActivateWhatsapp(){
-  const amount = (document.getElementById('amountInput') || {}).value || '';
-  const phone = normalizePhone((document.getElementById('refInput') || {}).value);
+  const amount = document.getElementById('amountInput') ? document.getElementById('amountInput').value.trim() : '';
+  const phone = document.getElementById('refInput') ? document.getElementById('refInput').value.trim() : '';
   const name = (PROFILE && PROFILE.full_name) || '';
-  const methodLabel = METHOD_LABELS[SELECTED_METHOD] || METHOD_LABELS.wallet;
+  const methodLabel = SELECTED_METHOD === 'fawry' ? 'فوري' : 'محفظة إلكترونية';
   const price = currentPriceUsd();
-  const isDiscount = price === SETTINGS.discount_price_usd && SETTINGS.discount_price_usd !== SETTINGS.full_price_usd;
-  const offerLine = isDiscount ? `طلب تفعيل الاشتراك (عرض أول ${SETTINGS.discount_months} أشهر بسعر $${SETTINGS.discount_price_usd})` : 'طلب تفعيل الاشتراك';
+  const isDiscount = price === SETTINGS.discount_price_usd;
+  const offerLine = isDiscount ? `تفعيل الاشتراك (عرض أول ${SETTINGS.discount_months} أشهر بسعر $${SETTINGS.discount_price_usd})` : 'تفعيل الاشتراك';
 
-  let msg = `مرحبًا، أنا ${name || 'أحد عملائكم'} وأرغب في التفعيل السريع.\n${offerLine}\nوسيلة الدفع: ${methodLabel}`;
+  let msg = `مرحبًا، أنا ${name || 'عميل'} وأرغب في التفعيل السريع.\n${offerLine}\nطريقة التحويل: ${methodLabel}`;
   if (amount) msg += `\nالمبلغ المحوَّل: ${amount} ج.م`;
-  if (phone) msg += `\nالرقم المحوَّل منه: ${phone}`;
+  if (phone) msg += `\nرقم الهاتف المحوَّل منه: ${phone}`;
 
-  window.open(waLink(msg), '_blank', 'noopener');
+  window.open(waLink(msg), '_blank');
 }
 
 async function submitPayment(){
   if (SUBMITTING) return;
-  const amountEl = document.getElementById('amountInput');
-  const phoneEl = document.getElementById('refInput');
-  const proofEl = document.getElementById('proofInput');
-  const amount = Number(amountEl.value);
-  const phone = normalizePhone(phoneEl.value);
+  const amount = Number(document.getElementById('amountInput').value);
+  const phone = document.getElementById('refInput').value.trim();
+  if (!amount || amount <= 0){ setPayMsg('يرجى إدخال المبلغ المحوَّل.', 'err'); return; }
+  if (!phone){ setPayMsg('يرجى إدخال رقم الهاتف المحوَّل منه.', 'err'); return; }
+  if (!isValidEgyptPhone(phone)){ setPayMsg('رقم الهاتف غير صحيح. يجب أن يتكوّن من 11 رقمًا ويبدأ بـ 010 أو 011 أو 012 أو 015.', 'err'); return; }
 
-  if (!amount || amount <= 0){ amountEl.classList.add('invalid'); amountEl.focus(); setPayMsg('أدخل المبلغ المحوَّل.', 'err'); return; }
-  if (!phone){ phoneEl.classList.add('invalid'); phoneEl.focus(); setPayMsg('أدخل رقم الهاتف المحوَّل منه.', 'err'); return; }
-  if (!isValidEgyptPhone(phone)){ phoneEl.classList.add('invalid'); phoneEl.focus(); setPayMsg('رقم الهاتف غير صالح. يجب أن يتكوّن من 11 رقمًا ويبدأ بـ 010 أو 011 أو 012 أو 015.', 'err'); return; }
-
-  const proof = proofEl.files[0];
-  if (!proof){ proofEl.classList.add('invalid'); setPayMsg('ارفع صورة إيصال التحويل.', 'err'); return; }
-  if (!/^image\/(jpeg|png|webp)$/.test(proof.type)){ proofEl.classList.add('invalid'); setPayMsg('صيغة الصورة غير مدعومة. الصيغ المسموحة: JPG وPNG وWEBP.', 'err'); return; }
-  if (proof.size > MAX_PROOF_BYTES){ proofEl.classList.add('invalid'); setPayMsg('حجم الصورة يتجاوز الحد الأقصى (5 ميجابايت).', 'err'); return; }
+  const proof = document.getElementById('proofInput').files[0];
+  if (!proof){ setPayMsg('يرجى إرفاق صورة إيصال التحويل.', 'err'); return; }
+  if (!/^image\/(jpeg|png|webp)$/.test(proof.type)){ setPayMsg('صيغة الصورة غير مدعومة. الصيغ المسموحة: JPG وPNG وWEBP.', 'err'); return; }
+  if (proof.size > 5*1024*1024){ setPayMsg('حجم الصورة يتجاوز 5 ميغابايت.', 'err'); return; }
 
   SUBMITTING = true;
-  setBusy(true);
-  setPayMsg('جارٍ رفع الإيصال…', 'info');
+  const btn = document.getElementById('submitPayBtn');
+  btn.disabled = true;
+  setPayMsg('جارٍ إرسال الطلب…', 'info');
 
   try{
     const { data: sessionData } = await sbClient.auth.getSession();
-    if (!sessionData || !sessionData.session){
-      setPayMsg('انتهت جلسة الدخول. سجّل الدخول مجددًا ثم أعد المحاولة.', 'err');
-      setTimeout(() => { window.location.href = 'index.html'; }, 2000);
-      return;
-    }
     const ext = proof.type === 'image/png' ? 'png' : proof.type === 'image/webp' ? 'webp' : 'jpg';
     const proofPath = `${CURRENT_USER.id}/${Date.now()}.${ext}`;
     const { error: upErr } = await sbClient.storage.from('payment-screenshots').upload(proofPath, proof, { contentType: proof.type });
     if (upErr){ setPayMsg('تعذّر رفع الصورة: ' + upErr.message, 'err'); return; }
-
-    setPayMsg('جارٍ تحليل الإيصال والتحقق من المبلغ والمستلم وتاريخ العملية…', 'info');
+    setPayMsg('جارٍ إرسال الإيصال…', 'info');
     const res = await fetch(`${SUPABASE_URL}/functions/v1/${SUBMIT_PAYMENT_FUNCTION}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${sessionData.session.access_token}`
       },
-      body: JSON.stringify({ method: SELECTED_METHOD, transfer_ref: phone, sender_phone: phone, claimed_amount_egp: amount, screenshot_path: proofPath })
+      body: JSON.stringify({ method: SELECTED_METHOD, transfer_ref: phone, claimed_amount_egp: amount, screenshot_path: proofPath })
     });
-    let json = {};
-    try{ json = await res.json(); } catch(e){ json = {}; }
+    const json = await res.json();
 
     if (!res.ok){
-      setPayMsg('تعذّر إكمال العملية: ' + (json.error || res.statusText), 'err');
+      setPayMsg('تعذّر إتمام العملية: ' + (json.error || res.statusText), 'err');
     } else if (json.status === 'approved'){
-      setPayMsg((json.message || 'تم التحقق من الإيصال وتفعيل الاشتراك بنجاح.') + (json.detected_amount ? ` (المبلغ المقروء من الإيصال: ${json.detected_amount} ج.م)` : ''), 'ok');
+      setPayMsg((json.message || 'تم التحقق من الإيصال وتفعيل الاشتراك بنجاح.') + (json.detected_amount ? ` (المبلغ المستلم: ${json.detected_amount} ج.م)` : ''), 'ok');
       await loadSubscription();
       render();
     } else {
-      setPayMsg(json.message || 'استلمنا طلبك وسنراجعه يدويًا في أقرب وقت ممكن.', 'info');
-      if (json.whatsapp) window.open(json.whatsapp, '_blank', 'noopener');
+      setPayMsg(json.message || 'تم استلام طلبك وسيتم مراجعته يدويًا في أقرب وقت.', 'info');
       await loadSubscription();
       render();
     }
   } catch(err){
-    setPayMsg('حدث خطأ غير متوقع: ' + err.message, 'err');
+    setPayMsg('حدث خطأ: ' + err.message, 'err');
   } finally {
     SUBMITTING = false;
-    setBusy(false);
+    if (document.getElementById('submitPayBtn')) document.getElementById('submitPayBtn').disabled = false;
   }
 }
 
 init();
 </script>
+
 </body>
 </html>
