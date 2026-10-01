@@ -2,9 +2,9 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
   
-<
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>الاشتراك والدفع - Media Buyer Hub</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -220,7 +220,7 @@
 
     <div class="plan-card">
       <h1>الاشتراك والدفع</h1>
-      <p class="sub">التجربة المجانية بتتفعل أوتوماتيك أول ما تعمل حساب — وتفعيل الباقة المدفوعة بيتم أوتوماتيك بعد التحقق من التحويل.</p>
+      <p class="sub" id="subLine">التجربة المجانية بتتفعل أوتوماتيك أول ما تعمل حساب — وتفعيل الباقة المدفوعة بيتم أوتوماتيك بعد التحقق من التحويل.</p>
 
       <div id="statusArea"></div>
       <div id="offersArea"></div>
@@ -243,7 +243,7 @@ const SUBMIT_PAYMENT_FUNCTION = 'submit-payment';
 
 // دي قيم افتراضية للعرض بس (لحد ما app_settings تتحمل من السيرفر)،
 // المصدر الحقيقي دايمًا هو الباك إند مش الأرقام دي.
-let SETTINGS = { trial_days: 14, grace_days: 2, discount_price_usd: 1, discount_months: 3, full_price_usd: 5 };
+let SETTINGS = { trial_days: 2, grace_days: 2, discount_price_usd: 1, discount_months: 3, full_price_usd: 5 };
 
 let CURRENT_USER = null;
 let PROFILE = null;
@@ -279,6 +279,8 @@ async function init(){
     ACCOUNT_ID = accId;
 
     await Promise.all([loadSettings(), loadSubscription(), loadExchangeRate()]);
+    const sl = document.getElementById('subLine');
+    if (sl) sl.textContent = `الفترة التجريبية المجانية ${SETTINGS.trial_days === 2 ? 'يومين' : SETTINGS.trial_days + ' أيام'} بتتفعل أوتوماتيك أول ما تعمل حساب — وتفعيل الباقة المدفوعة بيتم أوتوماتيك بعد التحقق من التحويل.`;
     render();
     setInterval(tick, 1000);
   } catch(err){
@@ -309,6 +311,8 @@ async function loadExchangeRate(){
 }
 
 function sub(){ return SUBSCRIPTION; }
+// فترة السماح = past_due لحد expires_at + grace_days (زي الباك إند بالظبط)
+function graceUntil(s){ return s && s.expires_at ? new Date(new Date(s.expires_at).getTime() + SETTINGS.grace_days*86400000).toISOString() : null; }
 
 function currentPriceUsd(){
   const used = (SUBSCRIPTION && SUBSCRIPTION.discount_months_used) || 0;
@@ -343,8 +347,8 @@ function tick(){
   const s = sub();
   const el = document.getElementById('countdownVal');
   if (!s || !el) return;
-  const refDate = s.status === 'grace' ? s.grace_until : s.expires_at;
-  if (!refDate || (s.status !== 'active' && s.status !== 'grace')) return;
+  const refDate = s.status === 'past_due' ? graceUntil(s) : s.expires_at;
+  if (!refDate || (s.status !== 'active' && s.status !== 'past_due')) return;
   const parts = remainingParts(refDate);
   if (!parts){ loadSubscription().then(render); return; }
   el.textContent = `${parts.d} يوم ${pad(parts.h)}:${pad(parts.m)}:${pad(parts.s)}`;
@@ -355,7 +359,7 @@ function render(){
   const statusArea = document.getElementById('statusArea');
   const payArea = document.getElementById('payArea');
   const isActive = s && s.status === 'active' && s.expires_at && remainingParts(s.expires_at);
-  const isGrace = s && s.status === 'grace' && s.grace_until && remainingParts(s.grace_until);
+  const isGrace = s && s.status === 'past_due' && s.expires_at && remainingParts(graceUntil(s));
   const needsPayment = !s || s.status === 'expired' || isGrace || (isActive && s.plan === 'free_trial');
 
   // status banner
@@ -374,11 +378,11 @@ function render(){
         <div class="countdown num" id="countdownVal">--</div>
         <div class="countdown-lbl">لو الوقت ده خلص من غير ما تشحن، هيتقفل الوصول للبيانات (البيكسل) أوتوماتيك</div>
       </div>`;
-  } else if (s && s.status === 'expired'){
+  } else if (s && (s.status === 'expired' || s.status === 'past_due')){
     statusArea.innerHTML = `
       <div class="status-banner expired">
-        <div class="big">⌛ باقتك انتهت والوصول للبيانات اتقفل</div>
-        <div class="countdown-lbl">اشحن الباقة عشان يرجع البيكسل يشتغل تاني على طول</div>
+        <div class="big">⌛ انتهت مدة الاشتراك</div>
+        <div class="countdown-lbl">خدمة Media Buyer Hub لتحليل الإعلانات أصبحت مقفلة الآن. لتشغيلها عليك تجديد الاشتراك.</div>
       </div>`;
   } else if (s && s.status === 'pending'){
     statusArea.innerHTML = `
@@ -426,6 +430,9 @@ function buildPayPanel(){
 
       <div class="field-lbl">رقم الموبايل اللي حوّلت منه (نفس رقم المحفظة/فوري بالظبط)</div>
       <input class="pay-input" id="refInput" type="tel" inputmode="numeric" maxlength="11" placeholder="01xxxxxxxxx" dir="ltr">
+      <div class="field-lbl">صورة التحويل (سكرين شوت)</div>
+      <input class="pay-input" id="proofInput" type="file" accept="image/jpeg,image/png,image/webp">
+
       <div class="hint" style="margin-top:6px; text-align:right;">بنستخدم الرقم ده في المراجعة اليدوية للتأكد إن التحويل فعلاً صادر من عندك — أسهل وأسرع بكتير من رقم عملية ممكن يتلخبط أو يتلفّق.</div>
 
       <button class="primary" id="submitPayBtn" style="margin-top:16px;" onclick="submitPayment()">✅ حفظ وتفعيل الباقة</button>
@@ -486,6 +493,11 @@ async function submitPayment(){
   if (!phone){ setPayMsg('اكتب رقم الموبايل اللي حوّلت منه', 'err'); return; }
   if (!isValidEgyptPhone(phone)){ setPayMsg('رقم الموبايل مش صحيح — لازم يبدأ بـ 010 أو 011 أو 012 أو 015 ويكون 11 رقم.', 'err'); return; }
 
+  const proof = document.getElementById('proofInput').files[0];
+  if (!proof){ setPayMsg('ارفع صورة التحويل', 'err'); return; }
+  if (!/^image\/(jpeg|png|webp)$/.test(proof.type)){ setPayMsg('الصورة لازم تكون JPG أو PNG أو WEBP', 'err'); return; }
+  if (proof.size > 5*1024*1024){ setPayMsg('حجم الصورة أكبر من 5 ميجا', 'err'); return; }
+
   SUBMITTING = true;
   const btn = document.getElementById('submitPayBtn');
   btn.disabled = true;
@@ -493,13 +505,17 @@ async function submitPayment(){
 
   try{
     const { data: sessionData } = await sbClient.auth.getSession();
+    const ext = proof.type === 'image/png' ? 'png' : proof.type === 'image/webp' ? 'webp' : 'jpg';
+    const proofPath = `${CURRENT_USER.id}/${Date.now()}.${ext}`;
+    const { error: upErr } = await sbClient.storage.from('payment-screenshots').upload(proofPath, proof, { contentType: proof.type });
+    if (upErr){ setPayMsg('تعذر رفع الصورة: ' + upErr.message, 'err'); return; }
     const res = await fetch(`${SUPABASE_URL}/functions/v1/${SUBMIT_PAYMENT_FUNCTION}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${sessionData.session.access_token}`
       },
-      body: JSON.stringify({ method: SELECTED_METHOD, transfer_ref: phone, sender_phone: phone, claimed_amount_egp: amount })
+      body: JSON.stringify({ method: SELECTED_METHOD, transfer_ref: phone, sender_phone: phone, claimed_amount_egp: amount, screenshot_path: proofPath })
     });
     const json = await res.json();
 
