@@ -2,7 +2,9 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>تفاصيل الإعلان - Media Buyer Hub</title>
 
 <!-- ====== PWA: manifest + icons + theme color ====== -->
@@ -236,6 +238,32 @@
   .intel-item strong{font-size:12px}.intel-item span{display:block;color:var(--text-dim);font-size:11px;line-height:1.65;margin-top:2px}
   .intel-actions{display:grid;gap:7px}.intel-action{padding:10px 11px;border:1px solid var(--border);border-radius:11px;background:var(--surface-3);font-size:11.5px;line-height:1.65}
   @media(max-width:520px){.intel-head{flex-direction:column}.intel-confidence{width:100%;display:flex;align-items:center;justify-content:center;gap:8px}.intel-grid{grid-template-columns:1fr 1fr}}
+
+  /* ---------- Placements / simple labels / creative analysis ---------- */
+  .plat-bar{display:flex;gap:6px;overflow-x:auto;align-items:center;margin:0 0 14px;padding-bottom:2px}
+  .plat-title{font-size:11px;color:var(--text-faint);flex:0 0 auto}
+  .plat-chip{flex:0 0 auto;font-family:inherit;font-size:11.5px;font-weight:700;padding:6px 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--text-dim);cursor:pointer;white-space:nowrap}
+  .plat-chip.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+  .metric-sub{font-size:8.5px;color:var(--text-faint);margin-top:3px;line-height:1.3}
+  .pending-note{margin-top:8px;font-size:11px;color:var(--text-faint);border:1px dashed var(--border);border-radius:10px;padding:7px 10px}
+  .cre-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:18px}
+  .cre-top{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap}
+  .cre-media{position:relative;width:112px;flex-shrink:0;border-radius:12px;overflow:hidden;background:var(--bg-soft)}
+  .cre-media .ph{height:112px;display:flex;align-items:center;justify-content:center;color:var(--text-faint)}
+  .cre-media .ph svg{width:30px;height:30px;opacity:.5}
+  .cre-img,.cre-video{width:100%;display:block;max-height:200px;object-fit:cover}
+  .cre-play{position:absolute;inset-inline-start:6px;bottom:6px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.65);color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.35)}
+  .cre-main{flex:1;min-width:170px}
+  .cre-sub{font-size:11px;color:var(--text-dim);font-weight:700;margin:12px 0 6px}
+  .cre-main .cre-sub:first-child{margin-top:0}
+  .cre-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:6px}
+  .cre-box{border:1px solid var(--border-soft);background:var(--bg-soft);border-radius:9px;padding:7px 4px;text-align:center;display:flex;flex-direction:column;gap:2px}
+  .cre-box b{font-size:12.5px}.cre-box span{font-size:9px;color:var(--text-faint)}
+  .cre-note{font-size:11px;color:var(--text-faint);margin-top:10px}
+  .cre-link{display:inline-block;margin-top:8px;font-size:11px;color:var(--text-dim)}
+  .ret-row{display:flex;align-items:center;gap:8px;font-size:10px;color:var(--text-dim);margin-top:5px}
+  .ret-row span{width:30px}.ret-row i{flex:1;height:5px;border-radius:4px;background:var(--surface-3);overflow:hidden;display:block}
+  .ret-row u{display:block;height:100%;background:var(--text);text-decoration:none}.ret-row em{font-style:normal;width:46px;text-align:end}
 </style>
 </head>
 <body>
@@ -278,6 +306,8 @@
 
   <div id="adHeadWrap"></div>
 
+  <div id="placementWrap"></div>
+
   <div class="chart-card" id="chartCard" style="display:none;">
     <div class="chart-card-head">
       <h3>الأداء المالي خلال الفترة</h3>
@@ -291,6 +321,8 @@
 
   <div id="summaryWrap"></div>
   <div id="metricsWrap"></div>
+
+  <div id="creativeWrap"></div>
 
   <div id="intelligenceWrap"></div>
 
@@ -493,6 +525,105 @@ function smartCommentState(c){
   return {level:'mid',label:SYSTEM_LANG==='ar'?'يحتاج إلى رد':'Reply recommended'};
 }
 
+/* ---------------- Placements / status / creative helpers ---------------- */
+const PLAT_LABELS = { facebook:'Facebook', instagram:'Instagram', messenger:'Messenger', whatsapp:'WhatsApp', audience_network:'Audience Network', threads:'Threads' };
+let SELECTED_PLATFORM = 'all', PLAT_ROWS = {}, EXT = null, VID = null, ACC_NAME = '';
+
+function curIns(){
+  if (SELECTED_PLATFORM !== 'all') return PLAT_ROWS[SELECTED_PLATFORM] || null;
+  if (!INS && !EXT) return null;
+  return Object.assign({}, EXT || {}, INS || {});
+}
+function noSpend(){ return !INS || num(INS.spend) <= 0; }
+function vArr(ins, key){ const a = ins && ins[key]; return Array.isArray(a) && a[0] ? num(a[0].value) : 0; }
+function fmtN(n){ return num(n).toLocaleString(); }
+function statusInfo(){
+  const es = String((AD && (AD.effective_status || AD.status)) || '').toUpperCase();
+  const st = ADSET && ADSET.start_time ? new Date(ADSET.start_time).getTime() : 0;
+  if (es === 'PREAPPROVED' || (es === 'ACTIVE' && st > Date.now())) return { label:'مجدول', cls:'off' };
+  const M = { ACTIVE:['نشط','on'], PAUSED:['متوقف','off'], CAMPAIGN_PAUSED:['الحملة متوقفة','off'], ADSET_PAUSED:['المجموعة متوقفة','off'],
+    PENDING_REVIEW:['قيد المراجعة','off'], IN_PROCESS:['قيد التحضير','off'], WITH_ISSUES:['به مشكلة','off'], DISAPPROVED:['مرفوض','off'],
+    PENDING_BILLING_INFO:['بانتظار الدفع','off'], ARCHIVED:['مؤرشف','off'], DELETED:['محذوف','off'] };
+  const m = M[es] || [es || '—', 'off'];
+  return { label:m[0], cls:m[1] };
+}
+
+async function loadExtras(){
+  const timeRange = JSON.stringify({ since: PARAMS.since, until: PARAMS.until });
+  const vf = 'video_play_actions,video_p25_watched_actions,video_p50_watched_actions,video_p75_watched_actions,video_p100_watched_actions,video_avg_time_watched_actions,video_thruplay_watched_actions';
+  const jobs = [];
+  jobs.push((async () => {
+    for (const f of ['reach,frequency,inline_link_clicks,' + vf, 'reach,frequency,inline_link_clicks']){
+      try { const r = await gget(`${PARAMS.adId}/insights`, { fields:f, time_range:timeRange, access_token:PARAMS.token }); EXT = (r.data && r.data[0]) || null; return; }
+      catch(e){ EXT = null; }
+    }
+  })());
+  jobs.push((async () => {
+    const base = 'impressions,clicks,spend,ctr,cpc,cpm,actions,action_values,inline_link_clicks,' + vf;
+    for (const f of [base + ',reach,frequency', base]){
+      try {
+        const r = await gget(`${PARAMS.adId}/insights`, { fields:f, breakdowns:'publisher_platform', time_range:timeRange, limit:50, access_token:PARAMS.token });
+        const rows = {};
+        (r.data || []).forEach(row => { if (num(row.impressions) > 0 || num(row.spend) > 0) rows[row.publisher_platform] = row; });
+        PLAT_ROWS = rows; return;
+      } catch(e){}
+    }
+  })());
+  jobs.push((async () => { try { const r = await gget(PARAMS.actId, { fields:'name', access_token:PARAMS.token }); ACC_NAME = r.name || ''; } catch(e){} })());
+  const vid = AD && AD.creative && AD.creative.video_id;
+  if (vid) jobs.push((async () => { try { VID = await gget(vid, { fields:'source,picture,permalink_url,length', access_token:PARAMS.token }); } catch(e){ VID = null; } })());
+  await Promise.all(jobs);
+  renderAll();
+}
+
+function renderPlacements(){
+  const el = document.getElementById('placementWrap'); if (!el) return;
+  const keys = Object.keys(PLAT_ROWS);
+  if (!keys.length){ el.innerHTML = ''; return; }
+  if (SELECTED_PLATFORM !== 'all' && !PLAT_ROWS[SELECTED_PLATFORM]) SELECTED_PLATFORM = 'all';
+  const chip = (k, l) => `<button type="button" class="plat-chip ${SELECTED_PLATFORM===k?'on':''}" onclick="selectPlatform('${k}')">${esc(l)}</button>`;
+  el.innerHTML = `<div class="plat-bar"><span class="plat-title">المنصة</span>${chip('all','الكل')}${keys.map(k => chip(k, PLAT_LABELS[k] || k)).join('')}</div>`;
+}
+function selectPlatform(k){ SELECTED_PLATFORM = k; renderPlacements(); renderSummary(); renderMetrics(); renderCreative(); }
+
+function renderCreative(){
+  const el = document.getElementById('creativeWrap'); if (!el || !AD) return;
+  const I = curIns(), cr = AD.creative || {};
+  const thumb = cr.image_url || cr.thumbnail_url || (VID && VID.picture) || '';
+  const hasVideo = !!cr.video_id, src = VID && VID.source;
+  const storyLink = cr.effective_object_story_id ? `https://www.facebook.com/${cr.effective_object_story_id}` : (VID && VID.permalink_url ? `https://www.facebook.com${VID.permalink_url}` : '');
+  let media;
+  if (src) media = `<video class="cre-video" controls playsinline preload="none" poster="${esc(thumb)}" src="${esc(src)}"></video>`;
+  else if (thumb) media = `<img class="cre-img" src="${esc(thumb)}" alt="" referrerpolicy="no-referrer">` + (hasVideo ? '<span class="cre-play">▶</span>' : '');
+  else media = `<div class="ph">${iconImage()}</div>`;
+  const spent = I && num(I.spend) > 0;
+  const g = re => arrAction(I, re);
+  const box = (l, v) => `<div class="cre-box"><b class="num">${v}</b><span>${l}</span></div>`;
+  let main = '';
+  if (!spent){
+    main = '<div class="cre-note">لم يبدأ الصرف بعد — ستظهر مؤشرات الكريتف بعد أول صرف.</div>';
+  } else {
+    const imp = num(I.impressions);
+    const eng = [['تفاعلات (لايك…)', g(/^post_reaction$/)], ['تعليقات', g(/^comment$/)], ['مشاركات', g(/^post$/)], ['حفظ', g(/post_save/)],
+      ['نقرات الرابط', num(I.inline_link_clicks) || g(/^link_click$/)], ['تفاعل المنشور', g(/^post_engagement$/)]];
+    main = `<div class="cre-sub">التفاعل مع الكريتف</div><div class="cre-grid">${eng.map(e => box(e[0], fmtN(e[1]))).join('')}</div>`;
+    const plays = vArr(I, 'video_play_actions'), v3 = g(/^video_view$/), thru = vArr(I, 'video_thruplay_watched_actions');
+    if (plays > 0 || v3 > 0){
+      const p = [['25%', vArr(I,'video_p25_watched_actions')], ['50%', vArr(I,'video_p50_watched_actions')], ['75%', vArr(I,'video_p75_watched_actions')], ['100%', vArr(I,'video_p100_watched_actions')]];
+      const avg = vArr(I, 'video_avg_time_watched_actions'), base = plays || v3;
+      const hook = imp ? 100 * v3 / imp : 0, hold = v3 ? 100 * thru / v3 : 0;
+      main += `<div class="cre-sub">أداء الفيديو</div><div class="cre-grid">${box('تشغيل', fmtN(plays || v3))}${box('مشاهدة 3 ثواني', fmtN(v3))}${box('ThruPlay', fmtN(thru))}${box('Hook rate', hook.toFixed(1) + '%')}${box('Hold rate', hold.toFixed(1) + '%')}${box('متوسط المشاهدة', avg ? avg.toFixed(1) + 'ث' : '—')}</div>` +
+        p.map(r => `<div class="ret-row"><span>${r[0]}</span><i><u style="width:${base ? Math.min(100, 100 * r[1] / base).toFixed(0) : 0}%"></u></i><em class="num">${fmtN(r[1])}</em></div>`).join('');
+    } else if (hasVideo){
+      main += '<div class="cre-note">إعلان فيديو — لا توجد مشاهدات مسجلة في الفترة/المنصة المختارة.</div>';
+    } else {
+      main += '<div class="cre-note">إعلان صورة — لا توجد مؤشرات فيديو.</div>';
+    }
+  }
+  el.innerHTML = `<div class="section-title">تحليل الكريتف<div class="section-line"></div></div>
+    <div class="cre-card"><div class="cre-top"><div class="cre-media">${media}</div><div class="cre-main">${main}${storyLink ? `<a class="cre-link" href="${esc(storyLink)}" target="_blank" rel="noopener">فتح المنشور على فيسبوك ↗</a>` : ''}</div></div></div>`;
+}
+
 /* ---------------- Init ---------------- */
 async function init(){
   try{
@@ -532,10 +663,15 @@ async function loadAdDetails(){
   setTopStatus(t('loading'));
   const timeRange = JSON.stringify({ since: PARAMS.since, until: PARAMS.until });
   const adFields = 'id,name,status,effective_status,adset_id,campaign_id,created_time,creative{name,thumbnail_url,image_url}';
+  const adFieldsExt = 'id,name,status,effective_status,adset_id,campaign_id,created_time,creative{name,thumbnail_url,image_url,video_id,effective_object_story_id}';
   const insightFields = 'impressions,reach,clicks,spend,ctr,cpc,cpm,conversions,actions,action_values,quality_ranking,engagement_rate_ranking,conversion_rate_ranking';
+  const getAd = async () => {
+    try { return await gget(`${PARAMS.adId}`, { fields: adFieldsExt, access_token: PARAMS.token }); }
+    catch(e){ return await gget(`${PARAMS.adId}`, { fields: adFields, access_token: PARAMS.token }); }
+  };
 
   const [adRes, insRes, dailyRes] = await Promise.all([
-    gget(`${PARAMS.adId}`, { fields: adFields, access_token: PARAMS.token }),
+    getAd(),
     gget(`${PARAMS.adId}/insights`, { fields: insightFields, time_range: timeRange, access_token: PARAMS.token }).catch(()=>({data:[]})),
     gget(`${PARAMS.adId}/insights`, { fields:'spend,actions,action_values,impressions,clicks', time_range: timeRange, time_increment: 1, access_token: PARAMS.token }).catch(()=>({data:[]}))
   ]);
@@ -544,14 +680,18 @@ async function loadAdDetails(){
   INS = (insRes.data && insRes.data[0]) || null;
   DAILY = dailyRes.data || [];
 
-  // نجيب الميزانية اليومية لمجموعة الإعلان (لزرار زوّد الميزانية)
+  // نجيب الميزانية اليومية + موعد البدء لمجموعة الإعلان (لزرار زوّد الميزانية وحالة "مجدول")
   if (AD.adset_id){
-    try { ADSET = await gget(`${AD.adset_id}`, { fields:'id,name,daily_budget', access_token: PARAMS.token }); }
-    catch(e){ ADSET = null; }
+    try { ADSET = await gget(`${AD.adset_id}`, { fields:'id,name,daily_budget,start_time,end_time,effective_status,status', access_token: PARAMS.token }); }
+    catch(e){
+      try { ADSET = await gget(`${AD.adset_id}`, { fields:'id,name,daily_budget', access_token: PARAMS.token }); }
+      catch(e2){ ADSET = null; }
+    }
   }
 
   setTopStatus('');
   renderAll();
+  loadExtras();
 }
 
 /* ---------------- Deep ad intelligence: frontend-only, multi-signal ---------------- */
@@ -628,6 +768,7 @@ function smartAdIntelligence(){
 }
 function renderIntelligence(){
   const el=document.getElementById('intelligenceWrap'); if(!el)return;
+  if(noSpend()){ el.innerHTML=''; return; }
   const x=smartAdIntelligence(), m=x.metrics||{};
   const level=x.signals?.some(s=>s.level==='bad')?'bad':(x.signals?.some(s=>s.level==='mid')?'mid':'good');
   const metric=(k,v)=>`<div class="intel-mini"><div class="k">${k}</div><div class="v">${v}</div></div>`;
@@ -643,10 +784,12 @@ function renderIntelligence(){
 
 function renderAll(){
   renderHeader();
+  renderPlacements();
   renderIntelligence();
   renderChart();
   renderSummary();
   renderMetrics();
+  renderCreative();
   renderQuality();
   renderActions();
 }
@@ -672,6 +815,8 @@ function renderHeader(){
   const thumb = creative.thumbnail_url || creative.image_url;
   const m = metricBoxes(INS);
   const verdict = getVerdict(m.ctrRate, m.cpmRate, m.cpcRate);
+  const si = statusInfo();
+  const accName = ACC_NAME || PARAMS.accLabel;
 
   document.getElementById('adHeadWrap').innerHTML = `
     <div class="ad-head-card">
@@ -680,11 +825,13 @@ function renderHeader(){
         <div class="ad-head-title">${AD.name}</div>
         ${creative.name && creative.name !== AD.name ? `<div class="ad-head-creative-name">${creative.name}</div>` : ''}
         <div class="ad-head-sub">
-          <span class="status-dot ${AD.status==='ACTIVE'?'on':'off'}"></span>${AD.status === 'ACTIVE' ? t('active') : t('paused')}
-          ${PARAMS.accLabel ? `<span class="acc-tag">${PARAMS.accLabel}</span>` : ''}
+          <span class="status-dot ${si.cls==='on'?'on':'off'}"></span>${si.label}
+          ${accName ? `<span class="acc-tag">${esc(accName)}</span>` : ''}
           <span>· ${t('period')}: ${PARAMS.since} → ${PARAMS.until}</span>
         </div>
-        <div class="verdict-badge ${badgeClass(verdict.level)}">${verdict.label}</div>
+        ${noSpend()
+          ? `<div class="pending-note">لم يبدأ الصرف بعد — لا يوجد تقييم حتى يبدأ الإعلان في الصرف.</div>`
+          : `<div class="verdict-badge ${badgeClass(verdict.level)}">${verdict.label}</div>`}
       </div>
     </div>
   `;
@@ -756,13 +903,15 @@ function renderChart(){
 }
 
 function renderSummary(){
-  const spend = INS ? num(INS.spend) : 0;
-  const revenue = INS ? getRevenue(INS.action_values) : 0;
-  const purchases = INS ? getPurchases(INS.actions, INS.conversions) : 0;
-  const clicks = INS ? num(INS.clicks) : 0;
+  const I = curIns();
+  const ns = !I || num(I.spend) <= 0;
+  const spend = I ? num(I.spend) : 0;
+  const revenue = I ? getRevenue(I.action_values) : 0;
+  const purchases = I ? getPurchases(I.actions, I.conversions) : 0;
+  const clicks = I ? num(I.clicks) : 0;
   const roas = spend ? (revenue/spend) : 0;
   const convRate = clicks ? ((purchases/clicks)*100) : 0;
-  const qualityCls = convRate >= 3 ? 'good' : (convRate >= 1.5 ? 'mid' : 'bad');
+  const qualityCls = ns ? '' : (convRate >= 3 ? 'good' : (convRate >= 1.5 ? 'mid' : 'bad'));
   const qualityLabel = convRate >= 3 ? 'ممتازة' : (convRate >= 1.5 ? 'متوسطة' : 'ضعيفة');
 
   let profitBox = '';
@@ -779,27 +928,48 @@ function renderSummary(){
       <div class="summary-box"><div class="lbl">الإنفاق</div><div class="val num">${money(spend)}</div></div>
       <div class="summary-box"><div class="lbl">الإيراد (من فيسبوك)</div><div class="val num">${money(revenue)}</div></div>
       ${profitBox}
-      <div class="summary-box ${roas>=1?'profit':'loss'}"><div class="lbl">ROAS</div><div class="val num">${roas.toFixed(2)}x</div></div>
+      <div class="summary-box ${ns?'':(roas>=1?'profit':'loss')}"><div class="lbl">ROAS</div><div class="val num">${roas.toFixed(2)}x</div></div>
       <div class="summary-box"><div class="lbl">عدد المبيعات</div><div class="val num">${purchases.toFixed(0)}</div></div>
-      <div class="summary-box ${qualityCls}"><div class="lbl">معدل التحويل</div><div class="val">${convRate.toFixed(2)}% (${qualityLabel})</div></div>
+      <div class="summary-box ${qualityCls}"><div class="lbl">معدل التحويل</div><div class="val">${convRate.toFixed(2)}%${ns?'':` (${qualityLabel})`}</div></div>
     </div>
   `;
 }
 
 function renderMetrics(){
-  const m = metricBoxes(INS);
-  document.getElementById('metricsWrap').innerHTML = `
-    <div class="metrics-grid">
-      <div class="metric-box ${m.ctrRate}"><div class="metric-label">CTR</div><div class="metric-value">${m.ctr.toFixed(2)}%</div></div>
-      <div class="metric-box ${m.cpmRate}"><div class="metric-label">CPM</div><div class="metric-value">${money(m.cpm)}</div></div>
-      <div class="metric-box ${m.cpcRate}"><div class="metric-label">CPC</div><div class="metric-value">${money(m.cpc)}</div></div>
-      <div class="metric-box"><div class="metric-label">الظهور</div><div class="metric-value">${INS?num(INS.impressions).toLocaleString():'0'}</div></div>
-      <div class="metric-box"><div class="metric-label">النقرات</div><div class="metric-value">${INS?num(INS.clicks).toLocaleString():'0'}</div></div>
-    </div>
-  `;
+  const I = curIns();
+  const ns = !I || num(I.spend) <= 0;
+  const g = re => arrAction(I, re);
+  const spend = I ? num(I.spend) : 0, imp = I ? num(I.impressions) : 0, clicks = I ? num(I.clicks) : 0;
+  const purchases = I ? getPurchases(I.actions, I.conversions) : 0;
+  const ctr = I ? num(I.ctr) : 0, cpm = I ? num(I.cpm) : 0, cpc = I ? num(I.cpc) : 0;
+  const rate = (k, v) => ns ? '' : rateMetric(k, v);
+  const cart = g(/add_to_cart/i), lpv = g(/landing_page_view/i), ic = g(/initiate_checkout/i);
+  const lc = (I ? num(I.inline_link_clicks) : 0) || g(/^link_click$/);
+  const reach = I ? num(I.reach) : 0, freq = I ? num(I.frequency) : 0;
+  const cpp = purchases > 0 ? spend / purchases : 0, cpa = cart > 0 ? spend / cart : 0;
+  const box = (cls, lbl, val, sub) => `<div class="metric-box ${cls||''}"><div class="metric-label">${lbl}</div><div class="metric-value">${val}</div><div class="metric-sub">${sub}</div></div>`;
+  const items = [
+    box(rate('ctr', ctr), 'CTR', ctr.toFixed(2) + '%', 'نسبة النقر'),
+    box(rate('cpm', cpm), 'CPM', money(cpm), 'تكلفة ألف ظهور'),
+    box(rate('cpc', cpc), 'CPC', money(cpc), 'تكلفة النقرة'),
+    box('', 'CPP', purchases > 0 ? money(cpp) : '—', 'تكلفة الشراء'),
+    box('', 'الإنفاق', money(spend), 'إجمالي الصرف'),
+    box('', 'الطلبات', purchases.toFixed(0), 'عدد الشراء'),
+    box('', 'الظهور', fmtN(imp), 'مرات العرض'),
+    box('', 'النقرات', fmtN(clicks), 'كل النقرات')
+  ];
+  if (reach > 0) items.push(box('', 'الوصول', fmtN(reach), 'أشخاص مختلفين'));
+  if (freq > 0) items.push(box('', 'التكرار', freq.toFixed(2), 'مرات لكل شخص'));
+  if (lc > 0) items.push(box('', 'نقرات الرابط', fmtN(lc), 'للموقع'));
+  if (lpv > 0) items.push(box('', 'زيارات الصفحة', fmtN(lpv), 'تحميل الصفحة'));
+  if (cart > 0) items.push(box('', 'ATC', fmtN(cart), 'إضافة للسلة'));
+  if (cart > 0) items.push(box('', 'تكلفة السلة', money(cpa), 'لكل إضافة للسلة'));
+  if (ic > 0) items.push(box('', 'بدء الدفع', fmtN(ic), 'Checkout'));
+  document.getElementById('metricsWrap').innerHTML = `<div class="metrics-grid">${items.join('')}</div>`;
 }
 
 function renderQuality(){
+  if(noSpend()){ document.getElementById('qualityWrap').innerHTML=''; return; }
   const rank = code => { const x=INS ? INS[code] : 'UNKNOWN'; const cls=(x==='ABOVE_AVERAGE')?'good':(x==='AVERAGE'||x==='UNKNOWN'?'mid':'bad'); const label=x==='ABOVE_AVERAGE'?t('above'):x==='AVERAGE'?t('average'):x==='UNKNOWN'?t('unavailable'):x==='BELOW_AVERAGE_10'?t('muchBelow'):t('below'); return {cls,label}; };
   const qr=rank('conversion_rate_ranking'), qq=rank('quality_ranking'), qe=rank('engagement_rate_ranking');
 
