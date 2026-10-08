@@ -2,15 +2,11 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">  
-  
-<title>ربط الحسابات الإعلانية - Media Buyer Hub</title>
-
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ربط الحسابات - Media Buyer Hub</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-
 <style>
 :root{
   --bg:#090b0f;--bg-soft:#0d1016;
@@ -27,573 +23,386 @@ html[data-theme="light"]{
   --border:#cfe0e7;--border-soft:#dce9ee;--text:#0b2028;--text-dim:#526c76;--text-faint:#78909a;
   --accent:#3970e8;--accent-2:#089db8;--accent-soft:rgba(57,112,232,.12);
 }
-*{box-sizing:border-box}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;min-height:100%;background:var(--bg)}
-body{
-  font-family:var(--font-ui);color:var(--text);background:var(--bg);
-  min-height:100vh;min-height:100dvh;-webkit-font-smoothing:antialiased;
-  transition:background .2s,color .2s;
-}
-button,input,select{font:inherit}
+body{font-family:var(--font-ui);color:var(--text);background:var(--bg);min-height:100dvh;-webkit-font-smoothing:antialiased;transition:background .2s,color .2s}
+button,input,select{font:inherit;color:inherit}
 button{cursor:pointer}
-a{color:inherit}
-::selection{background:var(--accent-soft);color:var(--text)}
+a{color:inherit;text-decoration:none}
 
-.topbar{
-  position:sticky;top:0;z-index:20;
-  min-height:62px;padding:10px max(16px,env(safe-area-inset-left)) 10px max(16px,env(safe-area-inset-right));
-  display:flex;align-items:center;justify-content:center;
-  background:color-mix(in srgb,var(--bg) 88%,transparent);
-  border-bottom:1px solid var(--border-soft);
-  backdrop-filter:blur(14px);
-}
-.brand{font-size:16px;font-weight:800;letter-spacing:.2px}
-.brand span{color:var(--accent-2)}
-
-.content{
-  width:min(900px,100%);margin:0 auto;
-  padding:20px 16px calc(36px + env(safe-area-inset-bottom));
-}
-.page-head{margin-bottom:18px}
+.topbar{position:sticky;top:0;z-index:20;min-height:58px;padding:10px 16px;padding-top:max(10px,env(safe-area-inset-top));display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--bg) 88%,transparent);border-bottom:1px solid var(--border-soft);backdrop-filter:blur(14px)}
+.brand{font-size:16px;font-weight:800}.brand span{color:var(--accent-2)}
+.content{width:min(900px,100%);margin:0 auto;padding:18px 14px calc(36px + env(safe-area-inset-bottom))}
+.page-head{margin-bottom:14px}
 .page-head h1{margin:0;font-size:21px;font-weight:800}
 .page-head p{margin:6px 0 0;color:var(--text-dim);font-size:12px;line-height:1.8}
+.banner{border-radius:12px;padding:11px 14px;margin-bottom:14px;font-size:12px;line-height:1.8;white-space:pre-wrap;display:none}
+.banner.show{display:block}
+.banner.ok{background:color-mix(in srgb,var(--good) 12%,var(--surface));border:1px solid color-mix(in srgb,var(--good) 40%,var(--border));color:var(--good)}
+.banner.error{background:color-mix(in srgb,var(--bad) 10%,var(--surface));border:1px solid color-mix(in srgb,var(--bad) 40%,var(--border));color:var(--bad)}
 
-.card{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--radius);padding:18px;margin-bottom:16px;
-  box-shadow:0 12px 35px rgba(0,0,0,.10);
+/* platform grid: always two per row */
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.pcard{
+  position:relative;text-align:start;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:14px 12px 12px;display:flex;flex-direction:column;gap:10px;
+  min-height:128px;transition:transform .15s,border-color .15s,box-shadow .15s;
+  box-shadow:0 8px 24px rgba(0,0,0,.08);
 }
-.card-title{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.card-title b{font-size:15px}
-.meta-icon{
-  width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
-  background:#1877f2;color:#fff;font-size:19px;font-weight:800;
-}
-.description{color:var(--text-dim);font-size:12px;line-height:1.9;margin:0 0 14px}
+.pcard:hover{transform:translateY(-2px);border-color:var(--accent)}
+.pcard:active{transform:scale(.98)}
+.pcard.on{border-color:color-mix(in srgb,var(--good) 45%,var(--border))}
+.pcard.warn{border-color:color-mix(in srgb,var(--mid) 55%,var(--border))}
+.picon{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;color:#fff;font-weight:800;font-size:20px}
+.pname{font-weight:800;font-size:14px}
+.psub{color:var(--text-dim);font-size:11px;line-height:1.5}
+.badge{position:absolute;top:12px;inset-inline-end:12px;font-size:10px;font-weight:700;padding:3px 8px;border-radius:99px;background:var(--surface-3);color:var(--text-faint)}
+.badge.on{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good)}
+.badge.warn{background:color-mix(in srgb,var(--mid) 16%,transparent);color:var(--mid)}
+.pbtn{margin-top:auto;font-size:12px;font-weight:700;color:var(--accent)}
 
-.primary{
-  width:100%;border:0;border-radius:11px;padding:12px 14px;
-  background:linear-gradient(135deg,var(--accent),var(--accent-2));
-  color:#061016;font-weight:800;transition:.18s;
-}
-.primary:hover{filter:brightness(1.07);transform:translateY(-1px)}
-.primary:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.wide{display:flex;align-items:center;gap:12px;margin-top:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
+.wide .picon{background:linear-gradient(135deg,var(--accent),var(--accent-2))}
+.wide .grow{flex:1;min-width:0}
+.wide:hover{border-color:var(--accent)}
+.arrow{color:var(--text-faint);font-size:18px}
+html[dir=rtl] .arrow{transform:scaleX(-1)}
 
-.security{
-  border:1px solid color-mix(in srgb,var(--mid) 28%,var(--border));
-  background:color-mix(in srgb,var(--mid) 7%,var(--surface));
-  color:color-mix(in srgb,var(--mid) 70%,var(--text));
-  border-radius:12px;padding:12px 14px;margin-bottom:16px;
-  font-size:12px;line-height:1.9;
-}
-
-.form-grid{display:grid;gap:2px}
+.section-title{font-size:15px;font-weight:800;margin:26px 2px 4px}
+.section-sub{color:var(--text-dim);font-size:12px;margin:0 2px 12px;line-height:1.8}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
 label{display:block;color:var(--text-dim);font-size:12px;margin:10px 0 5px}
-input,select{
-  width:100%;padding:11px 12px;border-radius:10px;
-  border:1px solid var(--border);background:var(--surface-2);color:var(--text);
-  outline:none;transition:.15s;
-}
+input,select{width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);outline:none;transition:.15s}
 input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
-.status{text-align:center;margin-top:10px;white-space:pre-wrap;font-size:12px;line-height:1.7}
+.primary{width:100%;margin-top:14px;border:0;border-radius:11px;padding:12px 14px;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#061016;font-weight:800;transition:.18s}
+.primary:hover{filter:brightness(1.07)}
+.primary:disabled{opacity:.6;cursor:not-allowed}
+.ghost{border:1px solid var(--border);background:transparent;border-radius:10px;padding:8px 12px;font-size:12px;color:var(--text-dim)}
+.status{text-align:center;margin-top:10px;white-space:pre-wrap;font-size:12px;line-height:1.7;min-height:1px}
 .status.ok{color:var(--good)}.status.error{color:var(--bad)}.status.warn{color:var(--mid)}
 
-.section-title{font-size:15px;margin:22px 2px 10px}
-.connections{display:grid;gap:10px}
-.conn-card{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:13px;padding:13px 14px;
-  display:flex;align-items:center;justify-content:space-between;gap:12px;
-}
-.conn-info{min-width:0}
-.conn-main{display:flex;align-items:center;gap:8px}
-.platform-icon{font-size:17px}.conn-main b{font-size:13px}
-.sub{color:var(--text-dim);font-size:11px;line-height:1.8;margin-top:3px;word-break:break-word}
-.del-btn{
-  flex:0 0 auto;border:1px solid color-mix(in srgb,var(--bad) 70%,var(--border));
-  color:var(--bad);background:transparent;border-radius:9px;padding:7px 10px;font-size:11px;
-}
-.del-btn:hover{background:color-mix(in srgb,var(--bad) 9%,transparent)}
+.list{display:grid;gap:8px;margin-top:12px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--surface-2);border:1px solid var(--border-soft);border-radius:12px;padding:10px 12px}
+.row .info{min-width:0}
+.row b{font-size:13px;display:block;word-break:break-word}
+.sub{color:var(--text-dim);font-size:11px;line-height:1.7;word-break:break-word}
+.del{flex:0 0 auto;border:1px solid color-mix(in srgb,var(--bad) 60%,var(--border));color:var(--bad);background:transparent;border-radius:9px;padding:6px 10px;font-size:11px}
+.pill{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;margin-inline-start:6px;background:var(--surface-3);color:var(--text-faint)}
+.pill.on{color:var(--good)}.pill.warn{color:var(--mid)}
 
-@media (min-width:720px){
+.security{margin-top:22px;border:1px solid color-mix(in srgb,var(--mid) 28%,var(--border));background:color-mix(in srgb,var(--mid) 7%,var(--surface));color:color-mix(in srgb,var(--mid) 70%,var(--text));border-radius:12px;padding:12px 14px;font-size:12px;line-height:1.9}
+
+/* bottom sheet */
+dialog{border:0;padding:0;background:transparent;color:var(--text);width:min(520px,100%);max-width:100%;margin:auto auto 0}
+dialog::backdrop{background:rgba(0,0,0,.55);backdrop-filter:blur(3px)}
+.sheet{background:var(--surface);border:1px solid var(--border);border-radius:22px 22px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));max-height:88dvh;overflow:auto}
+.sheet-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.sheet-head b{font-size:16px;flex:1}
+.x{border:0;background:var(--surface-3);width:32px;height:32px;border-radius:50%;font-size:16px;color:var(--text-dim)}
+details{margin-top:14px;border-top:1px solid var(--border-soft);padding-top:10px}
+summary{cursor:pointer;color:var(--text-dim);font-size:12px}
+@media(min-width:720px){
   .content{padding-left:28px;padding-right:28px}
-  .form-card,.meta-card,.security-card{max-width:620px}
+  dialog{margin:auto}
+  .sheet{border-radius:22px}
+  .grid{gap:14px}
 }
 </style>
 </head>
-
 <body>
-<header class="topbar">
-  <div class="brand">Media Buyer <span>Hub</span></div>
-</header>
+<header class="topbar"><div class="brand">Media Buyer <span>Hub</span></div></header>
 
 <main class="content">
   <div class="page-head">
-    <h1 data-i18n="title">ربط الحسابات الإعلانية</h1>
-    <p data-i18n="subtitle">إدارة الحسابات الإعلانية المتصلة بحسابك.</p>
+    <h1 data-i18n="title">ربط الحسابات</h1>
+    <p data-i18n="subtitle">اختر المنصة واربطها بضغطة واحدة. لا يظهر أي توكن في المتصفح.</p>
   </div>
 
-  <section class="card">
-    <div class="card-title">
-      <div class="meta-icon">f</div>
-      <b data-i18n="metaTitle">ربط حساب Meta Ads</b>
+  <div class="banner" id="banner"></div>
+  <div class="grid" id="grid"></div>
+
+  <a class="wide" href="automation.html">
+    <div class="picon">⚡</div>
+    <div class="grow">
+      <div class="pname" data-i18n="autoTitle">الأتمتة</div>
+      <div class="psub" data-i18n="autoSub">قواعد الإيقاف والتشغيل والميزانية على حساباتك المربوطة.</div>
     </div>
-    <p class="description" data-i18n="metaDesc">
-      اربط حسابك الإعلاني في Meta مباشرة بحسابك في Media Buyer Hub دون الحاجة إلى إعدادات API يدوية.
-    </p>
-    <button class="primary" id="connectMetaBtn" type="button" data-i18n="connectMeta">ربط حساب Meta Ads</button>
-    <div class="status" id="oauthStatus"></div>
+    <span class="arrow">›</span>
+  </a>
+
+  <h2 class="section-title" data-i18n="mcpTitle">إضافة MCP</h2>
+  <p class="section-sub" data-i18n="mcpSub">اربط أي خادم MCP واختر المنصة التابع لها. الاتصال والتوكنات تتم من السيرفر فقط.</p>
+  <section class="panel">
+    <label for="mcpPlatform" data-i18n="mcpPlatform">اسم المنصة</label>
+    <select id="mcpPlatform"></select>
+    <label for="mcpName" data-i18n="mcpName">اسم الاتصال</label>
+    <input id="mcpName" type="text" maxlength="60" placeholder="TikTok Ads MCP">
+    <label for="mcpUrl">MCP URL (https)</label>
+    <input id="mcpUrl" type="url" inputmode="url" dir="ltr" placeholder="https://example.com/mcp">
+    <button class="primary" id="mcpAddBtn" type="button" data-i18n="mcpAdd">إضافة MCP</button>
+    <div class="status" id="mcpStatus"></div>
+    <div class="list" id="mcpList"></div>
   </section>
 
   <section class="security">
-    <b data-i18n="securityTitle">ملاحظة أمنية:</b>
-    <span data-i18n="securityText">عند ربط Meta بالطريقة الجديدة، يتم تحويلك إلى Meta للموافقة على الاتصال. لا تشارك Access Token مع أي شخص.</span>
+    <b data-i18n="secTitle">ملاحظة أمنية:</b>
+    <span data-i18n="secText">الربط يتم عبر صفحة موافقة المنصة نفسها. التوكنات تُحفظ وتُستخدم على السيرفر فقط ولا تصل للمتصفح. لا تشارك أي مفتاح أو Secret مع أحد.</span>
   </section>
-
-  <section class="card">
-    <div class="form-grid">
-      <label for="platform" data-i18n="platform">المنصة</label>
-      <select id="platform">
-        <option value="facebook">Facebook / Meta</option>
-        <option value="tiktok">TikTok</option>
-        <option value="snapchat">Snapchat</option>
-        <option value="google">Google</option>
-      </select>
-
-      <label for="adAccountId" data-i18n="adAccount">رقم الحساب الإعلاني</label>
-      <input id="adAccountId" type="text" placeholder="مثال: 775043705559371">
-
-      <label for="pixelId" data-i18n="pixel">رقم البيكسل (اختياري)</label>
-      <input id="pixelId" type="text" placeholder="مثال: 1234567890">
-
-      <label for="tokenInput">Access Token</label>
-      <input id="tokenInput" type="password" placeholder="أدخل التوكن هنا">
-
-      <label for="noteInput" data-i18n="note">ملاحظة (اختياري)</label>
-      <input id="noteInput" type="text" placeholder="مثال: حساب المتجر الرئيسي">
-
-      <button class="primary" id="saveBtn" type="button" data-i18n="save">حفظ الاتصال</button>
-      <div class="status" id="status"></div>
-    </div>
-  </section>
-
-  <h2 class="section-title" data-i18n="connected">الحسابات المتصلة</h2>
-  <div class="connections" id="connectionsList">
-    <div class="sub" data-i18n="loading">جاري التحميل...</div>
-  </div>
 </main>
+
+<dialog id="sheet"><div class="sheet" id="sheetBody"></div></dialog>
 
 <script>
 (function(){
-  /* =========================
-     Shared theme / language
-     Uses the same localStorage keys
-     as the Media Buyer Hub settings page.
-  ========================= */
-  const themeKey='mbh_theme';
-  const langKey='mbh_lang';
-
+  const themeKey='mbh_theme', langKey='mbh_lang';
   const I18N={
     ar:{
-      title:'ربط الحسابات الإعلانية',
-      subtitle:'إدارة الحسابات الإعلانية المتصلة بحسابك.',
-      metaTitle:'ربط حساب Meta Ads',
-      metaDesc:'اربط حسابك الإعلاني في Meta مباشرة بحسابك في Media Buyer Hub دون الحاجة إلى إعدادات API يدوية.',
-      connectMeta:'ربط حساب Meta Ads',
-      openingMeta:'جاري فتح Meta...',
-      preparingMeta:'جاري تجهيز الاتصال بـ Meta...',
-      securityTitle:'ملاحظة أمنية:',
-      securityText:'عند ربط Meta بالطريقة الجديدة، يتم تحويلك إلى Meta للموافقة على الاتصال. لا تشارك Access Token مع أي شخص.',
-      platform:'المنصة',
-      adAccount:'رقم الحساب الإعلاني (Ad Account ID)',
-      pixel:'رقم البيكسل (اختياري - اتركه فارغًا إذا لم يكن متاحًا)',
-      note:'ملاحظة (اختياري)',
-      save:'حفظ الاتصال',
-      connected:'الحسابات المتصلة',
-      loading:'جاري التحميل...',
-      guest:'زائر تجريبي',
-      sessionError:'انتهت جلسة تسجيل الدخول. سجّل الدخول مرة أخرى.',
-      connectLoading:'جاري تحميل الحساب، حاول مرة أخرى...',
-      metaSuccess:'تم ربط حساب Meta Ads بنجاح.',
-      metaFail:'فشل ربط حساب Meta Ads.',
-      metaError:'خطأ في ربط Meta:\n',
-      missing:'رقم الحساب والتوكن مطلوبان.',
-      saving:'جاري الحفظ...',
-      saved:'تم حفظ الاتصال بنجاح.',
-      loadError:'تعذر تحميل الحسابات: ',
-      none:'لا توجد حسابات متصلة بعد.',
-      deleteConfirm:'هل أنت متأكد من حذف هذا الحساب؟',
-      deleteError:'خطأ: ',
-      unexpected:'حدث خطأ غير متوقع: ',
-      token:'توكن',
-      account:'حساب',
-      pixelShort:'بيكسل',
-      delete:'حذف',
-      tokenPlaceholder:'أدخل التوكن هنا'
+      title:'ربط الحسابات',subtitle:'اختر المنصة واربطها بضغطة واحدة. لا يظهر أي توكن في المتصفح.',
+      autoTitle:'الأتمتة',autoSub:'قواعد الإيقاف والتشغيل والميزانية على حساباتك المربوطة.',
+      mcpTitle:'إضافة MCP',mcpSub:'اربط أي خادم MCP واختر المنصة التابع لها. الاتصال والتوكنات تتم من السيرفر فقط.',
+      mcpPlatform:'اسم المنصة',mcpName:'اسم الاتصال',mcpAdd:'إضافة MCP',
+      secTitle:'ملاحظة أمنية:',secText:'الربط يتم عبر صفحة موافقة المنصة نفسها. التوكنات تُحفظ وتُستخدم على السيرفر فقط ولا تصل للمتصفح. لا تشارك أي مفتاح أو Secret مع أحد.',
+      connect:'ربط',manage:'إدارة',connected:'متصل',notConnected:'غير متصل',reauth:'يحتاج إعادة ربط',pending:'بانتظار الموافقة',
+      accountsN:'حساب متصل',noneYet:'لا يوجد اتصال بعد',loading:'جاري التحميل...',
+      del:'حذف',delConfirm:'متأكد من حذف هذا الاتصال؟',opening:'جاري التحويل...',
+      manual:'ربط يدوي (متقدم)',adAccount:'رقم الحساب الإعلاني',pixel:'رقم البيكسل (اختياري)',tokenLbl:'Access Token',note:'ملاحظة (اختياري)',save:'حفظ الاتصال',
+      missing:'رقم الحساب والتوكن مطلوبان.',saved:'تم الحفظ.',session:'انتهت الجلسة. سجّل الدخول مرة أخرى.',
+      shopDomain:'دومين المتجر',shopHint:'مثال: my-store.myshopify.com',
+      eoKey:'مفتاح API من EasyOrders',eoDomain:'دومين المتجر (اختياري)',
+      notReady:'الربط ده لسه مش متفعّل على السيرفر.',okMsg:'تم الربط بنجاح: ',failMsg:'فشل الربط: ',
+      mcpMissing:'اكتب الاسم والرابط.',mcpAdded:'تمت الإضافة. الاتصال بالـ MCP سيُفعّل بعد ربط الموافقة.',
+      store:'متجر',account:'حساب',other:'أخرى',
+      d_meta:'اربط حسابك الإعلاني في Meta من صفحة الموافقة.',d_tiktok:'اربط حسابك الإعلاني في TikTok من صفحة الموافقة.',
+      d_google:'اربط حساب Google Ads من صفحة الموافقة.',d_snapchat:'Snapchat بالربط اليدوي حالياً.',
+      d_shopify:'اربط متجر Shopify بإذن قراءة المنتجات.',d_easyorders:'اربط متجر EasyOrders بمفتاح API.'
     },
     en:{
-      title:'Ad Accounts',
-      subtitle:'Manage the advertising accounts connected to your account.',
-      metaTitle:'Connect Meta Ads',
-      metaDesc:'Connect your Meta advertising account directly to Media Buyer Hub without manual API setup.',
-      connectMeta:'Connect Meta Ads',
-      openingMeta:'Opening Meta...',
-      preparingMeta:'Preparing Meta connection...',
-      securityTitle:'Security note:',
-      securityText:'With the new Meta connection flow, you will be redirected to Meta to approve the connection. Never share your Access Token.',
-      platform:'Platform',
-      adAccount:'Ad Account ID',
-      pixel:'Pixel ID (optional)',
-      note:'Note (optional)',
-      save:'Save connection',
-      connected:'Connected accounts',
-      loading:'Loading...',
-      guest:'Demo guest',
-      sessionError:'Your login session has expired. Please sign in again.',
-      connectLoading:'Loading your account, please try again...',
-      metaSuccess:'Meta Ads account connected successfully.',
-      metaFail:'Failed to connect Meta Ads.',
-      metaError:'Meta connection error:\n',
-      missing:'Ad Account ID and token are required.',
-      saving:'Saving...',
-      saved:'Connection saved successfully.',
-      loadError:'Could not load accounts: ',
-      none:'No connected accounts yet.',
-      deleteConfirm:'Are you sure you want to delete this account?',
-      deleteError:'Error: ',
-      unexpected:'Unexpected error: ',
-      token:'Token',
-      account:'Account',
-      pixelShort:'Pixel',
-      delete:'Delete',
-      tokenPlaceholder:'Enter the token here'
+      title:'Connections',subtitle:'Pick a platform and connect in one tap. No token ever reaches the browser.',
+      autoTitle:'Automation',autoSub:'Pause, resume and budget rules on your connected accounts.',
+      mcpTitle:'Add MCP',mcpSub:'Connect any MCP server and pick its platform. Connections and tokens stay server-side.',
+      mcpPlatform:'Platform',mcpName:'Connection name',mcpAdd:'Add MCP',
+      secTitle:'Security note:',secText:'Connections use the platform’s own approval page. Tokens are stored and used server-side only. Never share keys or secrets.',
+      connect:'Connect',manage:'Manage',connected:'Connected',notConnected:'Not connected',reauth:'Needs reconnect',pending:'Awaiting approval',
+      accountsN:'connected',noneYet:'Nothing connected yet',loading:'Loading...',
+      del:'Delete',delConfirm:'Delete this connection?',opening:'Redirecting...',
+      manual:'Manual connection (advanced)',adAccount:'Ad account ID',pixel:'Pixel ID (optional)',tokenLbl:'Access Token',note:'Note (optional)',save:'Save connection',
+      missing:'Account ID and token are required.',saved:'Saved.',session:'Session expired. Please sign in again.',
+      shopDomain:'Store domain',shopHint:'e.g. my-store.myshopify.com',
+      eoKey:'EasyOrders API key',eoDomain:'Store domain (optional)',
+      notReady:'This connection is not enabled on the server yet.',okMsg:'Connected: ',failMsg:'Connection failed: ',
+      mcpMissing:'Enter a name and URL.',mcpAdded:'Added. The MCP link will activate after approval is connected.',
+      store:'Store',account:'Account',other:'Other',
+      d_meta:'Connect your Meta ad account via the approval page.',d_tiktok:'Connect your TikTok ad account via the approval page.',
+      d_google:'Connect Google Ads via the approval page.',d_snapchat:'Snapchat is manual for now.',
+      d_shopify:'Connect a Shopify store with read-products access.',d_easyorders:'Connect an EasyOrders store with an API key.'
     }
   };
-
-  function getLang(){
-    return localStorage.getItem(langKey)==='en'?'en':'ar';
-  }
-  function T(key){
-    return I18N[getLang()][key] || I18N.ar[key] || key;
-  }
-
+  const getLang=()=>localStorage.getItem(langKey)==='en'?'en':'ar';
+  const T=k=>I18N[getLang()][k]||I18N.ar[k]||k;
   function applyTheme(){
-    const saved=localStorage.getItem(themeKey)||'dark';
-    document.documentElement.dataset.theme=saved;
-    if(saved==='system'){
-      const light=window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
-      document.documentElement.dataset.theme=light?'light':'dark';
-    }
+    let s=localStorage.getItem(themeKey)||'dark';
+    if(s==='system')s=(matchMedia&&matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark';
+    document.documentElement.dataset.theme=s;
   }
-
   function applyLanguage(){
-    const lang=getLang();
-    document.documentElement.lang=lang;
-    document.documentElement.dir=lang==='ar'?'rtl':'ltr';
-
-    document.querySelectorAll('[data-i18n]').forEach(el=>{
-      const key=el.dataset.i18n;
-      if(I18N[lang][key]) el.textContent=I18N[lang][key];
-    });
-
-    const tokenInput=document.getElementById('tokenInput');
-    if(tokenInput) tokenInput.placeholder=T('tokenPlaceholder');
+    const l=getLang();
+    document.documentElement.lang=l;document.documentElement.dir=l==='ar'?'rtl':'ltr';
+    document.querySelectorAll('[data-i18n]').forEach(el=>{const v=I18N[l][el.dataset.i18n];if(v)el.textContent=v;});
+    if(CURRENT_USER){renderAll();}
   }
-
   applyTheme();
-  applyLanguage();
+  window.addEventListener('storage',e=>{if(e.key===themeKey)applyTheme();if(e.key===langKey)applyLanguage();});
 
-  window.addEventListener('storage',e=>{
-    if(e.key===themeKey){ applyTheme(); }
-    if(e.key===langKey){ applyLanguage(); }
-  });
-
-  if(window.matchMedia){
-    const mq=window.matchMedia('(prefers-color-scheme: light)');
-    mq.addEventListener?.('change',()=>{
-      if((localStorage.getItem(themeKey)||'dark')==='system') applyTheme();
-    });
-  }
-
-  /* =========================
-     SUPABASE
-  ========================= */
   const SUPABASE_URL='https://zphepebjpxrzpudncuas.supabase.co';
   const SUPABASE_KEY='sb_publishable_tIG9XDZeHVZpZjz74e-dBA_ui5GIYw7';
-  const sbClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+  const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
   let CURRENT_USER=null;
+  const DATA={ads:[],stores:[],mcp:[]};
 
-  const PLATFORM_LABELS={
-    facebook:{label:'Facebook / Meta',icon:'📘'},
-    tiktok:{label:'TikTok',icon:'🎵'},
-    snapchat:{label:'Snapchat',icon:'👻'},
-    google:{label:'Google',icon:'🔍'}
-  };
+  const PLATS=[
+    {id:'meta',  name:'Meta Ads',  db:'facebook',kind:'ad',   icon:'f',color:'#1877f2',fn:'meta-oauth-start'},
+    {id:'tiktok',name:'TikTok',    db:'tiktok',  kind:'ad',   icon:'♪',color:'#000000',fn:'tiktok-oauth-start'},
+    {id:'google',name:'Google Ads',db:'google',  kind:'ad',   icon:'G',color:'#ea4335',fn:'google-oauth-start'},
+    {id:'shopify',name:'Shopify',  db:'shopify', kind:'store',icon:'S',color:'#5e8e3e',fn:'shopify-oauth-start'},
+    {id:'easyorders',name:'EasyOrders',db:'easyorders',kind:'store',icon:'E',color:'#f97316'},
+    {id:'snapchat',name:'Snapchat',db:'snapchat',kind:'ad',   icon:'👻',color:'#d9c800',manualOnly:true}
+  ];
+  const byId=id=>PLATS.find(p=>p.id===id);
 
-  function setStatus(msg,type){
-    const el=document.getElementById('status');
-    if(!el)return;
-    el.textContent=msg;
-    el.className='status'+(type?' '+type:'');
+  const esc=v=>v==null?'':String(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
+  const $=id=>document.getElementById(id);
+
+  function banner(msg,type){const b=$('banner');b.textContent=msg;b.className='banner show '+type;}
+  function setStatus(el,msg,type){el.textContent=msg||'';el.className='status'+(type?' '+type:'');}
+
+  async function callFn(name,body){
+    const {data}=await sb.auth.getSession();
+    if(!data.session){location.href='index.html';return {ok:false,status:401,data:null};}
+    const r=await fetch(SUPABASE_URL+'/functions/v1/'+name,{
+      method:'POST',
+      headers:{Authorization:'Bearer '+data.session.access_token,apikey:SUPABASE_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify(body||{})
+    });
+    const text=await r.text();let d=null;try{d=JSON.parse(text);}catch(e){}
+    return {ok:r.ok,status:r.status,data:d,text};
   }
-  function setOAuthStatus(msg,type){
-    const el=document.getElementById('oauthStatus');
-    if(!el)return;
-    el.textContent=msg;
-    el.className='status'+(type?' '+type:'');
+  const errText=r=>r.status===404?T('notReady'):((r.data&&(r.data.error||r.data.message))||r.text||('HTTP '+r.status));
+
+  /* ---------- data (no secret columns are ever selected) ---------- */
+  async function loadAll(){
+    const uid=CURRENT_USER.id;
+    const [a,s,m]=await Promise.all([
+      sb.from('ad_pixels').select('id,pixel_type,pixel_id,ad_account_id,note,token_expires_at,created_at').eq('user_id',uid).order('created_at',{ascending:false}),
+      sb.from('store_connections').select('id,platform,store_domain,note,connected_at').eq('user_id',uid).order('connected_at',{ascending:false}),
+      sb.from('mcp_connections').select('id,name,platform,server_url,status,created_at').eq('user_id',uid).order('created_at',{ascending:false})
+    ]);
+    DATA.ads=a.data||[];DATA.stores=s.data||[];DATA.mcp=m.data||[];
+    renderAll();
   }
-  function maskToken(token){
-    if(!token)return '-';
-    return token.length>8?'••••••••'+token.slice(-4):'••••••••';
+  function itemsFor(p){
+    if(p.kind==='ad')return DATA.ads.filter(r=>r.pixel_type===p.db).map(r=>({table:'ad_pixels',id:r.id,title:r.ad_account_id||r.pixel_id||'-',sub:(r.pixel_id&&r.pixel_id!==r.ad_account_id?'Pixel: '+r.pixel_id:'')+(r.note?(r.pixel_id?' • ':'')+r.note:''),expired:r.token_expires_at&&new Date(r.token_expires_at)<new Date()}));
+    return DATA.stores.filter(r=>r.platform===p.db).map(r=>({table:'store_connections',id:r.id,title:r.store_domain||p.name,sub:r.note||''}));
+  }
+  function stateOf(p){
+    const it=itemsFor(p);
+    if(!it.length)return {cls:'',label:T('notConnected'),n:0};
+    if(it.some(i=>i.expired))return {cls:'warn',label:T('reauth'),n:it.length};
+    return {cls:'on',label:T('connected'),n:it.length};
+  }
+
+  /* ---------- render ---------- */
+  function renderGrid(){
+    $('grid').innerHTML=PLATS.map(p=>{
+      const s=stateOf(p);
+      return `<button class="pcard ${s.cls}" type="button" data-p="${p.id}">
+        <span class="badge ${s.cls}">${esc(s.label)}</span>
+        <div class="picon" style="background:${p.color}">${esc(p.icon)}</div>
+        <div><div class="pname">${esc(p.name)}</div>
+        <div class="psub">${s.n?s.n+' '+esc(T('accountsN')):esc(T('noneYet'))}</div></div>
+        <span class="pbtn">${s.n?esc(T('manage')):esc(T('connect'))} ›</span></button>`;
+    }).join('');
+    $('grid').querySelectorAll('.pcard').forEach(b=>b.addEventListener('click',()=>openSheet(b.dataset.p)));
+  }
+  function renderMcp(){
+    const sel=$('mcpPlatform');
+    if(!sel.options.length){
+      sel.innerHTML=PLATS.filter(p=>p.id!=='snapchat').map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')+'<option value="custom">'+esc(T('other'))+'</option>';
+    }
+    const st={pending:T('pending'),connected:T('connected'),needs_reauth:T('reauth'),error:'Error'};
+    $('mcpList').innerHTML=DATA.mcp.map(m=>`<div class="row"><div class="info"><b>${esc(m.name)}<span class="pill ${m.status==='connected'?'on':'warn'}">${esc(st[m.status]||m.status)}</span></b><div class="sub" dir="ltr">${esc(m.platform)} • ${esc(m.server_url)}</div></div><button class="del" type="button" data-mcp="${esc(m.id)}">${esc(T('del'))}</button></div>`).join('');
+    $('mcpList').querySelectorAll('[data-mcp]').forEach(b=>b.addEventListener('click',()=>removeItem('mcp_connections',b.dataset.mcp)));
+  }
+  function renderAll(){renderGrid();renderMcp();if($('sheet').open&&openPlat)renderSheet(openPlat);}
+
+  /* ---------- sheet ---------- */
+  let openPlat=null;
+  function openSheet(id){openPlat=id;renderSheet(id);$('sheet').showModal();}
+  function closeSheet(){$('sheet').close();openPlat=null;}
+  function renderSheet(id){
+    const p=byId(id);const items=itemsFor(p);
+    let form='';
+    if(id==='shopify')form=`<label>${esc(T('shopDomain'))}</label><input id="f_shop" dir="ltr" placeholder="${esc(T('shopHint'))}" autocapitalize="off">`;
+    if(id==='easyorders')form=`<label>${esc(T('eoKey'))}</label><input id="f_key" type="password" dir="ltr" autocomplete="off"><label>${esc(T('eoDomain'))}</label><input id="f_dom" dir="ltr" autocapitalize="off">`;
+    const manual=p.kind==='ad'?`<details ${p.manualOnly?'open':''}><summary>${esc(T('manual'))}</summary>
+      <label>${esc(T('adAccount'))}</label><input id="m_acc" dir="ltr">
+      <label>${esc(T('pixel'))}</label><input id="m_pix" dir="ltr">
+      <label>${esc(T('tokenLbl'))}</label><input id="m_tok" type="password" dir="ltr" autocomplete="off">
+      <label>${esc(T('note'))}</label><input id="m_note">
+      <button class="primary" id="m_save" type="button">${esc(T('save'))}</button></details>`:'';
+    $('sheetBody').innerHTML=`
+      <div class="sheet-head"><div class="picon" style="background:${p.color};width:38px;height:38px;font-size:18px">${esc(p.icon)}</div><b>${esc(p.name)}</b><button class="x" id="sx" type="button">✕</button></div>
+      <div class="sub">${esc(T('d_'+id))}</div>
+      ${form}
+      ${p.manualOnly?'':`<button class="primary" id="s_go" type="button">${esc(T('connect'))}</button>`}
+      <div class="status" id="s_status"></div>
+      <div class="list">${items.map(i=>`<div class="row"><div class="info"><b dir="ltr">${esc(i.title)}${i.expired?`<span class="pill warn">${esc(T('reauth'))}</span>`:''}</b>${i.sub?`<div class="sub">${esc(i.sub)}</div>`:''}</div><button class="del" type="button" data-t="${i.table}" data-id="${esc(i.id)}">${esc(T('del'))}</button></div>`).join('')}</div>
+      ${manual}`;
+    $('sx').onclick=closeSheet;
+    $('s_go')&&($('s_go').onclick=()=>connect(p));
+    $('m_save')&&($('m_save').onclick=()=>saveManual(p));
+    $('sheetBody').querySelectorAll('[data-t]').forEach(b=>b.addEventListener('click',()=>removeItem(b.dataset.t,b.dataset.id)));
+  }
+  $('sheet').addEventListener('click',e=>{if(e.target===$('sheet'))closeSheet();});
+  $('sheet').addEventListener('close',()=>{openPlat=null;});
+
+  /* ---------- actions ---------- */
+  async function connect(p){
+    const st=$('s_status'),btn=$('s_go');
+    const returnTo=location.origin+location.pathname;
+    let fn=p.fn,body={return_to:returnTo,returnTo:returnTo};
+    if(p.id==='shopify'){
+      const shop=($('f_shop').value||'').trim().toLowerCase().replace(/^https?:\/\//,'').replace(/\/.*$/,'');
+      if(!shop){setStatus(st,T('shopHint'),'error');return;}
+      body.shop=shop;
+    }
+    if(p.id==='easyorders'){
+      const key=($('f_key').value||'').trim();
+      if(!key){setStatus(st,T('eoKey'),'error');return;}
+      btn.disabled=true;setStatus(st,T('opening'));
+      const r=await callFn('easyorders-connect',{api_key:key,store_domain:($('f_dom').value||'').trim()});
+      btn.disabled=false;
+      if(r.ok){setStatus(st,T('saved'),'ok');await loadAll();}else setStatus(st,errText(r),'error');
+      return;
+    }
+    btn.disabled=true;setStatus(st,T('opening'));
+    try{
+      const r=await callFn(fn,body);
+      const url=r.ok&&r.data&&(r.data.url||r.data.redirect_url);
+      if(url){location.href=url;return;}
+      setStatus(st,errText(r),'error');
+    }catch(e){setStatus(st,String(e.message||e),'error');}
+    btn.disabled=false;
+  }
+  async function saveManual(p){
+    const st=$('s_status');
+    const acc=$('m_acc').value.trim();let pix=$('m_pix').value.trim();const tok=$('m_tok').value.trim();const note=$('m_note').value.trim();
+    if(!acc||!tok){setStatus(st,T('missing'),'error');return;}
+    if(!pix)pix=acc;
+    $('m_save').disabled=true;
+    const {error}=await sb.from('ad_pixels').insert({user_id:CURRENT_USER.id,pixel_type:p.db,pixel_id:pix,pixel_token:tok,ad_account_id:acc,note:note||null});
+    $('m_save').disabled=false;
+    if(error){setStatus(st,error.message,'error');return;}
+    setStatus(st,T('saved'),'ok');await loadAll();
+  }
+  async function removeItem(table,id){
+    if(!id||!confirm(T('delConfirm')))return;
+    const {error}=await sb.from(table).delete().eq('id',id);
+    if(error){banner(error.message,'error');return;}
+    await loadAll();
+  }
+  async function addMcp(){
+    const st=$('mcpStatus'),btn=$('mcpAddBtn');
+    const name=$('mcpName').value.trim(),url=$('mcpUrl').value.trim(),platform=$('mcpPlatform').value;
+    if(!name||!url){setStatus(st,T('mcpMissing'),'error');return;}
+    btn.disabled=true;setStatus(st,'...');
+    const r=await callFn('mcp-add',{name,server_url:url,platform});
+    btn.disabled=false;
+    if(r.ok){setStatus(st,T('mcpAdded'),'ok');$('mcpName').value='';$('mcpUrl').value='';await loadAll();}
+    else setStatus(st,errText(r),'error');
+  }
+
+  function handleReturn(){
+    const q=new URLSearchParams(location.search);let hit=false;
+    ['meta','tiktok','google','shopify','easyorders'].forEach(k=>{
+      const c=q.get(k+'_connected');
+      if(c==='1'){banner(T('okMsg')+byId(k).name,'ok');hit=true;}
+      else if(c==='0'){banner(T('failMsg')+byId(k).name+(q.get(k+'_error')?'\n'+q.get(k+'_error'):''),'error');hit=true;}
+    });
+    if(hit)history.replaceState({},document.title,location.pathname);
   }
 
   async function init(){
-    try{
-      const {data,error}=await sbClient.auth.getSession();
-      if(error){ console.error('Supabase session error:',error); return; }
-      if(!data.session){
-        window.location.href='index.html';
-        return;
-      }
-
-      CURRENT_USER=data.session.user;
-      await loadConnections();
-      handleOAuthReturn();
-    }catch(err){
-      console.error('INIT ERROR:',err);
-    }
+    const {data,error}=await sb.auth.getSession();
+    if(error||!data.session){location.href='index.html';return;}
+    CURRENT_USER=data.session.user;
+    applyLanguage();
+    $('grid').innerHTML='<div class="sub">'+esc(T('loading'))+'</div>';
+    await loadAll();
+    handleReturn();
   }
-
-  function handleOAuthReturn(){
-    const params=new URLSearchParams(window.location.search);
-    const connected=params.get('meta_connected');
-    const errorMessage=params.get('meta_error');
-
-    if(connected==='1'){
-      setOAuthStatus(T('metaSuccess'),'ok');
-      loadConnections();
-      window.history.replaceState({},document.title,window.location.pathname);
-      return;
-    }
-    if(connected==='0'){
-      setOAuthStatus(
-        errorMessage?T('metaFail')+'\n'+errorMessage:T('metaFail'),
-        'error'
-      );
-      window.history.replaceState({},document.title,window.location.pathname);
-    }
-  }
-
-  async function startMetaOAuth(){
-    const btn=document.getElementById('connectMetaBtn');
-    if(!btn)return;
-
-    if(!CURRENT_USER){
-      setOAuthStatus(T('connectLoading'),'error');
-      return;
-    }
-
-    try{
-      btn.disabled=true;
-      btn.textContent=T('openingMeta');
-      setOAuthStatus(T('preparingMeta'));
-
-      const {data:sessionData,error:sessionError}=await sbClient.auth.getSession();
-      if(sessionError)throw sessionError;
-
-      const session=sessionData.session;
-      if(!session)throw new Error(T('sessionError'));
-
-      const accessToken=session.access_token;
-      const returnTo=window.location.origin+window.location.pathname;
-
-      const response=await fetch(
-        SUPABASE_URL+'/functions/v1/meta-oauth-start',
-        {
-          method:'POST',
-          headers:{
-            'Authorization':'Bearer '+accessToken,
-            'Content-Type':'application/json'
-          },
-          body:JSON.stringify({returnTo:returnTo})
-        }
-      );
-
-      const responseText=await response.text();
-      let result=null;
-      try{ result=JSON.parse(responseText); }catch(e){ result=null; }
-
-      if(!response.ok){
-        throw new Error(
-          (result&&(result.error||result.message)) ||
-          responseText ||
-          T('metaFail')
-        );
-      }
-
-      const redirectUrl=result&&(result.redirect_url||result.url);
-      if(redirectUrl){
-        window.location.href=redirectUrl;
-        return;
-      }
-
-      if(response.redirected&&response.url){
-        window.location.href=response.url;
-        return;
-      }
-
-      throw new Error(T('metaFail'));
-    }catch(err){
-      console.error('META OAUTH ERROR:',err);
-      setOAuthStatus(T('metaError')+(err.message||''),'error');
-      btn.disabled=false;
-      btn.textContent=T('connectMeta');
-    }
-  }
-
-  async function saveConnection(){
-    if(!CURRENT_USER){
-      setStatus(T('sessionError'),'error');
-      return;
-    }
-
-    const platform=document.getElementById('platform').value;
-    const adAccountId=document.getElementById('adAccountId').value.trim();
-    let pixelId=document.getElementById('pixelId').value.trim();
-    const token=document.getElementById('tokenInput').value.trim();
-    const note=document.getElementById('noteInput').value.trim();
-    const btn=document.getElementById('saveBtn');
-
-    if(!adAccountId||!token){
-      setStatus(T('missing'),'error');
-      return;
-    }
-    if(!pixelId)pixelId=adAccountId;
-
-    btn.disabled=true;
-    setStatus(T('saving'));
-
-    try{
-      const {error}=await sbClient.from('ad_pixels').insert({
-        user_id:CURRENT_USER.id,
-        pixel_type:platform,
-        pixel_id:pixelId,
-        pixel_token:token,
-        ad_account_id:adAccountId,
-        note:note||null
-      });
-
-      if(error){
-        console.error('ad_pixels insert error:',error);
-        setStatus(T('unexpected')+error.message,'error');
-        return;
-      }
-
-      setStatus(T('saved'),'ok');
-      document.getElementById('adAccountId').value='';
-      document.getElementById('pixelId').value='';
-      document.getElementById('tokenInput').value='';
-      document.getElementById('noteInput').value='';
-      await loadConnections();
-    }catch(err){
-      console.error(err);
-      setStatus(T('unexpected')+err.message,'error');
-    }finally{
-      btn.disabled=false;
-    }
-  }
-
-  async function loadConnections(){
-    if(!CURRENT_USER)return;
-
-    const wrap=document.getElementById('connectionsList');
-    if(!wrap)return;
-
-    wrap.innerHTML='<div class="sub">'+T('loading')+'</div>';
-
-    const {data,error}=await sbClient
-      .from('ad_pixels')
-      .select('*')
-      .eq('user_id',CURRENT_USER.id)
-      .order('created_at',{ascending:false});
-
-    if(error){
-      console.error('loadConnections error:',error);
-      wrap.innerHTML='<div class="status error">'+
-        escapeHtml(T('loadError')+error.message)+'</div>';
-      return;
-    }
-
-    if(!data||data.length===0){
-      wrap.innerHTML='<div class="sub">'+T('none')+'</div>';
-      return;
-    }
-
-    wrap.innerHTML=data.map(row=>{
-      const p=PLATFORM_LABELS[row.pixel_type]||{label:row.pixel_type||'Unknown',icon:'🔗'};
-      return `
-        <div class="conn-card">
-          <div class="conn-info">
-            <div class="conn-main">
-              <span class="platform-icon">${p.icon}</span>
-              <b>${escapeHtml(p.label)}</b>
-            </div>
-            <div class="sub">
-              ${escapeHtml(T('account'))}: ${escapeHtml(row.ad_account_id||'-')}
-              &nbsp;•&nbsp;
-              ${escapeHtml(T('pixelShort'))}: ${escapeHtml(row.pixel_id||'-')}
-              &nbsp;•&nbsp;
-              ${escapeHtml(T('token'))}: ${maskToken(row.pixel_token)}
-            </div>
-            ${row.note?`<div class="sub">${escapeHtml(row.note)}</div>`:''}
-          </div>
-          <button class="del-btn delete-connection-btn" type="button" data-id="${escapeHtml(row.id)}">${T('delete')}</button>
-        </div>
-      `;
-    }).join('');
-
-    wrap.querySelectorAll('.delete-connection-btn').forEach(button=>{
-      button.addEventListener('click',()=>deleteConnection(button.dataset.id));
-    });
-  }
-
-  function escapeHtml(value){
-    if(value===null||value===undefined)return '';
-    return String(value)
-      .replaceAll('&','&amp;')
-      .replaceAll('<','&lt;')
-      .replaceAll('>','&gt;')
-      .replaceAll('"','&quot;')
-      .replaceAll("'","&#039;");
-  }
-
-  async function deleteConnection(id){
-    if(!id)return;
-    if(!confirm(T('deleteConfirm')))return;
-
-    try{
-      const {error}=await sbClient.from('ad_pixels').delete().eq('id',id);
-      if(error){
-        alert(T('deleteError')+error.message);
-        return;
-      }
-      await loadConnections();
-    }catch(err){
-      alert(T('unexpected')+err.message);
-    }
-  }
-
-  document.addEventListener('DOMContentLoaded',()=>{
-    document.getElementById('connectMetaBtn')?.addEventListener('click',startMetaOAuth);
-    document.getElementById('saveBtn')?.addEventListener('click',saveConnection);
-  });
-
-  window.startMetaOAuth=startMetaOAuth;
-  window.saveConnection=saveConnection;
-  window.deleteConnection=deleteConnection;
-  window.applyMBHTheme=applyTheme;
-  window.applyMBHLang=applyLanguage;
-
+  document.addEventListener('DOMContentLoaded',()=>{$('mcpAddBtn').addEventListener('click',addMcp);});
+  window.applyMBHTheme=applyTheme;window.applyMBHLang=applyLanguage;
+  applyLanguage();
   init();
 })();
 </script>
