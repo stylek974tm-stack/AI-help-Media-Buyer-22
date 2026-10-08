@@ -121,14 +121,6 @@ summary{cursor:pointer;color:var(--text-dim);font-size:12px}
   <div class="banner" id="banner"></div>
   <div class="grid" id="grid"></div>
 
-  <a class="wide" href="automation.html">
-    <div class="picon">⚡</div>
-    <div class="grow">
-      <div class="pname" data-i18n="autoTitle">الأتمتة</div>
-      <div class="psub" data-i18n="autoSub">قواعد الإيقاف والتشغيل والميزانية على حساباتك المربوطة.</div>
-    </div>
-    <span class="arrow">›</span>
-  </a>
 
   <h2 class="section-title" data-i18n="mcpTitle">إضافة MCP</h2>
   <p class="section-sub" data-i18n="mcpSub">اربط أي خادم MCP واختر المنصة التابع لها. الاتصال والتوكنات تتم من السيرفر فقط.</p>
@@ -167,9 +159,9 @@ summary{cursor:pointer;color:var(--text-dim);font-size:12px}
       del:'حذف',delConfirm:'متأكد من حذف هذا الاتصال؟',opening:'جاري التحويل...',
       manual:'ربط يدوي (متقدم)',adAccount:'رقم الحساب الإعلاني',pixel:'رقم البيكسل (اختياري)',tokenLbl:'Access Token',note:'ملاحظة (اختياري)',save:'حفظ الاتصال',
       missing:'رقم الحساب والتوكن مطلوبان.',saved:'تم الحفظ.',session:'انتهت الجلسة. سجّل الدخول مرة أخرى.',
-      shopDomain:'دومين المتجر',shopHint:'مثال: my-store.myshopify.com',
+      shopDomain:'رابط المتجر',shopHint:'أي رابط: my-store.com أو my-store.myshopify.com',shopNotFound:'مقدرتش ألاقي متجر Shopify على الرابط ده. تأكد إنه رابط متجر Shopify صحيح.',
       eoKey:'مفتاح API من EasyOrders',eoDomain:'دومين المتجر (اختياري)',
-      notReady:'الربط ده لسه مش متفعّل على السيرفر.',okMsg:'تم الربط بنجاح: ',failMsg:'فشل الربط: ',
+      notReady:'الربط ده لسه مش متفعّل على السيرفر (الدالة غير منشورة).',okMsg:'تم الربط بنجاح: ',failMsg:'فشل الربط: ',
       mcpMissing:'اكتب الاسم والرابط.',mcpAdded:'تمت الإضافة. الاتصال بالـ MCP سيُفعّل بعد ربط الموافقة.',
       store:'متجر',account:'حساب',other:'أخرى',
       d_meta:'اربط حسابك الإعلاني في Meta من صفحة الموافقة.',d_tiktok:'اربط حسابك الإعلاني في TikTok من صفحة الموافقة.',
@@ -187,7 +179,7 @@ summary{cursor:pointer;color:var(--text-dim);font-size:12px}
       del:'Delete',delConfirm:'Delete this connection?',opening:'Redirecting...',
       manual:'Manual connection (advanced)',adAccount:'Ad account ID',pixel:'Pixel ID (optional)',tokenLbl:'Access Token',note:'Note (optional)',save:'Save connection',
       missing:'Account ID and token are required.',saved:'Saved.',session:'Session expired. Please sign in again.',
-      shopDomain:'Store domain',shopHint:'e.g. my-store.myshopify.com',
+      shopDomain:'Store link',shopHint:'Any link: my-store.com or my-store.myshopify.com',shopNotFound:'Could not find a Shopify store at that link.',
       eoKey:'EasyOrders API key',eoDomain:'Store domain (optional)',
       notReady:'This connection is not enabled on the server yet.',okMsg:'Connected: ',failMsg:'Connection failed: ',
       mcpMissing:'Enter a name and URL.',mcpAdded:'Added. The MCP link will activate after approval is connected.',
@@ -238,15 +230,21 @@ summary{cursor:pointer;color:var(--text-dim);font-size:12px}
   async function callFn(name,body){
     const {data}=await sb.auth.getSession();
     if(!data.session){location.href='index.html';return {ok:false,status:401,data:null};}
-    const r=await fetch(SUPABASE_URL+'/functions/v1/'+name,{
-      method:'POST',
-      headers:{Authorization:'Bearer '+data.session.access_token,apikey:SUPABASE_KEY,'Content-Type':'application/json'},
-      body:JSON.stringify(body||{})
-    });
+    let r;
+    try{
+      r=await fetch(SUPABASE_URL+'/functions/v1/'+name,{
+        method:'POST',
+        headers:{Authorization:'Bearer '+data.session.access_token,apikey:SUPABASE_KEY,'Content-Type':'application/json'},
+        body:JSON.stringify(body||{})
+      });
+    }catch(e){
+      /* a function that is not deployed answers without CORS headers, so the browser reports "Failed to fetch" */
+      return {ok:false,status:0,data:null,text:''};
+    }
     const text=await r.text();let d=null;try{d=JSON.parse(text);}catch(e){}
     return {ok:r.ok,status:r.status,data:d,text};
   }
-  const errText=r=>r.status===404?T('notReady'):((r.data&&(r.data.error||r.data.message))||r.text||('HTTP '+r.status));
+  const errText=r=>(r.data&&r.data.error==='shop_not_found')?T('shopNotFound'):(r.status===404||r.status===0)?T('notReady'):((r.data&&(r.data.error||r.data.message))||r.text||('HTTP '+r.status));
 
   /* ---------- data (no secret columns are ever selected) ---------- */
   async function loadAll(){
@@ -301,7 +299,7 @@ summary{cursor:pointer;color:var(--text-dim);font-size:12px}
   function renderSheet(id){
     const p=byId(id);const items=itemsFor(p);
     let form='';
-    if(id==='shopify')form=`<label>${esc(T('shopDomain'))}</label><input id="f_shop" dir="ltr" placeholder="${esc(T('shopHint'))}" autocapitalize="off">`;
+    if(id==='shopify')form=`<label>${esc(T('shopDomain'))}</label><input id="f_shop" dir="ltr" placeholder="${esc(T('shopHint'))}" autocapitalize="off" inputmode="url">`;
     if(id==='easyorders')form=`<label>${esc(T('eoKey'))}</label><input id="f_key" type="password" dir="ltr" autocomplete="off"><label>${esc(T('eoDomain'))}</label><input id="f_dom" dir="ltr" autocapitalize="off">`;
     const manual=p.kind==='ad'?`<details ${p.manualOnly?'open':''}><summary>${esc(T('manual'))}</summary>
       <label>${esc(T('adAccount'))}</label><input id="m_acc" dir="ltr">
@@ -331,9 +329,9 @@ summary{cursor:pointer;color:var(--text-dim);font-size:12px}
     const returnTo=location.origin+location.pathname;
     let fn=p.fn,body={return_to:returnTo,returnTo:returnTo};
     if(p.id==='shopify'){
-      const shop=($('f_shop').value||'').trim().toLowerCase().replace(/^https?:\/\//,'').replace(/\/.*$/,'');
-      if(!shop){setStatus(st,T('shopHint'),'error');return;}
-      body.shop=shop;
+      const raw=($('f_shop').value||'').trim();
+      if(!raw){setStatus(st,T('shopHint'),'error');return;}
+      body.shop=raw;
     }
     if(p.id==='easyorders'){
       const key=($('f_key').value||'').trim();
@@ -349,7 +347,8 @@ summary{cursor:pointer;color:var(--text-dim);font-size:12px}
       const r=await callFn(fn,body);
       const url=r.ok&&r.data&&(r.data.url||r.data.redirect_url);
       if(url){location.href=url;return;}
-      setStatus(st,errText(r),'error');
+      const code=r.data&&r.data.error;
+      setStatus(st,code==='server_not_configured'?'server_not_configured\n'+(getLang()==='ar'?'ناقص Secret في إعدادات الدالة على Supabase.':'A secret is missing in the Supabase function settings.'):errText(r),'error');
     }catch(e){setStatus(st,String(e.message||e),'error');}
     btn.disabled=false;
   }
