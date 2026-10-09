@@ -2545,7 +2545,7 @@ const OP_STATUS = {
   ok:['● متصل وبياناته بتتسحب','ok'], not_connected:['○ غير مربوط','soon'],
   needs_developer_token:['◐ الربط تمام، لكن السحب مستني Developer Token من Google Ads','soon'],
   no_accounts:['◐ مربوط، ومفيش حسابات إعلانية متاحة للتحليل','soon'],
-  reconnect:['⚠ الاتصال انتهى، محتاج إعادة ربط','err'], error:['⚠ حصل خطأ أثناء السحب','err'],
+  reconnect:['⚠ الاتصال انتهى، محتاج إعادة ربط','err'], error:['⚠ حصل خطأ أثناء السحب','err'], permission:['⚠ مفيش صلاحية قراءة كافية','err'], needs_endpoint:['◐ مربوط، لكن سحب البيانات مش متاح لسه','soon'],
   connected_no_sync:['◐ مربوط، لكن سحب البيانات لسه ما اتفعّلش','soon']
 };
 function opEsc(s){return String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
@@ -2570,16 +2570,25 @@ function renderOtherPlatforms(since, until){
     if (p.errors && p.errors.length) h += '<br><small>تعذّر قراءة '+p.errors.length+' حساب</small>';
     h += '</div>';
   }
-  const rows = ((P.google || {}).rows || []).filter(r => r.date >= since && r.date <= until);
-  if (rows.length){
+  const PT = { google:'Google Ads', tiktok:'TikTok' };
+  for (const pk of ['google','tiktok']){
+    const rows = ((P[pk] || {}).rows || []).filter(r => r.date >= since && r.date <= until);
+    if (!rows.length){
+      if ((P[pk] || {}).status === 'ok') h += '<div class="note">'+PT[pk]+': مفيش بيانات في الفترة المختارة.</div>';
+      continue;
+    }
     const by = {};
-    rows.forEach(r => { const k = r.account_id+':'+r.campaign_id; const o = by[k] = by[k] || { name:r.campaign, ch:r.channel, cur:r.currency, spend:0, imp:0, clk:0, cv:0, rev:0 };
-      o.spend += r.spend; o.imp += r.impressions; o.clk += r.clicks; o.cv += r.conversions; o.rev += r.revenue; });
+    rows.forEach(r => { const k = r.account_id+':'+r.campaign_id; const o = by[k] = by[k] || { name:r.campaign, ch:r.channel, cur:r.currency, spend:0, imp:0, clk:0, cv:0 };
+      o.spend += r.spend; o.imp += r.impressions; o.clk += r.clicks; o.cv += r.conversions; });
     const list = Object.values(by).sort((a,b) => b.spend - a.spend);
-    h += '<div class="section-title">Google Ads — الحملات</div><div style="overflow-x:auto"><table class="op-t"><tr><th>الحملة</th><th>القناة</th><th>الإنفاق</th><th>ظهور</th><th>نقرات</th><th>CTR</th><th>تحويلات</th></tr>'
+    const T = list.reduce((t,o) => (t.spend+=o.spend, t.imp+=o.imp, t.clk+=o.clk, t.cv+=o.cv, t), { spend:0, imp:0, clk:0, cv:0 });
+    const cur = (list[0] && list[0].cur) || '';
+    h += '<div class="section-title">'+PT[pk]+' — الحملات</div>'
+      + '<div class="inbox-summary"><div class="inbox-stat"><span>الإنفاق</span><b>'+T.spend.toFixed(2)+' '+opEsc(cur)+'</b></div><div class="inbox-stat"><span>نقرات</span><b>'+T.clk+'</b></div><div class="inbox-stat"><span>تحويلات</span><b>'+T.cv.toFixed(0)+'</b></div></div>'
+      + '<div style="overflow-x:auto"><table class="op-t"><tr><th>الحملة</th><th>القناة</th><th>الإنفاق</th><th>ظهور</th><th>نقرات</th><th>CTR</th><th>تحويلات</th></tr>'
       + list.map(o => '<tr><td>'+opEsc(o.name)+'</td><td>'+opEsc(o.ch)+'</td><td>'+o.spend.toFixed(2)+' '+opEsc(o.cur||'')+'</td><td>'+o.imp+'</td><td>'+o.clk+'</td><td>'+(o.imp?(o.clk/o.imp*100).toFixed(2)+'%':'—')+'</td><td>'+o.cv.toFixed(1)+'</td></tr>').join('') + '</table></div>';
     const idle = list.filter(o => o.spend > 0 && o.cv === 0);
-    if (idle.length) h += '<div class="al2-box">'+idle.slice(0,5).map(o => '<div class="al2"><span>🔎</span><div><b>'+opEsc(o.name)+'</b><p>صرفت '+o.spend.toFixed(2)+' '+opEsc(o.cur||'')+' من '+opEsc(since)+' لـ '+opEsc(until)+' ومفيش تحويلات متسجّلة.</p><small>الثقة: متوسطة — ممكن يكون تتبع التحويلات في Google Ads مش متفعّل على الحساب.</small></div></div>').join('')+'</div>';
+    if (idle.length) h += '<div class="al2-box">'+idle.slice(0,5).map(o => '<div class="al2"><span>🔎</span><div><b>'+opEsc(o.name)+'</b><p>صرفت '+o.spend.toFixed(2)+' '+opEsc(o.cur||'')+' من '+opEsc(since)+' لـ '+opEsc(until)+' ومفيش تحويلات متسجّلة.</p><small>الثقة: متوسطة — ممكن يكون تتبع التحويلات على '+PT[pk]+' مش متفعّل.</small></div></div>').join('')+'</div>';
   }
   w.innerHTML = h;
 }
