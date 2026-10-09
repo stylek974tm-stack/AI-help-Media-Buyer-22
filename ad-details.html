@@ -238,158 +238,7 @@
   .intel-item strong{font-size:12px}.intel-item span{display:block;color:var(--text-dim);font-size:11px;line-height:1.65;margin-top:2px}
   .intel-actions{display:grid;gap:7px}.intel-action{padding:10px 11px;border:1px solid var(--border);border-radius:11px;background:var(--surface-3);font-size:11.5px;line-height:1.65}
   @media(max-width:520px){.intel-head{flex-direction:column}.intel-confidence{width:100%;display:flex;align-items:center;justify-content:center;gap:8px}.intel-grid{grid-template-columns:1fr 1fr}}
-
-  /* ---------- Placements / simple labels / creative analysis ---------- */
-  .plat-bar{display:flex;gap:6px;overflow-x:auto;align-items:center;margin:0 0 14px;padding-bottom:2px}
-  .plat-title{font-size:11px;color:var(--text-faint);flex:0 0 auto}
-  .plat-chip{flex:0 0 auto;font-family:inherit;font-size:11.5px;font-weight:700;padding:6px 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--text-dim);cursor:pointer;white-space:nowrap}
-  .plat-chip.on{background:var(--text);color:var(--bg);border-color:var(--text)}
-  .metric-sub{font-size:8.5px;color:var(--text-faint);margin-top:3px;line-height:1.3}
-  .pending-note{margin-top:8px;font-size:11px;color:var(--text-faint);border:1px dashed var(--border);border-radius:10px;padding:7px 10px}
-  .cre-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:18px}
-  .cre-top{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap}
-  .cre-media{position:relative;width:112px;flex-shrink:0;border-radius:12px;overflow:hidden;background:var(--bg-soft)}
-  .cre-media .ph{height:112px;display:flex;align-items:center;justify-content:center;color:var(--text-faint)}
-  .cre-media .ph svg{width:30px;height:30px;opacity:.5}
-  .cre-img,.cre-video{width:100%;display:block;max-height:200px;object-fit:cover}
-  .cre-play{position:absolute;inset-inline-start:6px;bottom:6px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.65);color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.35)}
-  .cre-main{flex:1;min-width:170px}
-  .cre-sub{font-size:11px;color:var(--text-dim);font-weight:700;margin:12px 0 6px}
-  .cre-main .cre-sub:first-child{margin-top:0}
-  .cre-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:6px}
-  .cre-box{border:1px solid var(--border-soft);background:var(--bg-soft);border-radius:9px;padding:7px 4px;text-align:center;display:flex;flex-direction:column;gap:2px}
-  .cre-box b{font-size:12.5px}.cre-box span{font-size:9px;color:var(--text-faint)}
-  .cre-note{font-size:11px;color:var(--text-faint);margin-top:10px}
-  .cre-link{display:inline-block;margin-top:8px;font-size:11px;color:var(--text-dim)}
-  .ret-row{display:flex;align-items:center;gap:8px;font-size:10px;color:var(--text-dim);margin-top:5px}
-  .ret-row span{width:30px}.ret-row i{flex:1;height:5px;border-radius:4px;background:var(--surface-3);overflow:hidden;display:block}
-  .ret-row u{display:block;height:100%;background:var(--text);text-decoration:none}.ret-row em{font-style:normal;width:46px;text-align:end}
 </style>
-<script>
-/* mbh-currency.js — عملة العرض لكل صفحات Media Buyer Hub
-   - الافتراضي: عملة بلد المستخدم (مصر = جنيه مصري، أمريكا = دولار، تركيا = ليرة، السعودية = ريال ...)
-   - تتغير يدويًا من أيقونة الإعدادات (أو MBH_CUR.set('SAR')).
-   - فيسبوك بيرجّع الأرقام بعملة الحساب الإعلاني. لو عملة العرض مختلفة بنحوّل بسعر صرف حي (open.er-api.com)،
-     ولحد ما السعر يوصل بنعرض الرقم بعملة الحساب الأصلية لأن ما نعرضش رقم غلط.
-*/
-(function () {
-  'use strict';
-  if (window.MBH_CUR) return;
-
-  var KEY = 'mbh_display_currency', BASE_KEY = 'mbh_account_currency', RATES_KEY = 'mbh_fx_rates_v1';
-  var CURS = {
-    EGP: ['ج.م', 'جنيه مصري', 'after'], USD: ['$', 'دولار أمريكي', 'before'], SAR: ['ر.س', 'ريال سعودي', 'after'],
-    AED: ['د.إ', 'درهم إماراتي', 'after'], TRY: ['₺', 'ليرة تركية', 'after'], KWD: ['د.ك', 'دينار كويتي', 'after'],
-    QAR: ['ر.ق', 'ريال قطري', 'after'], BHD: ['د.ب', 'دينار بحريني', 'after'], OMR: ['ر.ع', 'ريال عماني', 'after'],
-    JOD: ['د.أ', 'دينار أردني', 'after'], MAD: ['د.م', 'درهم مغربي', 'after'], DZD: ['د.ج', 'دينار جزائري', 'after'],
-    TND: ['د.ت', 'دينار تونسي', 'after'], IQD: ['د.ع', 'دينار عراقي', 'after'], LYD: ['د.ل', 'دينار ليبي', 'after'],
-    SDG: ['ج.س', 'جنيه سوداني', 'after'], EUR: ['€', 'يورو', 'before'], GBP: ['£', 'جنيه إسترليني', 'before']
-  };
-  var COUNTRY_CUR = {
-    EG: 'EGP', US: 'USD', SA: 'SAR', AE: 'AED', TR: 'TRY', KW: 'KWD', QA: 'QAR', BH: 'BHD', OM: 'OMR', JO: 'JOD',
-    MA: 'MAD', DZ: 'DZD', TN: 'TND', IQ: 'IQD', LY: 'LYD', SD: 'SDG', GB: 'GBP',
-    DE: 'EUR', FR: 'EUR', IT: 'EUR', ES: 'EUR', NL: 'EUR', BE: 'EUR', AT: 'EUR', PT: 'EUR', IE: 'EUR', GR: 'EUR', FI: 'EUR'
-  };
-  var TZ_COUNTRY = {
-    'Africa/Cairo': 'EG', 'Asia/Riyadh': 'SA', 'Asia/Dubai': 'AE', 'Europe/Istanbul': 'TR', 'Asia/Kuwait': 'KW',
-    'Asia/Qatar': 'QA', 'Asia/Bahrain': 'BH', 'Asia/Muscat': 'OM', 'Asia/Amman': 'JO', 'Africa/Casablanca': 'MA',
-    'Africa/Algiers': 'DZ', 'Africa/Tunis': 'TN', 'Asia/Baghdad': 'IQ', 'Africa/Tripoli': 'LY', 'Africa/Khartoum': 'SD',
-    'Europe/London': 'GB', 'Europe/Berlin': 'DE', 'Europe/Paris': 'FR', 'Europe/Rome': 'IT', 'Europe/Madrid': 'ES',
-    'Europe/Amsterdam': 'NL'
-  };
-
-  var rates = null, listeners = [], loading = false;
-
-  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
-  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
-
-  function detectCountry() {
-    try {
-      var tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
-      if (TZ_COUNTRY[tz]) return TZ_COUNTRY[tz];
-      if (tz.indexOf('America/') === 0 && tz !== 'America/Toronto' && tz !== 'America/Mexico_City') return 'US';
-    } catch (e) {}
-    try {
-      var lang = (navigator.languages && navigator.languages[0]) || navigator.language || '';
-      var m = /[-_]([A-Za-z]{2})$/.exec(lang);
-      if (m) return m[1].toUpperCase();
-    } catch (e) {}
-    return null;
-  }
-  function autoCode() {
-    var c = detectCountry();
-    if (c && COUNTRY_CUR[c]) return COUNTRY_CUR[c];
-    return getBase() || 'USD';
-  }
-  function stored() { var v = lsGet(KEY); return v && CURS[v] ? v : null; }
-  function get() { return stored() || autoCode(); }
-  function isAuto() { return !stored(); }
-  function getBase() { var v = lsGet(BASE_KEY); return v && v.length === 3 ? v.toUpperCase() : null; }
-
-  function notify() { listeners.slice().forEach(function (fn) { try { fn(); } catch (e) {} }); }
-  function onChange(fn) { if (typeof fn === 'function') listeners.push(fn); }
-
-  function set(code) {
-    if (!code || code === 'auto') { try { localStorage.removeItem(KEY); } catch (e) {} } else if (CURS[code]) { lsSet(KEY, code); }
-    ensureRates();
-    notify();
-  }
-  function setBase(code) {
-    code = String(code || '').toUpperCase();
-    if (code.length !== 3 || getBase() === code) return;
-    lsSet(BASE_KEY, code);
-    ensureRates();
-    notify();
-  }
-
-  function loadCachedRates() {
-    try {
-      var o = JSON.parse(lsGet(RATES_KEY) || 'null');
-      if (o && o.rates && Date.now() - o.t < 12 * 3600 * 1000) { rates = o.rates; return true; }
-    } catch (e) {}
-    return false;
-  }
-  function needRates() { var b = getBase(); return !!b && b !== get(); }
-  function ensureRates() {
-    if (rates || loading || !needRates()) return;
-    if (loadCachedRates()) return;
-    loading = true;
-    fetch('https://open.er-api.com/v6/latest/USD').then(function (r) { return r.json(); }).then(function (j) {
-      if (j && j.rates) { rates = j.rates; lsSet(RATES_KEY, JSON.stringify({ t: Date.now(), rates: rates })); }
-    }).catch(function () {}).then(function () { loading = false; notify(); });
-  }
-
-  function fmtNum(n, code) {
-    var dec = (code === 'KWD' || code === 'BHD' || code === 'OMR' || code === 'JOD' || code === 'TND' || code === 'LYD') ? 3 : 2;
-    var s = Math.abs(n).toFixed(dec).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    return (n < 0 ? '-' : '') + s;
-  }
-  function withSymbol(n, code) {
-    var c = CURS[code];
-    var s = fmtNum(n, code);
-    if (!c) return s + ' ' + code;
-    return c[2] === 'before' ? c[0] + s : s + ' ' + c[0];
-  }
-
-  function fmt(v) {
-    var n = parseFloat(v); if (isNaN(n)) n = 0;
-    var base = getBase(), disp = get();
-    if (!base || base === disp) return withSymbol(n, disp);
-    ensureRates();
-    if (rates && rates[base] && rates[disp]) return withSymbol(n / rates[base] * rates[disp], disp);
-    return withSymbol(n, base); // السعر حتى الآن ماوصلش: نعرض بعملة الحساب الأصلية
-  }
-
-  function options() {
-    return Object.keys(CURS).map(function (k) { return { code: k, name: CURS[k][1], symbol: CURS[k][0] }; });
-  }
-  function autoLabel() { var c = autoCode(); return 'تلقائي — حسب بلدك (' + (CURS[c] ? CURS[c][1] : c) + ')'; }
-
-  ensureRates();
-  window.MBH_CUR = { fmt: fmt, get: get, set: set, isAuto: isAuto, setBase: setBase, getBase: getBase, onChange: onChange, options: options, autoLabel: autoLabel };
-})();
-
-</script>
 </head>
 <body>
 
@@ -445,8 +294,6 @@
   <div id="summaryWrap"></div>
   <div id="metricsWrap"></div>
 
-  <div id="creativeWrap"></div>
-
   <div id="intelligenceWrap"></div>
 
   <div id="qualityWrap"></div>
@@ -457,7 +304,7 @@
 <div class="modal-backdrop" id="budgetBackdrop" onclick="closeBudgetModal()"></div>
 <div class="modal" id="budgetModal">
   <h3>تعديل الميزانية اليومية</h3>
-  <p id="budgetModalSub">سيتم إرسال التعديل مباشرة إلى فيسبوك بمجرد الضغط على "تنفيذ" — وسيتم تطبيقه على مجموعة الإعلانات الفعلية.</p>
+  <p id="budgetModalSub">هتتبعت مباشرة لفيسبوك بمجرد ما تضغط "تنفيذ" — التعديل هيتطبق على مجموعة الإعلانات الحقيقية بتاعتك.</p>
   <label>الميزانية الحالية</label>
   <input type="text" id="budgetCurrentDisplay" disabled>
   <label>نوع التعديل</label>
@@ -505,7 +352,7 @@ let AD = null, ADSET = null, INS = null, DAILY = [];
 let BUDGET_TARGET = null;
 
 function num(v){ const n = parseFloat(v); return isNaN(n) ? 0 : n; }
-function money(v){ return window.MBH_CUR ? MBH_CUR.fmt(v) : num(v).toFixed(2); }
+function money(v){ return '$' + num(v).toFixed(2); }
 function rateMetric(key, value){
   const b = BENCHMARKS[key];
   if (!b || isNaN(value)) return 'mid';
@@ -648,110 +495,6 @@ function smartCommentState(c){
   return {level:'mid',label:SYSTEM_LANG==='ar'?'يحتاج إلى رد':'Reply recommended'};
 }
 
-/* ---------------- Placements / status / creative helpers ---------------- */
-const PLAT_LABELS = { facebook:'Facebook', instagram:'Instagram', messenger:'Messenger', whatsapp:'WhatsApp', audience_network:'Audience Network', threads:'Threads' };
-let SELECTED_PLATFORM = 'all', PLAT_ROWS = {}, EXT = null, VID = null, ACC_NAME = '';
-
-function allIns(){
-  if (!INS && !EXT) return null;
-  return Object.assign({}, EXT || {}, INS || {});
-}
-function curIns(){
-  if (SELECTED_PLATFORM !== 'all') return PLAT_ROWS[SELECTED_PLATFORM] || null;
-  if (!INS && !EXT) return null;
-  return Object.assign({}, EXT || {}, INS || {});
-}
-function noSpend(){ return !INS || num(INS.spend) <= 0; }
-function vArr(ins, key){ const a = ins && ins[key]; return Array.isArray(a) && a[0] ? num(a[0].value) : 0; }
-function fmtN(n){ return num(n).toLocaleString(); }
-function statusInfo(){
-  const es = String((AD && (AD.effective_status || AD.status)) || '').toUpperCase();
-  const st = ADSET && ADSET.start_time ? new Date(ADSET.start_time).getTime() : 0;
-  if (es === 'PREAPPROVED' || (es === 'ACTIVE' && st > Date.now())) return { label:'مجدول', cls:'off' };
-  const M = { ACTIVE:['نشط','on'], PAUSED:['متوقف','off'], CAMPAIGN_PAUSED:['الحملة متوقفة','off'], ADSET_PAUSED:['المجموعة متوقفة','off'],
-    PENDING_REVIEW:['قيد المراجعة','off'], IN_PROCESS:['قيد التحضير','off'], WITH_ISSUES:['به مشكلة','off'], DISAPPROVED:['مرفوض','off'],
-    PENDING_BILLING_INFO:['بانتظار الدفع','off'], ARCHIVED:['مؤرشف','off'], DELETED:['محذوف','off'] };
-  const m = M[es] || [es || '—', 'off'];
-  return { label:m[0], cls:m[1] };
-}
-
-async function loadExtras(){
-  const timeRange = JSON.stringify({ since: PARAMS.since, until: PARAMS.until });
-  const vf = 'video_play_actions,video_p25_watched_actions,video_p50_watched_actions,video_p75_watched_actions,video_p100_watched_actions,video_avg_time_watched_actions,video_thruplay_watched_actions';
-  const jobs = [];
-  jobs.push((async () => {
-    for (const f of ['reach,frequency,inline_link_clicks,' + vf, 'reach,frequency,inline_link_clicks']){
-      try { const r = await gget(`${PARAMS.adId}/insights`, { fields:f, time_range:timeRange, access_token:PARAMS.token }); EXT = (r.data && r.data[0]) || null; return; }
-      catch(e){ EXT = null; }
-    }
-  })());
-  jobs.push((async () => {
-    const base = 'impressions,clicks,spend,ctr,cpc,cpm,actions,action_values,inline_link_clicks,' + vf;
-    for (const f of [base + ',reach,frequency', base]){
-      try {
-        const r = await gget(`${PARAMS.adId}/insights`, { fields:f, breakdowns:'publisher_platform', time_range:timeRange, limit:50, access_token:PARAMS.token });
-        const rows = {};
-        (r.data || []).forEach(row => { if (num(row.impressions) > 0 || num(row.spend) > 0) rows[row.publisher_platform] = row; });
-        PLAT_ROWS = rows; return;
-      } catch(e){}
-    }
-  })());
-  jobs.push((async () => { try { const r = await gget(PARAMS.actId, { fields:'name,currency', access_token:PARAMS.token }); ACC_NAME = r.name || ''; if (r.currency && window.MBH_CUR) MBH_CUR.setBase(r.currency); } catch(e){} })());
-  const vid = AD && AD.creative && AD.creative.video_id;
-  if (vid) jobs.push((async () => { try { VID = await gget(vid, { fields:'source,picture,permalink_url,length', access_token:PARAMS.token }); } catch(e){ VID = null; } })());
-  await Promise.all(jobs);
-  renderAll();
-}
-
-function placementBar(){
-  const keys = Object.keys(PLAT_ROWS);
-  if (!keys.length) return '';
-  if (SELECTED_PLATFORM !== 'all' && !PLAT_ROWS[SELECTED_PLATFORM]) SELECTED_PLATFORM = 'all';
-  const chip = (k, l) => `<button type="button" class="plat-chip ${SELECTED_PLATFORM===k?'on':''}" onclick="selectPlatform('${k}')">${esc(l)}</button>`;
-  return `<div class="plat-bar"><span class="plat-title">المنصة</span>${chip('all','ميتا (الكل)')}${keys.map(k => chip(k, PLAT_LABELS[k] || k)).join('')}</div>`;
-}
-function selectPlatform(k){ SELECTED_PLATFORM = k; renderCreative(); }
-
-function renderCreative(){
-  const el = document.getElementById('creativeWrap'); if (!el || !AD) return;
-  const I = curIns(), cr = AD.creative || {};
-  const thumb = cr.image_url || cr.thumbnail_url || (VID && VID.picture) || '';
-  const hasVideo = !!cr.video_id, src = VID && VID.source;
-  const storyLink = cr.effective_object_story_id ? `https://www.facebook.com/${cr.effective_object_story_id}` : (VID && VID.permalink_url ? `https://www.facebook.com${VID.permalink_url}` : '');
-  let media;
-  if (src) media = `<video class="cre-video" controls playsinline preload="none" poster="${esc(thumb)}" src="${esc(src)}"></video>`;
-  else if (thumb) media = `<img class="cre-img" src="${esc(thumb)}" alt="" referrerpolicy="no-referrer">` + (hasVideo ? '<span class="cre-play">▶</span>' : '');
-  else media = `<div class="ph">${iconImage()}</div>`;
-  const spent = I && num(I.spend) > 0;
-  const g = re => arrAction(I, re);
-  const box = (l, v) => `<div class="cre-box"><b class="num">${v}</b><span>${l}</span></div>`;
-  let main = '';
-  if (!spent){
-    main = '<div class="cre-note">لم يبدأ الصرف بعد — ستظهر مؤشرات الكريتف بعد أول صرف.</div>';
-  } else {
-    const imp = num(I.impressions);
-    const eng = [['تفاعلات (لايك…)', g(/^post_reaction$/)], ['تعليقات', g(/^comment$/)], ['مشاركات', g(/^post$/)], ['حفظ', g(/post_save/)],
-      ['نقرات الرابط', num(I.inline_link_clicks) || g(/^link_click$/)], ['تفاعل المنشور', g(/^post_engagement$/)]];
-    main = `<div class="cre-sub">التفاعل مع الكريتف</div><div class="cre-grid">${eng.map(e => box(e[0], fmtN(e[1]))).join('')}</div>`;
-    const plays = vArr(I, 'video_play_actions'), v3 = g(/^video_view$/), thru = vArr(I, 'video_thruplay_watched_actions');
-    if (plays > 0 || v3 > 0){
-      const p = [['25%', vArr(I,'video_p25_watched_actions')], ['50%', vArr(I,'video_p50_watched_actions')], ['75%', vArr(I,'video_p75_watched_actions')], ['100%', vArr(I,'video_p100_watched_actions')]];
-      const avg = vArr(I, 'video_avg_time_watched_actions'), base = plays || v3;
-      const hook = imp ? 100 * v3 / imp : 0, hold = v3 ? 100 * thru / v3 : 0;
-      main += `<div class="cre-sub">أداء الفيديو</div><div class="cre-grid">${box('تشغيل', fmtN(plays || v3))}${box('مشاهدة 3 ثواني', fmtN(v3))}${box('ThruPlay', fmtN(thru))}${box('Hook rate', hook.toFixed(1) + '%')}${box('Hold rate', hold.toFixed(1) + '%')}${box('متوسط المشاهدة', avg ? avg.toFixed(1) + 'ث' : '—')}</div>` +
-        p.map(r => `<div class="ret-row"><span>${r[0]}</span><i><u style="width:${base ? Math.min(100, 100 * r[1] / base).toFixed(0) : 0}%"></u></i><em class="num">${fmtN(r[1])}</em></div>`).join('');
-    } else if (hasVideo){
-      main += '<div class="cre-note">إعلان فيديو — لا توجد مشاهدات مسجلة في الفترة/المنصة المختارة.</div>';
-    } else {
-      main += '<div class="cre-note">إعلان صورة — لا توجد مؤشرات فيديو.</div>';
-    }
-  }
-  el.innerHTML = `<div class="section-title">تحليل الكريتف<div class="section-line"></div></div>
-    <div class="cre-card">${placementBar()}<div class="cre-top"><div class="cre-media">${media}</div><div class="cre-main">${main}${storyLink ? `<a class="cre-link" href="${esc(storyLink)}" target="_blank" rel="noopener">فتح المنشور على فيسبوك ↗</a>` : ''}</div></div></div>`;
-}
-
-if (window.MBH_CUR) MBH_CUR.onChange(function(){ if (typeof AD !== 'undefined' && AD) renderAll(); });
-
 /* ---------------- Init ---------------- */
 async function init(){
   try{
@@ -770,7 +513,7 @@ async function init(){
       until: qs.get('until')
     };
     if (!PARAMS.adId || !PARAMS.actId || !PARAMS.token){
-      setTopStatus('لا يوجد إعلان محدد — ارجع إلى صفحة تحليل البيانات واختر إعلانًا.', true);
+      setTopStatus('مفيش إعلان محدد — ارجع لصفحة تحليل البيانات واختار إعلان.', true);
       return;
     }
     if (!PARAMS.since || !PARAMS.until){
@@ -791,15 +534,10 @@ async function loadAdDetails(){
   setTopStatus(t('loading'));
   const timeRange = JSON.stringify({ since: PARAMS.since, until: PARAMS.until });
   const adFields = 'id,name,status,effective_status,adset_id,campaign_id,created_time,creative{name,thumbnail_url,image_url}';
-  const adFieldsExt = 'id,name,status,effective_status,adset_id,campaign_id,created_time,creative{name,thumbnail_url,image_url,video_id,effective_object_story_id}';
-  const insightFields = 'impressions,reach,clicks,spend,ctr,cpc,cpm,conversions,actions,action_values,quality_ranking,engagement_rate_ranking,conversion_rate_ranking';
-  const getAd = async () => {
-    try { return await gget(`${PARAMS.adId}`, { fields: adFieldsExt, access_token: PARAMS.token }); }
-    catch(e){ return await gget(`${PARAMS.adId}`, { fields: adFields, access_token: PARAMS.token }); }
-  };
+  const insightFields = 'impressions,reach,clicks,spend,ctr,cpc,cpm,conversions,actions,action_values,quality_ranking,engagement_rate_ranking,conversion_rate_ranking,frequency,outbound_clicks,video_thruplay_watched_actions,video_p25_watched_actions,video_p50_watched_actions,video_p75_watched_actions,video_p100_watched_actions,video_avg_time_watched_actions';
 
   const [adRes, insRes, dailyRes] = await Promise.all([
-    getAd(),
+    gget(`${PARAMS.adId}`, { fields: adFields, access_token: PARAMS.token }),
     gget(`${PARAMS.adId}/insights`, { fields: insightFields, time_range: timeRange, access_token: PARAMS.token }).catch(()=>({data:[]})),
     gget(`${PARAMS.adId}/insights`, { fields:'spend,actions,action_values,impressions,clicks', time_range: timeRange, time_increment: 1, access_token: PARAMS.token }).catch(()=>({data:[]}))
   ]);
@@ -808,18 +546,14 @@ async function loadAdDetails(){
   INS = (insRes.data && insRes.data[0]) || null;
   DAILY = dailyRes.data || [];
 
-  // نجيب الميزانية اليومية + موعد البدء لمجموعة الإعلان (لزرار زوّد الميزانية وحالة "مجدول")
+  // نجيب الميزانية اليومية لمجموعة الإعلان (لزرار زوّد الميزانية)
   if (AD.adset_id){
-    try { ADSET = await gget(`${AD.adset_id}`, { fields:'id,name,daily_budget,start_time,end_time,effective_status,status', access_token: PARAMS.token }); }
-    catch(e){
-      try { ADSET = await gget(`${AD.adset_id}`, { fields:'id,name,daily_budget', access_token: PARAMS.token }); }
-      catch(e2){ ADSET = null; }
-    }
+    try { ADSET = await gget(`${AD.adset_id}`, { fields:'id,name,daily_budget,optimization_goal,promoted_object', access_token: PARAMS.token }); }
+    catch(e){ ADSET = null; }
   }
 
   setTopStatus('');
   renderAll();
-  loadExtras();
 }
 
 /* ---------------- Deep ad intelligence: frontend-only, multi-signal ---------------- */
@@ -896,7 +630,6 @@ function smartAdIntelligence(){
 }
 function renderIntelligence(){
   const el=document.getElementById('intelligenceWrap'); if(!el)return;
-  if(noSpend()){ el.innerHTML=''; return; }
   const x=smartAdIntelligence(), m=x.metrics||{};
   const level=x.signals?.some(s=>s.level==='bad')?'bad':(x.signals?.some(s=>s.level==='mid')?'mid':'good');
   const metric=(k,v)=>`<div class="intel-mini"><div class="k">${k}</div><div class="v">${v}</div></div>`;
@@ -916,7 +649,6 @@ function renderAll(){
   renderChart();
   renderSummary();
   renderMetrics();
-  renderCreative();
   renderQuality();
   renderActions();
 }
@@ -942,8 +674,6 @@ function renderHeader(){
   const thumb = creative.thumbnail_url || creative.image_url;
   const m = metricBoxes(INS);
   const verdict = getVerdict(m.ctrRate, m.cpmRate, m.cpcRate);
-  const si = statusInfo();
-  const accName = ACC_NAME || PARAMS.accLabel;
 
   document.getElementById('adHeadWrap').innerHTML = `
     <div class="ad-head-card">
@@ -952,13 +682,10 @@ function renderHeader(){
         <div class="ad-head-title">${AD.name}</div>
         ${creative.name && creative.name !== AD.name ? `<div class="ad-head-creative-name">${creative.name}</div>` : ''}
         <div class="ad-head-sub">
-          <span class="status-dot ${si.cls==='on'?'on':'off'}"></span>${si.label}
-          ${accName ? `<span class="acc-tag">${esc(accName)}</span>` : ''}
+          <span class="status-dot ${AD.status==='ACTIVE'?'on':'off'}"></span>${AD.status === 'ACTIVE' ? t('active') : t('paused')}
+          ${PARAMS.accLabel ? `<span class="acc-tag">${PARAMS.accLabel}</span>` : ''}
           <span>· ${t('period')}: ${PARAMS.since} → ${PARAMS.until}</span>
         </div>
-        ${noSpend()
-          ? `<div class="pending-note">لم يبدأ الصرف بعد — لا يوجد تقييم حتى يبدأ الإعلان في الصرف.</div>`
-          : `<div class="verdict-badge ${badgeClass(verdict.level)}">${verdict.label}</div>`}
       </div>
     </div>
   `;
@@ -1030,15 +757,13 @@ function renderChart(){
 }
 
 function renderSummary(){
-  const I = allIns();
-  const ns = !I || num(I.spend) <= 0;
-  const spend = I ? num(I.spend) : 0;
-  const revenue = I ? getRevenue(I.action_values) : 0;
-  const purchases = I ? getPurchases(I.actions, I.conversions) : 0;
-  const clicks = I ? num(I.clicks) : 0;
+  const spend = INS ? num(INS.spend) : 0;
+  const revenue = INS ? getRevenue(INS.action_values) : 0;
+  const purchases = INS ? getPurchases(INS.actions, INS.conversions) : 0;
+  const clicks = INS ? num(INS.clicks) : 0;
   const roas = spend ? (revenue/spend) : 0;
   const convRate = clicks ? ((purchases/clicks)*100) : 0;
-  const qualityCls = ns ? '' : (convRate >= 3 ? 'good' : (convRate >= 1.5 ? 'mid' : 'bad'));
+  const qualityCls = convRate >= 3 ? 'good' : (convRate >= 1.5 ? 'mid' : 'bad');
   const qualityLabel = convRate >= 3 ? 'ممتازة' : (convRate >= 1.5 ? 'متوسطة' : 'ضعيفة');
 
   let profitBox = '';
@@ -1055,48 +780,27 @@ function renderSummary(){
       <div class="summary-box"><div class="lbl">الإنفاق</div><div class="val num">${money(spend)}</div></div>
       <div class="summary-box"><div class="lbl">الإيراد (من فيسبوك)</div><div class="val num">${money(revenue)}</div></div>
       ${profitBox}
-      <div class="summary-box ${ns?'':(roas>=1?'profit':'loss')}"><div class="lbl">ROAS</div><div class="val num">${roas.toFixed(2)}x</div></div>
+      <div class="summary-box ${roas>=1?'profit':'loss'}"><div class="lbl">ROAS</div><div class="val num">${roas.toFixed(2)}x</div></div>
       <div class="summary-box"><div class="lbl">عدد المبيعات</div><div class="val num">${purchases.toFixed(0)}</div></div>
-      <div class="summary-box ${qualityCls}"><div class="lbl">معدل التحويل</div><div class="val">${convRate.toFixed(2)}%${ns?'':` (${qualityLabel})`}</div></div>
+      <div class="summary-box ${qualityCls}"><div class="lbl">معدل التحويل</div><div class="val">${convRate.toFixed(2)}% (${qualityLabel})</div></div>
     </div>
   `;
 }
 
 function renderMetrics(){
-  const I = allIns();
-  const ns = !I || num(I.spend) <= 0;
-  const g = re => arrAction(I, re);
-  const spend = I ? num(I.spend) : 0, imp = I ? num(I.impressions) : 0, clicks = I ? num(I.clicks) : 0;
-  const purchases = I ? getPurchases(I.actions, I.conversions) : 0;
-  const ctr = I ? num(I.ctr) : 0, cpm = I ? num(I.cpm) : 0, cpc = I ? num(I.cpc) : 0;
-  const rate = (k, v) => ns ? '' : rateMetric(k, v);
-  const cart = g(/add_to_cart/i), lpv = g(/landing_page_view/i), ic = g(/initiate_checkout/i);
-  const lc = (I ? num(I.inline_link_clicks) : 0) || g(/^link_click$/);
-  const reach = I ? num(I.reach) : 0, freq = I ? num(I.frequency) : 0;
-  const cpp = purchases > 0 ? spend / purchases : 0, cpa = cart > 0 ? spend / cart : 0;
-  const box = (cls, lbl, val, sub) => `<div class="metric-box ${cls||''}"><div class="metric-label">${lbl}</div><div class="metric-value">${val}</div><div class="metric-sub">${sub}</div></div>`;
-  const items = [
-    box(rate('ctr', ctr), 'CTR', ctr.toFixed(2) + '%', 'نسبة النقر'),
-    box(rate('cpm', cpm), 'CPM', money(cpm), 'تكلفة ألف ظهور'),
-    box(rate('cpc', cpc), 'CPC', money(cpc), 'تكلفة النقرة'),
-    box('', 'CPP', purchases > 0 ? money(cpp) : '—', 'تكلفة الشراء'),
-    box('', 'الإنفاق', money(spend), 'إجمالي الصرف'),
-    box('', 'الطلبات', purchases.toFixed(0), 'عدد الشراء'),
-    box('', 'الظهور', fmtN(imp), 'مرات العرض'),
-    box('', 'النقرات', fmtN(clicks), 'كل النقرات')
-  ];
-  if (reach > 0) items.push(box('', 'الوصول', fmtN(reach), 'أشخاص مختلفين'));
-  if (freq > 0) items.push(box('', 'التكرار', freq.toFixed(2), 'مرات لكل شخص'));
-  if (lc > 0) items.push(box('', 'نقرات الرابط', fmtN(lc), 'للموقع'));
-  if (lpv > 0) items.push(box('', 'زيارات الصفحة', fmtN(lpv), 'تحميل الصفحة'));
-  if (cart > 0) items.push(box('', 'ATC', fmtN(cart), 'إضافة للسلة'));
-  if (cart > 0) items.push(box('', 'تكلفة السلة', money(cpa), 'لكل إضافة للسلة'));
-  if (ic > 0) items.push(box('', 'بدء الدفع', fmtN(ic), 'Checkout'));
-  document.getElementById('metricsWrap').innerHTML = `<div class="metrics-grid">${items.join('')}</div>`;
+  const m = metricBoxes(INS);
+  document.getElementById('metricsWrap').innerHTML = `
+    <div class="metrics-grid">
+      <div class="metric-box ${m.ctrRate}"><div class="metric-label">CTR</div><div class="metric-value">${m.ctr.toFixed(2)}%</div></div>
+      <div class="metric-box ${m.cpmRate}"><div class="metric-label">CPM</div><div class="metric-value">${money(m.cpm)}</div></div>
+      <div class="metric-box ${m.cpcRate}"><div class="metric-label">CPC</div><div class="metric-value">${money(m.cpc)}</div></div>
+      <div class="metric-box"><div class="metric-label">الظهور</div><div class="metric-value">${INS?num(INS.impressions).toLocaleString():'0'}</div></div>
+      <div class="metric-box"><div class="metric-label">النقرات</div><div class="metric-value">${INS?num(INS.clicks).toLocaleString():'0'}</div></div>
+    </div>
+  `;
 }
 
 function renderQuality(){
-  if(noSpend()){ document.getElementById('qualityWrap').innerHTML=''; return; }
   const rank = code => { const x=INS ? INS[code] : 'UNKNOWN'; const cls=(x==='ABOVE_AVERAGE')?'good':(x==='AVERAGE'||x==='UNKNOWN'?'mid':'bad'); const label=x==='ABOVE_AVERAGE'?t('above'):x==='AVERAGE'?t('average'):x==='UNKNOWN'?t('unavailable'):x==='BELOW_AVERAGE_10'?t('muchBelow'):t('below'); return {cls,label}; };
   const qr=rank('conversion_rate_ranking'), qq=rank('quality_ranking'), qe=rank('engagement_rate_ranking');
 
@@ -1123,7 +827,7 @@ function renderActions(){
 /* ---------------- إجراءات حقيقية على فيسبوك — كلها بضغطة زر يدوية من المستخدم ---------------- */
 async function toggleStatus(){
   const newStatus = AD.status === 'ACTIVE' ? 'PAUSED' : 'ACTIVE';
-  const confirmMsg = newStatus === 'PAUSED' ? 'هل أنت متأكد من إيقاف هذا الإعلان على فيسبوك؟' : 'هل أنت متأكد من إعادة تشغيل هذا الإعلان على فيسبوك؟';
+  const confirmMsg = newStatus === 'PAUSED' ? 'متأكد إنك عايز توقف ده على فيسبوك؟' : 'متأكد إنك عايز تشغّل ده تاني على فيسبوك؟';
   if (!confirm(confirmMsg)) return;
   try{
     await gpost(AD.id, { status: newStatus, access_token: PARAMS.token });
@@ -1140,7 +844,7 @@ function openInAdsManager(){
 function openBudgetModal(){
   if (!ADSET){ alert('معرفتش ألاقي بيانات مجموعة الإعلانات دي.'); return; }
   BUDGET_TARGET = { adsetId: ADSET.id, currentBudget: num(ADSET.daily_budget)/100, name: ADSET.name };
-  document.getElementById('budgetModalSub').textContent = `تعديل ميزانية "${ADSET.name}" — سيتم إرسال التعديل مباشرة إلى فيسبوك بمجرد الضغط على تنفيذ.`;
+  document.getElementById('budgetModalSub').textContent = `تعديل ميزانية "${ADSET.name}" — هيتبعت مباشرة لفيسبوك بمجرد الضغط على تنفيذ.`;
   document.getElementById('budgetCurrentDisplay').value = money(BUDGET_TARGET.currentBudget) + ' / يوم';
   document.getElementById('budgetMode').value = 'pct20';
   onBudgetModeChange();
@@ -1181,122 +885,123 @@ applySystemLanguage();
 init();
 </script>
 
-<script>
-/* MBH Frontend Decision Intelligence v1 — no backend/schema changes */
+<style id="x-style">
+#actionsWrap,.intel-verdict,.intel-block:has(.intel-actions),.intel-confidence{display:none!important}
+.content{display:flex;flex-direction:column;gap:14px}
+.content>*{order:50}.back-row{order:0}.top-status{order:1}#adHeadWrap{order:2}#realWrap{order:3}#funnelWrap{order:4}#intelligenceWrap{order:5}#creativeWrap{order:6}#campaignWrap{order:7}#summaryWrap{order:8}#metricsWrap{order:9}#chartCard{order:10}#qualityWrap{order:11}#platformsWrap{order:12}
+.x-card{border:1px solid var(--border);border-radius:16px;background:var(--surface);padding:14px}
+.x-card h3{margin:0 0 10px;font-size:14px;font-weight:800}.x-card h3 small{font-weight:400;color:var(--text-faint);font-size:11px;margin-inline-start:6px}
+.x-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.x-box{background:var(--surface-2);border-radius:12px;padding:10px;text-align:center}.x-box span{display:block;font-size:10.5px;color:var(--text-faint);margin-bottom:3px}.x-box b{font-size:15px}
+.x-note{font-size:11.5px;color:var(--text-faint);line-height:1.8;margin-top:8px}
+.x-step{display:grid;grid-template-columns:110px 1fr 74px;gap:10px;align-items:center;padding:7px 0;font-size:12px}
+.x-bar{height:8px;border-radius:6px;background:var(--surface-3);overflow:hidden}.x-bar i{display:block;height:100%;background:var(--accent-2,#aaa)}
+.x-t{width:100%;border-collapse:collapse;font-size:12px}.x-t th,.x-t td{padding:8px 6px;border-bottom:1px solid var(--border);text-align:right;white-space:nowrap}.x-t tr.me td{background:var(--surface-2);font-weight:700}
+.x-wrap{overflow-x:auto}.x-row{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--border-soft,#222);font-size:12.5px}.x-row:last-child{border:0}
+.x-rate{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:12px;color:var(--text-dim)}.x-rate input{width:80px;padding:6px;border-radius:8px;border:1px solid var(--border);background:var(--bg-soft);color:var(--text)}
+@media(max-width:560px){.x-step{grid-template-columns:90px 1fr 62px}}
+</style>
+<script id="x-js">
 (function(){
-  'use strict';
-  const safeNum=v=>{const n=parseFloat(v);return Number.isFinite(n)?n:0};
-  const action=(actions,re)=>Array.isArray(actions)?safeNum((actions.find(a=>re.test(String(a.action_type||'')))||{}).value):0;
-  const purchases=(ins)=>action(ins&&ins.actions,/purchase/i)||safeNum(ins&&ins.conversions);
-  const revenue=(ins)=>action(ins&&ins.action_values,/purchase/i);
-  const metric=(ins,k,den)=>{
-    if(!ins)return null; const raw=safeNum(ins[k]);
-    if(raw>0)return {v:raw,state:'observed'};
-    if(k==='ctr' && safeNum(ins.impressions)>0)return {v:safeNum(ins.clicks)/safeNum(ins.impressions)*100,state:'derived'};
-    if(k==='cpc' && safeNum(ins.clicks)>0)return {v:safeNum(ins.spend)/safeNum(ins.clicks),state:'derived'};
-    if(k==='cpm' && safeNum(ins.impressions)>0)return {v:safeNum(ins.spend)/safeNum(ins.impressions)*1000,state:'derived'};
-    return null;
-  };
-  const pct=(a,b)=>b>0?((a-b)/b)*100:null;
-  const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0;
-  const objective=c=>String(c&&c.objective||'').toUpperCase();
-  function objectiveInfo(c){
-    const o=objective(c);
-    if(/VIDEO_VIEW/.test(o))return {name:'Video Views',primary:'video',business:'purchase'};
-    if(/TRAFFIC|LINK_CLICKS/.test(o))return {name:'Traffic',primary:'traffic',business:'purchase'};
-    if(/LEAD/.test(o))return {name:'Leads',primary:'lead',business:'sale'};
-    if(/ENGAGEMENT/.test(o))return {name:'Engagement',primary:'engagement',business:'purchase'};
-    if(/APP/.test(o))return {name:'App Promotion',primary:'app',business:'purchase'};
-    if(/MESSAG/.test(o))return {name:'Messages',primary:'message',business:'sale'};
-    return {name:'Sales',primary:'purchase',business:'purchase'};
-  }
-  function analyzeAd(ad,ins,allAds){
-    if(!ins)return null;
-    const camp=(typeof DATA!=='undefined'?(DATA.campaigns||[]).find(c=>c.id===ad.campaign_id):null);
-    const oi=objectiveInfo(camp||ad);
-    const imp=safeNum(ins.impressions), clicks=safeNum(ins.clicks), spend=safeNum(ins.spend), p=purchases(ins), rev=revenue(ins);
-    const lpv=action(ins.actions,/landing_page_view|viewcontent/i), carts=action(ins.actions,/add_to_cart/i), checkout=action(ins.actions,/initiate_checkout/i);
-    const ctr=metric(ins,'ctr'), cpc=metric(ins,'cpc'), cpm=metric(ins,'cpm');
-    const cpa=p>0?spend/p:null, roas=spend>0?rev/spend:null;
-    const peers=(allAds||[]).filter(x=>x.id!==ad.id&&x.ins&&x.ins.spend>0);
-    const peerCR=peers.map(x=>{const pp=purchases(x.ins),cc=safeNum(x.ins.clicks);return cc>0?pp/cc:null}).filter(x=>x!=null);
-    const peerCPA=peers.map(x=>{const pp=purchases(x.ins);return pp>0?safeNum(x.ins.spend)/pp:null}).filter(x=>x!=null);
-    const peerCTR=peers.map(x=>metric(x.ins,'ctr')?.v).filter(x=>x!=null);
-    const baseCR=avg(peerCR), baseCPA=avg(peerCPA), baseCTR=avg(peerCTR);
-    let expectedP=0, expectedLow=0, expectedHigh=0;
-    if(clicks>0&&baseCR>0){expectedP=clicks*baseCR; const spread=Math.max(expectedP*.45,1); expectedLow=Math.max(0,expectedP-spread); expectedHigh=expectedP+spread;}
-    else if(spend>0&&baseCPA>0){expectedP=spend/baseCPA; const spread=Math.max(expectedP*.5,1); expectedLow=Math.max(0,expectedP-spread); expectedHigh=expectedP+spread;}
-    const signals=[];
-    const add=(type,title,why,weight)=>signals.push({type,title,why,weight});
-    if(oi.primary==='purchase'){
-      if(clicks>0&&lpv>0&&lpv/clicks<.6)add('bad','فجوة بعد النقرة',`النقرات موجودة لكن LPV أقل من المتوقع (${(lpv/clicks*100).toFixed(0)}%).`,72);
-      if(lpv>0&&carts>0&&carts/lpv<.02)add('bad','تسريب LPV → ATC',`الزيارات موجودة لكن الإضافة للسلة منخفضة (${(carts/lpv*100).toFixed(1)}%).`,76);
-      if(carts>0&&checkout>0&&p===0)add('warn','Checkout → Purchase غير مكتمل',`هناك ${checkout.toFixed(0)} Checkout دون Purchase مسجل.`,84);
-      if(checkout>0&&p===0)add('warn','إشارة دفع/تتبع',`نية الشراء عالية لكن التحويل النهائي غير ظاهر. افحص الدفع والتتبع قبل لوم الكرييتف.`,82);
-      if(clicks>0&&expectedP>0&&p<expectedLow)add('bad','أقل بكثير من المتوقع',`المتوقع تقريبًا ${expectedLow.toFixed(1)}–${expectedHigh.toFixed(1)} Purchase، والفعلي ${p.toFixed(0)}.`,88);
-      if(expectedP>0&&p===0&&expectedP<.5)add('info','النتيجة الحالية طبيعية للعينة',`المتوقع أقل من نصف عملية شراء؛ عدم وجود Purchase الآن ليس دليلًا كافيًا على الإيقاف.`,35);
-    } else if(oi.primary==='traffic'){
-      if(imp>0&&clicks===0)add('bad','لا يوجد جذب',`هناك ظهور دون نقرات مسجلة.`,70);
-      if(clicks>0&&lpv>0&&lpv/clicks<.6)add('bad','جودة الزيارة ضعيفة',`جزء كبير من النقرات لا يتحول إلى زيارة صفحة.`,72);
-    } else if(oi.primary==='video'){
-      const views=action(ins.actions,/video_view|thruplay/i);
-      if(imp>0&&views>0&&views/imp<.1)add('warn','جودة المشاهدة منخفضة',`نسبة المشاهدة من الظهور منخفضة.`,65);
-    } else if(oi.primary==='lead'){
-      const leads=action(ins.actions,/lead|onsite_conversion.lead/i);
-      if(clicks>0&&leads===0)add('warn','لا توجد Leads بعد',`النقرات موجودة لكن لا توجد Lead مسجلة. لا يتم الحكم بالإيقاف دون baseline.`,58);
-    }
-    if(baseCTR>0&&ctr&&ctr.v<baseCTR*.65)add('warn','CTR أقل من Baseline',`CTR ${ctr.v.toFixed(2)}% مقابل baseline مشابه ${baseCTR.toFixed(2)}%.`,62);
-    if(baseCPA>0&&cpa&&cpa>baseCPA*1.35)add('bad','CPA أعلى من المتوقع',`CPA أعلى بنحو ${pct(cpa,baseCPA).toFixed(0)}% من baseline مشابه.`,74);
-    if(cpa&&roas!==null&&PROFIT_SETTINGS){
-      const breakEven=(1+(safeNum(PROFIT_SETTINGS.cogsPct)/100)+0)/(1-(safeNum(PROFIT_SETTINGS.paymentPct)/100));
-      if(roas<breakEven)add('bad','ROAS تحت نقطة التعادل',`ROAS ${roas.toFixed(2)}x أقل من نقطة التعادل التقديرية.`,86);
-    }
-    const dataScore=Math.min(100,35+(imp>0?15:0)+(clicks>=30?15:clicks>0?7:0)+(p>=3?20:p>0?10:0)+(peers.length>=5?10:0));
-    const negative=signals.filter(s=>s.type==='bad'||s.type==='warn');
-    let decision='MONITOR';
-    if(negative.some(s=>s.weight>=84) && (expectedP>=1 || p>0)) decision='OPTIMIZE';
-    if(oi.primary==='purchase'&&p>0&&roas!==null&&roas>0&&negative.filter(s=>s.type==='bad').length===0) decision='KEEP';
-    if(oi.primary==='purchase'&&expectedP>=2&&p===0&&negative.some(s=>s.weight>=84)) decision='REDUCE';
-    if(oi.primary==='traffic'&&clicks>0&&negative.length===0)decision='KEEP';
-    if(oi.primary==='video'&&imp>0&&negative.filter(s=>s.type==='bad').length===0)decision='KEEP';
-    const funnel={impressions:imp,clicks,lpv,carts,checkout,purchases:p};
-    let leak=null;
-    const rates=[['impression→click',imp?clicks/imp:null],['click→LPV',clicks&&lpv?lpv/clicks:null],['LPV→ATC',lpv&&carts?carts/lpv:null],['ATC→Checkout',carts&&checkout?checkout/carts:null],['Checkout→Purchase',checkout&&p?p/checkout:null]].filter(x=>x[1]!=null);
-    if(rates.length) leak=rates.reduce((a,b)=>b[1]<a[1]?b:a);
-    return {ad,campaign:camp,objective:oi,metrics:{spend,imp,clicks,ctr,cpc,cpm,purchases:p,revenue:rev,cpa,roas},expected:{purchases:expectedP,low:expectedLow,high:expectedHigh},baseline:{cr:baseCR,cpa:baseCPA,ctr:baseCTR,peerCount:peers.length},signals,funnel,leak,dataScore,decision};
-  }
-  window.MBH_DECISION_ENGINE={analyzeAd,objectiveInfo};
-  window.MBH_ANALYZE_ALL=function(){
-    const ads=(typeof DATA!=='undefined'?(DATA.ads||[]):[]).map(a=>({id:a.id,ins:DATA.adIns[a.id]}));
-    return (typeof DATA!=='undefined'?(DATA.ads||[]):[]).map(ad=>analyzeAd(ad,DATA.adIns[ad.id],ads)).filter(Boolean);
-  };
+const $=id=>document.getElementById(id), fm=n=>Number(n||0).toLocaleString('en-US',{maximumFractionDigits:0});
+const pc=(a,b)=>b>0?a/b*100:null, f1=v=>v==null?'—':v.toFixed(1)+'%';
+const act=(arr,re)=>{const f=(arr||[]).find(a=>re.test(String(a.action_type)));return f?num(f.value):0};
+const vid=a=>Array.isArray(a)&&a[0]?num(a[0].value):0;
+const em=(v,g,m,hi=true)=>v==null?'⚪':(hi?(v>=g?'🟢':v>=m?'🟠':'🔴'):(v<=g?'🟢':v<=m?'🟠':'🔴'));
+const box=(l,v,e)=>`<div class="x-box"><span>${l}</span><b class="num">${e?e+' ':''}${v}</b></div>`;
+let X=null,busy=false;
+['realWrap','funnelWrap','creativeWrap','campaignWrap','platformsWrap'].forEach(id=>{if(!$(id)){const d=document.createElement('div');d.id=id;document.querySelector('main.content').appendChild(d)}});
+async function loadFx(){
+ try{const c=JSON.parse(localStorage.getItem('mbh_fx')||'null');if(c&&Date.now()-c.t<216e5)return c.r}catch(e){}
+ try{const j=await (await fetch('https://open.er-api.com/v6/latest/USD')).json();if(j&&j.rates){try{localStorage.setItem('mbh_fx',JSON.stringify({t:Date.now(),r:j.rates}))}catch(e){}return j.rates}}catch(e){}
+ return null;
+}
+async function loadX(){
+ const tr=JSON.stringify({since:PARAMS.since,until:PARAMS.until}),o={camp:null,sibs:[],plat:null,fx:null,cur:'USD'};
+ const days=Math.max(1,Math.min(90,Math.round((new Date(PARAMS.until)-new Date(PARAMS.since))/864e5)+1));
+ await Promise.all([
+  AD.campaign_id?gget(AD.campaign_id,{fields:'id,name,objective,daily_budget,status',access_token:PARAMS.token}).then(r=>o.camp=r).catch(()=>{}):0,
+  AD.campaign_id?gget(PARAMS.actId+'/insights',{level:'ad',fields:'ad_id,ad_name,spend,impressions,clicks,ctr,actions,action_values,conversions',filtering:JSON.stringify([{field:'campaign.id',operator:'EQUAL',value:AD.campaign_id}]),time_range:tr,limit:100,access_token:PARAMS.token}).then(r=>o.sibs=r.data||[]).catch(()=>{}):0,
+  gget(PARAMS.actId,{fields:'currency',access_token:PARAMS.token}).then(r=>o.cur=(r.currency||'USD').toUpperCase()).catch(()=>{o.cur='USD'}),
+  loadFx().then(r=>o.fx=r),
+  sbClient.functions.invoke('platform-data',{body:{days}}).then(r=>{if(r.data&&r.data.ok)o.plat=r.data.platforms}).catch(()=>{})
+ ]);
+ return o;
+}
+const norm=v=>String(v==null?'':v).toLowerCase().replace(/[^\p{L}\p{N}]+/gu,'');
+const STORE_CUR=()=>(localStorage.getItem('mbh_store_cur')||'EGP').toUpperCase();
+function fxRate(){ // عملة المتجر لكل 1 وحدة من عملة حساب الإعلان
+ const man=num(localStorage.getItem('mbh_eo_rate'));if(man>0)return{r:man,src:'يدوي'};
+ const R=X&&X.fx,a=(X&&X.cur)||'USD',s=STORE_CUR();
+ if(R&&R[a]&&R[s])return{r:R[s]/R[a],src:'تلقائي'};
+ return a===s?{r:1,src:'نفس العملة'}:null;
+}
+function renderReal(){
+ const E=X&&X.plat&&X.plat.easyorders,el=$('realWrap'),I=INS||{},adSpend=num(I.spend),metaP=getPurchases(I.actions,I.conversions);
+ if(!E||E.status!=='ok'){el.innerHTML=`<div class="x-card"><h3>النتيجة الحقيقية (EasyOrders)</h3><div class="x-note">${E?'EasyOrders غير متصل أو تعذّر السحب.':'جارٍ التحميل أو تعذّر تحميل بيانات EasyOrders.'}</div></div>`;return}
+ const fx=fxRate();
+ if(!fx){el.innerHTML=`<div class="x-card"><h3>النتيجة الحقيقية (EasyOrders)</h3><div class="x-note">تعذّر جلب سعر الصرف تلقائيًا (${esc((X&&X.cur)||'USD')} ← ${STORE_CUR()}). أدخل السعر يدويًا:</div><div class="x-rate"><input type="number" min="0" step="0.01" placeholder="مثال: 50" onchange="localStorage.setItem('mbh_eo_rate',this.value);renderExtras()"></div></div>`;return}
+ const cid=String(AD.campaign_id||''),cname=norm(X.camp&&X.camp.name),sibIds=new Set((X.sibs||[]).map(r=>String(r.ad_id))),sibNames=new Map((X.sibs||[]).map(r=>[norm(r.ad_name),String(r.ad_id)]));
+ const inRange=o=>o.date>=PARAMS.since&&o.date<=PARAMS.until&&o.source==='meta';
+ const camp=(E.orders||[]).filter(o=>inRange(o)&&(String(o.utm_campaign)===cid||(cname&&norm(o.utm_campaign)===cname)));
+ const adOf=o=>{for(const k of ['utm_content','utm_term','utm_medium']){const v=o[k];if(v==null||v==='')continue;if(sibIds.has(String(v)))return String(v);const n=sibNames.get(norm(v));if(n)return n}return null};
+ const tagged=camp.filter(o=>adOf(o)),adLevel=tagged.length>0;
+ const mine=adLevel?tagged.filter(o=>adOf(o)===String(AD.id)):camp,untagged=camp.length-tagged.length;
+ const campSpend=(X.sibs||[]).reduce((t,r)=>t+num(r.spend),0)||adSpend,spend=adLevel?adSpend:campSpend;
+ const ok=mine.filter(o=>!o.lost),lost=mine.length-ok.length,revU=ok.reduce((t,o)=>t+o.total,0)/fx.r;
+ const aov=ok.length?revU/ok.length:null,cpa=ok.length?spend/ok.length:null,roas=spend?revU/spend:null,cancel=pc(lost,mine.length);
+ let profit='',be='';const P=PROFIT_SETTINGS;
+ if(P){const cg=num(P.cogsPct)/100,pm=num(P.paymentPct)/100,net=revU*(1-cg-pm)-ok.length*num(P.shipping)-spend;
+  profit=box('صافي الربح الحقيقي',money(net),net>=0?'🟢':'🔴');be=(1-cg-pm)>0?box('ROAS التعادل',(1/(1-cg-pm)).toFixed(2)+'x'):''}
+ const metaCmp=adLevel?metaP:(X.sibs||[]).reduce((t,r)=>t+getPurchases(r.actions,r.conversions),0);
+ el.innerHTML=`<div class="x-card"><h3>النتيجة الحقيقية <small>${adLevel?'منسوبة لهذا الإعلان نفسه':'على مستوى الحملة كلها (الصرف = صرف الحملة)'}</small></h3>
+ ${mine.length?`<div class="x-grid">${box('أوردرات',fm(mine.length))}${box('ناجحة',fm(ok.length))}${box('نسبة الإلغاء/المرتجع',f1(cancel),em(cancel,15,30,false))}${box('المبيعات',money(revU))}${box('متوسط الأوردر',aov==null?'—':money(aov))}${box('الصرف المحسوب عليه',money(spend))}${box('تكلفة الأوردر الحقيقية',cpa==null?'—':money(cpa))}${box('ROAS حقيقي',roas==null?'—':roas.toFixed(2)+'x',roas==null?'':roas>=1?'🟢':'🔴')}${be}${profit}</div>
+ <div class="x-row"><span>مبيعات ميتا (بكسل) ${adLevel?'للإعلان':'للحملة'}</span><b class="num">${fm(metaCmp)}</b></div><div class="x-row"><span>أوردرات فعلية في EasyOrders</span><b class="num">${fm(ok.length)}</b></div>`
+ :`<div class="x-note">لا توجد أوردرات منسوبة ${adLevel?'لهذا الإعلان':'لهذه الحملة'} في الفترة.</div>`}
+ ${adLevel&&untagged?`<div class="x-note">${fm(untagged)} أوردر من نفس الحملة بدون تحديد الإعلان، فلم تُحسب هنا.</div>`:''}
+ ${!adLevel?`<div class="x-note">لنسبة الأوردر لإعلان محدد: أضف في «معلمات URL» للإعلان <span dir="ltr">utm_source=meta&amp;utm_campaign={{campaign.id}}&amp;utm_content={{ad.id}}</span>. وتأكد أن دالة platform-data تُرجع utm_content.</div>`:''}
+ <div class="x-rate">سعر الصرف: <b class="num">${fx.r.toFixed(2)}</b> ${esc(STORE_CUR())}/${esc((X&&X.cur)||'USD')} (${fx.src})
+ <input type="number" min="0" step="0.01" placeholder="تعديل يدوي" onchange="localStorage.setItem('mbh_eo_rate',this.value);renderExtras()"></div></div>`;
+}
+function renderFunnel(){
+ const I=INS;if(!I){$('funnelWrap').innerHTML='';return}
+ const sp=num(I.spend),st=[['ظهور',num(I.impressions)],['نقرات',num(I.clicks)],['زيارات الصفحة',act(I.actions,/^landing_page_view$/)],['مشاهدة المنتج',act(I.actions,/^(omni_)?view_content$/)],['إضافة للسلة',act(I.actions,/^(omni_)?add_to_cart$/)],['بدء الدفع',act(I.actions,/^(omni_)?initiate_checkout$/)],['شراء',getPurchases(I.actions,I.conversions)]].filter((x,i)=>i<2||x[1]>0),top=st[1][1]||1;
+ const rows=st.map((x,i)=>{const prev=i?st[i-1][1]:0,d=i>1?pc(x[1],prev):null;return `<div class="x-step"><span>${x[0]}</span><div class="x-bar"><i style="width:${Math.max(2,Math.min(100,i===0?100:x[1]/top*100))}%"></i></div><span class="num">${fm(x[1])}${d!=null?' · '+d.toFixed(0)+'%':''}</span></div>`}).join('');
+ const lp=pc(st.find(x=>x[0]==='زيارات الصفحة')?.[1]||0,num(I.clicks));
+ $('funnelWrap').innerHTML=`<div class="x-card"><h3>القمع خطوة بخطوة <small>النسبة = من الخطوة السابقة</small></h3>${rows}<div class="x-grid" style="margin-top:8px">${box('نقرة ← زيارة',f1(lp),em(lp,70,55))}${box('تكلفة النقرة',money(num(I.cpc)))}${box('تكلفة الألف ظهور',money(num(I.cpm)))}${sp&&getPurchases(I.actions,I.conversions)?box('تكلفة الشراء (ميتا)',money(sp/getPurchases(I.actions,I.conversions))):''}</div></div>`;
+}
+function renderCreative(){
+ const I=INS;if(!I){return}
+ const imp=num(I.impressions),v3=act(I.actions,/^video_view$/),tr=vid(I.video_thruplay_watched_actions),p25=vid(I.video_p25_watched_actions),p100=vid(I.video_p100_watched_actions),ob=vid(I.outbound_clicks),fr=num(I.frequency),avg=vid(I.video_avg_time_watched_actions);
+ const hook=pc(v3,imp),hold=pc(tr,v3),fin=pc(p100,v3),oc=pc(ob,imp);
+ $('creativeWrap').innerHTML=`<div class="x-card"><h3>الكرييتف والجمهور <small>مراجع عامة للأيقونات، وليست حدودًا ثابتة</small></h3><div class="x-grid">
+ ${v3?box('Hook rate (٣ ثواني)',f1(hook),em(hook,30,15))+box('Hold rate',f1(hold),em(hold,25,12))+box('إكمال الفيديو',f1(fin),em(fin,5,2))+(avg?box('متوسط المشاهدة',avg.toFixed(1)+' ث'):''):''}
+ ${box('CTR',num(I.ctr).toFixed(2)+'%',em(num(I.ctr),1.5,1))}${ob?box('CTR الرابط الخارجي',f1(oc),em(oc,1,.6)):''}${fr?box('التكرار',fr.toFixed(2),em(fr,2.5,3.5,false)):''}${box('الوصول',fm(num(I.reach)))}</div>
+ ${!v3?'<div class="x-note">لا توجد بيانات تشغيل فيديو؛ مؤشرات Hook/Hold تظهر لإعلانات الفيديو فقط.</div>':''}</div>`;
+}
+function renderCampaign(){
+ const C=X&&X.camp,S=X&&X.sibs||[],A=typeof ADSET!=='undefined'&&ADSET;
+ const rows=S.map(r=>{const p=getPurchases(r.actions,r.conversions),sp=num(r.spend);return{id:r.ad_id,n:r.ad_name,sp,p,cpa:p?sp/p:null,ctr:num(r.ctr)}}).sort((a,b)=>b.sp-a.sp);
+ const tot=rows.reduce((t,r)=>t+r.sp,0),me=rows.findIndex(r=>r.id===AD.id);
+ $('campaignWrap').innerHTML=`<div class="x-card"><h3>الحملة والمجموعة</h3>
+ ${C?`<div class="x-row"><span>الحملة</span><b>${esc(C.name)}</b></div><div class="x-row"><span>الهدف</span><b>${esc(C.objective||'—')}</b></div>`:''}
+ ${A?`<div class="x-row"><span>المجموعة</span><b>${esc(A.name)}</b></div>${A.optimization_goal?`<div class="x-row"><span>هدف التحسين</span><b>${esc(A.optimization_goal)}</b></div>`:''}${A.daily_budget?`<div class="x-row"><span>الميزانية اليومية</span><b class="num">${money(num(A.daily_budget)/100)}</b></div>`:''}`:''}
+ ${rows.length>1?`<div class="x-row"><span>نصيب الإعلان من صرف الحملة</span><b class="num">${tot&&me>=0?(rows[me].sp/tot*100).toFixed(0)+'%':'—'}</b></div><div class="x-wrap" style="margin-top:8px"><table class="x-t"><tr><th>الإعلان</th><th>الصرف</th><th>مبيعات</th><th>التكلفة</th><th>CTR</th></tr>${rows.slice(0,10).map(r=>`<tr class="${r.id===AD.id?'me':''}"><td>${esc(r.n)}</td><td class="num">${money(r.sp)}</td><td class="num">${r.p.toFixed(0)}</td><td class="num">${r.cpa==null?'—':money(r.cpa)}</td><td class="num">${r.ctr.toFixed(2)}%</td></tr>`).join('')}</table></div>`:'<div class="x-note">لا توجد إعلانات أخرى في هذه الحملة للمقارنة.</div>'}</div>`;
+}
+const ST={ok:'● متصل وبياناته بتتسحب',not_connected:'○ غير مربوط — اربطه من صفحة الحساب',needs_developer_token:'◐ مربوط — محتاج Developer Token',no_accounts:'◐ مربوط بدون حسابات إعلانية',reconnect:'⚠ الاتصال انتهى، أعد الربط',error:'⚠ حصل خطأ أثناء السحب'};
+function renderPlatforms(){
+ const P=X&&X.plat;if(!P){$('platformsWrap').innerHTML='';return}
+ const nm={easyorders:'EasyOrders',shopify:'Shopify',tiktok:'TikTok',google:'Google Ads'};
+ let h='<div class="x-card"><h3>باقي المنصات <small>للمقارنة على مستوى الحساب لنفس الفترة</small></h3>';
+ Object.keys(nm).forEach(k=>{const p=P[k]||{status:'not_connected'};let extra='';
+  if(k==='tiktok'&&p.status==='ok'){const r=(p.rows||[]).filter(x=>x.date>=PARAMS.since&&x.date<=PARAMS.until),sp=r.reduce((t,x)=>t+x.spend,0),cv=r.reduce((t,x)=>t+x.conversions,0);extra=r.length?` · إنفاق ${sp.toFixed(2)} · تحويلات ${cv.toFixed(0)}`:' · لا بيانات في الفترة'}
+  if(k==='easyorders'&&p.status==='ok'){const o=(p.orders||[]).filter(x=>x.date>=PARAMS.since&&x.date<=PARAMS.until);extra=` · ${fm(o.length)} أوردر في الفترة`}
+  h+=`<div class="x-row"><b>${nm[k]}</b><span>${ST[p.status]||ST.error}${extra}</span></div>`});
+ $('platformsWrap').innerHTML=h+'</div>';
+}
+window.renderExtras=function(){try{renderReal();renderFunnel();renderCreative();renderCampaign();renderPlatforms()}catch(e){console.warn('extras',e)}};
+const _ra=renderAll;
+renderAll=function(){_ra();renderExtras();if(!X&&!busy){busy=true;loadX().then(o=>{X=o;renderExtras()}).finally(()=>busy=false)}};
 })();
-
-</script>
-
-<script>
-(function(){
-  if(!window.MBH_DECISION_ENGINE)return;
-  smartAdIntelligence=function(){
-    if(!INS)return {confidence:0,verdict:t('insufficient'),desc:t('insufficient'),signals:[],actions:[t('collect')],metrics:{}};
-    const fake={id:PARAMS.adId,name:(AD&&AD.name)||'Ad',campaign_id:AD&&AD.campaign_id,objective:AD&&AD.objective};
-    const peer=[];
-    const x=window.MBH_DECISION_ENGINE.analyzeAd(fake,INS,[{id:fake.id,ins:INS}]);
-    const m=x.metrics,e=x.expected;
-    const signals=x.signals.map(s=>({level:s.type==='bad'?'bad':s.type==='warn'?'mid':'good',title:s.title,detail:s.why}));
-    let verdict=x.decision==='KEEP'?t('hold'):(x.decision==='REDUCE'?t('optimize'):t('optimize'));
-    let desc=`${x.objective.name} — الفعلي ${m.purchases.toFixed(0)} مقابل المتوقع ${e.low.toFixed(1)}–${e.high.toFixed(1)}. ${x.leak?'أول تسريب: '+x.leak[0]+'.':''}`;
-    if(x.decision==='KEEP')desc='الأداء لا يحمل إشارة سلبية تجارية قوية الآن؛ لا تغيّر شيئًا لمجرد تغير Metric واحدة.';
-    const actions=[];
-    if(x.leak)actions.push('افحص أول تسريب في الـFunnel قبل تعديل الميزانية');
-    if(x.decision==='REDUCE')actions.push('قلل المخاطرة مؤقتًا وراجع السبب خلال 24 ساعة');
-    if(x.decision==='OPTIMIZE')actions.push('اختبر السبب الأقوى بدل إيقاف الإعلان مباشرة');
-    if(x.decision==='KEEP')actions.push('استمر وراقب الاتجاه');
-    if(!actions.length)actions.push('اجمع بيانات إضافية');
-    const confidence=Math.round(x.dataScore);
-    return {confidence,verdict,desc,signals,actions,metrics:{spend:m.spend,revenue:m.revenue,purchases:m.purchases,clicks:m.clicks,impressions:m.imp,ctr:m.ctr?.v||0,cpm:m.cpm?.v||0,cpc:m.cpc?.v||0,roas:m.roas||0,cr:m.clicks?m.purchases/m.clicks*100:0,carts:m.carts||0,lpv:m.lpv||0,expectedPurchases:e.purchases},trend:{}};
-  };
-})();
-</script>
-</body>
+</script></body>
 </html>
