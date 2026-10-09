@@ -2652,6 +2652,7 @@ money=function(v){try{return window.MBH_CUR?window.MBH_CUR.fmt(v):oldMoney(v)}ca
 .al2-more{display:block;width:100%;border:0;border-top:1px solid var(--border);background:transparent;color:var(--text-dim,#8a8a8a);padding:10px;font:inherit;font-size:12px;cursor:pointer}
 .more-details{margin-top:18px}.more-details>summary{cursor:pointer;padding:12px 4px;font-size:13px;font-weight:700;color:var(--text-dim,#8a8a8a)}
 </style>
+<div id="mbh-stubs" hidden aria-hidden="true"><div id="aiFabDot"></div><div id="aiNote"></div><div id="aiPanel"></div><div id="aiPanelBody"></div><div id="campaignPanel"></div><div id="campaignPanelBody"></div><div id="feedbackBtn"></div><div id="forecastWrap"></div><div id="goalWrap"></div><div id="hoursWrap"></div><div id="otherPlatformsWrap"></div><div id="spendCapWrap"></div><div id="tokensRow"></div><div id="walletsWrap"></div></div>
 <style id="mbh-v2">
 #otherPlatformsWrap,#walletsWrap,#goalWrap,#spendCapWrap,#hoursWrap,#forecastWrap,#tokensRow,#aiNote,.ai-fab,.ai-panel,.ai-panel-backdrop,.verdict-badge[onclick],.est-line,.age-badge,.account-more,#accountMoreBtn{display:none!important}
 @view-transition{navigation:auto}
@@ -2676,8 +2677,6 @@ html{scroll-behavior:smooth}
 </style><script id="mbh-v2-js">
 (function(){
  // navigation labels
- var L={home:'الرئيسية',insights:'التحليلات',settings:'الإعدادات'};
- document.querySelectorAll('.mbh-unified-nav a').forEach(function(a){if(!a.querySelector('.l')){var s=document.createElement('span');s.className='l';s.textContent=L[a.dataset.page]||'';a.appendChild(s)}});
  // collapsible filter bar
  var g=document.querySelector('.filter-group');
  if(g&&g.parentElement&&!document.querySelector('.mbh-fbar')){
@@ -2714,6 +2713,18 @@ html{scroll-behavior:smooth}
 .camp-row .badges,.camp-row .verdict-badge{display:none!important}
 .camp-row{border-radius:14px!important;gap:10px!important}
 @media(max-width:560px){.ads-grid{grid-template-columns:1fr!important}.v2-main b{font-size:15px}}
+</style><style id="mbh-fix3">
+nav.mbh-unified-nav{position:fixed!important;z-index:1300!important;left:50%!important;right:auto!important;top:auto!important;bottom:max(10px,env(safe-area-inset-bottom))!important;transform:translateX(-50%)!important;width:min(380px,calc(100% - 24px))!important;grid-template-columns:repeat(3,1fr)!important;gap:4px!important;padding:6px!important;border:1px solid var(--border)!important;border-radius:22px!important;background:rgba(20,20,20,.9)!important;backdrop-filter:blur(14px)}
+nav.mbh-unified-nav a{min-height:50px!important;font-size:11px!important;font-weight:700!important;border-radius:16px!important}
+nav.mbh-unified-nav a.active{background:#fff!important;color:#111!important;box-shadow:none!important}
+@media(min-width:1000px){nav.mbh-unified-nav{top:50%!important;bottom:auto!important;left:auto!important;right:14px!important;transform:translateY(-50%)!important;width:78px!important;grid-template-columns:1fr!important}}
+.topbar>button[title="المتجر"]{width:34px!important;height:34px!important;border:1px solid var(--border)!important;border-radius:10px!important;background:var(--surface)!important;color:var(--text)!important;box-shadow:none!important}
+.topbar>button[title="المتجر"] svg{width:17px!important;height:17px!important}
+.topbar .icon-btn{width:34px;height:34px}.topbar .brand{font-size:14px}
+.mbh-fbar{border:0!important;background:transparent!important;padding:0!important;backdrop-filter:none!important;position:static!important}
+.mbh-fbar .mbh-ftoggle{background:var(--surface)!important;border:1px solid var(--border)!important;border-radius:12px;font-size:13px}
+.mbh-fbody{padding:12px!important;border:1px solid var(--border)!important;border-radius:14px!important;background:var(--surface)!important}
+.top-status{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 12px}.top-status:empty{display:none}
 </style></body>
 </html>
 
