@@ -814,9 +814,7 @@ html[data-theme="light"] body{background:var(--mbh-bg)!important}
 
   
   
-  <button class="icon-btn" id="feedbackBtn" title="التنبيهات" onclick="openCampaignIssues()">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v13H7l-3 3V4z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg>
-  </button>
+  
   <button class="icon-btn" id="settingsBtn" title="إعدادات الربح" onclick="openSettings()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
   </button>
@@ -882,43 +880,18 @@ html[data-theme="light"] body{background:var(--mbh-bg)!important}
 
   <div class="summary-grid" id="summaryGrid"></div>
   <div id="alertsWrap"></div>
-  <div id="otherPlatformsWrap"></div>
+  
   <div id="rankingWrap"></div>
   <div id="sectionsWrap"></div>
-  <details class="more-details"><summary>تفاصيل إضافية</summary>
-    <div class="tokens-row" id="tokensRow"></div>
-    <div class="ai-note" id="aiNote">تحليل تلقائي: جارٍ تحميل البيانات...</div>
-    <div id="walletsWrap"></div>
-    <div id="goalWrap"></div>
-    <div id="spendCapWrap"></div>
-    <div id="hoursWrap"></div>
-    <div id="forecastWrap"></div>
-  </details>
+  
 </main>
 
-<button class="ai-fab" id="aiFab" onclick="openAiPanel()" title="التنبيهات">
-  <span class="dot" id="aiFabDot"></span>
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-</button>
+
 <div class="ai-panel-backdrop" id="aiPanelBackdrop" onclick="closeAiPanel()"></div>
-<aside class="ai-panel" id="aiPanel">
-  <div class="ai-panel-head">
-    <svg class="brain" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-    <b>التنبيهات</b>
-    <button class="icon-btn" onclick="closeAiPanel()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></button>
-  </div>
-  <div class="ai-panel-body" id="aiPanelBody"></div>
-</aside>
+
 
 <div class="ai-panel-backdrop" id="campaignPanelBackdrop" onclick="closeCampaignIssues()"></div>
-<aside class="ai-panel" id="campaignPanel">
-  <div class="ai-panel-head">
-    <svg class="brain" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v13H7l-3 3V4z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg>
-    <b>التنبيهات</b>
-    <button class="icon-btn" onclick="closeCampaignIssues()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></button>
-  </div>
-  <div class="ai-panel-body" id="campaignPanelBody"></div>
-</aside>
+
 
 <div class="modal-backdrop" id="settingsBackdrop" onclick="closeSettings()"></div>
 <div class="modal" id="settingsModal">
@@ -2074,34 +2047,23 @@ function renderSections(){
 
         const actionsHtml = '';
 
+        const cpp = purchases > 0 ? money(spend/purchases) : '—';
+        const on = ad.status === 'ACTIVE';
+        const chip = (l,v) => `<span class="chip"><i>${l}</i><b class="num">${v}</b></span>`;
         grid.insertAdjacentHTML('beforeend', `
-          <div class="ad-card" style="cursor:pointer;" onclick="openAdDetails('${ad.id}','${ad._actId}','${ad._token}','${(ad._accLabel||'').replace(/'/g,"\\'")}')">
-            ${creativeMedia}
-            <div class="ad-card-body">
-              <div class="ad-card-header">
-                <div>
-                  <div class="ad-title">${ad.name}</div>
-                  ${creative.name && creative.name !== ad.name ? `<div class="ad-creative-name">${creative.name}</div>` : ''}
-                  <div class="ad-sub"><span class="status-dot ${ad.status==='ACTIVE'?'on':'off'}"></span>${ad.status === 'ACTIVE' ? 'شغّال' : 'متوقف'}</div>
-                  ${ad._accLabel ? `<span class="acc-tag">${ad._accLabel}</span>` : ''}
-                  ${ageBadgeHtml}
-                </div>
-                <div class="verdict-badge ${badgeClass(verdict.level)}" onclick="event.stopPropagation(); toggleIssue(${id})">${verdict.label} ${issues?'⚠':''}</div>
-              </div>
-              <div class="metrics-grid">
-                <div class="metric-box ${m.ctrRate}">${m.ctrRate==='bad'?`<div class="flag" onclick="event.stopPropagation(); toggleIssue(${id})">!</div>`:''}<div class="metric-label">CTR</div><div class="metric-value">${m.ctr.toFixed(2)}%</div></div>
-                <div class="metric-box ${m.cpmRate}">${m.cpmRate==='bad'?`<div class="flag" onclick="event.stopPropagation(); toggleIssue(${id})">!</div>`:''}<div class="metric-label">CPM</div><div class="metric-value">${money(m.cpm)}</div></div>
-                <div class="metric-box ${m.cpcRate}">${m.cpcRate==='bad'?`<div class="flag" onclick="event.stopPropagation(); toggleIssue(${id})">!</div>`:''}<div class="metric-label">CPC</div><div class="metric-value">${money(m.cpc)}</div></div>
-                <div class="metric-box"><div class="metric-label">الإنفاق</div><div class="metric-value">${money(spend)}</div></div>
-                <div class="metric-box"><div class="metric-label">الظهور</div><div class="metric-value">${ins?num(ins.impressions).toLocaleString():'0'}</div></div>
-                <div class="metric-box"><div class="metric-label">مبيعات</div><div class="metric-value">${purchases.toFixed(0)}</div></div>
-              </div>
-              ${cartLine}
-              ${budgetUsageHtml}
-              ${estHtml}
-              <div class="issue-panel" id="issue-${id}">${issuesHtml}</div>
-              ${actionsHtml}
+          <div class="ad-card v2 ${on?'':'is-off'}" onclick="openAdDetails('${ad.id}','${ad._actId}','${ad._token}','${(ad._accLabel||'').replace(/'/g,"\\'")}')">
+            <div class="v2-head">
+              ${thumb ? `<img class="v2-img" src="${thumb}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : `<div class="v2-img ph">${iconImage()}</div>`}
+              <div class="v2-title"><div class="ad-title">${ad.name}</div>
+                <div class="ad-sub"><span class="status-dot ${on?'on':'off'}"></span>${on?'شغّال':'متوقف'}${ad._accLabel?` · ${ad._accLabel}`:''}</div></div>
             </div>
+            <div class="v2-main">
+              <div><span>الإنفاق</span><b class="num">${money(spend)}</b></div>
+              <div><span>مبيعات</span><b class="num">${purchases.toFixed(0)}</b></div>
+              <div><span>تكلفة الشراء</span><b class="num">${cpp}</b></div>
+            </div>
+            <div class="v2-chips">${chip('CTR', m.ctr.toFixed(2)+'%')}${chip('CPM', money(m.cpm))}${chip('CPC', money(m.cpc))}${chip('ظهور', ins?num(ins.impressions).toLocaleString():'0')}${chip('زوار', visitors.toFixed(0))}${chip('سلة', addToCart.toFixed(0))}</div>
+            ${budgetUsageHtml}
           </div>
         `);
       });
@@ -2491,7 +2453,7 @@ function compute(){
  rows.forEach(r=>{
   const {ad,ins,g,G,spend,res,bud}=r,peers=by[g],medCpr=med(peers.filter(p=>p.cpr).map(p=>p.cpr)),medCtr=med(peers.filter(p=>num(p.ins.impressions)>=1000).map(p=>num(p.ins.ctr)));
   const add=(sev,title,text)=>out.push({sev,title,text,adName:ad.name,adId:ad.id,goal:G.l,platform:'Meta',place,spend});
-  if(r.age<2){add('info','إعلان جديد قيد التعلّم','عمر الإعلان أقل من يومين، والأرقام الحالية غير كافية للحكم عليه.');return}
+  if(r.age<2)return;
   const live=isLive(ad),days=((DATA.adDaily||{})[ad.id]||[]).map(d=>({d:d.date_start,spend:num(d.spend),res:resOf(g==='reach'?'other':g,d)})).filter(d=>d.d<today).sort((a,b)=>a.d<b.d?-1:1);
   let sd=0,ss=0;for(let k=days.length-1;k>=0;k--){if(days[k].spend>0&&days[k].res===0){sd++;ss+=days[k].spend}else break}
   const act=days.filter(d=>d.spend>0),daily=bud>0?bud:(act.length?act.reduce((t,d)=>t+d.spend,0)/act.length:0);
@@ -2504,19 +2466,13 @@ function compute(){
     else if(atc>0)why=` أُضيف للسلة ${Math.round(atc)} مرة دون شراء، فالتعثر عند الدفع أو الشحن.`}
    add(g==='purchase'||g==='lead'?'high':'mid',`${sd} أيام بلا «${G.l}» مع إنفاق مستمر`,`${bud>0?'الميزانية اليومية '+money(bud):'متوسط الصرف اليومي '+money(daily)}، وصرف الإعلان ${money(ss)} خلال آخر ${sd} أيام دون أي «${G.l}» والإعلان ما زال شغالًا.`+why);
   }
-  if(bud>0&&live&&days.length&&days[days.length-1].spend<bud*.4)add('info','الصرف أقل بكثير من الميزانية',`صرف آخر يوم مكتمل ${money(days[days.length-1].spend)} من ميزانية ${money(bud)}، فالتوصيل محدود (جمهور ضيق أو مزايدة منخفضة).`);
   const gm=G.reach?'تكلفة الألف وصول':'تكلفة النتيجة';
-  if(r.cpr&&medCpr&&res>=2&&peers.length>=3&&r.cpr>=medCpr*1.5)add('mid',gm+' مرتفعة',`${money(r.cpr)} مقابل متوسط ${money(medCpr)} لإعلانات «${G.l}» الأخرى (${(r.cpr/medCpr).toFixed(1)} ضعف).`);
-  if(r.cpr&&medCpr&&res>=3&&peers.length>=3&&r.cpr<=medCpr*.75)add('good','أداء متفوق على نظرائه',`${gm} ${money(r.cpr)} أقل من متوسط إعلانات «${G.l}» (${money(medCpr)}).`);
   const rev=g==='purchase'?ACT(ins.action_values,/purchase/i):0;
   if(rev>0&&res>=2&&rev<spend)add('mid','العائد أقل من الإنفاق',`ROAS ${(rev/spend).toFixed(2)}x: الإيراد ${money(rev)} مقابل إنفاق ${money(spend)}.`);
-  if(medCtr&&num(ins.impressions)>=1000&&peers.length>=3&&num(ins.ctr)<=medCtr*.6)add('mid','جذب الانتباه ضعيف',`معدل النقر ${num(ins.ctr).toFixed(2)}% مقابل ${medCtr.toFixed(2)}% لنظرائه، وغالبًا الكرييتف لا يجذب الجمهور.`);
  });
  /* مؤشرات على مستوى الحساب */
  try{const cap=parseFloat(localStorage.getItem(capKey())),sp=(window._SUMMARY_CACHE||{}).totSpend||0;
   if(cap>0&&sp>=cap*.8)out.push({sev:sp>=cap?'high':'mid',title:sp>=cap?'تم تجاوز الحد الشهري للصرف':'اقتربت من الحد الشهري للصرف',text:`تم صرف ${money(sp)} من أصل ${money(cap)} (${(sp/cap*100).toFixed(0)}%) على مستوى الحسابات المتصلة.`,adName:'كل الحسابات',goal:'',platform:'Meta',place:'',spend:sp})}catch(e){}
- (DATA.adsets||[]).forEach(a=>{if(!a.daily_budget)return;const k=checkBudgetSpike(a.id,num(a.daily_budget)/100);
-  if(k)out.push({sev:'info',title:'ارتفاع في الميزانية اليومية',text:`ارتفعت الميزانية ${k.pct.toFixed(0)}% (من ${money(k.from)} إلى ${money(k.to)}) خلال آخر 48 ساعة، وقد تحتاج المنصة وقتًا لإعادة التعلّم.`,adName:a.name,goal:'',platform:'Meta',place:'',spend:0})});
  const o={high:0,mid:1,good:2,info:3};return out.sort((x,y)=>o[x.sev]-o[y.sev]||y.spend-x.spend);
 }
 const EM={high:'🔴',mid:'🟠',good:'🟢',info:'🔵'};
@@ -2696,7 +2652,69 @@ money=function(v){try{return window.MBH_CUR?window.MBH_CUR.fmt(v):oldMoney(v)}ca
 .al2-more{display:block;width:100%;border:0;border-top:1px solid var(--border);background:transparent;color:var(--text-dim,#8a8a8a);padding:10px;font:inherit;font-size:12px;cursor:pointer}
 .more-details{margin-top:18px}.more-details>summary{cursor:pointer;padding:12px 4px;font-size:13px;font-weight:700;color:var(--text-dim,#8a8a8a)}
 </style>
-</body>
+<style id="mbh-v2">
+#otherPlatformsWrap,#walletsWrap,#goalWrap,#spendCapWrap,#hoursWrap,#forecastWrap,#tokensRow,#aiNote,.ai-fab,.ai-panel,.ai-panel-backdrop,.verdict-badge[onclick],.est-line,.age-badge,.account-more,#accountMoreBtn{display:none!important}
+@view-transition{navigation:auto}
+html{scroll-behavior:smooth}
+.content{display:flex;flex-direction:column;gap:14px;padding-top:12px!important}
+#alertsWrap{order:1}.summary-grid{order:2}#rankingWrap{order:3}#sectionsWrap{order:4}
+.summary-grid{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))!important;gap:10px!important}
+.section-title{margin:6px 0 8px!important}
+/* filters: compact sticky bar */
+.mbh-fbar{position:sticky;top:44px;z-index:110;background:rgba(11,11,11,.92);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:14px;padding:8px}
+.mbh-fbar .mbh-ftoggle{display:none;width:100%;padding:9px;border:0;border-radius:10px;background:var(--surface-2);color:var(--text);font-weight:700;cursor:pointer}
+@media(max-width:700px){.mbh-fbar .mbh-ftoggle{display:block}.mbh-fbar:not(.open)>.mbh-fbody{display:none}.mbh-fbody{margin-top:8px;display:grid!important;grid-template-columns:1fr 1fr;gap:8px}}
+@media(min-width:701px){.mbh-fbody{display:flex!important;flex-wrap:wrap;gap:10px}}
+/* nav: pill bar mobile, side rail desktop */
+.mbh-unified-nav{position:fixed;z-index:1300;bottom:max(10px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(380px,calc(100% - 24px));display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:6px;border-radius:22px;background:rgba(20,20,20,.88);backdrop-filter:blur(14px);border:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.mbh-unified-nav a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;border-radius:16px;color:#8a8a8a;text-decoration:none;font-size:11px;font-weight:700;transition:.2s}
+.mbh-unified-nav a svg{width:20px;height:20px}
+.mbh-unified-nav a.active{background:#fff;color:#111}
+.mbh-bottom-nav{display:none!important}
+.content{padding-bottom:110px!important}
+@media(min-width:1000px){.mbh-unified-nav{top:50%;bottom:auto;right:14px;left:auto;transform:translateY(-50%);width:76px;grid-template-columns:1fr}.content{padding-bottom:40px!important;padding-right:110px!important}}
+</style><script id="mbh-v2-js">
+(function(){
+ // navigation labels
+ var L={home:'الرئيسية',insights:'التحليلات',settings:'الإعدادات'};
+ document.querySelectorAll('.mbh-unified-nav a').forEach(function(a){if(!a.querySelector('.l')){var s=document.createElement('span');s.className='l';s.textContent=L[a.dataset.page]||'';a.appendChild(s)}});
+ // collapsible filter bar
+ var g=document.querySelector('.filter-group');
+ if(g&&g.parentElement&&!document.querySelector('.mbh-fbar')){
+  var body=g.parentElement,bar=document.createElement('div');bar.className='mbh-fbar';
+  var b=document.createElement('button');b.className='mbh-ftoggle';b.textContent='الفلاتر ▾';
+  b.onclick=function(){bar.classList.toggle('open')};
+  body.parentNode.insertBefore(bar,body);body.classList.add('mbh-fbar-body','mbh-fbody');bar.appendChild(b);bar.appendChild(body);
+ }
+ // strip leftover decision/action text from alert cards
+ function clean(){document.querySelectorAll('#alertsWrap [class*=action],#alertsWrap [class*=decision],#alertsWrap button').forEach(function(n){n.remove()})}
+ new MutationObserver(clean).observe(document.body,{childList:true,subtree:true});clean();
+ // ===== MCP bridge: Claude/ChatGPT read data from Media Buyer Hub through the MCP server, not the site =====
+ window.MBH_MCP={endpoint:localStorage.getItem('mbh_mcp_url')||'',
+  snapshot:function(){return{alerts:(window.ALERTS||null),summary:(window.SUMMARY||null),range:(document.getElementById('fRange')||{}).value,platform:(document.getElementById('fPlatform')||{}).value}}};
+ if(navigator.modelContext&&navigator.modelContext.registerTool){
+  navigator.modelContext.registerTool({name:'get_dashboard_snapshot',description:'Current Media Buyer Hub dashboard filters and alerts',inputSchema:{type:'object',properties:{}},execute:async function(){return{content:[{type:'text',text:JSON.stringify(window.MBH_MCP.snapshot())}]}}});
+ }
+})();
+</script><style id="mbh-cards-v2">
+.ads-grid{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(300px,1fr))!important;gap:12px!important}
+.ad-card.v2{display:flex;flex-direction:column;gap:12px;padding:14px;border:1px solid var(--border);border-radius:18px;background:var(--surface);cursor:pointer;transition:.15s}
+.ad-card.v2:hover{border-color:#3a3a3a;transform:translateY(-1px)}.ad-card.v2.is-off{opacity:.62}
+.v2-head{display:flex;gap:11px;align-items:center;min-width:0}
+.v2-img{width:52px;height:52px;border-radius:12px;object-fit:cover;flex-shrink:0;background:var(--surface-3);display:grid;place-items:center}
+.v2-img svg{width:20px;height:20px;opacity:.5}
+.v2-title{min-width:0}.v2-title .ad-title{font-size:13.5px;font-weight:700;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+.v2-main{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.v2-main>div{background:var(--surface-2);border-radius:12px;padding:10px 6px;text-align:center}
+.v2-main span{display:block;font-size:10.5px;color:var(--text-faint);margin-bottom:3px}.v2-main b{font-size:16px}
+.v2-chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;gap:5px;align-items:baseline;font-size:11px;padding:4px 8px;border-radius:8px;background:var(--bg-soft);border:1px solid var(--border-soft);color:var(--text-dim)}
+.chip i{font-style:normal;color:var(--text-faint)}.chip b{color:var(--text);font-weight:600}
+.ad-card.v2 .cart-line{font-size:11px;margin:0}
+.camp-row .badges,.camp-row .verdict-badge{display:none!important}
+.camp-row{border-radius:14px!important;gap:10px!important}
+@media(max-width:560px){.ads-grid{grid-template-columns:1fr!important}.v2-main b{font-size:15px}}
+</style></body>
 </html>
 
 <style id="final-polish-v3">
@@ -3014,6 +3032,7 @@ setTimeout(()=>{if((DATA.campaigns||[]).length || (DATA.ads||[]).length){renderA
     'تثبيت التطبيق':'Install app','هيبقى أيقونة على شاشتك زي أي تطبيق عادي':'It will appear on your home screen like a normal app',
     'الإعدادات':'Settings','الاشتراك':'Subscription','الحسابات والربط':'Accounts & connections','الرئيسية':'Home','قواعد الأتمتة':'Automation Rules','التحليل':'Analytics'
   };
+  const LANG_KEY='mbh_lang';
   let translating=false;
   function applyTheme(){
     let v=localStorage.getItem(THEME_KEY)||'dark';
@@ -3021,13 +3040,11 @@ setTimeout(()=>{if((DATA.campaigns||[]).length || (DATA.ads||[]).length){renderA
     document.documentElement.dataset.theme=v;
   }
   function replaceKnown(text){
-    let out=text;
-    for(const [ar,en] of Object.entries(dictionaries)) if(out.includes(ar)) out=out.split(ar).join(en);
-    return out;
+    const k=String(text).trim();
+    return Object.prototype.hasOwnProperty.call(dictionaries,k)?String(text).replace(k,dictionaries[k]):text;
   }
   function applyLang(){
-    const systemLang=(navigator.languages&&navigator.languages[0])||navigator.language||'ar';
-    const en=!/^ar(?:[-_]|$)/i.test(systemLang);
+    const en=String(localStorage.getItem(LANG_KEY)||'ar').toLowerCase().startsWith('en');
     document.documentElement.lang=en?'en':'ar';
     document.documentElement.dir=en?'ltr':'rtl';
     if(!en) return;
