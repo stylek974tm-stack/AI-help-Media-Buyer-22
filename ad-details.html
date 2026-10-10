@@ -506,13 +506,14 @@ async function init(){
     const qs = new URLSearchParams(window.location.search);
     PARAMS = {
       adId: qs.get('ad'),
+      campaignId: qs.get('campaign'),
       actId: qs.get('act'),
       token: qs.get('token'),
       accLabel: qs.get('acc') || '',
       since: qs.get('since'),
       until: qs.get('until')
     };
-    if (!PARAMS.adId || !PARAMS.actId || !PARAMS.token){
+    if ((!PARAMS.adId && !PARAMS.campaignId) || !PARAMS.actId || !PARAMS.token){
       setTopStatus('مفيش إعلان محدد — ارجع لصفحة تحليل البيانات واختار إعلان.', true);
       return;
     }
@@ -523,7 +524,8 @@ async function init(){
       PARAMS.until = fmt(today);
     }
 
-    await loadAdDetails();
+    window.CAMP_MODE = !!PARAMS.campaignId && !PARAMS.adId;
+    await (window.CAMP_MODE ? loadCampaignDetails() : loadAdDetails());
     document.getElementById('lastUpdate').textContent = t('now');
   } catch(err){
     setTopStatus(t('errorLoad') + err.message, true);
@@ -945,7 +947,7 @@ function renderReal(){
  const inRange=o=>o.date>=PARAMS.since&&o.date<=PARAMS.until&&o.source==='meta';
  const camp=(E.orders||[]).filter(o=>inRange(o)&&(String(o.utm_campaign)===cid||(cname&&norm(o.utm_campaign)===cname)));
  const adOf=o=>{for(const k of ['utm_content','utm_term','utm_medium']){const v=o[k];if(v==null||v==='')continue;if(sibIds.has(String(v)))return String(v);const n=sibNames.get(norm(v));if(n)return n}return null};
- const tagged=camp.filter(o=>adOf(o)),adLevel=tagged.length>0;
+ const tagged=camp.filter(o=>adOf(o)),adLevel=!window.CAMP_MODE&&tagged.length>0;
  const mine=adLevel?tagged.filter(o=>adOf(o)===String(AD.id)):camp,untagged=camp.length-tagged.length;
  const campSpend=(X.sibs||[]).reduce((t,r)=>t+num(r.spend),0)||adSpend,spend=adLevel?adSpend:campSpend;
  const ok=mine.filter(o=>!o.lost),lost=mine.length-ok.length,revU=ok.reduce((t,o)=>t+o.total,0)/fx.r;
@@ -953,13 +955,13 @@ function renderReal(){
  let profit='',be='';const P=PROFIT_SETTINGS;
  if(P){const cg=num(P.cogsPct)/100,pm=num(P.paymentPct)/100,net=revU*(1-cg-pm)-ok.length*num(P.shipping)-spend;
   profit=box('صافي الربح الحقيقي',money(net),net>=0?'🟢':'🔴');be=(1-cg-pm)>0?box('ROAS التعادل',(1/(1-cg-pm)).toFixed(2)+'x'):''}
- const metaCmp=adLevel?metaP:(X.sibs||[]).reduce((t,r)=>t+getPurchases(r.actions,r.conversions),0);
- el.innerHTML=`<div class="x-card"><h3>النتيجة الحقيقية <small>${adLevel?'منسوبة لهذا الإعلان نفسه':'على مستوى الحملة كلها (الصرف = صرف الحملة)'}</small></h3>
+ const metaCmp=(adLevel||window.CAMP_MODE)?metaP:(X.sibs||[]).reduce((t,r)=>t+getPurchases(r.actions,r.conversions),0);
+ el.innerHTML=`<div class="x-card"><h3>النتيجة الحقيقية <small>${adLevel?'منسوبة لهذا الإعلان نفسه':'على مستوى الحملة كلها'}</small></h3>
  ${mine.length?`<div class="x-grid">${box('أوردرات',fm(mine.length))}${box('ناجحة',fm(ok.length))}${box('نسبة الإلغاء/المرتجع',f1(cancel),em(cancel,15,30,false))}${box('المبيعات',money(revU))}${box('متوسط الأوردر',aov==null?'—':money(aov))}${box('الصرف المحسوب عليه',money(spend))}${box('تكلفة الأوردر الحقيقية',cpa==null?'—':money(cpa))}${box('ROAS حقيقي',roas==null?'—':roas.toFixed(2)+'x',roas==null?'':roas>=1?'🟢':'🔴')}${be}${profit}</div>
  <div class="x-row"><span>مبيعات ميتا (بكسل) ${adLevel?'للإعلان':'للحملة'}</span><b class="num">${fm(metaCmp)}</b></div><div class="x-row"><span>أوردرات فعلية في EasyOrders</span><b class="num">${fm(ok.length)}</b></div>`
  :`<div class="x-note">لا توجد أوردرات منسوبة ${adLevel?'لهذا الإعلان':'لهذه الحملة'} في الفترة.</div>`}
  ${adLevel&&untagged?`<div class="x-note">${fm(untagged)} أوردر من نفس الحملة بدون تحديد الإعلان، فلم تُحسب هنا.</div>`:''}
- ${!adLevel?`<div class="x-note">لنسبة الأوردر لإعلان محدد: أضف في «معلمات URL» للإعلان <span dir="ltr">utm_source=meta&amp;utm_campaign={{campaign.id}}&amp;utm_content={{ad.id}}</span>. وتأكد أن دالة platform-data تُرجع utm_content.</div>`:''}
+ ${!adLevel&&!window.CAMP_MODE?`<div class="x-note">لنسبة الأوردر لإعلان محدد: أضف في «معلمات URL» للإعلان <span dir="ltr">utm_source=meta&amp;utm_campaign={{campaign.id}}&amp;utm_content={{ad.id}}</span>. وتأكد أن دالة platform-data تُرجع utm_content.</div>`:''}
  <div class="x-rate">سعر الصرف: <b class="num">${fx.r.toFixed(2)}</b> ${esc(STORE_CUR())}/${esc((X&&X.cur)||'USD')} (${fx.src})
  <input type="number" min="0" step="0.01" placeholder="تعديل يدوي" onchange="localStorage.setItem('mbh_eo_rate',this.value);renderExtras()"></div></div>`;
 }
@@ -999,9 +1001,75 @@ function renderPlatforms(){
   h+=`<div class="x-row"><b>${nm[k]}</b><span>${ST[p.status]||ST.error}${extra}</span></div>`});
  $('platformsWrap').innerHTML=h+'</div>';
 }
-window.renderExtras=function(){try{renderReal();renderFunnel();renderCreative();renderCampaign();renderPlatforms()}catch(e){console.warn('extras',e)}};
+window.XH={box,em,fm,pc,f1,loadX,get X(){return X},set X(v){X=v}};
+window.renderExtras=function(){try{renderReal();renderFunnel();renderCreative();window.CAMP_MODE?renderCampMode():renderCampaign();renderPlatforms()}catch(e){console.warn('extras',e)}};
 const _ra=renderAll;
 renderAll=function(){_ra();renderExtras();if(!X&&!busy){busy=true;loadX().then(o=>{X=o;renderExtras()}).finally(()=>busy=false)}};
 })();
+</script>
+<style id="c-style">.x-link{cursor:pointer}.x-link:hover td{background:var(--surface-2)}.x-pill{display:inline-block;padding:2px 8px;border-radius:99px;font-size:10.5px;background:var(--surface-3)}</style>
+<script id="c-js">
+/* ===== وضع الحملة ===== */
+const {box,em,fm}=XH,$=id=>document.getElementById(id);
+let CAMP=null,CADSETS=[],CADS=[],CADSET_INS=[],CAD_INS=[];
+async function loadCampaignDetails(){
+ setTopStatus(t('loading'));
+ const tr=JSON.stringify({since:PARAMS.since,until:PARAMS.until}),id=PARAMS.campaignId,tk=PARAMS.token;
+ const flt=JSON.stringify([{field:'campaign.id',operator:'EQUAL',value:id}]);
+ const F='impressions,reach,clicks,spend,ctr,cpc,cpm,conversions,actions,action_values,frequency,outbound_clicks,video_thruplay_watched_actions,video_p25_watched_actions,video_p50_watched_actions,video_p75_watched_actions,video_p100_watched_actions,video_avg_time_watched_actions';
+ const Fs='spend,impressions,clicks,ctr,reach,frequency,actions,action_values,conversions';
+ const [c,ins,daily,adsets,ads,aIns,sIns]=await Promise.all([
+  gget(id,{fields:'id,name,status,effective_status,objective,daily_budget,lifetime_budget,created_time,start_time,buying_type,bid_strategy',access_token:tk}),
+  gget(id+'/insights',{fields:F,time_range:tr,access_token:tk}).catch(()=>({data:[]})),
+  gget(id+'/insights',{fields:'spend,actions,action_values,impressions,clicks',time_range:tr,time_increment:1,access_token:tk}).catch(()=>({data:[]})),
+  gget(id+'/adsets',{fields:'id,name,status,daily_budget,lifetime_budget,optimization_goal',limit:100,access_token:tk}).catch(()=>({data:[]})),
+  gget(id+'/ads',{fields:'id,name,status,adset_id,creative{thumbnail_url,image_url}',limit:200,access_token:tk}).catch(()=>({data:[]})),
+  gget(PARAMS.actId+'/insights',{level:'ad',fields:'ad_id,'+Fs+',quality_ranking,engagement_rate_ranking,conversion_rate_ranking',filtering:flt,time_range:tr,limit:200,access_token:tk}).catch(()=>({data:[]})),
+  gget(PARAMS.actId+'/insights',{level:'adset',fields:'adset_id,'+Fs,filtering:flt,time_range:tr,limit:100,access_token:tk}).catch(()=>({data:[]}))
+ ]);
+ CAMP=c;CADSETS=adsets.data||[];CADS=ads.data||[];CAD_INS=aIns.data||[];CADSET_INS=sIns.data||[];
+ AD={id:c.id,name:c.name,status:c.status,effective_status:c.effective_status,campaign_id:c.id,adset_id:null,created_time:c.created_time,creative:{}};
+ ADSET=null;INS=(ins.data&&ins.data[0])||null;DAILY=daily.data||[];
+ setTopStatus('');renderAll();
+}
+const _renderAllCamp=renderAll;
+renderAll=function(){
+ if(!window.CAMP_MODE)return _renderAllCamp();
+ try{renderSummary&&renderSummary();renderMetrics&&renderMetrics();renderChart&&renderChart();renderIntelligence&&renderIntelligence()}catch(e){console.warn('camp base',e)}
+ renderCampHead();renderExtras();
+ if(!XH.X&&!window.__cxb){window.__cxb=1;XH.loadX().then(o=>{XH.X=o;renderExtras()}).finally(()=>window.__cxb=0)}
+};
+function renderCampHead(){
+ const c=CAMP,on=c.status==='ACTIVE',bud=c.daily_budget?money(num(c.daily_budget)/100)+' / يوم':c.lifetime_budget?money(num(c.lifetime_budget)/100)+' إجمالي':(CADSETS.some(a=>a.daily_budget)?'على مستوى المجموعات':'—');
+ document.getElementById('adHeadWrap').innerHTML=`<div class="ad-head-card"><div class="ad-head-body"><div class="x-pill">حملة</div><div class="ad-head-title">${esc(c.name)}</div>
+ <div class="ad-head-sub"><span class="status-dot ${on?'on':'off'}"></span>${on?'شغّالة':'متوقفة'}${PARAMS.accLabel?`<span class="acc-tag">${esc(PARAMS.accLabel)}</span>`:''}<span>· ${PARAMS.since} → ${PARAMS.until}</span></div>
+ <div class="ad-head-sub"><span>الهدف: ${esc(c.objective||'—')}</span><span>· الميزانية: ${bud}</span>${c.created_time?`<span>· عمر الحملة: ${Math.max(0,Math.round((Date.now()-new Date(c.created_time))/864e5))} يوم</span>`:''}<span>· ${CADSETS.length} مجموعة · ${CADS.length} إعلان</span></div></div></div>`;
+}
+function renderCampMode(){
+ const el=$('campaignWrap'),sp=num(INS&&INS.spend),res=r=>getPurchases(r.actions,r.conversions),cpa=(s,p)=>p?s/p:null;
+ const meta=new Map(CADS.map(a=>[a.id,a])),rows=CAD_INS.map(r=>({id:r.ad_id,a:meta.get(r.ad_id)||{name:r.ad_id,status:''},sp:num(r.spend),p:res(r),ctr:num(r.ctr),fr:num(r.frequency),q:r.quality_ranking}));
+ const tot=rows.reduce((t,r)=>t+r.sp,0)||sp,withRes=rows.filter(r=>r.p>0),noRes=rows.filter(r=>r.p===0&&r.sp>0);
+ const waste=noRes.reduce((t,r)=>t+r.sp,0),top=rows.slice().sort((a,b)=>b.sp-a.sp)[0];
+ const best=withRes.slice().sort((a,b)=>cpa(a.sp,a.p)-cpa(b.sp,b.p))[0],worst=withRes.slice().sort((a,b)=>cpa(b.sp,b.p)-cpa(a.sp,a.p))[0];
+ const days=DAILY.length,perDay=days?sp/days:null,bud=CAMP.daily_budget?num(CAMP.daily_budget)/100:CADSETS.reduce((t,a)=>t+(a.daily_budget?num(a.daily_budget)/100:0),0);
+ const pace=bud&&perDay!=null?perDay/bud*100:null;
+ const half=Math.floor(days/2),A=DAILY.slice(0,half),B=DAILY.slice(half),cp=l=>{const s=l.reduce((t,d)=>t+num(d.spend),0),p=l.reduce((t,d)=>t+getPurchases(d.actions,d.conversions),0);return p?s/p:null};
+ const c1=cp(A),c2=cp(B),trend=(c1&&c2)?(c2-c1)/c1*100:null;
+ const wastePct=tot?waste/tot*100:null,conc=top&&tot?top.sp/tot*100:null;
+ const act=CADS.filter(a=>a.status==='ACTIVE').length;
+ const adsetRows=CADSETS.map(s=>{const r=CADSET_INS.find(x=>x.adset_id===s.id)||{},p=res(r),spd=num(r.spend);return`<tr><td>${esc(s.name)}</td><td><span class="x-pill">${s.status==='ACTIVE'?'شغّال':'متوقف'}</span></td><td class="num">${money(spd)}</td><td class="num">${p.toFixed(0)}</td><td class="num">${p?money(spd/p):'—'}</td><td class="num">${num(r.ctr).toFixed(2)}%</td><td class="num">${num(r.frequency)?num(r.frequency).toFixed(2):'—'}</td><td class="num">${s.daily_budget?money(num(s.daily_budget)/100):'—'}</td></tr>`}).join('');
+ const adRows=rows.sort((a,b)=>b.sp-a.sp).map(r=>`<tr class="x-link" onclick="location.href='ad-details.html?'+new URLSearchParams({ad:'${r.id}',act:PARAMS.actId,token:PARAMS.token,acc:PARAMS.accLabel||'',since:PARAMS.since,until:PARAMS.until})"><td>${esc(r.a.name)}</td><td><span class="x-pill">${r.a.status==='ACTIVE'?'شغّال':'متوقف'}</span></td><td class="num">${money(r.sp)}</td><td class="num">${tot?(r.sp/tot*100).toFixed(0)+'%':'—'}</td><td class="num">${r.p.toFixed(0)}</td><td class="num">${r.p?money(r.sp/r.p):'—'}</td><td class="num">${r.ctr.toFixed(2)}%</td></tr>`).join('');
+ el.innerHTML=`<div class="x-card"><h3>صحة الحملة <small>مؤشرات على مستوى الحملة</small></h3><div class="x-grid">
+ ${box('صرف بلا نتائج',wastePct==null?'—':wastePct.toFixed(0)+'%',em(wastePct,15,35,false))}
+ ${box('تركّز الصرف في إعلان واحد',conc==null?'—':conc.toFixed(0)+'%',em(conc,60,80,false))}
+ ${pace!=null?box('استهلاك الميزانية اليومية',pace.toFixed(0)+'%',em(pace,70,40)):''}
+ ${trend!=null?box('اتجاه تكلفة الشراء (النصف الأخير)',(trend>0?'+':'')+trend.toFixed(0)+'%',em(trend,0,25,false)):''}
+ ${box('إعلانات شغّالة',act+' / '+CADS.length)}${box('إعلانات بنتائج',withRes.length+' / '+rows.length)}
+ ${best&&worst&&best!==worst?box('أفضل تكلفة شراء',money(cpa(best.sp,best.p)))+box('أسوأ تكلفة شراء',money(cpa(worst.sp,worst.p))):''}${perDay!=null?box('متوسط الصرف اليومي',money(perDay)):''}</div>
+ ${best?`<div class="x-row"><span>أفضل إعلان</span><b>${esc(best.a.name)}</b></div>`:''}${noRes.length?`<div class="x-row"><span>إعلانات صرفت بلا نتيجة</span><b>${noRes.length}</b></div>`:''}
+ <div class="x-note">«صرف بلا نتائج» = إنفاق الإعلانات اللي ما جابتش أي نتيجة (مبيعات حسب بكسل ميتا) ÷ إجمالي الإنفاق. الحدود الملوّنة مراجع عامة.</div></div>
+ <div class="x-card" style="margin-top:14px"><h3>المجموعات الإعلانية</h3><div class="x-wrap"><table class="x-t"><tr><th>المجموعة</th><th>الحالة</th><th>الصرف</th><th>مبيعات</th><th>التكلفة</th><th>CTR</th><th>التكرار</th><th>الميزانية</th></tr>${adsetRows||'<tr><td colspan="8">لا توجد مجموعات</td></tr>'}</table></div></div>
+ <div class="x-card" style="margin-top:14px"><h3>الإعلانات <small>اضغط على إعلان لفتح تفاصيله</small></h3><div class="x-wrap"><table class="x-t"><tr><th>الإعلان</th><th>الحالة</th><th>الصرف</th><th>نصيبه</th><th>مبيعات</th><th>التكلفة</th><th>CTR</th></tr>${adRows||'<tr><td colspan="7">لا توجد بيانات</td></tr>'}</table></div></div>`;
+}
 </script></body>
 </html>
