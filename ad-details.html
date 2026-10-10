@@ -888,6 +888,13 @@ init();
 </script>
 
 <style id="x-style">
+.v-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
+.v-tile{position:relative;border:1px solid var(--border);background:var(--surface-2);border-radius:12px;padding:9px 10px 8px;display:flex;flex-direction:column;gap:2px;min-height:76px}
+.v-tile .v-l{font-size:10.5px;color:var(--text-faint);padding-inline-end:16px}.v-tile b{font-size:16px}.v-tile small{font-size:9.5px;color:var(--text-faint)}
+.v-a{position:absolute;top:8px;inset-inline-end:9px;font-style:normal;font-size:11px}
+.v-tile.g{border-color:rgba(52,211,153,.35)}.v-tile.g .v-a,.v-tile.g b{color:#34d399}
+.v-tile.b{border-color:rgba(248,113,113,.4)}.v-tile.b .v-a,.v-tile.b b{color:#f87171}
+.v-tile.m{border-color:rgba(251,191,36,.35)}.v-tile.m .v-a,.v-tile.m b{color:#fbbf24}
 .p-row{display:flex;flex-wrap:wrap;gap:8px}.p-chip{display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:99px;border:1px solid var(--border);background:var(--surface);font-size:12.5px}
 .p-chip span{color:var(--text-faint)}.p-dot{width:8px;height:8px;border-radius:50%;background:#555}.p-dot.ok{background:#34d399;box-shadow:0 0 8px #34d39988}.p-dot.warn{background:#fbbf24}.p-chip.off{border-style:dashed}
 #actionsWrap,.intel-verdict,.intel-block:has(.intel-actions),.intel-confidence{display:none!important}
@@ -982,20 +989,21 @@ function renderCreative(){
  const hook=pc(v3,imp),hold=pc(tr,v3),playR=pc(plays,imp),vctr=pc(lc,v3),oc=pc(ob||lc,imp),fin=pc(p[3],plays),eng=pc(pe||react+com+shr+sav,imp),ctr=num(I.ctr);
  const D=(DAILY||[]),h=Math.floor(D.length/2),cx=l=>{const c=l.reduce((t,d)=>t+num(d.clicks),0),m=l.reduce((t,d)=>t+num(d.impressions),0);return m?c/m*100:null},c1=cx(D.slice(0,h)),c2=cx(D.slice(h)),dctr=(c1&&c2)?(c2-c1)/c1*100:null;
  let drop=null;if(plays&&p.every(x=>x!=null)){const seq=[plays,...p];let mx=0;for(let k=1;k<seq.length;k++){const d=seq[k-1]?(seq[k-1]-seq[k])/seq[k-1]:0;if(d>mx){mx=d;drop=['البداية→٢٥٪','٢٥٪→٥٠٪','٥٠٪→٧٥٪','٧٥٪→١٠٠٪'][k-1]+' ('+(d*100).toFixed(0)+'% فقد)'}}}
+ const lv=(v,g,m,hi=true)=>v==null?'n':(hi?(v>=g?'g':v>=m?'m':'b'):(v<=g?'g':v<=m?'m':'b'));
  const vd=[];
- if(v3){vd.push([em(hook,30,15),'الـ Hook (أول ٣ ثواني)',hook>=30?'قوي: أغلب الناس بتكمّل بعد الثواني الأولى.':hook>=15?'متوسط: جرّب لقطة افتتاحية أقوى أو نص أكبر في أول ثانية.':'ضعيف: الناس بتعدّي الفيديو بسرعة، غيّر أول ٣ ثواني.']);
-  vd.push([em(hold,25,12),'الاحتفاظ بالمشاهد (Hold)',(hold>=25?'جيد: اللي بيبدأ بيكمّل.':hold>=12?'متوسط.':'ضعيف: الفيديو بيفقد الناس بعد البداية.')+(drop?' أكبر فقد: '+drop+'.':'')])}
- const hk=v3?(hook>=20):null;
- vd.push([em(oc,1,.6),'الـ CTA (النقر)',oc==null?'—':(hk&&oc<.6?'الـ Hook جيد لكن النقر ضعيف: الـ CTA أو العرض غير مقنع.':oc>=1?'جيد: الناس بتضغط على الرابط.':oc>=.6?'متوسط: وضّح الدعوة للإجراء أو العرض.':'ضعيف: النقرات قليلة مقارنة بالظهور.')+(vctr!=null?' نقر من المشاهدين: '+vctr.toFixed(1)+'%.':'')]);
- const stale=fr>=3.5||(fr>=2.5&&dctr!=null&&dctr<-20);
- vd.push([stale?'🔴':fr>=2.5?'🟠':'🟢','حداثة الكرييتف (التكرار)',(fr?'التكرار '+fr.toFixed(2)+'. ':'')+(stale?'الجمهور شبع منه، بدّل الكرييتف أو وسّع الجمهور.':fr>=2.5?'قرب يحرق، راقب CTR.':'ما زال جديدًا على الجمهور.')+(dctr!=null?' اتجاه CTR: '+(dctr>0?'+':'')+dctr.toFixed(0)+'%.':'')]);
- vd.push([em(eng,2,.8),'التفاعل مع المنشور',eng==null?'—':eng>=2?'جيد: الكرييتف بيحرّك الناس.':eng>=.8?'متوسط.':'ضعيف: تفاعل قليل مقارنة بالظهور.']);
+ if(v3){vd.push(['Hook · أول ٣ ث',f1(hook),lv(hook,30,15),'30%+']);vd.push(['Hold',f1(hold),lv(hold,25,12),'25%+']);
+  if(drop){const mm=drop.match(/\((\d+)%/),dv=mm?+mm[1]:null;vd.push(['أكبر فقد',dv==null?'—':dv+'%',lv(dv,50,75,false),drop.replace(/\s*\(.*$/,'')])}
+  vd.push(['نقر من المشاهدين',f1(vctr),lv(vctr,2,1),'2%+'])}
+ vd.push(['CTA · نقر الرابط',f1(oc),lv(oc,1,.6),'1%+']);
+ vd.push(['التكرار',fr?fr.toFixed(2):'—',fr?lv(fr,2.5,3.5,false):'n','أقل من 2.5']);
+ if(dctr!=null)vd.push(['اتجاه CTR',(dctr>0?'+':'')+dctr.toFixed(0)+'%',dctr>=0?'g':dctr>=-20?'m':'b',dctr>=0?'صاعد':'هابط']);
+ vd.push(['التفاعل',f1(eng),lv(eng,2,.8),'2%+']);
  const th=AD&&AD.creative&&(AD.creative.thumbnail_url||AD.creative.image_url);
  el.innerHTML=`<div class="section-title">تحليل الكريتف</div><div class="x-card"><div style="display:flex;gap:14px;flex-wrap:wrap">${th?`<img src="${th}" alt="" style="width:120px;height:120px;border-radius:14px;object-fit:cover">`:''}<div style="flex:1;min-width:240px">
  <h3>التفاعل مع الكريتف</h3><div class="x-grid">${box('تفاعلات (لايك…)',fm(react))}${box('تعليقات',fm(com))}${box('مشاركات',fm(shr))}${box('حفظ',fm(sav))}${box('تفاعل المنشور',fm(pe))}${box('نقرات الرابط',fm(lc))}${box('معدل التفاعل',f1(eng))}${box('CTR',ctr.toFixed(2)+'%')}${fr?box('التكرار',fr.toFixed(2)):''}</div>
  ${v3?`<h3 style="margin-top:14px">أداء الفيديو</h3><div class="x-grid">${box('تشغيل',fm(plays))}${box('مشاهدة 3 ثواني',fm(v3))}${box('Hook rate',f1(hook),em(hook,30,15))}${box('ThruPlay',fm(tr))}${box('Hold rate',f1(hold),em(hold,25,12))}${avg?box('متوسط المشاهدة',avg.toFixed(1)+' ث'):''}${box('نسبة التشغيل',f1(playR))}${box('CTR الفيديو (نقر÷مشاهدة)',f1(vctr))}${box('إكمال الفيديو',f1(fin),em(fin,5,2))}</div>
  <div style="margin-top:10px">${[25,50,75,100].map((k,i)=>`<div class="x-step"><span class="num">${fm(p[i])}</span><div class="x-bar"><i style="width:${plays?Math.min(100,p[i]/plays*100):0}%"></i></div><span class="num">${k}%</span></div>`).join('')}</div>`:'<div class="x-note">لا توجد بيانات فيديو؛ مؤشرات Hook وHold تظهر لإعلانات الفيديو فقط.</div>'}
- </div></div><h3 style="margin:16px 0 8px">تقييم الكريتف <small>أيقونات مرجعية عامة، وليست حدودًا ثابتة</small></h3>${vd.map(x=>`<div class="x-row"><span>${x[0]} <b>${x[1]}</b></span><span style="max-width:62%;text-align:right;color:var(--text-dim)">${x[2]}</span></div>`).join('')}</div>`;
+ </div></div><h3 style="margin:16px 0 8px">تقييم الكريتف</h3><div class="v-grid">${vd.map(x=>`<div class="v-tile ${x[2]}"><span class="v-l">${x[0]}</span><b class="num">${x[1]}</b><i class="v-a">${x[2]==="g"?"▲":x[2]==="b"?"▼":x[2]==="m"?"▬":"·"}</i><small>${x[3]}</small></div>`).join('')}</div></div>`;
 }
 function renderCampaign(){
  const C=X&&X.camp,S=X&&X.sibs||[],A=typeof ADSET!=='undefined'&&ADSET;
