@@ -2,185 +2,190 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
- 
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#090b0f">
 <title>التحليلات — Media Buyer Hub</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{
- --bg:#090b0f;--bg-soft:#0d1016;--surface:#12151c;--surface2:#171b24;--surface3:#1c2029;
- --border:#20242e;--border-soft:#191c24;--text:#eef1f6;--muted:#98a2b3;--faint:#5c6474;
- --accent:#4f7dfb;--accent2:#22d3ee;--accent-soft:rgba(79,125,251,.14);
- --good:#22c55e;--warn:#eab308;--bad:#ef4444;
- --safe-top:env(safe-area-inset-top);--safe-bottom:env(safe-area-inset-bottom);
-}
+:root{--bg:#090b0f;--surface:#12151c;--s2:#171b24;--s3:#1c2029;--border:#20242e;--text:#eef1f6;--muted:#98a2b3;--faint:#5c6474;--meta:#4f7dfb;--tt:#f43f5e;--cy:#22d3ee;--good:#22c55e;--warn:#eab308;--bad:#ef4444;--safe-top:env(safe-area-inset-top);--safe-bottom:env(safe-area-inset-bottom)}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:Cairo,system-ui,sans-serif}
-body{padding-top:var(--safe-top);padding-bottom:calc(84px + var(--safe-bottom))}
+body{padding-top:var(--safe-top);padding-bottom:calc(92px + var(--safe-bottom))}
 button,input,select{font:inherit}a{text-decoration:none;color:inherit}
-.app{width:min(1180px,100%);margin:auto;padding:16px 13px 30px}
-.head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}
-h1{font-size:23px;margin:0;font-weight:800}.sub{font-size:11px;color:var(--muted);margin-top:4px}
+.app{width:min(1240px,100%);margin:auto;padding:16px 13px 30px}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:14px}
+h1{font-size:24px;margin:0;font-weight:800}.sub{font-size:11px;color:var(--muted);margin-top:4px}
 .status{font-size:11px;color:var(--muted);min-height:18px}.status.error{color:var(--bad)}
-.filters{display:grid;grid-template-columns:1fr 1fr;gap:9px;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:12px;margin-bottom:14px}
-.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:10px;color:var(--muted);font-weight:700}
-.field select,.field input{width:100%;height:42px;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:12px;padding:0 10px;outline:none}
-.field select:focus,.field input:focus{border-color:var(--accent)}
-.range-wide{grid-column:1/-1}
-.custom{display:none}.custom.show{display:flex}
-.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:14px}
-.metric{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:12px}.metric .l{font-size:10px;color:var(--muted)}.metric .v{font:800 18px "JetBrains Mono",monospace;margin-top:5px}
-.chart-grid{display:grid;grid-template-columns:1fr;gap:12px}
-.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:13px}
-.chart-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.chart-title{font-size:13px;font-weight:800}.chart-note{font-size:10px;color:var(--muted)}
-.canvas-wrap{height:230px;position:relative}.empty{height:100%;display:grid;place-items:center;color:var(--muted);font-size:11px}
+.bar{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:10px;margin-bottom:14px;display:flex;flex-direction:column;gap:10px}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--s2);padding:4px;border-radius:13px}
+.tabs button{border:0;background:transparent;color:var(--muted);height:38px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px}
+.tabs button i{width:8px;height:8px;border-radius:50%}.tabs button.on{background:var(--bg);color:var(--text);box-shadow:0 0 0 1px var(--border)}
+.fl{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.field{display:flex;flex-direction:column;gap:4px}.field label{font-size:10px;color:var(--muted);font-weight:700}
+.field select,.field input{width:100%;height:40px;background:var(--s2);border:1px solid var(--border);color:var(--text);border-radius:11px;padding:0 10px;outline:none}
+.field select:focus,.field input:focus{border-color:var(--meta)}.custom{display:none}.custom.show{display:flex}
+.sw{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);cursor:pointer;user-select:none}.sw input{accent-color:var(--meta);width:16px;height:16px}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:14px}
+.k{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:12px 13px;position:relative;overflow:hidden}
+.k .l{font-size:10.5px;color:var(--muted)}.k .v{font:700 19px "JetBrains Mono",monospace;margin-top:5px;letter-spacing:-.3px}
+.d{display:inline-flex;align-items:center;gap:3px;font:600 10.5px "JetBrains Mono",monospace;margin-top:6px;padding:2px 7px;border-radius:99px;background:var(--s2);color:var(--muted)}
+.d.up{color:var(--good);background:rgba(34,197,94,.1)}.d.dn{color:var(--bad);background:rgba(239,68,68,.1)}
+.grid{display:grid;grid-template-columns:1fr;gap:12px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:14px}
+.ch{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.ct{font-size:13.5px;font-weight:800}.cn{font-size:10px;color:var(--muted)}
+.cv{height:250px;position:relative}.wide{grid-column:1/-1}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:10px 8px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--border)}
+th{color:var(--muted);font-weight:700;font-size:10.5px}td.n{font-family:"JetBrains Mono",monospace}
+.pl{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;padding:2px 8px;border-radius:99px;background:var(--s2)}.pl i{width:6px;height:6px;border-radius:50%}
+.note{font-size:11px;color:var(--faint);line-height:1.9;margin-top:12px}
+.empty{height:100%;display:grid;place-items:center;color:var(--muted);font-size:12px}
 .bottom{position:fixed;z-index:30;left:8px;right:8px;bottom:calc(8px + var(--safe-bottom));background:rgba(13,16,22,.94);backdrop-filter:blur(18px);border:1px solid var(--border);border-radius:20px;padding:6px}
-.nav{display:grid;grid-template-columns:repeat(4,1fr);gap:3px}.nav a{min-height:54px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#7d8797;font-size:9px;font-weight:700}.nav a.active{background:var(--surface2);color:var(--text)}.nav svg{width:20px;height:20px}.nav a.active svg{color:var(--accent2)}
-.lang-en{direction:ltr}
-@media(min-width:720px){.app{padding:28px}.filters{grid-template-columns:repeat(4,1fr)}.range-wide{grid-column:auto}.cards{grid-template-columns:repeat(4,1fr)}.chart-grid{grid-template-columns:1fr 1fr}.canvas-wrap{height:270px}.bottom{width:min(760px,calc(100% - 40px));left:50%;right:auto;transform:translateX(-50%)}}
+.nav{display:grid;grid-template-columns:repeat(4,1fr);gap:3px}.nav a{min-height:54px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#7d8797;font-size:9.5px;font-weight:700}.nav a.active{background:var(--s2);color:var(--text)}.nav svg{width:20px;height:20px}.nav a.active svg{color:var(--cy)}
+@media(min-width:720px){.app{padding:28px}.bar{flex-direction:row;align-items:flex-end;flex-wrap:wrap}.tabs{width:330px}.fl{display:flex;flex:1;gap:10px;flex-wrap:wrap}.field{min-width:150px}.kpis{grid-template-columns:repeat(4,1fr)}.grid{grid-template-columns:1fr 1fr}.cv{height:290px}.bottom{width:min(760px,calc(100% - 40px));left:50%;right:auto;transform:translateX(-50%)}}
 </style>
 </head>
 <body>
 <main class="app">
- <header class="head">
-  <div><h1 id="title">التحليلات</h1><div class="sub" id="subtitle">متابعة الأداء عبر الفترة والحساب المحددين</div></div>
- </header>
- <div class="status" id="status"></div>
-
- <section class="filters">
-  <div class="field range-wide"><label id="rangeLabel">الفترة</label>
-   <select id="range">
-    <option value="today">اليوم</option><option value="yesterday">أمس</option>
-    <option value="7">آخر 7 أيام</option><option value="14">آخر 14 يوم</option>
-    <option value="30">آخر 30 يوم</option><option value="90">آخر 3 شهور</option>
-    <option value="365">آخر سنة</option><option value="custom">مخصص</option>
-   </select>
-  </div>
-  <div class="field custom" id="fromWrap"><label id="fromLabel">من</label><input type="date" id="from"></div>
-  <div class="field custom" id="toWrap"><label id="toLabel">إلى</label><input type="date" id="to"></div>
-  <div class="field"><label id="platformLabel">المنصة</label><select id="platform"><option value="facebook">Meta / Facebook</option><option value="all">الكل</option></select></div>
-  <div class="field"><label id="accountLabel">الحساب</label><select id="account"><option value="all">كل الحسابات</option></select></div>
- </section>
-
- <section class="cards">
-  <div class="metric"><div class="l" id="spendL">الإنفاق</div><div class="v" id="spendV">—</div></div>
-  <div class="metric"><div class="l" id="revenueL">الإيراد</div><div class="v" id="revenueV">—</div></div>
-  <div class="metric"><div class="l" id="clicksL">النقرات</div><div class="v" id="clicksV">—</div></div>
-  <div class="metric"><div class="l" id="purchasesL">المشتريات</div><div class="v" id="purchasesV">—</div></div>
- </section>
-
- <section class="chart-grid">
-  <div class="chart-card"><div class="chart-head"><span class="chart-title" id="c1t">الإنفاق والإيراد</span><span class="chart-note" id="c1n">يوميًا</span></div><div class="canvas-wrap"><canvas id="chartSpend"></canvas></div></div>
-  <div class="chart-card"><div class="chart-head"><span class="chart-title" id="c2t">النقرات و CTR</span><span class="chart-note">يوميًا</span></div><div class="canvas-wrap"><canvas id="chartClicks"></canvas></div></div>
-  <div class="chart-card"><div class="chart-head"><span class="chart-title" id="c3t">CPM و CPC</span><span class="chart-note">يوميًا</span></div><div class="canvas-wrap"><canvas id="chartCost"></canvas></div></div>
-  <div class="chart-card"><div class="chart-head"><span class="chart-title" id="c4t">المشتريات</span><span class="chart-note">يوميًا</span></div><div class="canvas-wrap"><canvas id="chartPurchases"></canvas></div></div>
- </section>
-</main>
-
-<nav class="bottom" aria-label="التنقل الرئيسي">
- <div class="nav">
-  <a href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span id="navHome">الرئيسية</span></a>
-  <a href="automation-rules.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/><circle cx="12" cy="12" r="4"/></svg><span id="navAuto">الأتمتة</span></a>
-  <a href="insights.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5M4 19h16"/><path d="M7 15l3-4 3 2 5-6"/></svg><span id="navInsights">التحليلات</span></a>
-  <a href="settings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19 15l2 1-2 3-2-1a7 7 0 0 1-2 1l-.3 2h-3.4l-.3-2a7 7 0 0 1-2-1l-2 1-2-3 2-1a7 7 0 0 1 0-2l-2-1 2-3 2 1a7 7 0 0 1 2-1l.3-2h3.4l.3 2a7 7 0 0 1 2 1l2-1 2 3-2 1a7 7 0 0 1 0 2z"/></svg><span id="navSettings">الإعدادات</span></a>
+<div class="head"><div><h1 data-t="title">التحليلات</h1><div class="sub" data-t="sub">أداء Meta وTikTok في مكان واحد</div></div><div class="status" id="status"></div></div>
+<div class="bar">
+ <div class="tabs" id="tabs"><button data-p="all" class="on"><span data-t="all">الكل</span></button><button data-p="meta"><i style="background:var(--meta)"></i>Meta</button><button data-p="tiktok"><i style="background:var(--tt)"></i>TikTok</button></div>
+ <div class="fl">
+  <div class="field"><label data-t="range">الفترة</label><select id="range"><option value="1">اليوم</option><option value="y">أمس</option><option value="7">آخر 7 أيام</option><option value="14">آخر 14 يوم</option><option value="30" selected>آخر 30 يوم</option><option value="90">آخر 3 شهور</option><option value="custom">مخصص</option></select></div>
+  <div class="field custom" id="fw"><label>من</label><input type="date" id="from"></div><div class="field custom" id="tw"><label>إلى</label><input type="date" id="to"></div>
+  <div class="field" id="accF"><label data-t="acc">حساب Meta</label><select id="account"><option value="all">كل الحسابات</option></select></div>
+  <label class="sw"><input type="checkbox" id="ma" checked><span data-t="ma">متوسط متحرك ٧ أيام</span></label>
  </div>
-</nav>
-
+</div>
+<div class="kpis" id="kpis"></div>
+<div class="grid">
+ <div class="card wide"><div class="ch"><span class="ct" data-t="c1">الإنفاق والإيراد و ROAS</span><span class="cn">يوميًا</span></div><div class="cv"><canvas id="c1"></canvas></div></div>
+ <div class="card"><div class="ch"><span class="ct" data-t="c2">النقرات و CTR</span><span class="cn">يوميًا</span></div><div class="cv"><canvas id="c2"></canvas></div></div>
+ <div class="card"><div class="ch"><span class="ct">CPM و CPC</span><span class="cn">يوميًا</span></div><div class="cv"><canvas id="c3"></canvas></div></div>
+ <div class="card"><div class="ch"><span class="ct" data-t="c4">المشتريات وتكلفة الشراء</span><span class="cn">يوميًا</span></div><div class="cv"><canvas id="c4"></canvas></div></div>
+ <div class="card" id="splitCard"><div class="ch"><span class="ct" data-t="c5">توزيع الإنفاق بين المنصات</span><span class="cn">يوميًا</span></div><div class="cv"><canvas id="c5"></canvas></div></div>
+ <div class="card wide"><div class="ch"><span class="ct" data-t="c6">الحملات (مرتبة بالإنفاق)</span><span class="cn" id="campN"></span></div><div class="tw"><table id="camps"></table></div></div>
+</div>
+<div class="note" id="note"></div>
+</main>
+<div class="bottom"><nav class="nav">
+ <a href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span data-t="home">الرئيسية</span></a>
+ <a href="automation-rules.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><circle cx="12" cy="12" r="3"/></svg><span data-t="auto">الأتمتة</span></a>
+ <a href="insights.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5M4 19h16"/><path d="M8 15l3-4 3 2 4-6"/></svg><span data-t="ins">التحليلات</span></a>
+ <a href="settings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3h0a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5h0a1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v0a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span data-t="set">الإعدادات</span></a>
+</nav></div>
 <script>
-const SUPABASE_URL='https://zphepebjpxrzpudncuas.supabase.co';
-const SUPABASE_KEY='sb_publishable_tIG9XDZeHVZpZjz74e-dBA_ui5GIYw7';
-const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const GRAPH='https://graph.facebook.com/v26.0';
-let user=null,connections=[],charts={};
-const $=id=>document.getElementById(id);
-const lang=localStorage.getItem('mbh_lang')||'ar';
-const dict={
- ar:{title:'التحليلات',subtitle:'متابعة الأداء عبر الفترة والحساب المحددين',range:'الفترة',from:'من',to:'إلى',platform:'المنصة',account:'الحساب',all:'الكل',allAccounts:'كل الحسابات',spend:'الإنفاق',revenue:'الإيراد',clicks:'النقرات',purchases:'المشتريات',daily:'يوميًا',c1:'الإنفاق والإيراد',c2:'النقرات و CTR',c3:'CPM و CPC',c4:'المشتريات',home:'الرئيسية',auto:'الأتمتة',insights:'التحليلات',settings:'الإعدادات',meta:'Meta / Facebook',today:'اليوم',yesterday:'أمس',d7:'آخر 7 أيام',d14:'آخر 14 يوم',d30:'آخر 30 يوم',d90:'آخر 3 شهور',d365:'آخر سنة',custom:'مخصص',loading:'جاري تحميل البيانات…',noData:'لا توجد بيانات للفترة المحددة',error:'تعذر تحميل البيانات: '},
- en:{title:'Insights',subtitle:'Track performance for the selected period and account',range:'Period',from:'From',to:'To',platform:'Platform',account:'Account',all:'All',allAccounts:'All accounts',spend:'Spend',revenue:'Revenue',clicks:'Clicks',purchases:'Purchases',daily:'Daily',c1:'Spend & Revenue',c2:'Clicks & CTR',c3:'CPM & CPC',c4:'Purchases',home:'Home',auto:'Automation',insights:'Insights',settings:'Settings',meta:'Meta / Facebook',today:'Today',yesterday:'Yesterday',d7:'Last 7 days',d14:'Last 14 days',d30:'Last 30 days',d90:'Last 3 months',d365:'Last year',custom:'Custom',loading:'Loading data…',noData:'No data for the selected period',error:'Could not load data: '}
-}[lang==='en'?'en':'ar'];
-function T(){for(const [id,key] of [['title','title'],['subtitle','subtitle'],['rangeLabel','range'],['fromLabel','from'],['toLabel','to'],['platformLabel','platform'],['accountLabel','account'],['spendL','spend'],['revenueL','revenue'],['clicksL','clicks'],['purchasesL','purchases'],['c1t','c1'],['c2t','c2'],['c3t','c3'],['c4t','c4'],['navHome','home'],['navAuto','auto'],['navInsights','insights'],['navSettings','settings']]) $(id).textContent=T[id]||dict[key];}
-T();
-function money(n){return new Intl.NumberFormat(lang==='en'?'en-US':'ar-EG',{maximumFractionDigits:2}).format(Number(n)||0)}
-function setStatus(s,err=false){$('status').textContent=s||'';$('status').className='status'+(err?' error':'')}
-function fmt(d){return d.toISOString().slice(0,10)}
-function range(){
- const r=$('range').value, now=new Date();
- if(r==='today')return{since:fmt(now),until:fmt(now)};
- if(r==='yesterday'){const d=new Date(now-86400000);return{since:fmt(d),until:fmt(d)}}
+const sb=supabase.createClient('https://zphepebjpxrzpudncuas.supabase.co','sb_publishable_tIG9XDZeHVZpZjz74e-dBA_ui5GIYw7');
+const GRAPH='https://graph.facebook.com/v26.0',$=id=>document.getElementById(id);
+const lang=(localStorage.getItem('mbh_lang')||'ar').startsWith('en')?'en':'ar';
+const EN={title:'Insights',sub:'Meta and TikTok performance in one place',all:'All',range:'Period',acc:'Meta account',ma:'7-day moving average',c1:'Spend, Revenue & ROAS',c2:'Clicks & CTR',c4:'Purchases & CPA',c5:'Spend split by platform',c6:'Campaigns (by spend)',home:'Home',auto:'Automation',ins:'Insights',set:'Settings'};
+if(lang==='en'){document.documentElement.lang='en';document.documentElement.dir='ltr';document.querySelectorAll('[data-t]').forEach(e=>{if(EN[e.dataset.t])e.textContent=EN[e.dataset.t]})}
+let user=null,conns=[],platform='all',charts={},FX=null,busy=0;
+const USER_CUR='USD';
+const num=v=>{const n=parseFloat(v);return isNaN(n)?0:n};
+const fmtN=(n,d=0)=>new Intl.NumberFormat('en-US',{maximumFractionDigits:d,minimumFractionDigits:d}).format(n);
+const usd=n=>'$'+fmtN(n,n>=100?0:2);
+const iso=d=>d.toISOString().slice(0,10);
+const setStatus=(s,e)=>{$('status').textContent=s||'';$('status').className='status'+(e?' error':'')};
+const PUR=['purchase','omni_purchase','offsite_conversion.fb_pixel_purchase'];
+const av=(a,k)=>(a||[]).reduce((s,x)=>s+(k.includes(x.action_type)?num(x.value):0),0);
+function getRange(){const r=$('range').value,n=new Date();
+ if(r==='y'){const d=new Date(n-864e5);return{since:iso(d),until:iso(d)}}
  if(r==='custom')return{since:$('from').value,until:$('to').value};
- const days=+r; return{since:fmt(new Date(now.getTime()-(days-1)*86400000)),until:fmt(now)}
+ return{since:iso(new Date(n.getTime()-(+r-1)*864e5)),until:iso(n)}}
+function prevRange(r){const a=new Date(r.since),b=new Date(r.until),len=Math.round((b-a)/864e5)+1;return{since:iso(new Date(a-len*864e5)),until:iso(new Date(a-864e5)),len}}
+function dayList(r){const o=[];for(let d=new Date(r.since);d<=new Date(r.until);d=new Date(+d+864e5))o.push(iso(d));return o}
+async function graph(path,p){const res=await fetch(GRAPH+'/'+path+'?'+new URLSearchParams(p));const j=await res.json();if(j.error)throw Error(j.error.message);return j}
+async function loadFx(){try{const c=JSON.parse(localStorage.getItem('mbh_fx')||'null');if(c&&Date.now()-c.t<216e5)return c.r}catch(e){}
+ try{const j=await(await fetch('https://open.er-api.com/v6/latest/USD')).json();if(j&&j.rates){try{localStorage.setItem('mbh_fx',JSON.stringify({t:Date.now(),r:j.rates}))}catch(e){}return j.rates}}catch(e){}return null}
+const toUsd=(v,c)=>!c||c==='USD'||!FX||!FX[c]?v:v/FX[c];
+const E=()=>({spend:0,rev:0,rsp:0,imp:0,clk:0,pur:0,hasRev:false});
+function acc(m,k,o){const x=m[k]=m[k]||E();x.spend+=o.spend;x.rsp+=o.hasRev?o.spend:0;x.rev+=o.rev||0;x.imp+=o.imp;x.clk+=o.clk;x.pur+=o.pur;if(o.hasRev)x.hasRev=true}
+/* ---------- data ---------- */
+async function metaFetch(r,prev){
+ const list=($('account').value==='all')?conns:conns.filter(c=>c.id===$('account').value),daily={},camps={},ptot=E();
+ await Promise.all(list.filter(c=>c.ad_account_id&&c.pixel_token).map(async c=>{
+  const act='act_'+String(c.ad_account_id).replace(/^act_/,''),tk=c.pixel_token;let cur='USD';
+  try{cur=(await graph(act,{fields:'currency',access_token:tk})).currency||'USD'}catch(e){}
+  const row=x=>({spend:toUsd(num(x.spend),cur),rev:toUsd(av(x.action_values,PUR),cur),imp:num(x.impressions),clk:num(x.clicks),pur:av(x.actions,PUR),hasRev:true});
+  const tr=JSON.stringify({since:r.since,until:r.until}),f='spend,impressions,clicks,actions,action_values';
+  const [d,cp,pv]=await Promise.all([
+   graph(act+'/insights',{access_token:tk,fields:'date_start,'+f,time_range:tr,time_increment:1,limit:500}),
+   graph(act+'/insights',{access_token:tk,level:'campaign',fields:'campaign_id,campaign_name,'+f,time_range:tr,limit:200}).catch(()=>({data:[]})),
+   graph(act+'/insights',{access_token:tk,fields:f,time_range:JSON.stringify({since:prev.since,until:prev.until}),limit:5}).catch(()=>({data:[]}))]);
+  (d.data||[]).forEach(x=>acc(daily,x.date_start,row(x)));
+  (cp.data||[]).forEach(x=>{const k='m'+x.campaign_id;const o=camps[k]=camps[k]||{name:x.campaign_name,p:'meta',...E()};const q=row(x);o.spend+=q.spend;o.rsp+=q.spend;o.rev+=q.rev;o.imp+=q.imp;o.clk+=q.clk;o.pur+=q.pur;o.hasRev=true});
+  (pv.data||[]).forEach(x=>{const q=row(x);ptot.spend+=q.spend;ptot.rsp+=q.spend;ptot.rev+=q.rev;ptot.imp+=q.imp;ptot.clk+=q.clk;ptot.pur+=q.pur;ptot.hasRev=true});
+ }));
+ return{daily,camps,ptot}
 }
-function actionValue(actions,keys){let s=0;(actions||[]).forEach(a=>{if(keys.includes(a.action_type))s+=Number(a.value||0)});return s}
-async function graph(path,params){
- const q=new URLSearchParams(params);const res=await fetch(GRAPH+'/'+path+'?'+q);
- const j=await res.json();if(j.error)throw Error(j.error.message);return j;
+async function ttFetch(r,prev){
+ const need=Math.min(90,Math.max(1,Math.round((Date.now()-new Date(prev.since))/864e5)+1));
+ const res=await sb.functions.invoke('platform-data',{body:{days:need}});
+ const T=res.data&&res.data.platforms&&res.data.platforms.tiktok;
+ if(!T)throw Error('TikTok');
+ const out={daily:{},camps:{},ptot:E(),status:T.status,partialPrev:need<Math.round((Date.now()-new Date(prev.since))/864e5)+1};
+ (T.rows||[]).forEach(x=>{const o={spend:toUsd(num(x.spend),x.currency),rev:0,imp:num(x.impressions),clk:num(x.clicks),pur:num(x.conversions),hasRev:false};
+  if(x.date>=r.since&&x.date<=r.until){acc(out.daily,x.date,o);const k='t'+x.campaign_id,c=out.camps[k]=out.camps[k]||{name:x.campaign,p:'tiktok',...E()};c.spend+=o.spend;c.imp+=o.imp;c.clk+=o.clk;c.pur+=o.pur}
+  else if(x.date>=prev.since&&x.date<=prev.until){out.ptot.spend+=o.spend;out.ptot.imp+=o.imp;out.ptot.clk+=o.clk;out.ptot.pur+=o.pur}});
+ return out}
+/* ---------- math ---------- */
+const derive=o=>({...o,roas:o.rsp&&o.hasRev?o.rev/o.rsp:null,cpa:o.pur?o.spend/o.pur:null,ctr:o.imp?o.clk/o.imp*100:null,cpm:o.imp?o.spend/o.imp*1000:null,cpc:o.clk?o.spend/o.clk:null});
+function ma(arr,w=7){return arr.map((_,i)=>{const s=arr.slice(Math.max(0,i-w+1),i+1).filter(x=>x!=null);return s.length?s.reduce((a,b)=>a+b,0)/s.length:null})}
+/* ---------- render ---------- */
+const GRID='#1b1f29',TICK='#6b7385';
+function mk(id,cfg){if(charts[id])charts[id].destroy();const ctx=$(id).getContext('2d');charts[id]=new Chart(ctx,cfg)}
+const cross={id:'cross',afterDraw(c){const a=c.tooltip&&c.tooltip._active;if(!a||!a.length)return;const x=a[0].element.x,{top,bottom}=c.chartArea,g=c.ctx;g.save();g.beginPath();g.moveTo(x,top);g.lineTo(x,bottom);g.lineWidth=1;g.strokeStyle='rgba(255,255,255,.18)';g.setLineDash([4,4]);g.stroke();g.restore()}};
+function base(axes,fmts){return{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+ plugins:{legend:{position:'bottom',labels:{color:'#98a2b3',usePointStyle:true,boxWidth:7,font:{family:'Cairo',size:10.5}}},
+  tooltip:{rtl:document.dir==='rtl',backgroundColor:'#0d1016',borderColor:'#262b37',borderWidth:1,padding:10,titleFont:{family:'Cairo'},bodyFont:{family:'Cairo'},callbacks:{label:c=>' '+c.dataset.label+': '+((fmts[c.dataset.yAxisID||'y']||fmtN)(c.parsed.y))}}},
+ scales:Object.fromEntries(Object.entries(axes).map(([k,v])=>[k,{position:v.right?'right':'left',beginAtZero:true,grid:{color:v.right?'transparent':GRID,drawOnChartArea:!v.right},border:{display:false},ticks:{color:TICK,font:{size:10},maxTicksLimit:6,callback:x=>(v.f||fmtN)(x)}}]).concat([['x',{grid:{display:false},border:{color:GRID},ticks:{color:TICK,font:{size:10},maxRotation:0,autoSkip:true,maxTicksLimit:8,callback:function(v){const s=this.getLabelForValue(v);return s.slice(5)}}}]]))}}
+function render(D,labels,tot,prv,camps,pf){
+ const A=labels.map(d=>derive(D[d]||E())),smooth=$('ma').checked,sm=a=>smooth?ma(a):a;
+ const KP=[['spend','الإنفاق',tot.spend,prv.spend,usd,0],['rev','الإيراد',tot.hasRev?tot.rev:null,prv.hasRev?prv.rev:null,usd,1],['roas','ROAS',tot.roas,prv.roas,v=>fmtN(v,2)+'x',1],['pur','المشتريات / التحويلات',tot.pur,prv.pur,v=>fmtN(v),1],['cpa','تكلفة الشراء',tot.cpa,prv.cpa,usd,-1],['ctr','CTR',tot.ctr,prv.ctr,v=>fmtN(v,2)+'%',1],['cpm','CPM',tot.cpm,prv.cpm,usd,-1],['cpc','CPC',tot.cpc,prv.cpc,usd,-1]];
+ $('kpis').innerHTML=KP.map(([k,l,v,p,f,g])=>{let d='';if(v!=null&&p){const pc=(v-p)/p*100,up=pc>=0,good=g===0?null:(g>0)===up;d=`<div class="d ${good==null?'':good?'up':'dn'}">${up?'▲':'▼'} ${fmtN(Math.abs(pc),1)}%</div>`}else d='<div class="d">—</div>';return`<div class="k"><div class="l">${l}</div><div class="v">${v==null?'—':f(v)}</div>${d}</div>`}).join('');
+ const L=labels,col=pf==='tiktok'?'#f43f5e':'#4f7dfb';
+ mk('c1',{type:'bar',data:{labels:L,datasets:[{type:'bar',label:'الإنفاق',data:A.map(x=>x.spend),backgroundColor:col+'55',borderColor:col,borderWidth:1,borderRadius:4,yAxisID:'y',order:3},
+  ...(tot.hasRev?[{type:'line',label:'الإيراد',data:A.map(x=>x.hasRev?x.rev:null),borderColor:'#22d3ee',backgroundColor:'rgba(34,211,238,.1)',fill:true,tension:.35,pointRadius:0,pointHoverRadius:4,borderWidth:2,yAxisID:'y',order:2},
+  {type:'line',label:'ROAS'+(smooth?' (متوسط 7)':''),data:sm(A.map(x=>x.roas)),borderColor:'#eab308',borderDash:[5,4],tension:.35,pointRadius:0,borderWidth:2,yAxisID:'r',order:1}]:[])]},
+  options:base({y:{f:usd},...(tot.hasRev?{r:{right:1,f:v=>fmtN(v,1)+'x'}}:{})},{y:usd,r:v=>fmtN(v,2)+'x'}),plugins:[cross]});
+ mk('c2',{type:'bar',data:{labels:L,datasets:[{type:'bar',label:'النقرات',data:A.map(x=>x.clk),backgroundColor:'#4f7dfb55',borderColor:'#4f7dfb',borderWidth:1,borderRadius:4,yAxisID:'y'},{type:'line',label:'CTR'+(smooth?' (متوسط 7)':''),data:sm(A.map(x=>x.ctr)),borderColor:'#22d3ee',tension:.35,pointRadius:0,borderWidth:2,yAxisID:'r'}]},options:base({y:{},r:{right:1,f:v=>fmtN(v,1)+'%'}},{y:v=>fmtN(v),r:v=>fmtN(v,2)+'%'}),plugins:[cross]});
+ mk('c3',{type:'line',data:{labels:L,datasets:[{label:'CPM'+(smooth?' (متوسط 7)':''),data:sm(A.map(x=>x.cpm)),borderColor:'#4f7dfb',tension:.35,pointRadius:0,borderWidth:2,yAxisID:'y',spanGaps:true},{label:'CPC'+(smooth?' (متوسط 7)':''),data:sm(A.map(x=>x.cpc)),borderColor:'#22d3ee',tension:.35,pointRadius:0,borderWidth:2,yAxisID:'r',spanGaps:true}]},options:base({y:{f:usd},r:{right:1,f:v=>'$'+fmtN(v,2)}},{y:usd,r:v=>'$'+fmtN(v,2)}),plugins:[cross]});
+ mk('c4',{type:'bar',data:{labels:L,datasets:[{type:'bar',label:'المشتريات',data:A.map(x=>x.pur),backgroundColor:'#22c55e55',borderColor:'#22c55e',borderWidth:1,borderRadius:4,yAxisID:'y'},{type:'line',label:'تكلفة الشراء'+(smooth?' (متوسط 7)':''),data:sm(A.map(x=>x.cpa)),borderColor:'#f97316',tension:.35,pointRadius:0,borderWidth:2,yAxisID:'r',spanGaps:true}]},options:base({y:{},r:{right:1,f:usd}},{y:v=>fmtN(v),r:usd}),plugins:[cross]});
+ $('splitCard').style.display=pf==='all'?'':'none';
+ if(pf==='all')mk('c5',{type:'bar',data:{labels:L,datasets:[{label:'Meta',data:L.map(d=>window.__M[d]?window.__M[d].spend:0),backgroundColor:'#4f7dfb',borderRadius:3},{label:'TikTok',data:L.map(d=>window.__T[d]?window.__T[d].spend:0),backgroundColor:'#f43f5e',borderRadius:3}]},options:{...base({y:{f:usd}},{y:usd}),scales:{...base({y:{f:usd}},{y:usd}).scales,x:{stacked:true,...base({y:{}},{}).scales.x},y:{stacked:true,...base({y:{f:usd}},{}).scales.y}}}});
+ const rows=Object.values(camps).map(derive).sort((a,b)=>b.spend-a.spend).slice(0,25);
+ $('campN').textContent=rows.length+' حملة';
+ $('camps').innerHTML=rows.length?`<tr><th>الحملة</th><th>المنصة</th><th>الإنفاق</th><th>الإيراد</th><th>ROAS</th><th>مشتريات</th><th>تكلفة الشراء</th><th>CTR</th><th>CPM</th></tr>`+rows.map(r=>`<tr><td>${String(r.name||'').replace(/[<>&]/g,'')}</td><td><span class="pl"><i style="background:${r.p==='meta'?'#4f7dfb':'#f43f5e'}"></i>${r.p==='meta'?'Meta':'TikTok'}</span></td><td class="n">${usd(r.spend)}</td><td class="n">${r.hasRev?usd(r.rev):'—'}</td><td class="n" style="color:${r.roas==null?'':r.roas>=1?'var(--good)':'var(--bad)'}">${r.roas==null?'—':fmtN(r.roas,2)+'x'}</td><td class="n">${fmtN(r.pur)}</td><td class="n">${r.cpa==null?'—':usd(r.cpa)}</td><td class="n">${r.ctr==null?'—':fmtN(r.ctr,2)+'%'}</td><td class="n">${r.cpm==null?'—':usd(r.cpm)}</td></tr>`).join(''):'<tr><td style="color:var(--muted)">لا توجد حملات في الفترة</td></tr>';
 }
-async function loadConnections(){
- const {data,error}=await sb.from('ad_pixels').select('*').eq('user_id',user.id);
- if(error)throw error;connections=(data||[]).filter(x=>x.pixel_type==='facebook');
- $('account').innerHTML='<option value="all">'+dict.allAccounts+'</option>';
- connections.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=(c.ad_account_id||'—');$('account').appendChild(o)})
-}
-async function fetchData(){
- setStatus(dict.loading);
- const rr=range(); if(!rr.since||!rr.until){setStatus(dict.error+'Invalid date range',true);return}
- const selected=$('account').value;
- const rows=[];
- const list=selected==='all'?connections:connections.filter(c=>c.id===selected);
- for(const c of list){
-   if(!c.ad_account_id||!c.pixel_token)continue;
-   const j=await graph('act_'+String(c.ad_account_id).replace(/^act_/,'')+'/insights',{
-     access_token:c.pixel_token,fields:'date_start,date_stop,impressions,clicks,spend,ctr,cpc,cpm,actions,action_values',
-     time_range:JSON.stringify({since:rr.since,until:rr.until}),time_increment:1,limit:500
-   });
-   (j.data||[]).forEach(x=>rows.push(x));
- }
- render(rows);setStatus('');
-}
-function aggregate(rows){
- const m={};
- for(const r of rows){
-  const k=r.date_start||r.date_stop;if(!k)continue;
-  if(!m[k])m[k]={spend:0,revenue:0,impressions:0,clicks:0,purchases:0};
-  m[k].spend+=+r.spend||0;m[k].impressions+=+r.impressions||0;m[k].clicks+=+r.clicks||0;
-  m[k].revenue+=actionValue(r.action_values||[],['purchase','omni_purchase','offsite_conversion.fb_pixel_purchase']);
-  m[k].purchases+=actionValue(r.actions||[],['purchase','omni_purchase','offsite_conversion.fb_pixel_purchase']);
- }
- return Object.entries(m).sort((a,b)=>a[0].localeCompare(b[0])).map(([date,v])=>({...v,date,ctr:v.impressions?v.clicks/v.impressions*100:0,cpc:v.clicks?v.spend/v.clicks:0,cpm:v.impressions?v.spend/v.impressions*1000:0}))
-}
-function baseChart(id){if(charts[id])charts[id].destroy();const ctx=$(id).getContext('2d');return new Chart(ctx,{type:'line',data:{labels:[],datasets:[]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{color:'#98a2b3',font:{family:'Cairo',size:10}}}},scales:{x:{ticks:{color:'#5c6474',font:{size:9}},grid:{color:'#191c24'}},y:{ticks:{color:'#5c6474',font:{size:9}},grid:{color:'#191c24'}}}}})}
-function render(rows){
- const a=aggregate(rows),labels=a.map(x=>x.date);
- $('spendV').textContent=money(a.reduce((s,x)=>s+x.spend,0));
- $('revenueV').textContent=money(a.reduce((s,x)=>s+x.revenue,0));
- $('clicksV').textContent=money(a.reduce((s,x)=>s+x.clicks,0));
- $('purchasesV').textContent=money(a.reduce((s,x)=>s+x.purchases,0));
- if(!a.length){setStatus(dict.noData);return}
- charts.spend=baseChart('chartSpend');charts.spend.data={labels,datasets:[
-  {label:dict.spend,data:a.map(x=>x.spend),borderColor:'#4f7dfb',backgroundColor:'rgba(79,125,251,.12)',tension:.3,fill:true},
-  {label:dict.revenue,data:a.map(x=>x.revenue),borderColor:'#22d3ee',backgroundColor:'rgba(34,211,238,.08)',tension:.3,fill:true}]};charts.spend.update();
- charts.clicks=baseChart('chartClicks');charts.clicks.data={labels,datasets:[
-  {label:dict.clicks,data:a.map(x=>x.clicks),borderColor:'#4f7dfb',tension:.3,yAxisID:'y'},
-  {label:'CTR',data:a.map(x=>x.ctr),borderColor:'#22d3ee',tension:.3,yAxisID:'r'}]};
- charts.clicks.options.scales.r={position:'right',ticks:{color:'#5c6474'},grid:{drawOnChartArea:false}};charts.clicks.update();
- charts.cost=baseChart('chartCost');charts.cost.data={labels,datasets:[
-  {label:'CPM',data:a.map(x=>x.cpm),borderColor:'#4f7dfb',tension:.3,yAxisID:'y'},
-  {label:'CPC',data:a.map(x=>x.cpc),borderColor:'#22d3ee',tension:.3,yAxisID:'r'}]};
- charts.cost.options.scales.r={position:'right',ticks:{color:'#5c6474'},grid:{drawOnChartArea:false}};charts.cost.update();
- charts.purchases=baseChart('chartPurchases');charts.purchases.data={labels,datasets:[{label:dict.purchases,data:a.map(x=>x.purchases),borderColor:'#22d3ee',backgroundColor:'rgba(34,211,238,.12)',tension:.3,fill:true}]};charts.purchases.update();
-}
-$('range').onchange=()=>{const c=$('range').value==='custom';$('fromWrap').classList.toggle('show',c);$('toWrap').classList.toggle('show',c);if(!c)fetchData()};
-$('from').onchange=fetchData;$('to').onchange=fetchData;$('account').onchange=fetchData;$('platform').onchange=fetchData;
-(async()=>{
+/* ---------- orchestration ---------- */
+async function run(){
+ const my=++busy;setStatus('جاري تحميل البيانات…');
  try{
-  const {data}=await sb.auth.getSession();if(!data.session){location.href='index.html';return}user=data.session.user;
-  await loadConnections();await fetchData();
- }catch(e){setStatus(dict.error+(e.message||e),true)}
-})();
+  const r=getRange();if(!r.since||!r.until)return setStatus('اختر فترة صحيحة',true);
+  const p=prevRange(r),labels=dayList(r);FX=FX||await loadFx();
+  const want=k=>platform==='all'||platform===k;
+  const [M,T]=await Promise.all([want('meta')?metaFetch(r,p).catch(e=>({err:e.message,daily:{},camps:{},ptot:E()})):{daily:{},camps:{},ptot:E()},want('tiktok')?ttFetch(r,p).catch(e=>({err:e.message,daily:{},camps:{},ptot:E()})):{daily:{},camps:{},ptot:E()}]);
+  if(my!==busy)return;
+  window.__M=M.daily;window.__T=T.daily;
+  const D={};[M.daily,T.daily].forEach(s=>Object.entries(s).forEach(([k,v])=>acc(D,k,v)));
+  const tt=labels.reduce((o,d)=>{const x=D[d];if(x){o.spend+=x.spend;o.rsp+=x.rsp;o.rev+=x.rev;o.imp+=x.imp;o.clk+=x.clk;o.pur+=x.pur;o.hasRev=o.hasRev||x.hasRev}return o},E());
+  const prv=derive({spend:M.ptot.spend+T.ptot.spend,rsp:M.ptot.rsp+T.ptot.rsp,rev:M.ptot.rev+T.ptot.rev,imp:M.ptot.imp+T.ptot.imp,clk:M.ptot.clk+T.ptot.clk,pur:M.ptot.pur+T.ptot.pur,hasRev:M.ptot.hasRev||T.ptot.hasRev});
+  const camps={...M.camps,...T.camps},totD=derive(tt);
+  render(D,labels,totD,prv,camps,platform);
+  const warn=[];if(M.err)warn.push('Meta: '+M.err);if(T.err)warn.push('TikTok: '+T.err);else if(T.status&&T.status!=='ok'&&want('tiktok'))warn.push('TikTok غير متصل أو يحتاج إعادة ربط');
+  const nt=['كل القيم بالدولار (تُحوَّل تلقائيًا بسعر صرف حي إن اختلفت العملة).','المقارنة بنسبة التغير مع فترة سابقة بنفس الطول.'];
+  if(want('tiktok'))nt.push('TikTok لا يوفّر قيمة الإيراد، لذا ROAS والإيراد من Meta فقط، وتحويلات TikTok تُحسب ضمن المشتريات.');
+  if(T.partialPrev)nt.push('المقارنة مع TikTok غير كاملة لأن الفترة السابقة أقدم من ٩٠ يومًا.');
+  $('note').innerHTML=nt.join('<br>');setStatus(warn.join(' · '),!!warn.length);
+ }catch(e){setStatus('تعذر تحميل البيانات: '+(e.message||e),true)}
+}
+$('tabs').onclick=e=>{const b=e.target.closest('button');if(!b)return;platform=b.dataset.p;[...$('tabs').children].forEach(x=>x.classList.toggle('on',x===b));$('accF').style.display=platform==='tiktok'?'none':'';run()};
+$('range').onchange=()=>{const c=$('range').value==='custom';$('fw').classList.toggle('show',c);$('tw').classList.toggle('show',c);if(!c)run()};
+['from','to','account','ma'].forEach(i=>$(i).onchange=run);
+(async()=>{try{const{data}=await sb.auth.getSession();if(!data.session){location.href='index.html';return}user=data.session.user;
+ const r=await sb.from('ad_pixels').select('*').eq('user_id',user.id);if(r.error)throw r.error;conns=(r.data||[]).filter(x=>x.pixel_type==='facebook');
+ conns.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.ad_account_id||'—';$('account').appendChild(o)});await run()}catch(e){setStatus('تعذر تحميل البيانات: '+(e.message||e),true)}})();
 </script>
-</body>
-</html>
+</body></html>
