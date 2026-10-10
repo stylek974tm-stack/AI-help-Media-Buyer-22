@@ -1,191 +1,1100 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta charset="UTF-8">
+  
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>تفاصيل الإعلان - Media Buyer Hub</title>
+
+<!-- ====== PWA: manifest + icons + theme color ====== -->
+<link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#090b0f">
-<title>التحليلات — Media Buyer Hub</title>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AI Media Buyer">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" href="/icon-192.png">
+<!-- ====== end PWA head tags ====== -->
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#090b0f;--surface:#12151c;--s2:#171b24;--s3:#1c2029;--border:#20242e;--text:#eef1f6;--muted:#98a2b3;--faint:#5c6474;--meta:#4f7dfb;--tt:#f43f5e;--cy:#22d3ee;--good:#22c55e;--warn:#eab308;--bad:#ef4444;--safe-top:env(safe-area-inset-top);--safe-bottom:env(safe-area-inset-bottom)}
-*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:Cairo,system-ui,sans-serif}
-body{padding-top:var(--safe-top);padding-bottom:calc(92px + var(--safe-bottom))}
-button,input,select{font:inherit}a{text-decoration:none;color:inherit}
-.app{width:min(1240px,100%);margin:auto;padding:16px 13px 30px}
-.head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:14px}
-h1{font-size:24px;margin:0;font-weight:800}.sub{font-size:11px;color:var(--muted);margin-top:4px}
-.status{font-size:11px;color:var(--muted);min-height:18px}.status.error{color:var(--bad)}
-.bar{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:10px;margin-bottom:14px;display:flex;flex-direction:column;gap:10px}
-.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--s2);padding:4px;border-radius:13px}
-.tabs button{border:0;background:transparent;color:var(--muted);height:38px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px}
-.tabs button i{width:8px;height:8px;border-radius:50%}.tabs button.on{background:var(--bg);color:var(--text);box-shadow:0 0 0 1px var(--border)}
-.fl{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.field{display:flex;flex-direction:column;gap:4px}.field label{font-size:10px;color:var(--muted);font-weight:700}
-.field select,.field input{width:100%;height:40px;background:var(--s2);border:1px solid var(--border);color:var(--text);border-radius:11px;padding:0 10px;outline:none}
-.field select:focus,.field input:focus{border-color:var(--meta)}.custom{display:none}.custom.show{display:flex}
-.sw{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);cursor:pointer;user-select:none}.sw input{accent-color:var(--meta);width:16px;height:16px}
-.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:14px}
-.k{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:12px 13px;position:relative;overflow:hidden}
-.k .l{font-size:10.5px;color:var(--muted)}.k .v{font:700 19px "JetBrains Mono",monospace;margin-top:5px;letter-spacing:-.3px}
-.d{display:inline-flex;align-items:center;gap:3px;font:600 10.5px "JetBrains Mono",monospace;margin-top:6px;padding:2px 7px;border-radius:99px;background:var(--s2);color:var(--muted)}
-.d.up{color:var(--good);background:rgba(34,197,94,.1)}.d.dn{color:var(--bad);background:rgba(239,68,68,.1)}
-.grid{display:grid;grid-template-columns:1fr;gap:12px}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:14px}
-.ch{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.ct{font-size:13.5px;font-weight:800}.cn{font-size:10px;color:var(--muted)}
-.cv{height:250px;position:relative}.wide{grid-column:1/-1}
-.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:10px 8px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--border)}
-th{color:var(--muted);font-weight:700;font-size:10.5px}td.n{font-family:"JetBrains Mono",monospace}
-.pl{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;padding:2px 8px;border-radius:99px;background:var(--s2)}.pl i{width:6px;height:6px;border-radius:50%}
-.note{font-size:11px;color:var(--faint);line-height:1.9;margin-top:12px}
-.empty{height:100%;display:grid;place-items:center;color:var(--muted);font-size:12px}
-.bottom{position:fixed;z-index:30;left:8px;right:8px;bottom:calc(8px + var(--safe-bottom));background:rgba(13,16,22,.94);backdrop-filter:blur(18px);border:1px solid var(--border);border-radius:20px;padding:6px}
-.nav{display:grid;grid-template-columns:repeat(4,1fr);gap:3px}.nav a{min-height:54px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#7d8797;font-size:9.5px;font-weight:700}.nav a.active{background:var(--s2);color:var(--text)}.nav svg{width:20px;height:20px}.nav a.active svg{color:var(--cy)}
-@media(min-width:720px){.app{padding:28px}.bar{flex-direction:row;align-items:flex-end;flex-wrap:wrap}.tabs{width:330px}.fl{display:flex;flex:1;gap:10px;flex-wrap:wrap}.field{min-width:150px}.kpis{grid-template-columns:repeat(4,1fr)}.grid{grid-template-columns:1fr 1fr}.cv{height:290px}.bottom{width:min(760px,calc(100% - 40px));left:50%;right:auto;transform:translateX(-50%)}}
+  :root{
+    --bg:#000; --bg-soft:#080808;
+    --surface:#0d0d0d; --surface-2:#141414; --surface-3:#1b1b1b;
+    --border:#262626; --border-soft:#1a1a1a;
+    --text:#fff; --text-dim:#b8b8b8; --text-faint:#777;
+    --accent:#fff; --accent-2:#fff; --accent-soft:rgba(255,255,255,.10);
+    --good:#fff; --good-bg:rgba(255,255,255,.10); --good-bd:rgba(255,255,255,.30);
+    --mid:#cfcfcf; --mid-bg:rgba(255,255,255,.07); --mid-bd:rgba(255,255,255,.22);
+    --bad:#fff; --bad-bg:rgba(255,255,255,.06); --bad-bd:rgba(255,255,255,.28);
+    --radius:16px; --radius-sm:10px;
+    --font-ui:'Cairo',system-ui,sans-serif;
+    --font-num:'JetBrains Mono','Cairo',monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:var(--font-ui); background:var(--bg); color:var(--text);
+    min-height:100vh; -webkit-font-smoothing:antialiased; padding-bottom:env(safe-area-inset-bottom);
+  }
+  ::selection{ background:var(--accent-soft); color:#fff; }
+  ::-webkit-scrollbar{ width:8px; height:8px; }
+  ::-webkit-scrollbar-thumb{ background:#242833; border-radius:8px; }
+  a{ color:inherit; }
+  button{ font-family:inherit; }
+
+  .num{ font-family:var(--font-num); font-variant-numeric:tabular-nums; }
+
+
+  /* Unified monochrome UI + system-language navigation */
+  .sidebar,.backdrop{display:none!important;}
+  .topbar{background:rgba(0,0,0,.92);}
+  
+.bottom-nav-item{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:7px 4px;border-radius:12px;color:#777;text-decoration:none;font-size:10px;font-weight:700;}
+  .bottom-nav-item svg{width:20px;height:20px;}
+  .bottom-nav-item.active{color:#fff;background:#181818;}
+  .content{padding-bottom:110px;}
+  @media(min-width:800px){.bottom-nav{left:50%;right:auto;width:min(620px,calc(100% - 40px));transform:translateX(-50%);border:1px solid var(--border);border-bottom:0;border-radius:20px 20px 0 0}.content{padding-bottom:120px;}}
+  @supports(padding:max(0px)){.bottom-nav{padding-left:max(8px,env(safe-area-inset-left));padding-right:max(8px,env(safe-area-inset-right));}}
+  .system-lang-badge{font-size:10px;color:var(--text-faint);border:1px solid var(--border);border-radius:999px;padding:3px 8px;}
+  /* ---------- Topbar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:120;
+    display:flex; align-items:center; gap:12px;
+    padding:12px clamp(14px,3vw,28px);
+    background:rgba(9,11,15,.86); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border-soft);
+  }
+  .icon-btn{
+    display:flex; align-items:center; justify-content:center;
+    width:38px; height:38px; border-radius:11px; flex-shrink:0;
+    background:var(--surface); border:1px solid var(--border); color:var(--text);
+    cursor:pointer; transition:.15s;
+  }
+  .icon-btn:hover{ background:var(--surface-3); border-color:#2c313d; }
+  .icon-btn svg{ width:19px; height:19px; }
+  .brand{ font-weight:800; font-size:15px; letter-spacing:.2px; white-space:nowrap; }
+  .brand span{ color:var(--accent-2); }
+  .topbar-spacer{ flex:1; }
+  .live-status{ display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-dim); flex-wrap:wrap; justify-content:flex-end; }
+
+  /* ---------- Sidebar (overlay, hamburger-only) ---------- */
+  .backdrop{
+    position:fixed; inset:0; background:rgba(4,5,8,.55); backdrop-filter:blur(2px);
+    z-index:180; opacity:0; pointer-events:none; transition:opacity .2s ease;
+  }
+  .backdrop.show{ opacity:1; pointer-events:auto; }
+  .sidebar{
+    position:fixed; top:0; bottom:0; right:0; width:min(280px,84vw);
+    background:var(--surface); border-left:1px solid var(--border);
+    padding:20px 14px; z-index:190; overflow-y:auto;
+    transform:translateX(100%); transition:transform .25s cubic-bezier(.4,0,.2,1);
+    box-shadow:-20px 0 60px rgba(0,0,0,.4);
+  }
+  .sidebar.open{ transform:translateX(0); }
+  .sidebar-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:22px; padding:0 4px; }
+  .sidebar-head b{ font-size:15px; color:var(--accent-2); }
+  .nav-item{
+    display:flex; align-items:center; gap:11px; padding:11px 12px; border-radius:11px;
+    font-size:13.5px; color:var(--text-dim); text-decoration:none; margin-bottom:4px; font-weight:500;
+  }
+  .nav-item svg{ width:17px; height:17px; flex-shrink:0; opacity:.85; }
+  .nav-item:hover{ background:var(--surface-3); color:var(--text); }
+  .nav-item.active{ background:var(--accent-soft); color:#bcd0ff; font-weight:700; }
+  .nav-item.active svg{ opacity:1; }
+  .nav-item.disabled{ color:#454b57; cursor:not-allowed; pointer-events:none; }
+  .nav-divider{ height:1px; background:var(--border-soft); margin:12px 4px; }
+  .nav-tag{ margin-right:auto; font-size:10px; background:var(--surface-3); color:var(--text-faint); padding:2px 7px; border-radius:20px; }
+  .sidebar-foot{ font-size:10.5px; color:var(--text-faint); line-height:1.7; margin-top:16px; padding:0 4px; }
+
+  /* ---------- Layout ---------- */
+  .content{ padding:20px clamp(14px,3vw,32px) 90px; max-width:1100px; margin:0 auto; }
+  .back-row{ margin-bottom:14px; }
+  .back-link{
+    display:inline-flex; align-items:center; gap:7px; font-size:12.5px; color:var(--text-dim);
+    text-decoration:none; padding:8px 13px; border-radius:10px; border:1px solid var(--border); background:var(--surface);
+  }
+  .back-link:hover{ color:var(--text); border-color:#2c313d; }
+  .back-link svg{ width:15px; height:15px; }
+
+  .top-status{ font-size:12px; color:var(--text-dim); margin-bottom:12px; min-height:16px; white-space:pre-wrap; }
+  .top-status.error{ color:var(--bad); }
+
+  .section-title{ font-size:14px; color:#d3d8e0; margin:26px 0 12px; display:flex; align-items:center; gap:10px; font-weight:700; }
+  .section-title svg{ width:16px; height:16px; color:var(--accent-2); }
+  .section-line{ flex:1; height:1px; background:linear-gradient(90deg,#2a2e38,transparent); }
+  .placeholder-box{
+    background:var(--surface); border:1px dashed #2a2e38; border-radius:var(--radius);
+    padding:26px; text-align:center; color:var(--text-faint); font-size:13px;
+  }
+
+  /* ---------- Ad header ---------- */
+  .ad-head-card{
+    display:flex; gap:16px; background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--radius); padding:16px; margin-bottom:18px; flex-wrap:wrap;
+  }
+  .ad-head-thumb{ width:110px; height:110px; border-radius:14px; overflow:hidden; background:var(--bg-soft); flex-shrink:0; }
+  .ad-head-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .ad-head-thumb .ph{ width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:var(--text-faint); }
+  .ad-head-thumb .ph svg{ width:32px; height:32px; opacity:.5; }
+  .ad-head-body{ flex:1; min-width:200px; }
+  .ad-head-title{ font-size:16px; font-weight:800; margin-bottom:4px; }
+  .ad-head-creative-name{ color:var(--accent-2); font-size:12px; margin-bottom:6px; }
+  .ad-head-sub{ color:var(--text-faint); font-size:11.5px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .status-dot{ width:6px; height:6px; border-radius:50%; display:inline-block; }
+  .status-dot.on{ background:var(--good); } .status-dot.off{ background:#5c6474; }
+  .acc-tag{ font-size:10.5px; color:var(--text-faint); background:var(--bg-soft); border:1px dashed var(--border); border-radius:20px; padding:2px 8px; display:inline-block; }
+  .verdict-badge{
+    display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:20px;
+    font-size:11.5px; font-weight:700; white-space:nowrap; margin-top:8px;
+  }
+  .verdict-good{ background:var(--good-bg); color:var(--good); border:1px solid var(--good-bd); }
+  .verdict-mid{ background:var(--mid-bg); color:var(--mid); border:1px solid var(--mid-bd); }
+  .verdict-bad{ background:var(--bad-bg); color:var(--bad); border:1px solid var(--bad-bd); }
+
+  /* ---------- Chart card ---------- */
+  .chart-card{
+    background:linear-gradient(180deg,#12151c,#0d1016);
+    border:1px solid var(--border); border-radius:var(--radius); padding:18px 16px 10px;
+    margin-bottom:18px;
+  }
+  .chart-card-head{ display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:6px; flex-wrap:wrap; }
+  .chart-card-head h3{ margin:0; font-size:13.5px; font-weight:700; }
+  .chart-legend{ display:flex; gap:14px; font-size:11px; color:var(--text-dim); }
+  .chart-legend span{ display:flex; align-items:center; gap:5px; }
+  .chart-legend i{ width:10px; height:10px; border-radius:3px; display:inline-block; }
+  .chart-wrap{ width:100%; }
+  .chart-wrap svg{ width:100%; height:auto; display:block; }
+
+  /* ---------- Summary boxes ---------- */
+  .summary-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:20px; }
+  .summary-box{ background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:14px; text-align:center; }
+  .summary-box .lbl{ font-size:11px; color:var(--text-faint); margin-bottom:7px; font-weight:600; }
+  .summary-box .val{ font-size:18px; font-weight:700; color:var(--text); font-family:var(--font-num); }
+  .summary-box.profit .val{ color:var(--good); } .summary-box.loss .val{ color:var(--bad); }
+  .summary-box.good .val{ color:var(--good); } .summary-box.mid .val{ color:var(--mid); } .summary-box.bad .val{ color:var(--bad); }
+
+  .metrics-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(90px,1fr)); gap:8px; margin-bottom:20px; }
+  .metric-box{ border-radius:10px; padding:10px 6px; text-align:center; border:1px solid var(--border-soft); background:var(--bg-soft); }
+  .metric-box.good{ border-color:var(--good-bd); background:var(--good-bg); }
+  .metric-box.bad{ border-color:var(--bad-bd); background:var(--bad-bg); }
+  .metric-label{ font-size:9.5px; color:var(--text-faint); margin-bottom:4px; font-weight:600; }
+  .metric-value{ font-size:13.5px; font-weight:700; color:var(--text); font-family:var(--font-num); }
+  .metric-box.good .metric-value{ color:var(--good); } .metric-box.bad .metric-value{ color:var(--bad); }
+
+  /* ---------- Quality / conversion cards ---------- */
+  .quality-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin-bottom:20px; }
+  .quality-card{ background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:14px 16px; }
+  .quality-card .qlbl{ font-size:11.5px; color:var(--text-faint); margin-bottom:8px; font-weight:600; }
+  .quality-card .qval{ font-size:15px; font-weight:700; }
+  .quality-card.good .qval{ color:var(--good); }
+  .quality-card.mid .qval{ color:var(--mid); }
+  .quality-card.bad .qval{ color:var(--bad); }
+
+  /* ---------- Ad actions ---------- */
+  .ad-actions{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px; }
+  .mini-btn{
+    font-family:inherit; font-size:12px; font-weight:700; padding:8px 13px; border-radius:9px;
+    border:1px solid var(--border); background:var(--surface-3); color:var(--text); cursor:pointer; transition:.15s;
+  }
+  .mini-btn:hover{ background:var(--surface-2); border-color:#333844; }
+  .mini-btn.danger{ border-color:var(--bad-bd); color:var(--bad); }
+  .mini-btn.go{ border-color:var(--accent); color:var(--accent-2); }
+
+  /* ---------- Modal (budget) ---------- */
+  .modal-backdrop{ position:fixed; inset:0; background:rgba(4,5,8,.6); z-index:210; opacity:0; pointer-events:none; transition:.2s; }
+  .modal-backdrop.show{ opacity:1; pointer-events:auto; }
+  .modal{
+    position:fixed; top:50%; left:50%; transform:translate(-50%,-46%); width:min(380px,90vw);
+    background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:20px 22px;
+    z-index:211; opacity:0; pointer-events:none; transition:.2s;
+  }
+  .modal.show{ opacity:1; pointer-events:auto; transform:translate(-50%,-50%); }
+  .modal h3{ margin:0 0 4px; font-size:15px; }
+  .modal p{ margin:0 0 16px; font-size:11.5px; color:var(--text-faint); line-height:1.6; }
+  .modal label{ display:block; font-size:11.5px; color:var(--text-dim); margin:12px 0 5px; font-weight:600; }
+  .modal input, .modal select{ width:100%; padding:9px 10px; border-radius:9px; border:1px solid var(--border); background:var(--bg-soft); color:var(--text); font-family:inherit; }
+  .modal input{ font-family:var(--font-num); }
+  .modal .modal-actions{ display:flex; gap:8px; margin-top:18px; }
+  .btn{ padding:9px 16px; border-radius:10px; border:1px solid var(--border); background:var(--surface-3); color:var(--text); font-size:12.5px; font-weight:700; cursor:pointer; }
+  .btn.primary{ background:var(--accent); border-color:var(--accent); color:#fff; flex:1; }
+  .btn.ghost{ background:transparent; }
+
+  .intel-card{margin:14px 0;padding:18px;border:1px solid var(--border);background:linear-gradient(180deg,var(--surface),var(--surface-2));border-radius:16px;box-shadow:0 10px 28px rgba(0,0,0,.16)}
+  .intel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}
+  .intel-title{font-size:16px;font-weight:900;letter-spacing:-.2px}.intel-sub{margin-top:5px;color:var(--text-dim);font-size:11.5px;line-height:1.7}
+  .intel-confidence{min-width:88px;text-align:center;border:1px solid var(--border);border-radius:12px;padding:8px 10px;background:var(--surface-3)}
+  .intel-confidence .n{font-size:20px;font-weight:900}.intel-confidence .l{font-size:10px;color:var(--text-dim)}
+  .intel-verdict{padding:14px;border:1px solid var(--border);border-radius:14px;background:var(--bg-soft);margin-bottom:12px}
+  .intel-verdict .label{font-size:17px;font-weight:900}.intel-verdict .desc{margin-top:6px;font-size:12px;color:var(--text-dim);line-height:1.75}
+  .intel-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0}.intel-mini{padding:11px;border:1px solid var(--border);border-radius:12px;background:var(--surface-3)}
+  .intel-mini .k{font-size:10px;color:var(--text-dim)}.intel-mini .v{margin-top:5px;font-weight:900;font-size:13px}
+  .intel-block{border-top:1px solid var(--border);padding-top:13px;margin-top:13px}.intel-block h4{margin:0 0 9px;font-size:12px}
+  .intel-list{display:grid;gap:8px}.intel-item{display:grid;grid-template-columns:7px 1fr;gap:9px;padding:9px 0}.intel-dot{width:7px;height:7px;border-radius:50%;background:var(--text-dim);margin-top:6px}.intel-item.good .intel-dot{background:var(--good)}.intel-item.bad .intel-dot{background:var(--bad)}.intel-item.mid .intel-dot{background:var(--mid)}
+  .intel-item strong{font-size:12px}.intel-item span{display:block;color:var(--text-dim);font-size:11px;line-height:1.65;margin-top:2px}
+  .intel-actions{display:grid;gap:7px}.intel-action{padding:10px 11px;border:1px solid var(--border);border-radius:11px;background:var(--surface-3);font-size:11.5px;line-height:1.65}
+  @media(max-width:520px){.intel-head{flex-direction:column}.intel-confidence{width:100%;display:flex;align-items:center;justify-content:center;gap:8px}.intel-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
-<main class="app">
-<div class="head"><div><h1 data-t="title">التحليلات</h1><div class="sub" data-t="sub">أداء Meta وTikTok في مكان واحد</div></div><div class="status" id="status"></div></div>
-<div class="bar">
- <div class="tabs" id="tabs"><button data-p="all" class="on"><span data-t="all">الكل</span></button><button data-p="meta"><i style="background:var(--meta)"></i>Meta</button><button data-p="tiktok"><i style="background:var(--tt)"></i>TikTok</button></div>
- <div class="fl">
-  <div class="field"><label data-t="range">الفترة</label><select id="range"><option value="1">اليوم</option><option value="y">أمس</option><option value="7">آخر 7 أيام</option><option value="14">آخر 14 يوم</option><option value="30" selected>آخر 30 يوم</option><option value="90">آخر 3 شهور</option><option value="custom">مخصص</option></select></div>
-  <div class="field custom" id="fw"><label>من</label><input type="date" id="from"></div><div class="field custom" id="tw"><label>إلى</label><input type="date" id="to"></div>
-  <div class="field" id="accF"><label data-t="acc">حساب Meta</label><select id="account"><option value="all">كل الحسابات</option></select></div>
-  <label class="sw"><input type="checkbox" id="ma" checked><span data-t="ma">متوسط متحرك ٧ أيام</span></label>
- </div>
+
+<div class="topbar">
+  <div class="system-lang-badge" id="systemLangBadge">SYS</div>
+  <div class="brand">Media Buyer <span>Hub</span></div>
+  <div class="topbar-spacer"></div>
+  <div class="live-status">
+    <span>آخر تحديث: <span id="lastUpdate" class="num">--</span></span>
+  </div>
 </div>
-<div class="kpis" id="kpis"></div>
-<div class="grid">
- <div class="card wide"><div class="ch"><span class="ct" data-t="c1">الإنفاق والإيراد و ROAS</span><span class="cn">يوميًا</span></div><div class="cv"><canvas id="c1"></canvas></div></div>
- <div class="card"><div class="ch"><span class="ct" data-t="c2">النقرات و CTR</span><span class="cn">يوميًا</span></div><div class="cv"><canvas id="c2"></canvas></div></div>
- <div class="card"><div class="ch"><span class="ct">CPM و CPC</span><span class="cn">يوميًا</span></div><div class="cv"><canvas id="c3"></canvas></div></div>
- <div class="card"><div class="ch"><span class="ct" data-t="c4">المشتريات وتكلفة الشراء</span><span class="cn">يوميًا</span></div><div class="cv"><canvas id="c4"></canvas></div></div>
- <div class="card" id="splitCard"><div class="ch"><span class="ct" data-t="c5">توزيع الإنفاق بين المنصات</span><span class="cn">يوميًا</span></div><div class="cv"><canvas id="c5"></canvas></div></div>
- <div class="card wide"><div class="ch"><span class="ct" data-t="c6">الحملات (مرتبة بالإنفاق)</span><span class="cn" id="campN"></span></div><div class="tw"><table id="camps"></table></div></div>
-</div>
-<div class="note" id="note"></div>
+
+<div class="backdrop" id="backdrop" onclick="closeSidebar()"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-head"><b>Media Buyer Hub</b>
+    <button class="icon-btn" onclick="closeSidebar()" aria-label="إغلاق"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></button>
+  </div>
+  <a class="nav-item" href="index.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>تسجيل الدخول</a>
+  <a class="nav-item" href="account.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18"/></svg>ربط الحسابات الإعلانية</a>
+  <a class="nav-item active" href="dashboard.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>تحليل البيانات</a>
+  <a class="nav-item" href="insights.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="4" width="3" height="14"/></svg>الرسوم البيانية</a>
+  <a class="nav-item" href="automation-rules.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>قواعد الأتمتة</a>
+  <a class="nav-item" href="team-quality.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>أداء الموظفين</a>
+  <a class="nav-item" href="subscription.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>الاشتراك والدفع</a>
+  <div class="nav-divider"></div>
+  <a class="nav-item" href="pricing_calculator.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>التسعير</a>
+  <a class="nav-item disabled"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>الدعم <span class="nav-tag">قريبًا</span></a>
+  <div class="sidebar-foot">جميع البيانات مرتبطة بحسابك ومحمية — لا تتم مشاركتها مع أي طرف تالت.</div>
+</aside>
+<main class="content">
+  <div class="back-row">
+    <a class="back-link" href="dashboard.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      رجوع لتحليل البيانات
+    </a>
+  </div>
+
+  <div class="top-status" id="topStatus"></div>
+
+  <div id="adHeadWrap"></div>
+
+  <div class="chart-card" id="chartCard" style="display:none;">
+    <div class="chart-card-head">
+      <h3>الأداء المالي خلال الفترة</h3>
+      <div class="chart-legend">
+        <span><i style="background:var(--good);"></i>الإيراد</span>
+        <span><i style="background:var(--bad);"></i>الإنفاق</span>
+      </div>
+    </div>
+    <div class="chart-wrap" id="chartWrap"></div>
+  </div>
+
+  <div id="summaryWrap"></div>
+  <div id="metricsWrap"></div>
+
+  <div id="intelligenceWrap"></div>
+
+  <div id="qualityWrap"></div>
+
+  <div id="actionsWrap"></div>
 </main>
-<div class="bottom"><nav class="nav">
- <a href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span data-t="home">الرئيسية</span></a>
- <a href="automation-rules.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><circle cx="12" cy="12" r="3"/></svg><span data-t="auto">الأتمتة</span></a>
- <a href="insights.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5M4 19h16"/><path d="M8 15l3-4 3 2 4-6"/></svg><span data-t="ins">التحليلات</span></a>
- <a href="settings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3h0a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5h0a1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v0a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span data-t="set">الإعدادات</span></a>
-</nav></div>
+
+<div class="modal-backdrop" id="budgetBackdrop" onclick="closeBudgetModal()"></div>
+<div class="modal" id="budgetModal">
+  <h3>تعديل الميزانية اليومية</h3>
+  <p id="budgetModalSub">هتتبعت مباشرة لفيسبوك بمجرد ما تضغط "تنفيذ" — التعديل هيتطبق على مجموعة الإعلانات الحقيقية بتاعتك.</p>
+  <label>الميزانية الحالية</label>
+  <input type="text" id="budgetCurrentDisplay" disabled>
+  <label>نوع التعديل</label>
+  <select id="budgetMode" onchange="onBudgetModeChange()">
+    <option value="pct10">زيادة 10%</option>
+    <option value="pct20">زيادة 20%</option>
+    <option value="pct50">زيادة 50%</option>
+    <option value="custom">مبلغ مخصص ($ / يوم)</option>
+  </select>
+  <div id="budgetCustomWrap" style="display:none;">
+    <label>الميزانية الجديدة ($ / يوم)</label>
+    <input type="number" id="budgetCustomValue" step="0.5" min="1">
+  </div>
+  <div class="modal-actions">
+    <button class="btn ghost" onclick="closeBudgetModal()">إلغاء</button>
+    <button class="btn primary" onclick="submitBudgetChange()">نفّذ على فيسبوك</button>
+  </div>
+</div>
+
 <script>
-const sb=supabase.createClient('https://zphepebjpxrzpudncuas.supabase.co','sb_publishable_tIG9XDZeHVZpZjz74e-dBA_ui5GIYw7');
-const GRAPH='https://graph.facebook.com/v26.0',$=id=>document.getElementById(id);
-const lang=(localStorage.getItem('mbh_lang')||'ar').startsWith('en')?'en':'ar';
-const EN={title:'Insights',sub:'Meta and TikTok performance in one place',all:'All',range:'Period',acc:'Meta account',ma:'7-day moving average',c1:'Spend, Revenue & ROAS',c2:'Clicks & CTR',c4:'Purchases & CPA',c5:'Spend split by platform',c6:'Campaigns (by spend)',home:'Home',auto:'Automation',ins:'Insights',set:'Settings'};
-if(lang==='en'){document.documentElement.lang='en';document.documentElement.dir='ltr';document.querySelectorAll('[data-t]').forEach(e=>{if(EN[e.dataset.t])e.textContent=EN[e.dataset.t]})}
-let user=null,conns=[],platform='all',charts={},FX=null,busy=0;
-const USER_CUR='USD';
-const num=v=>{const n=parseFloat(v);return isNaN(n)?0:n};
-const fmtN=(n,d=0)=>new Intl.NumberFormat('en-US',{maximumFractionDigits:d,minimumFractionDigits:d}).format(n);
-const usd=n=>'$'+fmtN(n,n>=100?0:2);
-const iso=d=>d.toISOString().slice(0,10);
-const setStatus=(s,e)=>{$('status').textContent=s||'';$('status').className='status'+(e?' error':'')};
-const PUR=['purchase','omni_purchase','offsite_conversion.fb_pixel_purchase'];
-const av=(a,k)=>(a||[]).reduce((s,x)=>s+(k.includes(x.action_type)?num(x.value):0),0);
-function getRange(){const r=$('range').value,n=new Date();
- if(r==='y'){const d=new Date(n-864e5);return{since:iso(d),until:iso(d)}}
- if(r==='custom')return{since:$('from').value,until:$('to').value};
- return{since:iso(new Date(n.getTime()-(+r-1)*864e5)),until:iso(n)}}
-function prevRange(r){const a=new Date(r.since),b=new Date(r.until),len=Math.round((b-a)/864e5)+1;return{since:iso(new Date(a-len*864e5)),until:iso(new Date(a-864e5)),len}}
-function dayList(r){const o=[];for(let d=new Date(r.since);d<=new Date(r.until);d=new Date(+d+864e5))o.push(iso(d));return o}
-async function graph(path,p){const res=await fetch(GRAPH+'/'+path+'?'+new URLSearchParams(p));const j=await res.json();if(j.error)throw Error(j.error.message);return j}
-async function loadFx(){try{const c=JSON.parse(localStorage.getItem('mbh_fx')||'null');if(c&&Date.now()-c.t<216e5)return c.r}catch(e){}
- try{const j=await(await fetch('https://open.er-api.com/v6/latest/USD')).json();if(j&&j.rates){try{localStorage.setItem('mbh_fx',JSON.stringify({t:Date.now(),r:j.rates}))}catch(e){}return j.rates}}catch(e){}return null}
-const toUsd=(v,c)=>!c||c==='USD'||!FX||!FX[c]?v:v/FX[c];
-const E=()=>({spend:0,rev:0,rsp:0,imp:0,clk:0,pur:0,hasRev:false});
-function acc(m,k,o){const x=m[k]=m[k]||E();x.spend+=o.spend;x.rsp+=o.hasRev?o.spend:0;x.rev+=o.rev||0;x.imp+=o.imp;x.clk+=o.clk;x.pur+=o.pur;if(o.hasRev)x.hasRev=true}
-/* ---------- data ---------- */
-async function metaFetch(r,prev){
- const list=($('account').value==='all')?conns:conns.filter(c=>c.id===$('account').value),daily={},camps={},ptot=E();
- await Promise.all(list.filter(c=>c.ad_account_id&&c.pixel_token).map(async c=>{
-  const act='act_'+String(c.ad_account_id).replace(/^act_/,''),tk=c.pixel_token;let cur='USD';
-  try{cur=(await graph(act,{fields:'currency',access_token:tk})).currency||'USD'}catch(e){}
-  const row=x=>({spend:toUsd(num(x.spend),cur),rev:toUsd(av(x.action_values,PUR),cur),imp:num(x.impressions),clk:num(x.clicks),pur:av(x.actions,PUR),hasRev:true});
-  const tr=JSON.stringify({since:r.since,until:r.until}),f='spend,impressions,clicks,actions,action_values';
-  const [d,cp,pv]=await Promise.all([
-   graph(act+'/insights',{access_token:tk,fields:'date_start,'+f,time_range:tr,time_increment:1,limit:500}),
-   graph(act+'/insights',{access_token:tk,level:'campaign',fields:'campaign_id,campaign_name,'+f,time_range:tr,limit:200}).catch(()=>({data:[]})),
-   graph(act+'/insights',{access_token:tk,fields:f,time_range:JSON.stringify({since:prev.since,until:prev.until}),limit:5}).catch(()=>({data:[]}))]);
-  (d.data||[]).forEach(x=>acc(daily,x.date_start,row(x)));
-  (cp.data||[]).forEach(x=>{const k='m'+x.campaign_id;const o=camps[k]=camps[k]||{name:x.campaign_name,p:'meta',...E()};const q=row(x);o.spend+=q.spend;o.rsp+=q.spend;o.rev+=q.rev;o.imp+=q.imp;o.clk+=q.clk;o.pur+=q.pur;o.hasRev=true});
-  (pv.data||[]).forEach(x=>{const q=row(x);ptot.spend+=q.spend;ptot.rsp+=q.spend;ptot.rev+=q.rev;ptot.imp+=q.imp;ptot.clk+=q.clk;ptot.pur+=q.pur;ptot.hasRev=true});
- }));
- return{daily,camps,ptot}
+const SUPABASE_URL = 'https://zphepebjpxrzpudncuas.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_tIG9XDZeHVZpZjz74e-dBA_ui5GIYw7';
+const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const GRAPH = 'https://graph.facebook.com/v26.0';
+
+const RANK_LABELS = {
+  ABOVE_AVERAGE: { label: 'أعلى من المتوسط', cls: 'good' },
+  AVERAGE: { label: 'متوسط', cls: 'mid' },
+  BELOW_AVERAGE_35: { label: 'أقل من المتوسط', cls: 'bad' },
+  BELOW_AVERAGE_20: { label: 'أقل من المتوسط', cls: 'bad' },
+  BELOW_AVERAGE_10: { label: 'أقل بكتير', cls: 'bad' },
+  BELOW_AVERAGE: { label: 'أقل من المتوسط', cls: 'bad' },
+  UNKNOWN: { label: 'غير متاح', cls: 'mid' }
+};
+const BENCHMARKS = {
+  ctr: { good: 1.5, mid: 1.0, dir: 'high' },
+  cpm: { good: 10,  mid: 20,  dir: 'low'  },
+  cpc: { good: 0.5, mid: 1.0, dir: 'low'  }
+};
+
+let CURRENT_USER = null;
+let PROFIT_SETTINGS = null;
+let PARAMS = null;
+let AD = null, ADSET = null, INS = null, DAILY = [];
+let BUDGET_TARGET = null;
+
+function num(v){ const n = parseFloat(v); return isNaN(n) ? 0 : n; }
+function money(v){ return '$' + num(v).toFixed(2); }
+function rateMetric(key, value){
+  const b = BENCHMARKS[key];
+  if (!b || isNaN(value)) return 'mid';
+  if (b.dir === 'high') return value >= b.good ? 'good' : (value >= b.mid ? 'mid' : 'bad');
+  return value <= b.good ? 'good' : (value <= b.mid ? 'mid' : 'bad');
 }
-async function ttFetch(r,prev){
- const need=Math.min(90,Math.max(1,Math.round((Date.now()-new Date(prev.since))/864e5)+1));
- const res=await sb.functions.invoke('platform-data',{body:{days:need}});
- const T=res.data&&res.data.platforms&&res.data.platforms.tiktok;
- if(!T)throw Error('TikTok');
- const out={daily:{},camps:{},ptot:E(),status:T.status,partialPrev:need<Math.round((Date.now()-new Date(prev.since))/864e5)+1};
- (T.rows||[]).forEach(x=>{const o={spend:toUsd(num(x.spend),x.currency),rev:0,imp:num(x.impressions),clk:num(x.clicks),pur:num(x.conversions),hasRev:false};
-  if(x.date>=r.since&&x.date<=r.until){acc(out.daily,x.date,o);const k='t'+x.campaign_id,c=out.camps[k]=out.camps[k]||{name:x.campaign,p:'tiktok',...E()};c.spend+=o.spend;c.imp+=o.imp;c.clk+=o.clk;c.pur+=o.pur}
-  else if(x.date>=prev.since&&x.date<=prev.until){out.ptot.spend+=o.spend;out.ptot.imp+=o.imp;out.ptot.clk+=o.clk;out.ptot.pur+=o.pur}});
- return out}
-/* ---------- math ---------- */
-const derive=o=>({...o,roas:o.rsp&&o.hasRev?o.rev/o.rsp:null,cpa:o.pur?o.spend/o.pur:null,ctr:o.imp?o.clk/o.imp*100:null,cpm:o.imp?o.spend/o.imp*1000:null,cpc:o.clk?o.spend/o.clk:null});
-function ma(arr,w=7){return arr.map((_,i)=>{const s=arr.slice(Math.max(0,i-w+1),i+1).filter(x=>x!=null);return s.length?s.reduce((a,b)=>a+b,0)/s.length:null})}
-/* ---------- render ---------- */
-const GRID='#1b1f29',TICK='#6b7385';
-function mk(id,cfg){if(charts[id])charts[id].destroy();const ctx=$(id).getContext('2d');charts[id]=new Chart(ctx,cfg)}
-const cross={id:'cross',afterDraw(c){const a=c.tooltip&&c.tooltip._active;if(!a||!a.length)return;const x=a[0].element.x,{top,bottom}=c.chartArea,g=c.ctx;g.save();g.beginPath();g.moveTo(x,top);g.lineTo(x,bottom);g.lineWidth=1;g.strokeStyle='rgba(255,255,255,.18)';g.setLineDash([4,4]);g.stroke();g.restore()}};
-function base(axes,fmts){return{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
- plugins:{legend:{position:'bottom',labels:{color:'#98a2b3',usePointStyle:true,boxWidth:7,font:{family:'Cairo',size:10.5}}},
-  tooltip:{rtl:document.dir==='rtl',backgroundColor:'#0d1016',borderColor:'#262b37',borderWidth:1,padding:10,titleFont:{family:'Cairo'},bodyFont:{family:'Cairo'},callbacks:{label:c=>' '+c.dataset.label+': '+((fmts[c.dataset.yAxisID||'y']||fmtN)(c.parsed.y))}}},
- scales:Object.fromEntries(Object.entries(axes).map(([k,v])=>[k,{position:v.right?'right':'left',beginAtZero:true,grid:{color:v.right?'transparent':GRID,drawOnChartArea:!v.right},border:{display:false},ticks:{color:TICK,font:{size:10},maxTicksLimit:6,callback:x=>(v.f||fmtN)(x)}}]).concat([['x',{grid:{display:false},border:{color:GRID},ticks:{color:TICK,font:{size:10},maxRotation:0,autoSkip:true,maxTicksLimit:8,callback:function(v){const s=this.getLabelForValue(v);return s.slice(5)}}}]]))}}
-function render(D,labels,tot,prv,camps,pf){
- const A=labels.map(d=>derive(D[d]||E())),smooth=$('ma').checked,sm=a=>smooth?ma(a):a;
- const KP=[['spend','الإنفاق',tot.spend,prv.spend,usd,0],['rev','الإيراد',tot.hasRev?tot.rev:null,prv.hasRev?prv.rev:null,usd,1],['roas','ROAS',tot.roas,prv.roas,v=>fmtN(v,2)+'x',1],['pur','المشتريات / التحويلات',tot.pur,prv.pur,v=>fmtN(v),1],['cpa','تكلفة الشراء',tot.cpa,prv.cpa,usd,-1],['ctr','CTR',tot.ctr,prv.ctr,v=>fmtN(v,2)+'%',1],['cpm','CPM',tot.cpm,prv.cpm,usd,-1],['cpc','CPC',tot.cpc,prv.cpc,usd,-1]];
- $('kpis').innerHTML=KP.map(([k,l,v,p,f,g])=>{let d='';if(v!=null&&p){const pc=(v-p)/p*100,up=pc>=0,good=g===0?null:(g>0)===up;d=`<div class="d ${good==null?'':good?'up':'dn'}">${up?'▲':'▼'} ${fmtN(Math.abs(pc),1)}%</div>`}else d='<div class="d">—</div>';return`<div class="k"><div class="l">${l}</div><div class="v">${v==null?'—':f(v)}</div>${d}</div>`}).join('');
- const L=labels,col=pf==='tiktok'?'#f43f5e':'#4f7dfb';
- mk('c1',{type:'bar',data:{labels:L,datasets:[{type:'bar',label:'الإنفاق',data:A.map(x=>x.spend),backgroundColor:col+'55',borderColor:col,borderWidth:1,borderRadius:4,yAxisID:'y',order:3},
-  ...(tot.hasRev?[{type:'line',label:'الإيراد',data:A.map(x=>x.hasRev?x.rev:null),borderColor:'#22d3ee',backgroundColor:'rgba(34,211,238,.1)',fill:true,tension:.35,pointRadius:0,pointHoverRadius:4,borderWidth:2,yAxisID:'y',order:2},
-  {type:'line',label:'ROAS'+(smooth?' (متوسط 7)':''),data:sm(A.map(x=>x.roas)),borderColor:'#eab308',borderDash:[5,4],tension:.35,pointRadius:0,borderWidth:2,yAxisID:'r',order:1}]:[])]},
-  options:base({y:{f:usd},...(tot.hasRev?{r:{right:1,f:v=>fmtN(v,1)+'x'}}:{})},{y:usd,r:v=>fmtN(v,2)+'x'}),plugins:[cross]});
- mk('c2',{type:'bar',data:{labels:L,datasets:[{type:'bar',label:'النقرات',data:A.map(x=>x.clk),backgroundColor:'#4f7dfb55',borderColor:'#4f7dfb',borderWidth:1,borderRadius:4,yAxisID:'y'},{type:'line',label:'CTR'+(smooth?' (متوسط 7)':''),data:sm(A.map(x=>x.ctr)),borderColor:'#22d3ee',tension:.35,pointRadius:0,borderWidth:2,yAxisID:'r'}]},options:base({y:{},r:{right:1,f:v=>fmtN(v,1)+'%'}},{y:v=>fmtN(v),r:v=>fmtN(v,2)+'%'}),plugins:[cross]});
- mk('c3',{type:'line',data:{labels:L,datasets:[{label:'CPM'+(smooth?' (متوسط 7)':''),data:sm(A.map(x=>x.cpm)),borderColor:'#4f7dfb',tension:.35,pointRadius:0,borderWidth:2,yAxisID:'y',spanGaps:true},{label:'CPC'+(smooth?' (متوسط 7)':''),data:sm(A.map(x=>x.cpc)),borderColor:'#22d3ee',tension:.35,pointRadius:0,borderWidth:2,yAxisID:'r',spanGaps:true}]},options:base({y:{f:usd},r:{right:1,f:v=>'$'+fmtN(v,2)}},{y:usd,r:v=>'$'+fmtN(v,2)}),plugins:[cross]});
- mk('c4',{type:'bar',data:{labels:L,datasets:[{type:'bar',label:'المشتريات',data:A.map(x=>x.pur),backgroundColor:'#22c55e55',borderColor:'#22c55e',borderWidth:1,borderRadius:4,yAxisID:'y'},{type:'line',label:'تكلفة الشراء'+(smooth?' (متوسط 7)':''),data:sm(A.map(x=>x.cpa)),borderColor:'#f97316',tension:.35,pointRadius:0,borderWidth:2,yAxisID:'r',spanGaps:true}]},options:base({y:{},r:{right:1,f:usd}},{y:v=>fmtN(v),r:usd}),plugins:[cross]});
- $('splitCard').style.display=pf==='all'?'':'none';
- if(pf==='all')mk('c5',{type:'bar',data:{labels:L,datasets:[{label:'Meta',data:L.map(d=>window.__M[d]?window.__M[d].spend:0),backgroundColor:'#4f7dfb',borderRadius:3},{label:'TikTok',data:L.map(d=>window.__T[d]?window.__T[d].spend:0),backgroundColor:'#f43f5e',borderRadius:3}]},options:{...base({y:{f:usd}},{y:usd}),scales:{...base({y:{f:usd}},{y:usd}).scales,x:{stacked:true,...base({y:{}},{}).scales.x},y:{stacked:true,...base({y:{f:usd}},{}).scales.y}}}});
- const rows=Object.values(camps).map(derive).sort((a,b)=>b.spend-a.spend).slice(0,25);
- $('campN').textContent=rows.length+' حملة';
- $('camps').innerHTML=rows.length?`<tr><th>الحملة</th><th>المنصة</th><th>الإنفاق</th><th>الإيراد</th><th>ROAS</th><th>مشتريات</th><th>تكلفة الشراء</th><th>CTR</th><th>CPM</th></tr>`+rows.map(r=>`<tr><td>${String(r.name||'').replace(/[<>&]/g,'')}</td><td><span class="pl"><i style="background:${r.p==='meta'?'#4f7dfb':'#f43f5e'}"></i>${r.p==='meta'?'Meta':'TikTok'}</span></td><td class="n">${usd(r.spend)}</td><td class="n">${r.hasRev?usd(r.rev):'—'}</td><td class="n" style="color:${r.roas==null?'':r.roas>=1?'var(--good)':'var(--bad)'}">${r.roas==null?'—':fmtN(r.roas,2)+'x'}</td><td class="n">${fmtN(r.pur)}</td><td class="n">${r.cpa==null?'—':usd(r.cpa)}</td><td class="n">${r.ctr==null?'—':fmtN(r.ctr,2)+'%'}</td><td class="n">${r.cpm==null?'—':usd(r.cpm)}</td></tr>`).join(''):'<tr><td style="color:var(--muted)">لا توجد حملات في الفترة</td></tr>';
+function getPurchases(actions, conversions){
+  if (Array.isArray(actions)) {
+    const p = actions.find(a => /purchase/i.test(a.action_type));
+    if (p) return num(p.value);
+  }
+  return num(conversions);
 }
-/* ---------- orchestration ---------- */
-async function run(){
- const my=++busy;setStatus('جاري تحميل البيانات…');
- try{
-  const r=getRange();if(!r.since||!r.until)return setStatus('اختر فترة صحيحة',true);
-  const p=prevRange(r),labels=dayList(r);FX=FX||await loadFx();
-  const want=k=>platform==='all'||platform===k;
-  const [M,T]=await Promise.all([want('meta')?metaFetch(r,p).catch(e=>({err:e.message,daily:{},camps:{},ptot:E()})):{daily:{},camps:{},ptot:E()},want('tiktok')?ttFetch(r,p).catch(e=>({err:e.message,daily:{},camps:{},ptot:E()})):{daily:{},camps:{},ptot:E()}]);
-  if(my!==busy)return;
-  window.__M=M.daily;window.__T=T.daily;
-  const D={};[M.daily,T.daily].forEach(s=>Object.entries(s).forEach(([k,v])=>acc(D,k,v)));
-  const tt=labels.reduce((o,d)=>{const x=D[d];if(x){o.spend+=x.spend;o.rsp+=x.rsp;o.rev+=x.rev;o.imp+=x.imp;o.clk+=x.clk;o.pur+=x.pur;o.hasRev=o.hasRev||x.hasRev}return o},E());
-  const prv=derive({spend:M.ptot.spend+T.ptot.spend,rsp:M.ptot.rsp+T.ptot.rsp,rev:M.ptot.rev+T.ptot.rev,imp:M.ptot.imp+T.ptot.imp,clk:M.ptot.clk+T.ptot.clk,pur:M.ptot.pur+T.ptot.pur,hasRev:M.ptot.hasRev||T.ptot.hasRev});
-  const camps={...M.camps,...T.camps},totD=derive(tt);
-  render(D,labels,totD,prv,camps,platform);
-  const warn=[];if(M.err)warn.push('Meta: '+M.err);if(T.err)warn.push('TikTok: '+T.err);else if(T.status&&T.status!=='ok'&&want('tiktok'))warn.push('TikTok غير متصل أو يحتاج إعادة ربط');
-  const nt=['كل القيم بالدولار (تُحوَّل تلقائيًا بسعر صرف حي إن اختلفت العملة).','المقارنة بنسبة التغير مع فترة سابقة بنفس الطول.'];
-  if(want('tiktok'))nt.push('TikTok لا يوفّر قيمة الإيراد، لذا ROAS والإيراد من Meta فقط، وتحويلات TikTok تُحسب ضمن المشتريات.');
-  if(T.partialPrev)nt.push('المقارنة مع TikTok غير كاملة لأن الفترة السابقة أقدم من ٩٠ يومًا.');
-  $('note').innerHTML=nt.join('<br>');setStatus(warn.join(' · '),!!warn.length);
- }catch(e){setStatus('تعذر تحميل البيانات: '+(e.message||e),true)}
+function getRevenue(actionValues){
+  if (Array.isArray(actionValues)) {
+    const p = actionValues.find(a => /purchase/i.test(a.action_type));
+    if (p) return num(p.value);
+  }
+  return 0;
 }
-$('tabs').onclick=e=>{const b=e.target.closest('button');if(!b)return;platform=b.dataset.p;[...$('tabs').children].forEach(x=>x.classList.toggle('on',x===b));$('accF').style.display=platform==='tiktok'?'none':'';run()};
-$('range').onchange=()=>{const c=$('range').value==='custom';$('fw').classList.toggle('show',c);$('tw').classList.toggle('show',c);if(!c)run()};
-['from','to','account','ma'].forEach(i=>$(i).onchange=run);
-(async()=>{try{const{data}=await sb.auth.getSession();if(!data.session){location.href='index.html';return}user=data.session.user;
- const r=await sb.from('ad_pixels').select('*').eq('user_id',user.id);if(r.error)throw r.error;conns=(r.data||[]).filter(x=>x.pixel_type==='facebook');
- conns.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.ad_account_id||'—';$('account').appendChild(o)});await run()}catch(e){setStatus('تعذر تحميل البيانات: '+(e.message||e),true)}})();
+function setTopStatus(msg, isError){
+  const el = document.getElementById('topStatus');
+  el.textContent = msg || '';
+  el.className = 'top-status' + (isError ? ' error' : '');
+}
+function maskToken(t){ if (!t) return '-'; return t.length > 8 ? '••••••••' + t.slice(-4) : '••••••••'; }
+
+/* ---------------- Sidebar ---------------- */
+function openSidebar(){ document.getElementById('sidebar').classList.add('open'); document.getElementById('backdrop').classList.add('show'); }
+function closeSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('backdrop').classList.remove('show'); }
+function toggleSidebar(e){ e.stopPropagation(); document.getElementById('sidebar').classList.contains('open') ? closeSidebar() : openSidebar(); }
+document.addEventListener('click', (e) => {
+  const sb = document.getElementById('sidebar');
+  if (sb.classList.contains('open') && !sb.contains(e.target) && e.target.id !== 'menuBtn') closeSidebar();
+});
+
+/* ---------------- Profit settings (نفس مفتاح التخزين المستخدم في تحليل البيانات) ---------------- */
+function settingsKey(){ return 'stylek_profit_settings_' + (CURRENT_USER ? CURRENT_USER.id : 'anon'); }
+function loadSettings(){
+  try { PROFIT_SETTINGS = JSON.parse(localStorage.getItem(settingsKey())) || null; } catch(e){ PROFIT_SETTINGS = null; }
+}
+
+async function gget(path, params){
+  const p = new URLSearchParams(params);
+  const res = await fetch(`${GRAPH}/${path}?${p.toString()}`);
+  const json = await res.json();
+  if (json.error) throw new Error(json.error.message);
+  return json;
+}
+async function gpost(path, params){
+  const p = new URLSearchParams(params);
+  const res = await fetch(`${GRAPH}/${path}`, { method:'POST', body:p });
+  const json = await res.json();
+  if (json.error) throw new Error(json.error.message);
+  return json;
+}
+
+/* ---------------- System language + formal UI ---------------- */
+const SYSTEM_LANG = (navigator.languages && navigator.languages[0] || navigator.language || 'en').toLowerCase().startsWith('ar') ? 'ar' : 'en';
+const I18N = {
+  ar:{
+    title:'تفاصيل الإعلان - Media Buyer Hub', back:'العودة إلى تحليل البيانات', update:'آخر تحديث', now:'الآن', loading:'جاري تحميل بيانات الإعلان...',
+    noAd:'لم يتم تحديد إعلان — ارجع إلى تحليل البيانات واختر إعلانًا.', active:'نشط', paused:'متوقف', period:'الفترة',
+    financial:'الأداء المالي خلال الفترة', revenue:'الإيراد', spend:'الإنفاق', adQuality:'جودة العميل والأداء', customerQuality:'جودة العميل (معدل التحويل)', creativeQuality:'جودة الكرييتف', engagement:'معدل التفاعل',
+    comments:'التعليقات على الإعلان', noComments:'لا توجد تعليقات متاحة لهذا الإعلان حتى الآن.', replyManual:'رد يدوي', autoReply:'الرد التلقائي', autoReplyPlaceholder:'نص الرد التلقائي', autoReplyNote:'عند التفعيل، يتم نشر الرد تلقائيًا أسفل التعليقات الجديدة على هذا الإعلان. يتطلب ذلك إعداد Webhook مرة واحدة.',
+    replyDone:'تم الرد تلقائيًا', sendReply:'إرسال الرد', loadingComments:'جاري تحميل التعليقات...', noStory:'لا يتوفر منشور مرتبط بهذا الإعلان.',
+    budget:'تعديل الميزانية اليومية', cancel:'إلغاء', execute:'تنفيذ', currentBudget:'الميزانية الحالية', changeType:'نوع التعديل',
+    increase10:'زيادة 10%',increase20:'زيادة 20%',increase50:'زيادة 50%',customBudget:'مبلغ مخصص ($ / يوم)',newBudget:'الميزانية الجديدة ($ / يوم)',
+    increaseBudget:'زيادة الميزانية', stopAd:'إيقاف الإعلان', startAd:'تشغيل الإعلان', adsManager:'فتح في مدير الإعلانات',
+    conversionRate:'معدل التحويل', sales:'عدد المبيعات', impressions:'الظهور', clicks:'النقرات', roas:'ROAS',
+    excellent:'ممتازة', average:'متوسطة', weak:'ضعيفة', creativeExcellent:'الكرييتف ممتاز', goodPerformance:'أداء جيد', creativeProblem:'مشكلة في الكرييتف', reviewAuction:'الميزانية/المزاد بحاجة إلى مراجعة', averagePerformance:'أداء متوسط',
+    above:'أعلى من المتوسط', below:'أقل من المتوسط', muchBelow:'أقل بكتير', unavailable:'غير متاح',
+    errorLoad:'خطأ أثناء تحميل تفاصيل الإعلان: ', errorFb:'حدث خطأ من فيسبوك: ', successPaused:'تم إيقاف الإعلان على فيسبوك بنجاح.', successStarted:'تم تشغيل الإعلان على فيسبوك بنجاح.',
+    noData:'لا توجد بيانات متاحة.', commentError:'تعذّر تحميل التعليقات: ', replyPrompt:'اكتب ردك على هذا التعليق:', replySuccess:'تم إرسال الرد بنجاح.',
+    autoEnabled:'تم تفعيل الرد التلقائي. سيعمل في الخلفية بعد إتمام إعداد Webhook.', autoDisabled:'تم إيقاف الرد التلقائي.', invalidBudget:'يرجى إدخال قيمة صحيحة للميزانية.',
+    budgetSuccess:'تم تعديل الميزانية بنجاح.', confirmPause:'هل تريد بالتأكيد إيقاف هذا الإعلان على فيسبوك؟', confirmStart:'هل تريد بالتأكيد تشغيل هذا الإعلان مجددًا على فيسبوك؟',
+    intelligence:'المحرك الذكي للإعلان', intelligenceSubtitle:'تحليل متعدد الإشارات يقرأ الكفاءة، مسار التحويل، الاتجاه، التذبذب، وجودة البيانات قبل إصدار التشخيص.',
+    diagnosis:'التشخيص النهائي', confidence:'درجة الثقة', signals:'الإشارات المكتشفة', critical:'حرج', warning:'تحذير', positive:'إيجابي', neutral:'مراقبة',
+    rootCause:'السبب المرجح', actionPlan:'خطة الإجراء', evidence:'الأدلة', dataQuality:'جودة البيانات',
+    scale:'مرشح للتوسيع', hold:'استمر مع المراقبة', optimize:'يحتاج تحسينًا', stop:'يحتاج إيقافًا مؤقتًا', insufficient:'بيانات غير كافية للحكم',
+    funnel:'مسار التحويل', trend:'الاتجاه', volatility:'التذبذب', efficiency:'الكفاءة', fatigue:'إشارة تشبع/إرهاق',
+    noStrongIssue:'لا توجد مشكلة قوية مكتشفة ضمن البيانات المتاحة. يوصى بالاستمرار مع المراقبة.',
+    spendNoPurchase:'إنفاق قائم دون تسجيل مبيعات', clickLeak:'تسرب مرتفع بين النقرات والمبيعات', cartLeak:'إضافة إلى السلة دون إتمام شراء',
+    cpmHigh:'CPM مرتفع نسبيًا', ctrLow:'CTR منخفض نسبيًا', cpcHigh:'CPC مرتفع نسبيًا', postClick:'المشكلة تبدو بعد النقر وليس في جذب الزيارة',
+    trendDown:'الاتجاه العام يتدهور', trendUp:'الاتجاه العام يتحسن', unstable:'الأداء متذبذب', stable:'الأداء مستقر',
+    budgetAction:'القرار المقترح للميزانية', doNotScale:'لا يُنصح بالتوسيع الآن', scaleCarefully:'التوسيع التدريجي ممكن مع المراقبة',
+    investigateCreative:'اختبر الكرييتف/الرسالة', investigateOffer:'راجع العرض والصفحة بعد النقر', reviewAuctionAction:'راجع المزاد والجمهور والتكلفة',
+    keep:'حافظ على الإعداد الحالي', collect:'اجمع بيانات إضافية قبل القرار',
+    dataLimited:'العينة الحالية محدودة؛ أي استنتاج يجب اعتباره مبدئيًا.', dataStrong:'العينة كافية نسبيًا لإصدار تشخيص أولي.',
+    currentVsPeriod:'مقارنة داخل الفترة', dailyPattern:'النمط اليومي', anomaly:'شذوذ',
+    bestDay:'أفضل يوم', worstDay:'أضعف يوم',
+  },
+  en:{
+    title:'Ad Details - Media Buyer Hub', back:'Back to Data Analysis', update:'Last update', now:'Now', loading:'Loading ad data...',
+    noAd:'No ad selected — please return to Data Analysis and select an ad.', active:'Active', paused:'Paused', period:'Period',
+    financial:'Financial performance for the selected period', revenue:'Revenue', spend:'Spend', adQuality:'Customer and performance quality', customerQuality:'Customer quality (conversion rate)', creativeQuality:'Creative quality', engagement:'Engagement rate',
+    comments:'Ad comments', noComments:'No comments are available for this ad yet.', replyManual:'Reply manually', autoReply:'Auto-reply', autoReplyPlaceholder:'Auto-reply message', autoReplyNote:'When enabled, the reply is published automatically under new comments on this ad. A one-time Webhook setup is required.',
+    replyDone:'Auto-replied', sendReply:'Send reply', loadingComments:'Loading comments...', noStory:'No related post is available for this ad.',
+    budget:'Edit daily budget', cancel:'Cancel', execute:'Apply', currentBudget:'Current budget', changeType:'Adjustment type',
+    increase10:'Increase by 10%',increase20:'Increase by 20%',increase50:'Increase by 50%',customBudget:'Custom amount ($ / day)',newBudget:'New budget ($ / day)',
+    increaseBudget:'Increase budget', stopAd:'Pause ad', startAd:'Resume ad', adsManager:'Open in Ads Manager',
+    conversionRate:'Conversion rate', sales:'Purchases', impressions:'Impressions', clicks:'Clicks', roas:'ROAS',
+    excellent:'Excellent', average:'Average', weak:'Weak', creativeExcellent:'Excellent creative', goodPerformance:'Good performance', creativeProblem:'Creative issue', reviewAuction:'Budget/auction requires review', averagePerformance:'Average performance',
+    above:'Above average', below:'Below average', muchBelow:'Far below average', unavailable:'Unavailable',
+    errorLoad:'Error while loading ad details: ', errorFb:'Facebook error: ', successPaused:'The ad was paused successfully on Facebook.', successStarted:'The ad was resumed successfully on Facebook.',
+    noData:'No data is available.', commentError:'Unable to load comments: ', replyPrompt:'Enter your reply to this comment:', replySuccess:'The reply was sent successfully.',
+    autoEnabled:'Auto-reply is enabled. It will run in the background after Webhook setup is completed.', autoDisabled:'Auto-reply is disabled.', invalidBudget:'Please enter a valid budget amount.',
+    budgetSuccess:'The budget was updated successfully.', confirmPause:'Are you sure you want to pause this ad on Facebook?', confirmStart:'Are you sure you want to resume this ad on Facebook?',
+    intelligence:'Ad Intelligence Engine', intelligenceSubtitle:'A multi-signal analysis of efficiency, funnel behavior, trend, volatility, and data quality before issuing a diagnosis.',
+    diagnosis:'Final diagnosis', confidence:'Confidence', signals:'Detected signals', critical:'Critical', warning:'Warning', positive:'Positive', neutral:'Monitor',
+    rootCause:'Likely root cause', actionPlan:'Action plan', evidence:'Evidence', dataQuality:'Data quality',
+    scale:'Scale candidate', hold:'Hold with monitoring', optimize:'Needs optimization', stop:'Pause/review', insufficient:'Insufficient data',
+    funnel:'Funnel', trend:'Trend', volatility:'Volatility', efficiency:'Efficiency', fatigue:'Fatigue/saturation signal',
+    noStrongIssue:'No strong issue was detected in the available data. Continue with monitoring.',
+    spendNoPurchase:'Spend without recorded purchases', clickLeak:'High leakage from clicks to purchases', cartLeak:'Add-to-cart without completed purchase',
+    cpmHigh:'Relatively high CPM', ctrLow:'Relatively low CTR', cpcHigh:'Relatively high CPC', postClick:'The issue appears after the click rather than in acquisition',
+    trendDown:'Overall trend is deteriorating', trendUp:'Overall trend is improving', unstable:'Performance is volatile', stable:'Performance is stable',
+    budgetAction:'Suggested budget decision', doNotScale:'Do not scale yet', scaleCarefully:'Gradual scaling is possible with monitoring',
+    investigateCreative:'Test creative/message', investigateOffer:'Review offer and post-click experience', reviewAuctionAction:'Review auction, audience, and cost',
+    keep:'Keep the current setup', collect:'Collect more data before deciding',
+    dataLimited:'The current sample is limited; treat conclusions as preliminary.', dataStrong:'The sample is reasonably sufficient for an initial diagnosis.',
+    currentVsPeriod:'Within-period comparison', dailyPattern:'Daily pattern', anomaly:'Anomaly',
+    bestDay:'Best day', worstDay:'Weakest day'
+  }
+};
+function t(k){ return I18N[SYSTEM_LANG][k] ?? k; }
+function applySystemLanguage(){
+  document.documentElement.lang=SYSTEM_LANG; document.documentElement.dir=SYSTEM_LANG==='ar'?'rtl':'ltr';
+  document.title=t('title'); const lb=document.getElementById('systemLangBadge'); if(lb) lb.textContent=SYSTEM_LANG==='ar'?'العربية':'English';
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ const k=el.getAttribute('data-i18n'); if(k.includes('.')) el.textContent=t(k.split('.').pop()); });
+  const nav=document.getElementById('bottomNav'); if(nav) nav.setAttribute('aria-label',SYSTEM_LANG==='ar'?'التنقل الرئيسي':'Primary navigation');
+  const back=document.querySelector('.back-link'); if(back){ const txt=back.lastChild; if(txt) txt.textContent=' '+t('back'); }
+}
+function esc(v){ return String(v??'').replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m])); }
+function smartCommentState(c){
+  const msg=String(c?.message||'').trim();
+  const replies=(c?.comments?.data||[]).filter(x=>String(x?.message||'').trim());
+  if(!msg) return {level:'neutral',label:t('unavailable')};
+  if(replies.length) return {level:'good',label:t('replyDone')};
+  return {level:'mid',label:SYSTEM_LANG==='ar'?'يحتاج إلى رد':'Reply recommended'};
+}
+
+/* ---------------- Init ---------------- */
+async function init(){
+  try{
+    const { data } = await sbClient.auth.getSession();
+    if (!data.session) { window.location.href = 'index.html'; return; }
+    CURRENT_USER = data.session.user;
+    loadSettings();
+
+    const qs = new URLSearchParams(window.location.search);
+    PARAMS = {
+      adId: qs.get('ad'),
+      campaignId: qs.get('campaign'),
+      actId: qs.get('act'),
+      token: qs.get('token'),
+      accLabel: qs.get('acc') || '',
+      since: qs.get('since'),
+      until: qs.get('until')
+    };
+    if ((!PARAMS.adId && !PARAMS.campaignId) || !PARAMS.actId || !PARAMS.token){
+      setTopStatus('مفيش إعلان محدد — ارجع لصفحة تحليل البيانات واختار إعلان.', true);
+      return;
+    }
+    if (!PARAMS.since || !PARAMS.until){
+      const today = new Date();
+      const fmt = d => d.toISOString().slice(0,10);
+      PARAMS.since = fmt(new Date(today - 30*86400000));
+      PARAMS.until = fmt(today);
+    }
+
+    window.CAMP_MODE = !!PARAMS.campaignId && !PARAMS.adId;
+    if(window.CAMP_MODE){ if(typeof loadCampaignDetails!=='function') await new Promise(r=>window.addEventListener('load',r,{once:true})); await loadCampaignDetails(); } else { await loadAdDetails(); }
+    document.getElementById('lastUpdate').textContent = t('now');
+  } catch(err){
+    setTopStatus(t('errorLoad') + err.message, true);
+  }
+}
+
+async function loadAdDetails(){
+  setTopStatus(t('loading'));
+  const timeRange = JSON.stringify({ since: PARAMS.since, until: PARAMS.until });
+  const adFields = 'id,name,status,effective_status,adset_id,campaign_id,created_time,creative{name,thumbnail_url,image_url}';
+  const insightFields = 'impressions,reach,clicks,spend,ctr,cpc,cpm,conversions,actions,action_values,quality_ranking,engagement_rate_ranking,conversion_rate_ranking,frequency,outbound_clicks,video_thruplay_watched_actions,video_p25_watched_actions,video_p50_watched_actions,video_p75_watched_actions,video_p100_watched_actions,video_avg_time_watched_actions,video_play_actions';
+
+  const [adRes, insRes, dailyRes] = await Promise.all([
+    gget(`${PARAMS.adId}`, { fields: adFields, access_token: PARAMS.token }),
+    gget(`${PARAMS.adId}/insights`, { fields: insightFields, time_range: timeRange, access_token: PARAMS.token }).catch(()=>({data:[]})),
+    gget(`${PARAMS.adId}/insights`, { fields:'spend,actions,action_values,impressions,clicks', time_range: timeRange, time_increment: 1, access_token: PARAMS.token }).catch(()=>({data:[]}))
+  ]);
+
+  AD = adRes;
+  INS = (insRes.data && insRes.data[0]) || null;
+  DAILY = dailyRes.data || [];
+
+  // نجيب الميزانية اليومية لمجموعة الإعلان (لزرار زوّد الميزانية)
+  if (AD.adset_id){
+    try { ADSET = await gget(`${AD.adset_id}`, { fields:'id,name,daily_budget,optimization_goal,promoted_object', access_token: PARAMS.token }); }
+    catch(e){ ADSET = null; }
+  }
+
+  setTopStatus('');
+  renderAll();
+}
+
+/* ---------------- Deep ad intelligence: frontend-only, multi-signal ---------------- */
+function arrAction(ins, pattern){
+  return Array.isArray(ins?.actions) ? num((ins.actions.find(a=>pattern.test(String(a.action_type||'')))||{}).value) : 0;
+}
+function percentileVals(vals,p){
+  const a=vals.filter(Number.isFinite).sort((x,y)=>x-y); if(!a.length)return 0;
+  const i=(a.length-1)*p, lo=Math.floor(i), hi=Math.ceil(i); return a[lo]+(a[hi]-a[lo])*(i-lo);
+}
+function medianVals(vals){return percentileVals(vals,.5)}
+function dailySeries(){
+  return (DAILY||[]).map(d=>({date:d.date_start,spend:num(d.spend),purchases:getPurchases(d.actions,d.conversions),clicks:num(d.clicks),impressions:num(d.impressions),revenue:getRevenue(d.action_values)}));
+}
+function smartAdIntelligence(){
+  const ins=INS, days=dailySeries();
+  if(!ins) return {confidence:0,verdict:t('insufficient'),desc:t('insufficient'),signals:[],actions:[t('collect')],metrics:{},bestDay:null,worstDay:null};
+  const spend=num(ins.spend), clicks=num(ins.clicks), impressions=num(ins.impressions), purchases=getPurchases(ins.actions,ins.conversions), revenue=getRevenue(ins.action_values);
+  const ctr=num(ins.ctr), cpm=num(ins.cpm), cpc=num(ins.cpc), roas=spend?revenue/spend:0, cr=clicks?100*purchases/clicks:0;
+  const carts=arrAction(ins,/add_to_cart/i), lpv=arrAction(ins,/landing_page_view/i)||arrAction(ins,/viewcontent/i);
+  const signals=[], actions=[];
+  const add=(level,title,detail)=>signals.push({level,title,detail});
+  const purchaseDays=days.filter(d=>d.purchases>0), activeDays=days.filter(d=>d.spend>0);
+  const dailyCpa=purchaseDays.map(d=>d.spend/d.purchases), dailyRoas=activeDays.filter(d=>d.revenue>0).map(d=>d.revenue/d.spend);
+  const cpa= purchases>0 ? spend/purchases : 0;
+  const medianCpa=medianVals(dailyCpa), medianRoas=medianVals(dailyRoas);
+  const first=days.slice(0,Math.max(1,Math.floor(days.length/2))), second=days.slice(Math.max(1,Math.floor(days.length/2)));
+  const avg=(a,k)=>{const v=a.map(x=>x[k]).filter(Number.isFinite);return v.length?v.reduce((x,y)=>x+y,0)/v.length:0};
+  const firstSpend=avg(first,'spend'), secondSpend=avg(second,'spend'), firstPurch=avg(first,'purchases'), secondPurch=avg(second,'purchases');
+  const firstCpa=firstPurch?firstSpend/firstPurch:0, secondCpa=secondPurch?secondSpend/secondPurch:0;
+  const firstCr=avg(first,'clicks')?100*avg(first,'purchases')/avg(first,'clicks'):0, secondCr=avg(second,'clicks')?100*avg(second,'purchases')/avg(second,'clicks'):0;
+  const dailySpend=activeDays.map(d=>d.spend), spendQ90=percentileVals(dailySpend,.9);
+  const highSpendDays=activeDays.filter(d=>spendQ90&&d.spend>spendQ90*1.5);
+  const dataPoints=(impressions>0?1:0)+(clicks>0?1:0)+(spend>0?1:0)+(purchases>0?1:0)+(days.length>1?1:0);
+  const confidence=Math.round(Math.min(96,38+dataPoints*9+Math.min(15,Math.log10(Math.max(1,impressions))*2)));
+  if(spend>0 && purchases===0){
+    add('bad',t('spendNoPurchase'),t('spendNoPurchase')+'.');
+    actions.push(t('collect'));
+  }
+  if(clicks>=20 && purchases>0 && cr<0.7) add('bad',t('clickLeak'),`${clicks.toFixed(0)} clicks مقابل ${purchases.toFixed(0)} purchases (${cr.toFixed(2)}%).`);
+  if(carts>=3 && purchases>0 && carts>purchases*3) add('bad',t('cartLeak'),`${carts.toFixed(0)} add-to-cart مقابل ${purchases.toFixed(0)} purchases.`);
+  if(carts>=3 && purchases===0) add('bad',t('cartLeak'),`${carts.toFixed(0)} add-to-cart دون شراء مسجل.`);
+  if(cpm>0 && ctr>0 && cpm>=20 && ctr>=1.5) add('mid',t('cpmHigh'),'الجذب موجود لكن تكلفة الظهور مرتفعة؛ راجع المزاد والجمهور قبل زيادة الإنفاق.');
+  if(ctr>0 && ctr<0.8) add('bad',t('ctrLow'),`CTR ${ctr.toFixed(2)}%؛ الإشارة الأساسية هنا هي ضعف جذب الانتباه.`);
+  if(cpc>0 && cpc>=1.2) add('mid',t('cpcHigh'),`CPC ${money(cpc)}؛ التكلفة لكل نقرة مرتفعة نسبيًا.`);
+  if(lpv>0 && clicks>=20 && lpv/clicks<0.55) add('bad',t('postClick'),`Landing/Page View ${lpv.toFixed(0)} من ${clicks.toFixed(0)} clicks؛ يوجد فقد كبير بعد النقر.`);
+  if(firstCpa>0 && secondCpa>0 && secondCpa>firstCpa*1.35 && purchases>=4) add('bad',t('trendDown'),`CPA انتقل من ${money(firstCpa)} إلى ${money(secondCpa)} في النصف الأحدث من الفترة.`);
+  else if(firstCpa>0 && secondCpa>0 && secondCpa<firstCpa*.75 && purchases>=4) add('good',t('trendUp'),`CPA تحسن من ${money(firstCpa)} إلى ${money(secondCpa)} في النصف الأحدث.`);
+  if(firstCr>0 && secondCr>0 && secondCr<firstCr*.65 && clicks>=30) add('bad',t('trendDown'),`معدل التحويل من النقرات انخفض من ${firstCr.toFixed(2)}% إلى ${secondCr.toFixed(2)}%.`);
+  const dayCpa=days.filter(d=>d.purchases>0).map(d=>d.spend/d.purchases);
+  if(dayCpa.length>=4 && medianCpa>0 && Math.max(...dayCpa)>medianCpa*2.2) add('mid',t('unstable'),'هناك أيام بتكلفة شراء أعلى بكثير من المستوى المعتاد.');
+  if(highSpendDays.length>=1 && purchases===0) add('bad',t('anomaly'),`${highSpendDays.length} day(s) showed unusually high spend without a purchase.`);
+  const fatigue = secondCr>0 && firstCr>0 && secondCr<firstCr*.75 && ctr>0 && cpm>0;
+  if(fatigue) add('mid',t('fatigue'),'الهبوط المتأخر في التحويل قد يشير إلى تشبع أو إرهاق في الرسالة/الجمهور.');
+  if(roas>0 && roas>=2 && (!secondCpa || secondCpa<=medianCpa*1.1) && !signals.some(x=>x.level==='bad')) add('good',t('scale'),`ROAS ${roas.toFixed(2)}x مع غياب إشارة سلبية قوية.`);
+  if(!signals.length) add('good',t('noStrongIssue'),t('keep'));
+
+  const badCount=signals.filter(x=>x.level==='bad').length, midCount=signals.filter(x=>x.level==='mid').length;
+  let verdict, desc;
+  if(!dataPoints || impressions<100){ verdict=t('insufficient'); desc=t('dataLimited'); }
+  else if(badCount>=2 || (badCount>=1 && spend>0 && purchases===0)){ verdict=t('stop'); desc=SYSTEM_LANG==='ar'?'هناك أكثر من إشارة سلبية مترابطة؛ لا تتعامل مع المشكلة برفع الميزانية قبل معالجة السبب.':'Multiple negative signals are connected; do not scale before addressing the root cause.'; }
+  else if(badCount===1 || midCount>=2){ verdict=t('optimize'); desc=SYSTEM_LANG==='ar'?'الأداء قابل للتحسين، لكن السبب يحتاج اختبارًا محددًا بدل تعديل عشوائي.':'The ad needs targeted optimization rather than a broad or random change.'; }
+  else if(signals.some(x=>x.level==='good')){ verdict=t('scale'); desc=SYSTEM_LANG==='ar'?'توجد مؤشرات إيجابية، لكن أي توسع يجب أن يبقى تدريجيًا مع مراقبة تكلفة الشراء والتحويل.':'Positive signals exist; any scaling should remain gradual while monitoring CPA and conversion.'; }
+  else { verdict=t('hold'); desc=t('keep'); }
+
+  if(badCount>=1) actions.push(t('investigateCreative'));
+  if(clicks>=20 && (carts>purchases*2 || (lpv>0 && lpv/clicks<.7))) actions.push(t('investigateOffer'));
+  if(cpm>=20) actions.push(t('reviewAuctionAction'));
+  if(!badCount && roas>=2) actions.push(t('scaleCarefully'));
+  if(!actions.length) actions.push(t('keep'));
+  const best=activeDays.slice().sort((a,b)=>(b.revenue-b.spend)-(a.revenue-a.spend))[0]||null;
+  const worst=activeDays.slice().sort((a,b)=>(a.revenue-a.spend)-(b.revenue-b.spend))[0]||null;
+  return {confidence,verdict,desc,signals,actions:[...new Set(actions)],bestDay:best,worstDay:worst,metrics:{spend,revenue,purchases,clicks,impressions,ctr,cpm,cpc,roas,cr,cpa,carts,lpv,medianCpa,medianRoas},trend:{firstCpa,secondCpa,firstCr,secondCr}};
+}
+function renderIntelligence(){
+  const el=document.getElementById('intelligenceWrap'); if(!el)return;
+  const x=smartAdIntelligence(), m=x.metrics||{};
+  const level=x.signals?.some(s=>s.level==='bad')?'bad':(x.signals?.some(s=>s.level==='mid')?'mid':'good');
+  const metric=(k,v)=>`<div class="intel-mini"><div class="k">${k}</div><div class="v">${v}</div></div>`;
+  el.innerHTML=`<section class="intel-card">
+    <div class="intel-head"><div><div class="intel-title">${t('intelligence')}</div><div class="intel-sub">${t('intelligenceSubtitle')}</div></div><div class="intel-confidence"><div class="n">${x.confidence}%</div><div class="l">${t('confidence')}</div></div></div>
+    <div class="intel-verdict"><div class="label">${x.verdict}</div><div class="desc">${x.desc}</div></div>
+    <div class="intel-grid">${metric(t('efficiency'),m.roas?`ROAS ${m.roas.toFixed(2)}x`:'—')}${metric(t('funnel'),m.clicks?`${m.purchases.toFixed(0)} / ${m.clicks.toFixed(0)}`:'—')}${metric(t('trend'),x.trend?.secondCpa&&x.trend?.firstCpa?`${money(x.trend.firstCpa)} → ${money(x.trend.secondCpa)}`:'—')}${metric(t('volatility'),x.signals?.some(s=>s.title===t('unstable'))?t('unstable'):t('stable'))}</div>
+    <div class="intel-block"><h4>${t('signals')}</h4><div class="intel-list">${(x.signals||[]).map(s=>`<div class="intel-item ${s.level}"><i class="intel-dot"></i><div><strong>${esc(s.title)}</strong><span>${esc(s.detail)}</span></div></div>`).join('')}</div></div>
+    <div class="intel-block"><h4>${t('actionPlan')}</h4><div class="intel-actions">${(x.actions||[]).map(a=>`<div class="intel-action">${esc(a)}</div>`).join('')}</div></div>
+    ${x.bestDay||x.worstDay?`<div class="intel-block"><h4>${t('dailyPattern')}</h4><div class="intel-grid">${x.bestDay?metric(t('bestDay'),`${x.bestDay.date} · ${money(x.bestDay.spend)}`):''}${x.worstDay?metric(t('worstDay'),`${x.worstDay.date} · ${money(x.worstDay.spend)}`):''}</div></div>`:''}
+  </section>`;
+}
+
+function renderAll(){
+  renderHeader();
+  renderIntelligence();
+  renderChart();
+  renderSummary();
+  renderMetrics();
+  renderQuality();
+  renderActions();
+}
+
+function metricBoxes(ins){
+  const ctr = ins ? num(ins.ctr) : 0, cpm = ins ? num(ins.cpm) : 0, cpc = ins ? num(ins.cpc) : 0;
+  return { ctr, cpm, cpc, ctrRate: rateMetric('ctr', ctr), cpmRate: rateMetric('cpm', cpm), cpcRate: rateMetric('cpc', cpc) };
+}
+function getVerdict(ctrRate, cpmRate, cpcRate){
+  const scores = { good:2, mid:1, bad:0 };
+  const total = scores[ctrRate] + scores[cpmRate] + scores[cpcRate];
+  if (ctrRate === 'good' && cpmRate === 'good' && cpcRate === 'good') return { level:'good', label:t('creativeExcellent') };
+  if (ctrRate === 'bad') return { level:'bad', label:t('creativeProblem') };
+  if (total >= 4) return { level:'good', label:t('goodPerformance') };
+  if (cpcRate === 'bad' || cpmRate === 'bad') return { level:'mid', label:t('reviewAuction') };
+  return { level:'mid', label:t('averagePerformance') };
+}
+function badgeClass(level){ return level === 'good' ? 'verdict-good' : (level === 'mid' ? 'verdict-mid' : 'verdict-bad'); }
+function iconImage(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`; }
+
+function renderHeader(){
+  const creative = AD.creative || {};
+  const thumb = creative.thumbnail_url || creative.image_url;
+  const m = metricBoxes(INS);
+  const verdict = getVerdict(m.ctrRate, m.cpmRate, m.cpcRate);
+
+  document.getElementById('adHeadWrap').innerHTML = `
+    <div class="ad-head-card">
+      <div class="ad-head-thumb">${thumb ? `<img src="${thumb}" alt="">` : `<div class="ph">${iconImage()}</div>`}</div>
+      <div class="ad-head-body">
+        <div class="ad-head-title">${AD.name}</div>
+        ${creative.name && creative.name !== AD.name ? `<div class="ad-head-creative-name">${creative.name}</div>` : ''}
+        <div class="ad-head-sub">
+          <span class="status-dot ${AD.status==='ACTIVE'?'on':'off'}"></span>${AD.status === 'ACTIVE' ? t('active') : t('paused')}
+          ${PARAMS.accLabel ? `<span class="acc-tag">${PARAMS.accLabel}</span>` : ''}
+          <span>· ${t('period')}: ${PARAMS.since} → ${PARAMS.until}</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/* ---------------- Line chart (spend vs revenue over time) ---------------- */
+function renderChart(){
+  const card = document.getElementById('chartCard');
+  const wrap = document.getElementById('chartWrap');
+  if (!DAILY.length){ card.style.display = 'none'; return; }
+  card.style.display = 'block';
+
+  const points = DAILY.map(d => ({
+    date: d.date_start,
+    revenue: getRevenue(d.action_values),
+    spend: num(d.spend)
+  }));
+
+  const W = 700, H = 260, padL = 44, padR = 14, padT = 16, padB = 26;
+  const maxVal = Math.max(1, ...points.map(p => Math.max(p.revenue, p.spend)));
+  const stepX = points.length > 1 ? (W - padL - padR) / (points.length - 1) : 0;
+  const x = i => padL + i * stepX;
+  const y = v => padT + (H - padT - padB) * (1 - v / maxVal);
+
+  function smoothPath(vals){
+    if (vals.length === 1) return `M ${x(0)} ${y(vals[0])}`;
+    let d = `M ${x(0)} ${y(vals[0])}`;
+    for (let i = 0; i < vals.length - 1; i++){
+      const x0 = x(i), y0 = y(vals[i]);
+      const x1 = x(i+1), y1 = y(vals[i+1]);
+      const mx = (x0 + x1) / 2;
+      d += ` C ${mx} ${y0}, ${mx} ${y1}, ${x1} ${y1}`;
+    }
+    return d;
+  }
+
+  const revenuePath = smoothPath(points.map(p => p.revenue));
+  const spendPath = smoothPath(points.map(p => p.spend));
+  const areaPath = revenuePath + ` L ${x(points.length-1)} ${y(0)} L ${x(0)} ${y(0)} Z`;
+
+  const gridLines = 5;
+  let gridSvg = '';
+  for (let i = 0; i <= gridLines; i++){
+    const v = (maxVal / gridLines) * i;
+    const gy = y(v);
+    gridSvg += `<line x1="${padL}" y1="${gy}" x2="${W-padR}" y2="${gy}" stroke="#242833" stroke-width="1" stroke-dasharray="4 4"/>`;
+    gridSvg += `<text x="${padL-8}" y="${gy+4}" text-anchor="end" font-size="11" fill="#5c6474" font-family="JetBrains Mono, monospace">${Math.round(v)}</text>`;
+  }
+
+  const firstLabel = points[0] ? points[0].date : '';
+  const lastLabel = points[points.length-1] ? points[points.length-1].date : '';
+
+  wrap.innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="revFill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#22c55e" stop-opacity="0.35"/>
+          <stop offset="100%" stop-color="#22c55e" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      ${gridSvg}
+      <path d="${areaPath}" fill="url(#revFill)" stroke="none"/>
+      <path d="${revenuePath}" fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="${spendPath}" fill="none" stroke="#f43f5e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="5 5" opacity="0.85"/>
+      <text x="${padL}" y="${H-6}" font-size="10.5" fill="#5c6474" font-family="Cairo, sans-serif">${firstLabel}</text>
+      <text x="${W-padR}" y="${H-6}" text-anchor="end" font-size="10.5" fill="#5c6474" font-family="Cairo, sans-serif">${lastLabel}</text>
+    </svg>
+  `;
+}
+
+function renderSummary(){
+  const spend = INS ? num(INS.spend) : 0;
+  const revenue = INS ? getRevenue(INS.action_values) : 0;
+  const purchases = INS ? getPurchases(INS.actions, INS.conversions) : 0;
+  const clicks = INS ? num(INS.clicks) : 0;
+  const roas = spend ? (revenue/spend) : 0;
+  const convRate = clicks ? ((purchases/clicks)*100) : 0;
+  const qualityCls = convRate >= 3 ? 'good' : (convRate >= 1.5 ? 'mid' : 'bad');
+  const qualityLabel = convRate >= 3 ? 'ممتازة' : (convRate >= 1.5 ? 'متوسطة' : 'ضعيفة');
+
+  let profitBox = '';
+  if (PROFIT_SETTINGS && revenue > 0){
+    const cogs = revenue * (num(PROFIT_SETTINGS.cogsPct)/100);
+    const shipping = purchases * num(PROFIT_SETTINGS.shipping);
+    const paymentFee = revenue * (num(PROFIT_SETTINGS.paymentPct)/100);
+    const netProfit = revenue - cogs - shipping - paymentFee - spend;
+    profitBox = `<div class="summary-box ${netProfit>=0?'profit':'loss'}"><div class="lbl">صافي الربح (تقديري بناءً على إعداداتك)</div><div class="val num">${money(netProfit)}</div></div>`;
+  }
+
+  document.getElementById('summaryWrap').innerHTML = `
+    <div class="summary-grid">
+      <div class="summary-box"><div class="lbl">الإنفاق</div><div class="val num">${money(spend)}</div></div>
+      <div class="summary-box"><div class="lbl">الإيراد (من فيسبوك)</div><div class="val num">${money(revenue)}</div></div>
+      ${profitBox}
+      <div class="summary-box ${roas>=1?'profit':'loss'}"><div class="lbl">ROAS</div><div class="val num">${roas.toFixed(2)}x</div></div>
+      <div class="summary-box"><div class="lbl">عدد المبيعات</div><div class="val num">${purchases.toFixed(0)}</div></div>
+      <div class="summary-box ${qualityCls}"><div class="lbl">معدل التحويل</div><div class="val">${convRate.toFixed(2)}% (${qualityLabel})</div></div>
+    </div>
+  `;
+}
+
+function renderMetrics(){
+  const m = metricBoxes(INS);
+  document.getElementById('metricsWrap').innerHTML = `
+    <div class="metrics-grid">
+      <div class="metric-box ${m.ctrRate}"><div class="metric-label">CTR</div><div class="metric-value">${m.ctr.toFixed(2)}%</div></div>
+      <div class="metric-box ${m.cpmRate}"><div class="metric-label">CPM</div><div class="metric-value">${money(m.cpm)}</div></div>
+      <div class="metric-box ${m.cpcRate}"><div class="metric-label">CPC</div><div class="metric-value">${money(m.cpc)}</div></div>
+      <div class="metric-box"><div class="metric-label">الظهور</div><div class="metric-value">${INS?num(INS.impressions).toLocaleString():'0'}</div></div>
+      <div class="metric-box"><div class="metric-label">النقرات</div><div class="metric-value">${INS?num(INS.clicks).toLocaleString():'0'}</div></div>
+    </div>
+  `;
+}
+
+function renderQuality(){
+  const rank = code => { const x=INS ? INS[code] : 'UNKNOWN'; const cls=(x==='ABOVE_AVERAGE')?'good':(x==='AVERAGE'||x==='UNKNOWN'?'mid':'bad'); const label=x==='ABOVE_AVERAGE'?t('above'):x==='AVERAGE'?t('average'):x==='UNKNOWN'?t('unavailable'):x==='BELOW_AVERAGE_10'?t('muchBelow'):t('below'); return {cls,label}; };
+  const qr=rank('conversion_rate_ranking'), qq=rank('quality_ranking'), qe=rank('engagement_rate_ranking');
+
+  document.getElementById('qualityWrap').innerHTML = `
+    <div class="section-title">جودة العميل والأداء<div class="section-line"></div></div>
+    <div class="quality-grid">
+      <div class="quality-card ${qr.cls}"><div class="qlbl">جودة العميل (معدل التحويل)</div><div class="qval">${qr.label}</div></div>
+      <div class="quality-card ${qq.cls}"><div class="qlbl">جودة الكريتف</div><div class="qval">${qq.label}</div></div>
+      <div class="quality-card ${qe.cls}"><div class="qlbl">معدل التفاعل</div><div class="qval">${qe.label}</div></div>
+    </div>
+  `;
+}
+
+function renderActions(){
+  document.getElementById('actionsWrap').innerHTML = `
+    <div class="ad-actions">
+      ${AD.adset_id ? `<button class="mini-btn go" onclick="openBudgetModal()">زوّد الميزانية</button>` : ''}
+      <button class="mini-btn ${AD.status==='ACTIVE'?'danger':''}" onclick="toggleStatus()">${AD.status==='ACTIVE'?'أوقف الإعلان':'شغّل الإعلان'}</button>
+      ${AD.campaign_id ? `<button class="mini-btn" onclick="openInAdsManager()">افتح في مدير الإعلانات (استهداف/جمهور)</button>` : ''}
+    </div>
+  `;
+}
+
+/* ---------------- إجراءات حقيقية على فيسبوك — كلها بضغطة زر يدوية من المستخدم ---------------- */
+async function toggleStatus(){
+  const newStatus = AD.status === 'ACTIVE' ? 'PAUSED' : 'ACTIVE';
+  const confirmMsg = newStatus === 'PAUSED' ? 'متأكد إنك عايز توقف ده على فيسبوك؟' : 'متأكد إنك عايز تشغّل ده تاني على فيسبوك؟';
+  if (!confirm(confirmMsg)) return;
+  try{
+    await gpost(AD.id, { status: newStatus, access_token: PARAMS.token });
+    setTopStatus(newStatus === 'PAUSED' ? 'تم إيقاف الإعلان على فيسبوك.' : 'تم تشغيل الإعلان على فيسبوك.');
+    await loadAdDetails();
+  } catch(err){
+    alert('حصل خطأ من فيسبوك: ' + err.message);
+  }
+}
+function openInAdsManager(){
+  const url = `https://www.facebook.com/adsmanager/manage/campaigns?act=${PARAMS.actId.replace('act_','')}&selected_campaign_ids=${AD.campaign_id}`;
+  window.open(url, '_blank');
+}
+function openBudgetModal(){
+  if (!ADSET){ alert('معرفتش ألاقي بيانات مجموعة الإعلانات دي.'); return; }
+  BUDGET_TARGET = { adsetId: ADSET.id, currentBudget: num(ADSET.daily_budget)/100, name: ADSET.name };
+  document.getElementById('budgetModalSub').textContent = `تعديل ميزانية "${ADSET.name}" — هيتبعت مباشرة لفيسبوك بمجرد الضغط على تنفيذ.`;
+  document.getElementById('budgetCurrentDisplay').value = money(BUDGET_TARGET.currentBudget) + ' / يوم';
+  document.getElementById('budgetMode').value = 'pct20';
+  onBudgetModeChange();
+  document.getElementById('budgetBackdrop').classList.add('show');
+  document.getElementById('budgetModal').classList.add('show');
+}
+function closeBudgetModal(){
+  document.getElementById('budgetBackdrop').classList.remove('show');
+  document.getElementById('budgetModal').classList.remove('show');
+  BUDGET_TARGET = null;
+}
+function onBudgetModeChange(){
+  const mode = document.getElementById('budgetMode').value;
+  document.getElementById('budgetCustomWrap').style.display = mode === 'custom' ? 'block' : 'none';
+  if (mode === 'custom' && BUDGET_TARGET) document.getElementById('budgetCustomValue').value = BUDGET_TARGET.currentBudget.toFixed(2);
+}
+async function submitBudgetChange(){
+  if (!BUDGET_TARGET) return;
+  const mode = document.getElementById('budgetMode').value;
+  let newBudget;
+  if (mode === 'pct10') newBudget = BUDGET_TARGET.currentBudget * 1.10;
+  else if (mode === 'pct20') newBudget = BUDGET_TARGET.currentBudget * 1.20;
+  else if (mode === 'pct50') newBudget = BUDGET_TARGET.currentBudget * 1.50;
+  else newBudget = num(document.getElementById('budgetCustomValue').value);
+  if (!newBudget || newBudget <= 0){ alert('حط قيمة ميزانية صحيحة.'); return; }
+
+  try{
+    await gpost(BUDGET_TARGET.adsetId, { daily_budget: Math.round(newBudget * 100), access_token: PARAMS.token });
+    setTopStatus(`تم تعديل ميزانية "${BUDGET_TARGET.name}" إلى ${money(newBudget)}/يوم على فيسبوك.`);
+    closeBudgetModal();
+    await loadAdDetails();
+  } catch(err){
+    alert('حصل خطأ من فيسبوك وإحنا بنعدّل الميزانية: ' + err.message);
+  }
+}
+
+applySystemLanguage();
+init();
 </script>
-</body></html>
+
+<style id="x-style">
+.v-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
+.v-tile{position:relative;border:1px solid var(--border);background:var(--surface-2);border-radius:12px;padding:9px 10px 8px;display:flex;flex-direction:column;gap:2px;min-height:76px}
+.v-tile .v-l{font-size:10.5px;color:var(--text-faint);padding-inline-end:16px}.v-tile b{font-size:16px}.v-tile small{font-size:9.5px;color:var(--text-faint)}
+.v-a{position:absolute;top:8px;inset-inline-end:9px;font-style:normal;font-size:11px}
+.v-tile.g{border-color:rgba(52,211,153,.35)}.v-tile.g .v-a,.v-tile.g b{color:#34d399}
+.v-tile.b{border-color:rgba(248,113,113,.4)}.v-tile.b .v-a,.v-tile.b b{color:#f87171}
+.v-tile.m{border-color:rgba(251,191,36,.35)}.v-tile.m .v-a,.v-tile.m b{color:#fbbf24}
+.p-row{display:flex;flex-wrap:wrap;gap:8px}.p-chip{display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:99px;border:1px solid var(--border);background:var(--surface);font-size:12.5px}
+.p-chip span{color:var(--text-faint)}.p-dot{width:8px;height:8px;border-radius:50%;background:#555}.p-dot.ok{background:#34d399;box-shadow:0 0 8px #34d39988}.p-dot.warn{background:#fbbf24}.p-chip.off{border-style:dashed}
+#actionsWrap,.intel-verdict,.intel-block:has(.intel-actions),.intel-confidence{display:none!important}
+.content{display:flex;flex-direction:column;gap:14px}
+.content>*{order:50}.back-row{order:0}.top-status{order:1}#adHeadWrap{order:2}#realWrap{order:3}#funnelWrap{order:4}#intelligenceWrap{order:5}#creativeWrap{order:6}#campaignWrap{order:7}#summaryWrap{order:8}#metricsWrap{order:9}#chartCard{order:10}#qualityWrap{order:11}#platformsWrap{order:12}
+.x-card{border:1px solid var(--border);border-radius:16px;background:var(--surface);padding:14px}
+.x-card h3{margin:0 0 10px;font-size:14px;font-weight:800}.x-card h3 small{font-weight:400;color:var(--text-faint);font-size:11px;margin-inline-start:6px}
+.x-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.x-box{background:var(--surface-2);border-radius:12px;padding:10px;text-align:center}.x-box span{display:block;font-size:10.5px;color:var(--text-faint);margin-bottom:3px}.x-box b{font-size:15px}
+.x-note{font-size:11.5px;color:var(--text-faint);line-height:1.8;margin-top:8px}
+.x-step{display:grid;grid-template-columns:110px 1fr 74px;gap:10px;align-items:center;padding:7px 0;font-size:12px}
+.x-bar{height:8px;border-radius:6px;background:var(--surface-3);overflow:hidden}.x-bar i{display:block;height:100%;background:var(--accent-2,#aaa)}
+.x-t{width:100%;border-collapse:collapse;font-size:12px}.x-t th,.x-t td{padding:8px 6px;border-bottom:1px solid var(--border);text-align:right;white-space:nowrap}.x-t tr.me td{background:var(--surface-2);font-weight:700}
+.x-wrap{overflow-x:auto}.x-row{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--border-soft,#222);font-size:12.5px}.x-row:last-child{border:0}
+.x-rate{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:12px;color:var(--text-dim)}.x-rate input{width:80px;padding:6px;border-radius:8px;border:1px solid var(--border);background:var(--bg-soft);color:var(--text)}
+@media(max-width:560px){.x-step{grid-template-columns:90px 1fr 62px}}
+</style>
+<script id="x-js">
+(function(){
+const $=id=>document.getElementById(id), fm=n=>Number(n||0).toLocaleString('en-US',{maximumFractionDigits:0});
+const pc=(a,b)=>b>0?a/b*100:null, f1=v=>v==null?'—':v.toFixed(1)+'%';
+const act=(arr,re)=>{const f=(arr||[]).find(a=>re.test(String(a.action_type)));return f?num(f.value):0};
+const vid=a=>Array.isArray(a)&&a[0]?num(a[0].value):0;
+const em=(v,g,m,hi=true)=>v==null?'⚪':(hi?(v>=g?'🟢':v>=m?'🟠':'🔴'):(v<=g?'🟢':v<=m?'🟠':'🔴'));
+const box=(l,v,e)=>`<div class="x-box"><span>${l}</span><b class="num">${e?e+' ':''}${v}</b></div>`;
+let X=null,busy=false;
+['realWrap','funnelWrap','creativeWrap','campaignWrap','platformsWrap'].forEach(id=>{if(!$(id)){const d=document.createElement('div');d.id=id;document.querySelector('main.content').appendChild(d)}});
+async function loadFx(){
+ try{const c=JSON.parse(localStorage.getItem('mbh_fx')||'null');if(c&&Date.now()-c.t<216e5)return c.r}catch(e){}
+ try{const j=await (await fetch('https://open.er-api.com/v6/latest/USD')).json();if(j&&j.rates){try{localStorage.setItem('mbh_fx',JSON.stringify({t:Date.now(),r:j.rates}))}catch(e){}return j.rates}}catch(e){}
+ return null;
+}
+async function loadX(){
+ const tr=JSON.stringify({since:PARAMS.since,until:PARAMS.until}),o={camp:null,sibs:[],plat:null,fx:null,cur:'USD'};
+ const days=Math.max(1,Math.min(90,Math.round((new Date(PARAMS.until)-new Date(PARAMS.since))/864e5)+1));
+ await Promise.all([
+  AD.campaign_id?gget(AD.campaign_id,{fields:'id,name,objective,daily_budget,status',access_token:PARAMS.token}).then(r=>o.camp=r).catch(()=>{}):0,
+  AD.campaign_id?gget(PARAMS.actId+'/insights',{level:'ad',fields:'ad_id,ad_name,spend,impressions,clicks,ctr,actions,action_values,conversions',filtering:JSON.stringify([{field:'campaign.id',operator:'EQUAL',value:AD.campaign_id}]),time_range:tr,limit:100,access_token:PARAMS.token}).then(r=>o.sibs=r.data||[]).catch(()=>{}):0,
+  gget(PARAMS.actId,{fields:'currency',access_token:PARAMS.token}).then(r=>o.cur=(r.currency||'USD').toUpperCase()).catch(()=>{o.cur='USD'}),
+  loadFx().then(r=>o.fx=r),
+  sbClient.functions.invoke('platform-data',{body:{days}}).then(r=>{if(r.data&&r.data.ok)o.plat=r.data.platforms}).catch(()=>{})
+ ]);
+ return o;
+}
+const norm=v=>String(v==null?'':v).toLowerCase().replace(/[^\p{L}\p{N}]+/gu,'');
+const STORE_CUR=()=>(localStorage.getItem('mbh_store_cur')||'EGP').toUpperCase();
+function fxRate(){ // عملة المتجر لكل 1 وحدة من عملة حساب الإعلان
+ const man=num(localStorage.getItem('mbh_eo_rate'));if(man>0)return{r:man,src:'يدوي'};
+ const R=X&&X.fx,a=(X&&X.cur)||'USD',s=STORE_CUR();
+ if(R&&R[a]&&R[s])return{r:R[s]/R[a],src:'تلقائي'};
+ return a===s?{r:1,src:'نفس العملة'}:null;
+}
+function renderReal(){
+ const E=X&&X.plat&&X.plat.easyorders,el=$('realWrap'),I=INS||{},adSpend=num(I.spend),metaP=getPurchases(I.actions,I.conversions);
+ if(!E||E.status!=='ok'){el.innerHTML='';return}
+ const fx=fxRate();
+ if(!fx){el.innerHTML=`<div class="x-card"><h3>النتيجة الحقيقية (EasyOrders)</h3><div class="x-note">تعذّر جلب سعر الصرف تلقائيًا (${esc((X&&X.cur)||'USD')} ← ${STORE_CUR()}). أدخل السعر يدويًا:</div><div class="x-rate"><input type="number" min="0" step="0.01" placeholder="مثال: 50" onchange="localStorage.setItem('mbh_eo_rate',this.value);renderExtras()"></div></div>`;return}
+ const cid=String(AD.campaign_id||''),cname=norm(X.camp&&X.camp.name),sibIds=new Set((X.sibs||[]).map(r=>String(r.ad_id))),sibNames=new Map((X.sibs||[]).map(r=>[norm(r.ad_name),String(r.ad_id)]));
+ const inRange=o=>o.date>=PARAMS.since&&o.date<=PARAMS.until&&o.source==='meta';
+ const camp=(E.orders||[]).filter(o=>inRange(o)&&(String(o.utm_campaign)===cid||(cname&&norm(o.utm_campaign)===cname)));
+ const adOf=o=>{for(const k of ['utm_content','utm_term','utm_medium']){const v=o[k];if(v==null||v==='')continue;if(sibIds.has(String(v)))return String(v);const n=sibNames.get(norm(v));if(n)return n}return null};
+ if(!camp.length){el.innerHTML='';return}
+ const tagged=camp.filter(o=>adOf(o)),adLevel=!window.CAMP_MODE&&tagged.length>0;
+ const mine=adLevel?tagged.filter(o=>adOf(o)===String(AD.id)):camp,untagged=camp.length-tagged.length;
+ const campSpend=(X.sibs||[]).reduce((t,r)=>t+num(r.spend),0)||adSpend,spend=adLevel?adSpend:campSpend;
+ const ok=mine.filter(o=>!o.lost),lost=mine.length-ok.length,revU=ok.reduce((t,o)=>t+o.total,0)/fx.r;
+ const aov=ok.length?revU/ok.length:null,cpa=ok.length?spend/ok.length:null,roas=spend?revU/spend:null,cancel=pc(lost,mine.length);
+ let profit='',be='';const P=PROFIT_SETTINGS;
+ if(P){const cg=num(P.cogsPct)/100,pm=num(P.paymentPct)/100,net=revU*(1-cg-pm)-ok.length*num(P.shipping)-spend;
+  profit=box('صافي الربح الحقيقي',money(net),net>=0?'🟢':'🔴');be=(1-cg-pm)>0?box('ROAS التعادل',(1/(1-cg-pm)).toFixed(2)+'x'):''}
+ const metaCmp=(adLevel||window.CAMP_MODE)?metaP:(X.sibs||[]).reduce((t,r)=>t+getPurchases(r.actions,r.conversions),0);
+ el.innerHTML=`<div class="x-card"><h3>النتيجة الحقيقية <small>${adLevel?'منسوبة لهذا الإعلان نفسه':'على مستوى الحملة كلها'}</small></h3>
+ ${mine.length?`<div class="x-grid">${box('أوردرات',fm(mine.length))}${box('ناجحة',fm(ok.length))}${box('نسبة الإلغاء/المرتجع',f1(cancel),em(cancel,15,30,false))}${box('المبيعات',money(revU))}${box('متوسط الأوردر',aov==null?'—':money(aov))}${box('الصرف المحسوب عليه',money(spend))}${box('تكلفة الأوردر الحقيقية',cpa==null?'—':money(cpa))}${box('ROAS حقيقي',roas==null?'—':roas.toFixed(2)+'x',roas==null?'':roas>=1?'🟢':'🔴')}${be}${profit}</div>
+ <div class="x-row"><span>مبيعات ميتا (بكسل) ${adLevel?'للإعلان':'للحملة'}</span><b class="num">${fm(metaCmp)}</b></div><div class="x-row"><span>أوردرات فعلية في EasyOrders</span><b class="num">${fm(ok.length)}</b></div>`
+ :`<div class="x-note">لا توجد أوردرات منسوبة ${adLevel?'لهذا الإعلان':'لهذه الحملة'} في الفترة.</div>`}
+ ${adLevel&&untagged?`<div class="x-note">${fm(untagged)} أوردر من نفس الحملة بدون تحديد الإعلان، فلم تُحسب هنا.</div>`:''}
+
+${fx.r!==1||fx.src==='يدوي'?` <div class="x-rate">سعر الصرف: <b class="num">${fx.r.toFixed(2)}</b> ${esc(STORE_CUR())}/${esc((X&&X.cur)||'USD')} (${fx.src})
+ <input type="number" min="0" step="0.01" placeholder="تعديل يدوي" onchange="localStorage.setItem('mbh_eo_rate',this.value);renderExtras()"></div>`:''}</div>`;
+}
+function renderFunnel(){
+ const I=INS;if(!I){$('funnelWrap').innerHTML='';return}
+ const sp=num(I.spend),st=[['ظهور',num(I.impressions)],['نقرات',num(I.clicks)],['زيارات الصفحة',act(I.actions,/^landing_page_view$/)],['مشاهدة المنتج',act(I.actions,/^(omni_)?view_content$/)],['إضافة للسلة',act(I.actions,/^(omni_)?add_to_cart$/)],['بدء الدفع',act(I.actions,/^(omni_)?initiate_checkout$/)],['شراء',getPurchases(I.actions,I.conversions)]].filter((x,i)=>i<2||x[1]>0),top=st[1][1]||1;
+ const rows=st.map((x,i)=>{const prev=i?st[i-1][1]:0,d=i>1?pc(x[1],prev):null;return `<div class="x-step"><span>${x[0]}</span><div class="x-bar"><i style="width:${Math.max(2,Math.min(100,i===0?100:x[1]/top*100))}%"></i></div><span class="num">${fm(x[1])}${d!=null?' · '+d.toFixed(0)+'%':''}</span></div>`}).join('');
+ const lp=pc(st.find(x=>x[0]==='زيارات الصفحة')?.[1]||0,num(I.clicks));
+ $('funnelWrap').innerHTML=`<div class="x-card"><h3>القمع خطوة بخطوة <small>النسبة = من الخطوة السابقة</small></h3>${rows}<div class="x-grid" style="margin-top:8px">${box('نقرة ← زيارة',f1(lp),em(lp,70,55))}${box('تكلفة النقرة',money(num(I.cpc)))}${box('تكلفة الألف ظهور',money(num(I.cpm)))}${sp&&getPurchases(I.actions,I.conversions)?box('تكلفة الشراء (ميتا)',money(sp/getPurchases(I.actions,I.conversions))):''}</div></div>`;
+}
+function renderCreative(){
+ const I=INS,el=$('creativeWrap');if(!I){el.innerHTML='';return}
+ const imp=num(I.impressions),A=I.actions,v3=act(A,/^video_view$/),plays=vid(I.video_play_actions)||v3,tr=vid(I.video_thruplay_watched_actions),p=[25,50,75,100].map(k=>vid(I['video_p'+k+'_watched_actions'])),ob=vid(I.outbound_clicks),lc=act(A,/^link_click$/)||ob,fr=num(I.frequency),avg=vid(I.video_avg_time_watched_actions);
+ const react=act(A,/^post_reaction$/),com=act(A,/^comment$/),shr=act(A,/^post$/),sav=act(A,/post_save/),pe=act(A,/^post_engagement$/);
+ const hook=pc(v3,imp),hold=pc(tr,v3),playR=pc(plays,imp),vctr=pc(lc,v3),oc=pc(ob||lc,imp),fin=pc(p[3],plays),eng=pc(pe||react+com+shr+sav,imp),ctr=num(I.ctr);
+ const D=(DAILY||[]),h=Math.floor(D.length/2),cx=l=>{const c=l.reduce((t,d)=>t+num(d.clicks),0),m=l.reduce((t,d)=>t+num(d.impressions),0);return m?c/m*100:null},c1=cx(D.slice(0,h)),c2=cx(D.slice(h)),dctr=(c1&&c2)?(c2-c1)/c1*100:null;
+ let drop=null;if(plays&&p.every(x=>x!=null)){const seq=[plays,...p];let mx=0;for(let k=1;k<seq.length;k++){const d=seq[k-1]?(seq[k-1]-seq[k])/seq[k-1]:0;if(d>mx){mx=d;drop=['البداية→٢٥٪','٢٥٪→٥٠٪','٥٠٪→٧٥٪','٧٥٪→١٠٠٪'][k-1]+' ('+(d*100).toFixed(0)+'% فقد)'}}}
+ const lv=(v,g,m,hi=true)=>v==null?'n':(hi?(v>=g?'g':v>=m?'m':'b'):(v<=g?'g':v<=m?'m':'b'));
+ const vd=[];
+ if(v3){vd.push(['Hook · أول ٣ ث',f1(hook),lv(hook,30,15),'30%+']);vd.push(['Hold',f1(hold),lv(hold,25,12),'25%+']);
+  if(drop){const mm=drop.match(/\((\d+)%/),dv=mm?+mm[1]:null;vd.push(['أكبر فقد',dv==null?'—':dv+'%',lv(dv,50,75,false),drop.replace(/\s*\(.*$/,'')])}
+  vd.push(['نقر من المشاهدين',f1(vctr),lv(vctr,2,1),'2%+'])}
+ vd.push(['CTA · نقر الرابط',f1(oc),lv(oc,1,.6),'1%+']);
+ vd.push(['التكرار',fr?fr.toFixed(2):'—',fr?lv(fr,2.5,3.5,false):'n','أقل من 2.5']);
+ if(dctr!=null)vd.push(['اتجاه CTR',(dctr>0?'+':'')+dctr.toFixed(0)+'%',dctr>=0?'g':dctr>=-20?'m':'b',dctr>=0?'صاعد':'هابط']);
+ vd.push(['التفاعل',f1(eng),lv(eng,2,.8),'2%+']);
+ const th=AD&&AD.creative&&(AD.creative.thumbnail_url||AD.creative.image_url);
+ el.innerHTML=`<div class="section-title">تحليل الكريتف</div><div class="x-card"><div style="display:flex;gap:14px;flex-wrap:wrap">${th?`<img src="${th}" alt="" style="width:120px;height:120px;border-radius:14px;object-fit:cover">`:''}<div style="flex:1;min-width:240px">
+ <h3>التفاعل مع الكريتف</h3><div class="x-grid">${box('تفاعلات (لايك…)',fm(react))}${box('تعليقات',fm(com))}${box('مشاركات',fm(shr))}${box('حفظ',fm(sav))}${box('تفاعل المنشور',fm(pe))}${box('نقرات الرابط',fm(lc))}${box('معدل التفاعل',f1(eng))}${box('CTR',ctr.toFixed(2)+'%')}${fr?box('التكرار',fr.toFixed(2)):''}</div>
+ ${v3?`<h3 style="margin-top:14px">أداء الفيديو</h3><div class="x-grid">${box('تشغيل',fm(plays))}${box('مشاهدة 3 ثواني',fm(v3))}${box('Hook rate',f1(hook),em(hook,30,15))}${box('ThruPlay',fm(tr))}${box('Hold rate',f1(hold),em(hold,25,12))}${avg?box('متوسط المشاهدة',avg.toFixed(1)+' ث'):''}${box('نسبة التشغيل',f1(playR))}${box('CTR الفيديو (نقر÷مشاهدة)',f1(vctr))}${box('إكمال الفيديو',f1(fin),em(fin,5,2))}</div>
+ <div style="margin-top:10px">${[25,50,75,100].map((k,i)=>`<div class="x-step"><span class="num">${fm(p[i])}</span><div class="x-bar"><i style="width:${plays?Math.min(100,p[i]/plays*100):0}%"></i></div><span class="num">${k}%</span></div>`).join('')}</div>`:'<div class="x-note">لا توجد بيانات فيديو؛ مؤشرات Hook وHold تظهر لإعلانات الفيديو فقط.</div>'}
+ </div></div><h3 style="margin:16px 0 8px">تقييم الكريتف</h3><div class="v-grid">${vd.map(x=>`<div class="v-tile ${x[2]}"><span class="v-l">${x[0]}</span><b class="num">${x[1]}</b><i class="v-a">${x[2]==="g"?"▲":x[2]==="b"?"▼":x[2]==="m"?"▬":"·"}</i><small>${x[3]}</small></div>`).join('')}</div></div>`;
+}
+function renderCampaign(){
+ const C=X&&X.camp,S=X&&X.sibs||[],A=typeof ADSET!=='undefined'&&ADSET;
+ const rows=S.map(r=>{const p=getPurchases(r.actions,r.conversions),sp=num(r.spend);return{id:r.ad_id,n:r.ad_name,sp,p,cpa:p?sp/p:null,ctr:num(r.ctr)}}).sort((a,b)=>b.sp-a.sp);
+ const tot=rows.reduce((t,r)=>t+r.sp,0),me=rows.findIndex(r=>r.id===AD.id);
+ $('campaignWrap').innerHTML=`<div class="x-card"><h3>الحملة والمجموعة</h3>
+ ${C?`<div class="x-row"><span>الحملة</span><b>${esc(C.name)}</b></div><div class="x-row"><span>الهدف</span><b>${esc(C.objective||'—')}</b></div>`:''}
+ ${A?`<div class="x-row"><span>المجموعة</span><b>${esc(A.name)}</b></div>${A.optimization_goal?`<div class="x-row"><span>هدف التحسين</span><b>${esc(A.optimization_goal)}</b></div>`:''}${A.daily_budget?`<div class="x-row"><span>الميزانية اليومية</span><b class="num">${money(num(A.daily_budget)/100)}</b></div>`:''}`:''}
+ ${rows.length>1?`<div class="x-row"><span>نصيب الإعلان من صرف الحملة</span><b class="num">${tot&&me>=0?(rows[me].sp/tot*100).toFixed(0)+'%':'—'}</b></div><div class="x-wrap" style="margin-top:8px"><table class="x-t"><tr><th>الإعلان</th><th>الصرف</th><th>مبيعات</th><th>التكلفة</th><th>CTR</th></tr>${rows.slice(0,10).map(r=>`<tr class="${r.id===AD.id?'me':''}"><td>${esc(r.n)}</td><td class="num">${money(r.sp)}</td><td class="num">${r.p.toFixed(0)}</td><td class="num">${r.cpa==null?'—':money(r.cpa)}</td><td class="num">${r.ctr.toFixed(2)}%</td></tr>`).join('')}</table></div>`:'<div class="x-note">لا توجد إعلانات أخرى في هذه الحملة للمقارنة.</div>'}</div>`;
+}
+const ST={ok:'● متصل وبياناته بتتسحب',not_connected:'○ غير مربوط — اربطه من صفحة الحساب',needs_developer_token:'◐ مربوط — محتاج Developer Token',no_accounts:'◐ مربوط بدون حسابات إعلانية',reconnect:'⚠ الاتصال انتهى، أعد الربط',error:'⚠ حصل خطأ أثناء السحب'};
+function renderPlatforms(){
+ const P=X&&X.plat;if(!P){$('platformsWrap').innerHTML='';return}
+ const on=k=>P[k]&&P[k].status&&P[k].status!=='not_connected',chips=[];
+ const chip=(name,st,txt)=>`<div class="p-chip"><i class="p-dot ${st}"></i><b>${name}</b><span>${txt}</span></div>`;
+ const bad={reconnect:'أعد الربط',permission:'تعذّر الوصول',error:'خطأ في السحب',needs_developer_token:'يحتاج إعداد',no_accounts:'لا حسابات'};
+ if(on('easyorders')){const p=P.easyorders,o=(p.orders||[]).filter(x=>x.date>=PARAMS.since&&x.date<=PARAMS.until);chips.push(p.status==='ok'?chip('EasyOrders','ok',fm(o.length)+' أوردر'):chip('EasyOrders','warn',bad[p.status]||'غير متاح'))}
+ else if(on('shopify'))chips.push(chip('Shopify','ok','متصل'));
+ if(on('tiktok')){const p=P.tiktok,r=(p.rows||[]).filter(x=>x.date>=PARAMS.since&&x.date<=PARAMS.until),sp=r.reduce((t,x)=>t+x.spend,0);chips.push(p.status==='ok'?chip('TikTok','ok',r.length?'صرف '+sp.toFixed(2):'لا بيانات'):chip('TikTok','warn',bad[p.status]||'غير متاح'))}
+ if(!chips.length)chips.push(`<div class="p-chip off"><i class="p-dot off"></i><span>اربط متجرك (EasyOrders أو Shopify) من صفحة الحساب</span></div>`);
+ $('platformsWrap').innerHTML=`<div class="p-row">${chips.join('')}</div>`;
+}
+window.XH={box,em,fm,pc,f1,act,loadX,get X(){return X},set X(v){X=v}};
+window.renderExtras=function(){try{renderReal();renderFunnel();renderCreative();window.CAMP_MODE?renderCampMode():renderCampaign();renderPlatforms()}catch(e){console.warn('extras',e)}};
+const _ra=renderAll;
+renderAll=function(){_ra();renderExtras();if(!X&&!busy){busy=true;loadX().then(o=>{X=o;renderExtras()}).finally(()=>busy=false)}};
+})();
+</script>
+<style id="c-style">.x-link{cursor:pointer}.x-link:hover td{background:var(--surface-2)}.x-pill{display:inline-block;padding:2px 8px;border-radius:99px;font-size:10.5px;background:var(--surface-3)}</style>
+<script id="c-js">
+/* ===== وضع الحملة ===== */
+const {box,em,fm,act:gact}=XH,$=id=>document.getElementById(id);
+let CAMP=null,CADSETS=[],CADS=[],CADSET_INS=[],CAD_INS=[];
+async function loadCampaignDetails(){
+ setTopStatus(t('loading'));
+ const tr=JSON.stringify({since:PARAMS.since,until:PARAMS.until}),id=PARAMS.campaignId,tk=PARAMS.token;
+ const flt=JSON.stringify([{field:'campaign.id',operator:'EQUAL',value:id}]);
+ const F='impressions,reach,clicks,spend,ctr,cpc,cpm,conversions,actions,action_values,frequency,outbound_clicks,video_thruplay_watched_actions,video_p25_watched_actions,video_p50_watched_actions,video_p75_watched_actions,video_p100_watched_actions,video_avg_time_watched_actions,video_play_actions';
+ const Fs='spend,impressions,clicks,ctr,reach,frequency,actions,action_values,conversions';
+ const [c,ins,daily,adsets,ads,aIns,sIns]=await Promise.all([
+  gget(id,{fields:'id,name,status,effective_status,objective,daily_budget,lifetime_budget,created_time,start_time,buying_type,bid_strategy',access_token:tk}),
+  gget(id+'/insights',{fields:F,time_range:tr,access_token:tk}).catch(()=>({data:[]})),
+  gget(id+'/insights',{fields:'spend,actions,action_values,impressions,clicks',time_range:tr,time_increment:1,access_token:tk}).catch(()=>({data:[]})),
+  gget(id+'/adsets',{fields:'id,name,status,daily_budget,lifetime_budget,optimization_goal',limit:100,access_token:tk}).catch(()=>({data:[]})),
+  gget(id+'/ads',{fields:'id,name,status,adset_id,creative{thumbnail_url,image_url}',limit:200,access_token:tk}).catch(()=>({data:[]})),
+  gget(PARAMS.actId+'/insights',{level:'ad',fields:'ad_id,'+Fs+',quality_ranking,engagement_rate_ranking,conversion_rate_ranking',filtering:flt,time_range:tr,limit:200,access_token:tk}).catch(()=>({data:[]})),
+  gget(PARAMS.actId+'/insights',{level:'adset',fields:'adset_id,'+Fs,filtering:flt,time_range:tr,limit:100,access_token:tk}).catch(()=>({data:[]}))
+ ]);
+ CAMP=c;CADSETS=adsets.data||[];CADS=ads.data||[];CAD_INS=aIns.data||[];CADSET_INS=sIns.data||[];
+ AD={id:c.id,name:c.name,status:c.status,effective_status:c.effective_status,campaign_id:c.id,adset_id:null,created_time:c.created_time,creative:{}};
+ ADSET=null;INS=(ins.data&&ins.data[0])||null;DAILY=daily.data||[];
+ setTopStatus('');renderAll();
+}
+const _renderAllCamp=renderAll;
+renderAll=function(){
+ if(!window.CAMP_MODE)return _renderAllCamp();
+ try{renderSummary&&renderSummary();renderMetrics&&renderMetrics();renderChart&&renderChart();renderIntelligence&&renderIntelligence()}catch(e){console.warn('camp base',e)}
+ renderCampHead();renderExtras();
+ if(!XH.X&&!window.__cxb){window.__cxb=1;XH.loadX().then(o=>{XH.X=o;renderExtras()}).finally(()=>window.__cxb=0)}
+};
+function renderCampHead(){
+ const c=CAMP,on=c.status==='ACTIVE',bud=c.daily_budget?money(num(c.daily_budget)/100)+' / يوم':c.lifetime_budget?money(num(c.lifetime_budget)/100)+' إجمالي':(CADSETS.some(a=>a.daily_budget)?'على مستوى المجموعات':'—');
+ document.getElementById('adHeadWrap').innerHTML=`<div class="ad-head-card"><div class="ad-head-body"><div class="x-pill">حملة</div><div class="ad-head-title">${esc(c.name)}</div>
+ <div class="ad-head-sub"><span class="status-dot ${on?'on':'off'}"></span>${on?'شغّالة':'متوقفة'}${PARAMS.accLabel?`<span class="acc-tag">${esc(PARAMS.accLabel)}</span>`:''}<span>· ${PARAMS.since} → ${PARAMS.until}</span></div>
+ <div class="ad-head-sub"><span>الهدف: ${esc(c.objective||'—')}</span><span>· الميزانية: ${bud}</span>${c.created_time?`<span>· عمر الحملة: ${Math.max(0,Math.round((Date.now()-new Date(c.created_time))/864e5))} يوم</span>`:''}<span>· ${CADSETS.length} مجموعة · ${CADS.length} إعلان</span></div></div></div>`;
+}
+function renderCampMode(){
+ const el=$('campaignWrap'),sp=num(INS&&INS.spend),res=r=>getPurchases(r.actions,r.conversions),cpa=(s,p)=>p?s/p:null;
+ const meta=new Map(CADS.map(a=>[a.id,a])),rows=CAD_INS.map(r=>({id:r.ad_id,a:meta.get(r.ad_id)||{name:r.ad_id,status:''},sp:num(r.spend),p:res(r),ctr:num(r.ctr),fr:num(r.frequency),q:r.quality_ranking,hook:num(r.impressions)?(gact(r.actions,/^video_view$/)/num(r.impressions)*100):null,hasV:gact(r.actions,/^video_view$/)>0}));
+ const tot=rows.reduce((t,r)=>t+r.sp,0)||sp,withRes=rows.filter(r=>r.p>0),noRes=rows.filter(r=>r.p===0&&r.sp>0);
+ const waste=noRes.reduce((t,r)=>t+r.sp,0),top=rows.slice().sort((a,b)=>b.sp-a.sp)[0];
+ const best=withRes.slice().sort((a,b)=>cpa(a.sp,a.p)-cpa(b.sp,b.p))[0],worst=withRes.slice().sort((a,b)=>cpa(b.sp,b.p)-cpa(a.sp,a.p))[0];
+ const days=DAILY.length,perDay=days?sp/days:null,bud=CAMP.daily_budget?num(CAMP.daily_budget)/100:CADSETS.reduce((t,a)=>t+(a.daily_budget?num(a.daily_budget)/100:0),0);
+ const pace=bud&&perDay!=null?perDay/bud*100:null;
+ const half=Math.floor(days/2),A=DAILY.slice(0,half),B=DAILY.slice(half),cp=l=>{const s=l.reduce((t,d)=>t+num(d.spend),0),p=l.reduce((t,d)=>t+getPurchases(d.actions,d.conversions),0);return p?s/p:null};
+ const c1=cp(A),c2=cp(B),trend=(c1&&c2)?(c2-c1)/c1*100:null;
+ const wastePct=tot?waste/tot*100:null,conc=top&&tot?top.sp/tot*100:null;
+ const nAct=CADS.filter(a=>a.status==='ACTIVE').length;
+ const adsetRows=CADSETS.map(s=>{const r=CADSET_INS.find(x=>x.adset_id===s.id)||{},p=res(r),spd=num(r.spend);return`<tr><td>${esc(s.name)}</td><td><span class="x-pill">${s.status==='ACTIVE'?'شغّال':'متوقف'}</span></td><td class="num">${money(spd)}</td><td class="num">${p.toFixed(0)}</td><td class="num">${p?money(spd/p):'—'}</td><td class="num">${num(r.ctr).toFixed(2)}%</td><td class="num">${num(r.frequency)?num(r.frequency).toFixed(2):'—'}</td><td class="num">${s.daily_budget?money(num(s.daily_budget)/100):'—'}</td></tr>`}).join('');
+ const adRows=rows.sort((a,b)=>b.sp-a.sp).map(r=>`<tr class="x-link" onclick="location.href='ad-details.html?'+new URLSearchParams({ad:'${r.id}',act:PARAMS.actId,token:PARAMS.token,acc:PARAMS.accLabel||'',since:PARAMS.since,until:PARAMS.until})"><td>${esc(r.a.name)}</td><td><span class="x-pill">${r.a.status==='ACTIVE'?'شغّال':'متوقف'}</span></td><td class="num">${money(r.sp)}</td><td class="num">${tot?(r.sp/tot*100).toFixed(0)+'%':'—'}</td><td class="num">${r.p.toFixed(0)}</td><td class="num">${r.p?money(r.sp/r.p):'—'}</td><td class="num">${r.ctr.toFixed(2)}%</td><td class="num">${r.hasV?em(r.hook,30,15)+' '+r.hook.toFixed(0)+'%':'—'}</td><td class="num">${r.fr?r.fr.toFixed(2):'—'}</td></tr>`).join('');
+ el.innerHTML=`<div class="x-card"><h3>صحة الحملة <small>مؤشرات على مستوى الحملة</small></h3><div class="x-grid">
+ ${box('صرف بلا نتائج',wastePct==null?'—':wastePct.toFixed(0)+'%',em(wastePct,15,35,false))}
+ ${box('تركّز الصرف في إعلان واحد',conc==null?'—':conc.toFixed(0)+'%',em(conc,60,80,false))}
+ ${pace!=null?box('استهلاك الميزانية اليومية',pace.toFixed(0)+'%',em(pace,70,40)):''}
+ ${trend!=null?box('اتجاه تكلفة الشراء (النصف الأخير)',(trend>0?'+':'')+trend.toFixed(0)+'%',em(trend,0,25,false)):''}
+ ${box('إعلانات شغّالة',nAct+' / '+CADS.length)}${box('إعلانات بنتائج',withRes.length+' / '+rows.length)}
+ ${best&&worst&&best!==worst?box('أفضل تكلفة شراء',money(cpa(best.sp,best.p)))+box('أسوأ تكلفة شراء',money(cpa(worst.sp,worst.p))):''}${perDay!=null?box('متوسط الصرف اليومي',money(perDay)):''}</div>
+ ${best?`<div class="x-row"><span>أفضل إعلان</span><b>${esc(best.a.name)}</b></div>`:''}${noRes.length?`<div class="x-row"><span>إعلانات صرفت بلا نتيجة</span><b>${noRes.length}</b></div>`:''}
+ <div class="x-note">«صرف بلا نتائج» = إنفاق الإعلانات اللي ما جابتش أي نتيجة (مبيعات حسب بكسل ميتا) ÷ إجمالي الإنفاق. الحدود الملوّنة مراجع عامة.</div></div>
+ <div class="x-card" style="margin-top:14px"><h3>المجموعات الإعلانية</h3><div class="x-wrap"><table class="x-t"><tr><th>المجموعة</th><th>الحالة</th><th>الصرف</th><th>مبيعات</th><th>التكلفة</th><th>CTR</th><th>التكرار</th><th>الميزانية</th></tr>${adsetRows||'<tr><td colspan="8">لا توجد مجموعات</td></tr>'}</table></div></div>
+ <div class="x-card" style="margin-top:14px"><h3>الإعلانات <small>اضغط على إعلان لفتح تفاصيله</small></h3><div class="x-wrap"><table class="x-t"><tr><th>الإعلان</th><th>الحالة</th><th>الصرف</th><th>نصيبه</th><th>مبيعات</th><th>التكلفة</th><th>CTR</th><th>Hook</th><th>التكرار</th></tr>${adRows||'<tr><td colspan="9">لا توجد بيانات</td></tr>'}</table></div></div>`;
+}
+</script></body>
+</html>
