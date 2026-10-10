@@ -2080,9 +2080,9 @@ function renderSections(){
         const ins = DATA.campaignIns[camp.id];
         const m = metricBoxes(ins);
         wrap.insertAdjacentHTML('beforeend', `
-          <div class="camp-row">
+          <div class="camp-row" style="cursor:pointer" onclick="openCampaignDetails('${camp.id}','${camp._actId}','${camp._token}','${(camp._accLabel||'').replace(/'/g,"\\'")}')">
             <div>
-              <div class="camp-name">${camp.name}</div>
+              <div class="camp-name">${camp.name} <span style="opacity:.5">‹</span></div>
               <div class="ad-sub"><span class="status-dot ${camp.status==='ACTIVE'?'on':'off'}"></span>${camp.status === 'ACTIVE' ? 'شغّالة' : 'متوقفة'}</div>
             </div>
             <div class="camp-metrics">
@@ -2143,6 +2143,10 @@ function sectionTitle(text, icon){ return `<div class="section-title">${icon?ico
 function toggleIssue(id){ document.getElementById('issue-' + id).classList.toggle('open'); }
 
 /* ---------------- فتح صفحة تفاصيل الإعلان (عداد بورد الإعلان) ---------------- */
+function openCampaignDetails(campId, actId, token, accLabel){
+  const { since, until } = getDateRange();
+  window.location.href = 'ad-details.html?' + new URLSearchParams({ campaign: campId, act: actId, token: token, acc: accLabel || '', since: since || '', until: until || '' }).toString();
+}
 function openAdDetails(adId, actId, token, accLabel){
   const { since, until } = getDateRange();
   const params = new URLSearchParams({
