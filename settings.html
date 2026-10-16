@@ -2,6 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -42,9 +43,23 @@ a{text-decoration:none;color:inherit}
 @media(min-width:800px){
  body{padding-bottom:20px}.app{padding:28px}.bottom{position:sticky;bottom:0;margin:0 auto 20px;width:min(760px,calc(100% - 40px));border:1px solid var(--border);border-radius:20px}.nav{grid-template-columns:repeat(4,1fr)}
 }
+
+.mcp-card{padding:16px;display:flex;flex-direction:column;gap:12px}
+.mcp-row{display:flex;gap:8px}
+.mcp-row input{flex:1;min-width:0;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:12px;padding:11px 12px;font:inherit;font-size:13px}
+.mcp-btn{border:0;border-radius:12px;padding:0 16px;min-height:42px;background:var(--accent);color:#fff;font:inherit;font-size:13px;font-weight:800;cursor:pointer}
+.mcp-btn.ghost{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.mcp-btn.danger{background:transparent;color:var(--danger);border:1px solid var(--border);min-height:34px;padding:0 12px;font-size:12px}
+.mcp-btn:disabled{opacity:.55;cursor:default}
+.mcp-new{background:var(--surface2);border:1px solid var(--accent);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.mcp-new[hidden]{display:none}
+.mcp-url{direction:ltr;text-align:left;word-break:break-all;font:12px/1.6 ui-monospace,Menlo,Consolas,monospace;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px}
+.mcp-key{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:var(--surface2)}
+.mcp-key .item-main{min-width:0}
+.mcp-key code{direction:ltr;unicode-bidi:embed;color:var(--muted)}
+.mcp-msg{font-size:12px;color:var(--muted);line-height:1.7}.mcp-msg.err{color:var(--danger)}
 </style>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style id="mbh-unified-system">
 :root{--mbh-bg:#0b0d12;--mbh-surface:#12151c;--mbh-surface2:#181c24;--mbh-border:#292f3a;--mbh-text:#f5f7fa;--mbh-muted:#9ca5b3;--mbh-accent:#7c5cff;--mbh-accent2:#9a84ff;--mbh-nav-bg:rgba(11,13,18,.96)}
 html[data-theme="light"]{--mbh-bg:#f3f5f8;--mbh-surface:#ffffff;--mbh-surface2:#eef1f5;--mbh-border:#d9dee7;--mbh-text:#171a20;--mbh-muted:#687180;--mbh-accent:#6047d8;--mbh-accent2:#7057e8;--mbh-nav-bg:rgba(255,255,255,.96)}
@@ -84,6 +99,26 @@ html[data-theme="light"] body{background:var(--mbh-bg)!important}
     <a class="item" href="insights.html"><span class="icon">⌁</span><div class="item-main"><div class="item-title">التحليلات والرسوم البيانية</div><div class="item-sub">قراءة الاتجاهات ومؤشرات الأداء</div></div><span class="chev">‹</span></a>
   </div>
 
+  <div class="section">الربط مع Claude وChatGPT (MCP)</div>
+  <div class="card mcp-card">
+    <div>
+      <div class="item-title">رابط MCP الخاص بحسابك</div>
+      <div class="item-sub">للقراءة فقط. يتصل Claude أو ChatGPT بالموقع، والموقع هو من يقرأ أرقام Meta وGoogle وTikTok وShopify وEasyOrders. لا اتصال مباشر بالمنصات ولا تنفيذ لأي إجراء.</div>
+    </div>
+    <div class="mcp-row">
+      <input id="mcpName" type="text" maxlength="60" placeholder="اسم الرابط، مثال: Claude" aria-label="اسم الرابط">
+      <button class="mcp-btn" id="mcpCreate" type="button">إنشاء رابط</button>
+    </div>
+    <div class="mcp-new" id="mcpNew" hidden>
+      <div class="item-title">رابطك الجديد</div>
+      <div class="mcp-url" id="mcpUrl"></div>
+      <button class="mcp-btn ghost" id="mcpCopy" type="button">نسخ الرابط</button>
+      <div class="item-sub">يظهر هذا الرابط مرة واحدة فقط ولا يمكن استرجاعه لاحقاً. الصقه في إضافة موصل مخصص (Custom Connector) داخل Claude أو ChatGPT. شارك الرابط مع الأداة التي تثق بها فقط، ويمكنك إلغاؤه في أي وقت.</div>
+    </div>
+    <div id="mcpList"></div>
+    <div class="mcp-msg" id="mcpMsg"></div>
+  </div>
+
   <div class="section">المظهر</div>
   <div class="card">
     <div class="theme-grid">
@@ -96,16 +131,6 @@ html[data-theme="light"] body{background:var(--mbh-bg)!important}
   <div class="section">الدعم</div>
   <div class="card">
     <a class="item" href="https://wa.me/201108712091" target="_blank" rel="noopener"><span class="icon">?</span><div class="item-main"><div class="item-title">الدعم والشكاوى</div><div class="item-sub">التواصل مع فريق الدعم وإرسال مشكلة أو ملاحظة</div></div><span class="chev">‹</span></a>
-  </div>
-
-  <div class="section">الجلسة</div>
-  <div class="card">
-    <button class="item" id="switchBtn" style="width:100%;border:0;background:transparent;color:inherit;text-align:right;cursor:pointer;font:inherit">
-      <span class="icon">⇄</span><div class="item-main"><div class="item-title">تبديل الحساب</div><div class="item-sub">الخروج من الحساب الحالي والدخول بحساب آخر</div></div><span class="chev">‹</span>
-    </button>
-    <button class="item" id="logoutBtn" style="width:100%;border:0;background:transparent;color:var(--danger);text-align:right;cursor:pointer;font:inherit">
-      <span class="icon" style="color:var(--danger)">⏻</span><div class="item-main"><div class="item-title">تسجيل الخروج</div><div class="item-sub">إنهاء الجلسة على هذا الجهاز</div></div><span class="chev">‹</span>
-    </button>
   </div>
 
   <div class="section">اللغة</div>
@@ -128,15 +153,6 @@ function applyTheme(v){
 }
 document.querySelectorAll('.theme').forEach(x=>x.onclick=()=>applyTheme(x.dataset.theme));
 applyTheme(localStorage.getItem(key)||'dark');
-const sbClient=supabase.createClient('https://zphepebjpxrzpudncuas.supabase.co','sb_publishable_tIG9XDZeHVZpZjz74e-dBA_ui5GIYw7');
-async function leave(btn){
-  if(btn.dataset.busy) return;
-  btn.dataset.busy='1'; btn.style.opacity='.6';
-  try{ await sbClient.auth.signOut({scope:'local'}); }catch(e){}
-  window.location.replace('index.html');
-}
-document.getElementById('logoutBtn').onclick=e=>leave(e.currentTarget);
-document.getElementById('switchBtn').onclick=e=>leave(e.currentTarget);
 document.getElementById('langBtn').onclick=()=>{
   const cur=localStorage.getItem('mbh_lang')||'ar';
   const next=cur==='ar'?'en':'ar';
@@ -144,6 +160,65 @@ document.getElementById('langBtn').onclick=()=>{
   document.getElementById('langText').textContent=next==='ar'?'العربية':'English';
 };
 document.getElementById('langText').textContent=(localStorage.getItem('mbh_lang')||'ar')==='ar'?'العربية':'English';
+</script>
+
+<script id="mbh-mcp-js">
+(function(){
+  const SB_URL='https://zphepebjpxrzpudncuas.supabase.co';
+  const MCP_URL=SB_URL+'/functions/v1/mcp';
+  const sb=supabase.createClient(SB_URL,'sb_publishable_tIG9XDZeHVZpZjz74e-dBA_ui5GIYw7');
+  const $=id=>document.getElementById(id);
+  const msg=(t,err)=>{const m=$('mcpMsg');m.textContent=t||'';m.className='mcp-msg'+(err?' err':'')};
+  async function errText(error){
+    try{const b=await error.context.json();if(b&&b.error==='limit_reached')return 'وصلت للحد الأقصى (5 روابط فعّالة). ألغِ رابطاً قديماً أولاً.'}catch(e){}
+    return 'تعذّر تنفيذ الطلب. حاول مرة أخرى.';
+  }
+  function fmt(d){try{return new Date(d).toLocaleString('ar-EG',{dateStyle:'medium',timeStyle:'short'})}catch(e){return ''}}
+  async function load(){
+    const list=$('mcpList');list.textContent='';
+    const {data:s}=await sb.auth.getSession();
+    if(!s||!s.session){msg('سجّل الدخول أولاً لإدارة روابط MCP.',true);$('mcpCreate').disabled=true;return}
+    $('mcpCreate').disabled=false;
+    const {data,error}=await sb.from('mcp_keys').select('id,name,key_prefix,created_at,last_used_at').is('revoked_at',null).order('created_at',{ascending:false});
+    if(error){msg('تعذّر تحميل الروابط.',true);return}
+    msg((data||[]).length?'':'لا توجد روابط فعّالة بعد.');
+    (data||[]).forEach(k=>{
+      const row=document.createElement('div');row.className='mcp-key';
+      const main=document.createElement('div');main.className='item-main';
+      const t=document.createElement('div');t.className='item-title';t.textContent=k.name||'AI';
+      const sub=document.createElement('div');sub.className='item-sub';
+      const code=document.createElement('code');code.textContent=k.key_prefix+'…';
+      sub.append(code,document.createTextNode(' · '+(k.last_used_at?'آخر استخدام: '+fmt(k.last_used_at):'لم يُستخدم بعد')));
+      main.append(t,sub);
+      const b=document.createElement('button');b.type='button';b.className='mcp-btn danger';b.textContent='إلغاء';
+      b.onclick=async()=>{
+        if(!confirm('سيتوقف هذا الرابط عن العمل فوراً. هل تريد المتابعة؟'))return;
+        b.disabled=true;
+        const {error}=await sb.functions.invoke('mcp-key',{body:{action:'revoke',id:k.id}});
+        if(error){msg(await errText(error),true);b.disabled=false;return}
+        load();
+      };
+      row.append(main,b);list.append(row);
+    });
+  }
+  $('mcpCreate').onclick=async()=>{
+    const btn=$('mcpCreate');btn.disabled=true;msg('');
+    const name=$('mcpName').value.trim()||'AI';
+    const {data,error}=await sb.functions.invoke('mcp-key',{body:{action:'create',name}});
+    btn.disabled=false;
+    if(error||!data||!data.key){msg(error?await errText(error):'تعذّر إنشاء الرابط.',true);return}
+    $('mcpUrl').textContent=MCP_URL+'?key='+data.key;
+    $('mcpNew').hidden=false;$('mcpName').value='';
+    load();
+  };
+  $('mcpCopy').onclick=async()=>{
+    const t=$('mcpUrl').textContent;
+    try{await navigator.clipboard.writeText(t);$('mcpCopy').textContent='تم النسخ'}
+    catch(e){const r=document.createRange();r.selectNodeContents($('mcpUrl'));const s=getSelection();s.removeAllRanges();s.addRange(r);$('mcpCopy').textContent='حدّد الرابط وانسخه يدوياً'}
+    setTimeout(()=>{$('mcpCopy').textContent='نسخ الرابط'},2500);
+  };
+  load();
+})();
 </script>
 <nav class="mbh-unified-nav" aria-label="التنقل الرئيسي">
   <a data-page="home" href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span data-nav="home">الرئيسية</span></a>
