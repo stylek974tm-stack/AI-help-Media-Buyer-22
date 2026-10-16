@@ -2216,8 +2216,8 @@ init();
 <script id="mbh-unified-system-js">
 (function(){
   const THEME_KEY='mbh_theme', LANG_KEY='mbh_lang';
-  let theme=localStorage.getItem(THEME_KEY)||'dark';
-  if(!['dark','light','system'].includes(theme)) theme='dark';
+  let theme=localStorage.getItem(THEME_KEY)||'light';
+  if(!['dark','light','system'].includes(theme)) theme='light';
   function applyTheme(){
     const effective=theme==='system'?(matchMedia('(prefers-color-scheme:light)').matches?'light':'dark'):theme;
     document.documentElement.dataset.theme=effective;
@@ -2226,13 +2226,13 @@ init();
   applyTheme();
   if(theme==='system') matchMedia('(prefers-color-scheme:light)').addEventListener('change',applyTheme);
   const page=(location.pathname.split('/').pop()||'dashboard.html').toLowerCase();
-  const current=page==='automation-rules.html'?'automation':page==='insights.html'?'insights':page==='settings.html'?'settings':'home';
+  const current=page==='insights.html'?'insights':page==='settings.html'?'settings':'home';
   document.querySelectorAll('.mbh-unified-nav a').forEach(a=>{
     a.classList.toggle('active',a.dataset.page===current);
     if(a.dataset.page===current) a.setAttribute('aria-current','page');
   });
   const lang=(localStorage.getItem(LANG_KEY)||'ar').toLowerCase().startsWith('en')?'en':'ar';
-  const labels={ar:{home:'الرئيسية',automation:'الأتمتة',insights:'التحليلات',settings:'الإعدادات'},en:{home:'Home',automation:'Automation',insights:'Insights',settings:'Settings'}};
+  const labels={ar:{home:'الرئيسية',insights:'التحليلات',settings:'الإعدادات'},en:{home:'Home',insights:'Insights',settings:'Settings'}};
   document.querySelectorAll('[data-nav]').forEach(el=>el.textContent=labels[lang][el.dataset.nav]);
   document.documentElement.lang=lang;
   document.documentElement.dir=lang==='ar'?'rtl':'ltr';
@@ -2729,7 +2729,33 @@ nav.mbh-unified-nav a.active{background:#fff!important;color:#111!important;box-
 .mbh-fbar .mbh-ftoggle{background:var(--surface)!important;border:1px solid var(--border)!important;border-radius:12px;font-size:13px}
 .mbh-fbody{padding:12px!important;border:1px solid var(--border)!important;border-radius:14px!important;background:var(--surface)!important}
 .top-status{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 12px}.top-status:empty{display:none}
-</style></body>
+</style><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style id="mbh-light-clean">
+html[data-theme="light"]:not(#_){--bg:#F7F5F0;--bg-soft:#F1EEE7;--surface:#fff;--surface-2:#F1EEE7;--surface-3:#ECE8DF;--border:#E2DED5;--border-soft:#E9E5DC;--text:#16181D;--text-dim:#7A766C;--text-faint:#A39E92;--accent:#2446E8;--accent-2:#2446E8;--glow:rgba(36,70,232,.12);--radius:18px;--panel:#fff;--panel2:#F1EEE7;--mbh-accent:#2446E8;--mbh-accent2:#2446E8;--font-ui:'IBM Plex Sans Arabic','Cairo',system-ui,sans-serif}
+html[data-theme="light"]:not(#_) body{background:#F7F5F0!important;color:#16181D!important;font-family:var(--font-ui)!important}
+html[data-theme="light"]:not(#_) .topbar{background:rgba(247,245,240,.92)!important;border-bottom:1px solid #E2DED5!important;box-shadow:none!important}
+html[data-theme="light"]:not(#_) .page-head h1{font-size:clamp(28px,6vw,36px)!important;font-weight:700!important;line-height:1.15!important;color:#16181D!important}
+html[data-theme="light"]:not(#_) .page-head p,html[data-theme="light"]:not(#_) .top-status,html[data-theme="light"]:not(#_) .filter-group label,html[data-theme="light"]:not(#_) .summary-box .lbl,html[data-theme="light"]:not(#_) .ad-sub,html[data-theme="light"]:not(#_) .note{color:#7A766C!important}
+html[data-theme="light"]:not(#_) .section-title{font-size:13px!important;font-weight:700!important;color:#7A766C!important}
+html[data-theme="light"]:not(#_) .section-line{background:linear-gradient(90deg,#E2DED5,transparent)!important}
+html[data-theme="light"]:not(#_) .summary-box,html[data-theme="light"]:not(#_) .ad-card,html[data-theme="light"]:not(#_) .ad-card.v2,html[data-theme="light"]:not(#_) .wallets-card,html[data-theme="light"]:not(#_) .goal-card,html[data-theme="light"]:not(#_) .hours-card,html[data-theme="light"]:not(#_) .forecast-card,html[data-theme="light"]:not(#_) .camp-row,html[data-theme="light"]:not(#_) .analysis-box,html[data-theme="light"]:not(#_) .analysis-tile,html[data-theme="light"]:not(#_) .metric-box,html[data-theme="light"]:not(#_) .ai-block,html[data-theme="light"]:not(#_) .ai-item,html[data-theme="light"]:not(#_) .decision-item,html[data-theme="light"]:not(#_) .inbox-stat,html[data-theme="light"]:not(#_) .wallet-box,html[data-theme="light"]:not(#_) .filters-bar,html[data-theme="light"]:not(#_) .mbh-fbody{background:#fff!important;border:1px solid #E2DED5!important;color:#16181D!important;box-shadow:none!important}
+html[data-theme="light"]:not(#_) .summary-box,html[data-theme="light"]:not(#_) .ad-card,html[data-theme="light"]:not(#_) .ad-card.v2{border-radius:18px!important}
+html[data-theme="light"]:not(#_) .v2-main>div,html[data-theme="light"]:not(#_) .chip{background:#F1EEE7!important;border-color:#E9E5DC!important}
+html[data-theme="light"]:not(#_) .filter-group select,html[data-theme="light"]:not(#_) .filter-group input,html[data-theme="light"]:not(#_) .modal input,html[data-theme="light"]:not(#_) .modal select,html[data-theme="light"]:not(#_) .goal-card input{background:#fff!important;color:#16181D!important;border:1px solid #E2DED5!important;border-radius:12px!important}
+html[data-theme="light"]:not(#_) .btn,html[data-theme="light"]:not(#_) .icon-btn,html[data-theme="light"]:not(#_) .mini-btn{background:#fff!important;color:#16181D!important;border-color:#E2DED5!important}
+html[data-theme="light"]:not(#_) .btn.primary,html[data-theme="light"]:not(#_) .hero-btn.primary{background:#2446E8!important;color:#fff!important;border-color:#2446E8!important}
+html[data-theme="light"]:not(#_) .goal-progress{background:#ECE8DF!important}
+html[data-theme="light"]:not(#_) .goal-progress-fill{background:#2446E8!important}
+html body nav.mbh-unified-nav:not(#_){position:fixed!important;z-index:1300!important;left:50%!important;right:auto!important;top:auto!important;bottom:calc(14px + env(safe-area-inset-bottom))!important;transform:translateX(-50%)!important;width:max-content!important;max-width:calc(100% - 28px)!important;display:flex!important;flex-direction:row!important;gap:4px!important;padding:6px!important;border-radius:32px!important;background:var(--mbh-surface,var(--surface,#fff))!important;border:1px solid var(--mbh-border,var(--border))!important;box-shadow:0 8px 24px rgba(0,0,0,.18)!important;backdrop-filter:none!important}
+html body nav.mbh-unified-nav:not(#_) a{min-width:0!important;min-height:0!important;height:48px!important;padding:0 14px!important;border-radius:24px!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:8px!important;color:var(--mbh-muted,#8A8578)!important;background:transparent!important;box-shadow:none!important;font:600 14px/1 var(--font-ui,system-ui)!important}
+html body nav.mbh-unified-nav:not(#_) a span{display:none!important}
+html body nav.mbh-unified-nav:not(#_) a svg{width:22px!important;height:22px!important}
+html body nav.mbh-unified-nav:not(#_) a.active{background:var(--mbh-accent,#2446E8)!important;color:#fff!important;padding:0 18px!important}
+html body nav.mbh-unified-nav:not(#_) a.active span{display:inline!important}
+html body .content:not(#_){padding-bottom:calc(100px + env(safe-area-inset-bottom))!important}
+@media(min-width:1000px){html body .content:not(#_){padding-right:clamp(14px,3vw,32px)!important}}
+</style>
+</body>
 </html>
 
 <style id="final-polish-v3">
@@ -3036,7 +3062,7 @@ setTimeout(()=>{if((DATA.campaigns||[]).length || (DATA.ads||[]).length){renderA
   const THEME_KEY='mbh_theme';
   const dictionaries={
     'العربية':'Arabic','English':'English','داكن':'Dark','فاتح':'Light','النظام':'System',
-    'مركز الربح':'Profit Center','تحليل البيانات':'Analytics','الرسوم البيانية':'Insights','قواعد الأتمتة':'Automation Rules','أداء الموظفين':'Team Performance','الاشتراك والدفع':'Subscription & Billing','التسعير':'Pricing','تثبيت التطبيق':'Install App','الدعم':'Support','الإعدادات':'Settings','ربط الحسابات الإعلانية':'Ad Accounts','تسجيل خروج':'Log out',
+    'مركز الربح':'Profit Center','تحليل البيانات':'Analytics','الرسوم البيانية':'Insights','أداء الموظفين':'Team Performance','الاشتراك والدفع':'Subscription & Billing','التسعير':'Pricing','تثبيت التطبيق':'Install App','الدعم':'Support','الإعدادات':'Settings','ربط الحسابات الإعلانية':'Ad Accounts','تسجيل خروج':'Log out',
     'الفترة':'Period','من':'From','إلى':'To','المنصة':'Platform','الحساب':'Account','المستوى':'Level','الكل':'All','كل الحسابات':'All accounts','اليوم':'Today','أمس':'Yesterday','آخر 7 أيام':'Last 7 days','آخر 14 يوم':'Last 14 days','آخر 30 يوم':'Last 30 days','آخر 3 أيام':'Last 3 days','مخصص':'Custom','إعلانات بس':'Ads only','حملات بس':'Campaigns only','حساب إعلاني بس':'Ad account only',
     'Facebook / Meta':'Facebook / Meta','تيك توك':'TikTok','تحليل تلقائي':'Automatic analysis','جارٍ تحميل البيانات...':'Loading metrics...','مشاكل الحملات':'Campaign issues','إغلاق':'Close','إلغاء':'Cancel','حفظ':'Save','نفّذ على فيسبوك':'Apply on Facebook','تثبيت الآن':'Install now','لاحقًا':'Later','تثبيت AI Media Buyer':'Install AI Media Buyer','الدعم والشكاوى':'Support & complaints','مشكلة/اقتراح على Media Buyer Hub:':'Problem/suggestion on Media Buyer Hub:',
     'الإنفاق':'Spend','الإيراد':'Revenue','الربح':'Profit','الميزانية/يوم':'Daily budget','عدد المبيعات':'Purchases','متوسط CTR':'Average CTR','متوسط CPM':'Average CPM','متوسط CPC':'Average CPC','جودة العميل (معدل التحويل)':'Customer quality (conversion rate)','المتبقي (تقديري)':'Remaining (estimated)','الظهور':'Impressions','الزوار':'Visitors','السلة':'Cart','المشتريات':'Purchases','التحويل':'Conversion rate','النقرات':'Clicks','المبيعات':'Sales','تكلفة الشراء':'Cost per purchase','معدل التحويل':'Conversion rate','ملخص الحساب':'Account summary','تحليل الحساب بالكامل':'Full account analysis','يتغير حسب الفترة والحساب المختار':'Changes with the selected period and account',
@@ -3045,12 +3071,12 @@ setTimeout(()=>{if((DATA.campaigns||[]).length || (DATA.ads||[]).length){renderA
     'جاري التحميل...':'Loading...','تعذر تحميل البيانات':'Could not load data','لا توجد بيانات للفترة المحددة':'No data for the selected period','لا يوجد بيانات ظهرت حتى الآن في الفترة دي':'No data has appeared for this period yet','وسّع الفترة الزمنية أو تأكد إن الحساب فيه حملات شغالة.':'Expand the period or make sure the account has active campaigns.',
     'إعدادات حساب الربح':'Profit settings','تكلفة المنتج (% من سعر البيع)':'Product cost (% of sale price)','تكلفة الشحن لكل طلب ($)':'Shipping cost per order ($)','عمولة بوابة الدفع (%)':'Payment gateway fee (%)','البيانات دي بتتخزن على جهازك بس':'These settings are stored only on this device','لا يوجد':'No','أدخل بيانات تكلفة المنتج والشحن':'Add product and shipping costs','عشان تشوف صافي ربحك الحقيقي':'to see your net profit',
     'تثبيت التطبيق':'Install app','هيبقى أيقونة على شاشتك زي أي تطبيق عادي':'It will appear on your home screen like a normal app',
-    'الإعدادات':'Settings','الاشتراك':'Subscription','الحسابات والربط':'Accounts & connections','الرئيسية':'Home','قواعد الأتمتة':'Automation Rules','التحليل':'Analytics'
+    'الإعدادات':'Settings','الاشتراك':'Subscription','الحسابات والربط':'Accounts & connections','الرئيسية':'Home','التحليل':'Analytics'
   };
   const LANG_KEY='mbh_lang';
   let translating=false;
   function applyTheme(){
-    let v=localStorage.getItem(THEME_KEY)||'dark';
+    let v=localStorage.getItem(THEME_KEY)||'light';
     if(!['dark','light','system'].includes(v)) v='dark';
     document.documentElement.dataset.theme=v;
   }
@@ -3076,6 +3102,6 @@ setTimeout(()=>{if((DATA.campaigns||[]).length || (DATA.ads||[]).length){renderA
   const observer=new MutationObserver(()=>{if(!translating) applyLang();});
   observer.observe(document.body,{subtree:true,childList:true});
   window.addEventListener('storage',e=>{if(e.key===THEME_KEY)applyTheme();});
-  if(window.matchMedia){window.matchMedia('(prefers-color-scheme: light)').addEventListener?.('change',()=>{if((localStorage.getItem(THEME_KEY)||'dark')==='system')applyTheme();});}
+  if(window.matchMedia){window.matchMedia('(prefers-color-scheme: light)').addEventListener?.('change',()=>{if((localStorage.getItem(THEME_KEY)||'light')==='system')applyTheme();});}
 })();
 </script>
