@@ -2,19 +2,24 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>(function(){var d=document.documentElement;d.dataset.theme="light";try{new MutationObserver(function(){if(d.dataset.theme!=="light")d.dataset.theme="light"}).observe(d,{attributes:true,attributeFilter:["data-theme"]})}catch(e){}})()</script>
+<meta name="theme-color" content="#F7F5F0">
 <title>المتجر</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
-    --bg:#0d0e12;
-    --panel:#15161c;
-    --panel-2:#1c1e26;
-    --line:#2a2c36;
-    --text:#eeeef2;
-    --muted:#8d8fa0;
+    --bg:#FFFFFF;
+    --panel:#F7F5F0;
+    --panel-2:#F7F5F0;
+    --line:#F1EEE7;
+    --text:#16181D;
+    --muted:#7A766C;
     --accent:#7c5cfc;
     --accent-2:#ffb020;
     --danger:#ff5470;
@@ -30,7 +35,7 @@
   }
   header{
     position:sticky; top:0; z-index:20;
-    background:rgba(13,14,18,.92); backdrop-filter:blur(10px);
+    background:rgba(255,255,255,0.92); backdrop-filter:blur(10px);
     border-bottom:1px solid var(--line);
     padding:calc(16px + env(safe-area-inset-top,0)) 18px 14px;
   }
@@ -55,11 +60,11 @@
     padding:16px; display:flex; flex-direction:column; gap:10px; position:relative; overflow:hidden;
     transition:border-color .15s;
   }
-  .card:hover{border-color:#3a3d4a}
+  .card:hover{border-color:#E2DED5}
   .card{cursor:pointer}
   .lock-badge{
     position:absolute; top:12px; left:12px; width:26px; height:26px; border-radius:50%;
-    background:rgba(0,0,0,.55); display:flex; align-items:center; justify-content:center; z-index:2;
+    background:rgba(255,255,255,0.55); display:flex; align-items:center; justify-content:center; z-index:2;
   }
   .card-top{display:flex;align-items:center;gap:10px}
   .card-top img{width:52px;height:52px;border-radius:13px;object-fit:cover;background:var(--panel-2);flex-shrink:0}
@@ -76,7 +81,7 @@
   .price .old{color:var(--muted);text-decoration:line-through;font-size:11px;margin-left:5px}
   .btn-install{
     font-family:'Cairo',sans-serif; font-weight:700; font-size:13px; border:none; border-radius:9px;
-    padding:9px 16px; cursor:pointer; background:var(--accent); color:#fff; white-space:nowrap;
+    padding:9px 16px; cursor:pointer; background:var(--accent); color:#16181D; white-space:nowrap;
   }
   .btn-install.owned{background:var(--good)}
   .btn-install:hover{filter:brightness(1.08)}
@@ -91,7 +96,7 @@
 
   /* Modal */
   .overlay{
-    position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(3px);
+    position:fixed;inset:0;background:rgba(255,255,255,0.6);backdrop-filter:blur(3px);
     display:none;align-items:flex-end;justify-content:center;z-index:100;
   }
   .overlay.active{display:flex}
@@ -117,11 +122,11 @@
   .copy-btn{background:transparent;border:1px solid var(--line);color:var(--text);border-radius:7px;padding:5px 10px;font-size:11.5px;cursor:pointer}
   .sheet-actions{display:flex;gap:10px}
   .sheet-actions button{flex:1;font-family:'Cairo',sans-serif;font-weight:700;font-size:14px;border-radius:10px;padding:13px;cursor:pointer;border:none}
-  .btn-confirm{background:var(--accent);color:#fff}
+  .btn-confirm{background:var(--accent);color:#16181D}
   .btn-cancel{background:transparent;border:1px solid var(--line);color:var(--text)}
 
   /* App viewer */
-  .viewer{position:fixed;inset:0;background:#000;z-index:200;display:none;flex-direction:column}
+  .viewer{position:fixed;inset:0;background:#FFFFFF;z-index:200;display:none;flex-direction:column}
   .viewer.active{display:flex}
   .viewer-bar{
     display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0)) 14px 10px;
@@ -129,29 +134,71 @@
   }
   .viewer-bar button{background:var(--panel-2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px 12px;font-family:'Cairo',sans-serif;font-size:13px;cursor:pointer}
   .viewer-bar span{font-size:13.5px;font-weight:700}
-  .viewer iframe{flex:1;border:none;width:100%;background:#fff}
+  .viewer iframe{flex:1;border:none;width:100%;background:#16181D}
 
 /* MBH SECURITY + SMART STORE THEME */
 :root{
-  --bg:#000;--panel:#0d0d0d;--panel-2:#151515;--line:#272727;
-  --text:#f5f5f5;--muted:#9b9b9b;--accent:#fff;--accent-2:#d7d7d7;
-  --danger:#fff;--good:#fff;
+  --bg:#FFFFFF;--panel:#FFFFFF;--panel-2:#F7F5F0;--line:#F1EEE7;
+  --text:#16181D;--muted:#4A473F;--accent:#16181D;--accent-2:#16181D;
+  --danger:#16181D;--good:#16181D;
 }
 body{min-height:100dvh;overscroll-behavior-y:none}
 button,input{touch-action:manipulation}
-.btn-install,.btn-confirm{background:#fff!important;color:#000!important}
-.btn-install.owned{background:#fff!important;color:#000!important}
-.status-banner.error,.status-banner.warn{background:#101010;border-color:#444;color:#fff}
+.btn-install,.btn-confirm{background:#16181D!important;color:#FFFFFF!important}
+.btn-install.owned{background:#16181D!important;color:#FFFFFF!important}
+.status-banner.error,.status-banner.warn{background:#FFFFFF;border-color:#E2DED5;color:#16181D}
 .payment-security{font-size:12px;color:var(--muted);line-height:1.7;margin:0 0 12px}
 .payment-security strong{color:var(--text)}
 .form-field{display:flex;flex-direction:column;gap:6px;margin-bottom:11px}
 .form-field label{font-size:12px;color:var(--muted);font-weight:600}
-.form-field input{width:100%;background:#0a0a0a;border:1px solid var(--line);border-radius:10px;padding:11px 12px;color:var(--text);font-family:'Cairo',sans-serif;font-size:13px;outline:none}
-.form-field input:focus{border-color:#777}
+.form-field input{width:100%;background:#FFFFFF;border:1px solid var(--line);border-radius:10px;padding:11px 12px;color:var(--text);font-family:'Cairo',sans-serif;font-size:13px;outline:none}
+.form-field input:focus{border-color:#7A766C}
 .form-field input[readonly]{opacity:.8}
-.pending-badge{display:inline-flex;align-items:center;gap:6px;border:1px solid #3a3a3a;background:#111;border-radius:999px;padding:5px 9px;font-size:11px;color:#ddd;margin-top:6px}
+.pending-badge{display:inline-flex;align-items:center;gap:6px;border:1px solid #E2DED5;background:#FFFFFF;border-radius:999px;padding:5px 9px;font-size:11px;color:#16181D;margin-top:6px}
 #payConfirmBtn:disabled{opacity:.45;cursor:not-allowed}
 </style>
+<style id="mbh-light-clean-store">
+html[data-theme="light"]{--bg:#F7F5F0;--panel:#fff;--panel-2:#F1EEE7;--line:#E2DED5;--text:#16181D;--muted:#7A766C;--accent:#2446E8;--accent-2:#7A766C;--danger:#B42318;--good:#1B6B3A;--mono:'IBM Plex Sans Arabic','Cairo',sans-serif}
+html[data-theme="light"] body{background:#F7F5F0;color:#16181D;font-family:'IBM Plex Sans Arabic','Cairo',sans-serif}
+html[data-theme="light"] header{background:rgba(247,245,240,.94);backdrop-filter:none;border-bottom:0}
+html[data-theme="light"] .headtop h1{font-size:32px;font-weight:700;line-height:1.1}
+html[data-theme="light"] #logoutBtn{background:transparent!important;border:0!important;color:#7A766C!important;font-weight:600!important}
+html[data-theme="light"] .searchbar input{background:#fff;border:1px solid #E2DED5;border-radius:14px;min-height:48px;font-family:inherit}
+html[data-theme="light"] .searchbar input:focus{border-color:#2446E8}
+html[data-theme="light"] .searchbar svg{opacity:1;color:#7A766C}
+html[data-theme="light"] .grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+html[data-theme="light"] .card{background:#fff;border:1px solid #E2DED5;border-radius:18px;padding:14px;gap:10px;box-shadow:none}
+html[data-theme="light"] .card:hover{border-color:#E2DED5}
+html[data-theme="light"] .card-top{flex-direction:column;align-items:flex-start;gap:10px}
+html[data-theme="light"] .card-top img,html[data-theme="light"] .card-top .noimg{width:48px;height:48px;border-radius:14px;background:#ECE8DF}
+html[data-theme="light"] .card-name{font-size:14.5px}
+html[data-theme="light"] .card-rating{color:#7A766C;font-family:inherit}
+html[data-theme="light"] .card-desc,html[data-theme="light"] .card .card-update{display:none}
+html[data-theme="light"] .lock-badge{background:#ECE8DF;color:#16181D}
+html[data-theme="light"] .card-bottom{flex-direction:column;align-items:stretch;gap:8px}
+html[data-theme="light"] .price{font-family:inherit;font-size:13px;font-weight:700;color:#16181D}
+html[data-theme="light"] .price.free{color:#1B6B3A}
+html[data-theme="light"] .btn-install{background:#2446E8!important;color:#fff!important;width:100%;min-height:44px;border-radius:12px;font-family:inherit}
+html[data-theme="light"] .btn-install.owned{background:#fff!important;color:#16181D!important;border:1px solid #E2DED5}
+html[data-theme="light"] .status-banner.error{background:#FBE6E4;border-color:#F0BDB8;color:#B42318}
+html[data-theme="light"] .status-banner.warn{background:#FFF1D6;border-color:#F0D9A0;color:#6B4600}
+html[data-theme="light"] .overlay{background:rgba(22,24,29,.35);backdrop-filter:none}
+html[data-theme="light"] .sheet{background:#fff;border:0;border-radius:24px 24px 0 0}
+html[data-theme="light"] .sheet h3{font-size:19px;font-weight:700}
+html[data-theme="light"] .pay-box{background:#F7F5F0;border:1px solid #E2DED5;border-radius:14px}
+html[data-theme="light"] .pay-row .val{font-family:inherit;font-weight:700}
+html[data-theme="light"] .copy-btn{min-height:44px;padding:0 14px;border-radius:10px;background:#fff;border:1px solid #E2DED5;color:#16181D;font-weight:700}
+html[data-theme="light"] .form-field input{background:#F7F5F0;border:1px solid #E2DED5;border-radius:12px;min-height:46px;color:#16181D;font-family:inherit}
+html[data-theme="light"] .form-field input:focus{border-color:#2446E8}
+html[data-theme="light"] .sheet-actions button{min-height:48px;border-radius:12px;font-family:inherit}
+html[data-theme="light"] .btn-cancel{background:#fff;border:1px solid #E2DED5;color:#16181D}
+html[data-theme="light"] .btn-confirm{background:#2446E8!important;color:#fff!important}
+html[data-theme="light"] .card-update{background:#F7F5F0;color:#16181D}
+html[data-theme="light"] .payment-security{color:#7A766C}
+html[data-theme="light"] .viewer-bar{background:#fff;border-bottom:1px solid #E2DED5}
+html[data-theme="light"] .viewer-bar button{background:#fff;border:1px solid #E2DED5;color:#16181D}
+</style>
+<meta name="color-scheme" content="light">
 </head>
 <body>
 
@@ -177,7 +224,7 @@ button,input{touch-action:manipulation}
 <div class="overlay" id="loginGate" style="align-items:center">
   <div class="sheet" style="text-align:center;border-radius:18px">
     <h3>سجّل الدخول الأول</h3>
-    <p>لازم تكون مسجل دخول في حسابك عشان تقدر تشتري أو تفتح البرنامج ده.</p>
+    <p>سجّل دخولك عشان تشتري أو تفتح البرنامج.</p>
     <div class="sheet-actions">
       <button class="btn-cancel" id="loginGateCancelBtn" style="flex:1">إلغاء</button>
       <a href="index.html" style="flex:1;text-decoration:none" id="loginGateBtn">
@@ -191,7 +238,7 @@ button,input{touch-action:manipulation}
 <div class="overlay" id="payOverlay">
   <div class="sheet">
     <h3 id="payTitle">تفعيل البرنامج</h3>
-    <p>بعد التحويل، أدخل رقم الهاتف الذي تم التحويل منه. بعد تأكيد البيانات سيتم تفعيل البرنامج على حسابك.</p>
+    <p>حوّل المبلغ ثم اكتب بياناتك.</p>
     <div class="pay-box">
       <div class="pay-row">
         <span class="lbl" id="payMethodLbl">المحفظة</span>
@@ -205,7 +252,7 @@ button,input{touch-action:manipulation}
         </span>
       </div>
     </div>
-    <p class="payment-security"><strong>بيانات التفعيل:</strong> سيتم ربط عملية التفعيل بالبريد المرتبط بالحساب ورقم الهاتف الذي أدخلته. لا تشارك كلمة المرور أو رمز التحقق.</p>
+    <p class="payment-security">لا تشارك كلمة المرور أو رمز التحقق مع أحد.</p>
     <div class="form-field">
       <label for="payerEmail">البريد الإلكتروني للحساب</label>
       <input id="payerEmail" type="email" readonly autocomplete="email">
@@ -251,7 +298,7 @@ button,input{touch-action:manipulation}
 <div class="overlay" id="apkConfirmOverlay">
   <div class="sheet" style="text-align:center">
     <h3>هيتم تحميل البرنامج</h3>
-    <p>الملف هيتنزل على تليفونك دلوقتي. بعد ما ينزل، افتحه من الإشعارات أو من مجلد التنزيلات عشان تثبته على الجهاز.</p>
+    <p>الملف هيتنزل دلوقتي. افتحه بعد التحميل عشان تثبته.</p>
     <div class="sheet-actions">
       <button class="btn-cancel" id="apkCancelBtn">إلغاء</button>
       <button class="btn-confirm" id="apkConfirmBtn">تحميل الآن</button>
@@ -262,7 +309,7 @@ button,input{touch-action:manipulation}
 <!-- App viewer -->
 <div class="viewer" id="viewer">
   <div class="viewer-bar">
-    <button id="closeViewerBtn">إغلاق ✕</button>
+    <button id="closeViewerBtn">إغلاق</button>
     <span id="viewerTitle"></span>
   </div>
   <iframe id="viewerFrame"></iframe>
@@ -361,7 +408,7 @@ function renderGrid(list){
         ${safeHttpUrl(app.logo_url) ? `<img src="${escapeHtml(safeHttpUrl(app.logo_url))}" loading="lazy" referrerpolicy="no-referrer">` : `<div class="noimg"></div>`}
         <div>
           <div class="card-name">${escapeHtml(app.name)}</div>
-          ${app.rating ? `<div class="card-rating">${'★'.repeat(Math.round(app.rating))} ${app.rating}</div>` : ''}
+          ${app.rating ? `<div class="card-rating">★ ${app.rating}</div>` : ''}
         </div>
       </div>
       <div class="card-desc">${escapeHtml(app.description || "")}</div>
@@ -384,7 +431,7 @@ function openDetailSheet(app){
   const logo = document.getElementById('detailLogo');
   if(app.logo_url){ logo.src = app.logo_url; logo.style.display = ''; } else { logo.style.display = 'none'; }
   document.getElementById('detailName').textContent = app.name;
-  document.getElementById('detailRating').textContent = app.rating ? ('★'.repeat(Math.round(app.rating)) + ' ' + app.rating) : '';
+  document.getElementById('detailRating').textContent = app.rating ? ('★ ' + app.rating) : '';
   document.getElementById('detailDesc').textContent = app.description || '';
   const cl = document.getElementById('detailChangelog');
   if(app.changelog){ cl.style.display = 'block'; cl.innerHTML = '<b>جديد:</b> ' + escapeHtml(app.changelog); }
@@ -648,5 +695,8 @@ boot().catch(err => {
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',walk); else walk();
 })();
 </script>
+<style id="mbh-light-clean-fix">
+html[data-theme="light"]:not(#_) .viewer,html[data-theme="light"]:not(#_) .viewer iframe{background:#fff!important}
+</style>
 </body>
 </html>
