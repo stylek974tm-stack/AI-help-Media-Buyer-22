@@ -6,12 +6,13 @@
   
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b0d12">
+<meta name="theme-color" content="#F7F5F0">
+<script>(function(){var d=document.documentElement;d.dataset.theme="light";try{new MutationObserver(function(){if(d.dataset.theme!=="light")d.dataset.theme="light"}).observe(d,{attributes:true,attributeFilter:["data-theme"]})}catch(e){}})()</script>
 <title>الإعدادات — Media Buyer Hub</title>
 <style>
 :root{
-  --bg:#0b0d12;--surface:#12151c;--surface2:#181c24;--surface3:#20252f;
-  --border:#292f3a;--text:#f5f7fa;--muted:#9ca5b3;--accent:#7c5cff;
+  --bg:#FFFFFF;--surface:#F7F5F0;--surface2:#F7F5F0;--surface3:#F7F5F0;
+  --border:#F1EEE7;--text:#16181D;--muted:#4A473F;--accent:#7c5cff;
   --accent2:#9a84ff;--danger:#ef6262;--good:#45c98a;
   --radius:18px;--safe-top:env(safe-area-inset-top);--safe-bottom:env(safe-area-inset-bottom);
 }
@@ -28,14 +29,14 @@ a{text-decoration:none;color:inherit}
 .item:last-child{border-bottom:0}.item:hover{background:var(--surface2)}
 .icon{width:40px;height:40px;flex:0 0 40px;border-radius:13px;background:var(--surface2);display:grid;place-items:center;color:var(--accent2)}
 .icon svg{width:20px;height:20px}.item-main{min-width:0;flex:1}.item-title{font-weight:800;font-size:14px}.item-sub{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.5}
-.chev{color:#687181;font-size:20px}
-.account{padding:16px;background:linear-gradient(135deg,#171526,#12151c);display:flex;align-items:center;gap:12px}
+.chev{color:#A39E92;font-size:20px}
+.account{padding:16px;background:linear-gradient(135deg,#F7F5F0,#F7F5F0);display:flex;align-items:center;gap:12px}
 .account .big{width:50px;height:50px;border-radius:16px;background:var(--accent);display:grid;place-items:center;font-weight:900;font-size:18px}
-.badge{display:inline-flex;margin-top:6px;padding:3px 8px;border-radius:999px;background:#202a24;color:var(--good);font-size:10px;font-weight:800}
+.badge{display:inline-flex;margin-top:6px;padding:3px 8px;border-radius:999px;background:#F1EEE7;color:var(--good);font-size:10px;font-weight:800}
 .theme-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px}
 .theme{border:1px solid var(--border);background:var(--surface2);border-radius:14px;padding:12px 8px;text-align:center;font-size:11px;color:var(--muted);cursor:pointer}
-.theme.active{border-color:var(--accent);color:var(--text);box-shadow:0 0 0 1px var(--accent) inset}.theme-preview{height:28px;border-radius:8px;margin-bottom:8px;background:#0b0d12;border:1px solid #333}
-.theme.light .theme-preview{background:#f3f5f8}.theme.system .theme-preview{background:linear-gradient(90deg,#0b0d12 50%,#f3f5f8 50%)}
+.theme.active{border-color:var(--accent);color:var(--text);box-shadow:0 0 0 1px var(--accent) inset}.theme-preview{height:28px;border-radius:8px;margin-bottom:8px;background:#FFFFFF;border:1px solid #F1EEE7}
+.theme.light .theme-preview{background:#16181D}.theme.system .theme-preview{background:linear-gradient(90deg,#FFFFFF 50%,#16181D 50%)}
 .bottom{position:fixed;z-index:20;bottom:0;left:0;right:0;padding:8px 10px calc(8px + var(--safe-bottom));background:rgba(11,13,18,.94);backdrop-filter:blur(18px);border-top:1px solid var(--border)}
 .nav{width:min(620px,100%);margin:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
 .nav a{min-height:54px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#808a99;font-size:9px;font-weight:750}
@@ -47,7 +48,7 @@ a{text-decoration:none;color:inherit}
 .mcp-card{padding:16px;display:flex;flex-direction:column;gap:12px}
 .mcp-row{display:flex;gap:8px}
 .mcp-row input{flex:1;min-width:0;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:12px;padding:11px 12px;font:inherit;font-size:13px}
-.mcp-btn{border:0;border-radius:12px;padding:0 16px;min-height:42px;background:var(--accent);color:#fff;font:inherit;font-size:13px;font-weight:800;cursor:pointer}
+.mcp-btn{border:0;border-radius:12px;padding:0 16px;min-height:42px;background:var(--accent);color:#16181D;font:inherit;font-size:13px;font-weight:800;cursor:pointer}
 .mcp-btn.ghost{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
 .mcp-btn.danger{background:transparent;color:var(--danger);border:1px solid var(--border);min-height:34px;padding:0 12px;font-size:12px}
 .mcp-btn:disabled{opacity:.55;cursor:default}
@@ -61,7 +62,7 @@ a{text-decoration:none;color:inherit}
 </style>
 
 <style id="mbh-unified-system">
-:root{--mbh-bg:#0b0d12;--mbh-surface:#12151c;--mbh-surface2:#181c24;--mbh-border:#292f3a;--mbh-text:#f5f7fa;--mbh-muted:#9ca5b3;--mbh-accent:#7c5cff;--mbh-accent2:#9a84ff;--mbh-nav-bg:rgba(11,13,18,.96)}
+:root{--mbh-bg:#FFFFFF;--mbh-surface:#F7F5F0;--mbh-surface2:#F7F5F0;--mbh-border:#F1EEE7;--mbh-text:#16181D;--mbh-muted:#4A473F;--mbh-accent:#7c5cff;--mbh-accent2:#9a84ff;--mbh-nav-bg:rgba(255,255,255,0.96)}
 html[data-theme="light"]{--mbh-bg:#f3f5f8;--mbh-surface:#ffffff;--mbh-surface2:#eef1f5;--mbh-border:#d9dee7;--mbh-text:#171a20;--mbh-muted:#687180;--mbh-accent:#6047d8;--mbh-accent2:#7057e8;--mbh-nav-bg:rgba(255,255,255,.96)}
 html,body{color:var(--mbh-text)!important}
 .mbh-unified-nav{position:fixed!important;z-index:99999!important;left:50%!important;transform:translateX(-50%)!important;bottom:calc(14px + env(safe-area-inset-bottom))!important;width:max-content!important;max-width:calc(100% - 28px)!important;display:flex!important;gap:4px!important;padding:6px!important;background:var(--mbh-surface)!important;border:1px solid var(--mbh-border)!important;border-radius:32px!important;box-shadow:0 8px 24px rgba(0,0,0,.18)!important;direction:rtl!important}
@@ -77,11 +78,12 @@ html[data-theme="light"] body{background:var(--mbh-bg)!important}
 .card,.form-card,.rule-card,.chart-card,.filters,.summary-box,.section-card{border-color:var(--mbh-border)!important}
 </style>
 
+<meta name="color-scheme" content="light">
 </head>
 <body>
 <main class="app">
   <header class="header">
-    <div class="title"><h1>الإعدادات</h1><p>إدارة الحساب، الصفحات، المظهر والتفضيلات</p></div>
+    <div class="title"><h1>الإعدادات</h1><p>إدارة الحساب والصفحات والتفضيلات</p></div>
     <div class="avatar">MB</div>
   </header>
 
@@ -117,15 +119,6 @@ html[data-theme="light"] body{background:var(--mbh-bg)!important}
     </div>
     <div id="mcpList"></div>
     <div class="mcp-msg" id="mcpMsg"></div>
-  </div>
-
-  <div class="section">المظهر</div>
-  <div class="card">
-    <div class="theme-grid">
-      <button class="theme active" data-theme="dark"><div class="theme-preview"></div>داكن</button>
-      <button class="theme light" data-theme="light"><div class="theme-preview"></div>فاتح</button>
-      <button class="theme system" data-theme="system"><div class="theme-preview"></div>النظام</button>
-    </div>
   </div>
 
   <div class="section">الدعم</div>
@@ -229,8 +222,8 @@ document.getElementById('langText').textContent=(localStorage.getItem('mbh_lang'
 <script id="mbh-unified-system-js">
 (function(){
   const THEME_KEY='mbh_theme', LANG_KEY='mbh_lang';
-  let theme=localStorage.getItem(THEME_KEY)||'dark';
-  if(!['dark','light','system'].includes(theme)) theme='dark';
+  let theme=localStorage.getItem(THEME_KEY)||'light';
+  if(!['dark','light','system'].includes(theme)) theme='light';
   function applyTheme(){
     const effective=theme==='system'?(matchMedia('(prefers-color-scheme:light)').matches?'light':'dark'):theme;
     document.documentElement.dataset.theme=effective;
@@ -253,5 +246,8 @@ document.getElementById('langText').textContent=(localStorage.getItem('mbh_lang'
 })();
 </script>
 
+<style id="mbh-light-clean-fix">
+html[data-theme="light"]:not(#_) .bottom{background:#fff!important;border-color:#E2DED5!important}
+</style>
 </body>
 </html>
