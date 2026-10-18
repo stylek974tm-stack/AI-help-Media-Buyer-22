@@ -5,17 +5,20 @@
   
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>(function(){var d=document.documentElement;d.dataset.theme="light";try{new MutationObserver(function(){if(d.dataset.theme!=="light")d.dataset.theme="light"}).observe(d,{attributes:true,attributeFilter:["data-theme"]})}catch(e){}})()</script>
+<meta name="theme-color" content="#F7F5F0">
 <title>الاشتراك والدفع - Media Buyer Hub</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 
   :root{
-    --bg:#090b0f; --bg-soft:#0d1016;
-    --surface:#12151c; --surface-2:#171b24; --surface-3:#1c2029;
-    --border:#20242e; --border-soft:#191c24;
-    --text:#eef1f6; --text-dim:#98a2b3; --text-faint:#5c6474;
+    --bg:#FFFFFF; --bg-soft:#FFFFFF;
+    --surface:#F7F5F0; --surface-2:#F7F5F0; --surface-3:#F7F5F0;
+    --border:#F7F5F0; --border-soft:#F7F5F0;
+    --text:#16181D; --text-dim:#4A473F; --text-faint:#A39E92;
     --accent:#4f7dfb; --accent-2:#22d3ee; --accent-soft:rgba(79,125,251,.14);
     --good:#22c55e; --bad:#f43f5e; --mid:#eab308;
     --radius:16px; --radius-sm:10px;
@@ -34,12 +37,12 @@
   .top-status.error { color:#ff6a6a; }
 
   .plan-card {
-    background:linear-gradient(160deg,#1b1e26,#14161d);
-    border:1px solid #262a35; border-radius:18px; padding:24px; margin-bottom:16px;
-    box-shadow:0 10px 30px rgba(0,0,0,.3);
+    background:linear-gradient(160deg,#F7F5F0,#F7F5F0);
+    border:1px solid #F1EEE7; border-radius:18px; padding:24px; margin-bottom:16px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.105);
   }
   .plan-card h1 { font-size:19px; margin:0 0 6px; text-align:center; }
-  .plan-card .sub { font-size:12.5px; color:#8a90a0; text-align:center; margin:0 0 20px; }
+  .plan-card .sub { font-size:12.5px; color:#7A766C; text-align:center; margin:0 0 20px; }
 
   .status-banner { border-radius:14px; padding:16px; margin-bottom:18px; text-align:center; }
   .status-banner.active { background:rgba(46,204,113,.12); border:1px solid rgba(46,204,113,.4); }
@@ -49,59 +52,59 @@
   .status-banner.active .big { color:#2ecc71; }
   .status-banner.pending .big { color:#f0c040; }
   .status-banner.expired .big { color:#ff6a6a; }
-  .countdown { font-family:'JetBrains Mono',monospace; font-size:24px; font-weight:800; letter-spacing:1px; margin-top:6px; color:#fff; }
-  .countdown-lbl { font-size:11px; color:#8a90a0; margin-top:4px; }
+  .countdown { font-family:'JetBrains Mono',monospace; font-size:24px; font-weight:800; letter-spacing:1px; margin-top:6px; color:#16181D; }
+  .countdown-lbl { font-size:11px; color:#7A766C; margin-top:4px; }
 
-  .offer-box { border:1px solid #262a35; border-radius:14px; padding:18px; margin-bottom:14px; background:#10121a; position:relative; }
-  .offer-box .tag { position:absolute; top:-10px; right:16px; background:#2ecc71; color:#0f1115; font-size:10.5px; font-weight:800; padding:3px 10px; border-radius:20px; }
+  .offer-box { border:1px solid #F1EEE7; border-radius:14px; padding:18px; margin-bottom:14px; background:#F7F5F0; position:relative; }
+  .offer-box .tag { position:absolute; top:-10px; right:16px; background:#2ecc71; color:#FFFFFF; font-size:10.5px; font-weight:800; padding:3px 10px; border-radius:20px; }
   .offer-box h3 { margin:4px 0 6px; font-size:15px; }
-  .offer-box .price { font-size:22px; font-weight:800; color:#fff; }
-  .offer-box .price small { font-size:12px; color:#8a90a0; font-weight:600; }
+  .offer-box .price { font-size:22px; font-weight:800; color:#16181D; }
+  .offer-box .price small { font-size:12px; color:#7A766C; font-weight:600; }
   .egp-price { font-size:12.5px; color:#6ab3ff; margin-top:2px; font-family:'JetBrains Mono',monospace; }
-  .offer-box p { font-size:12px; color:#9aa0ac; margin:8px 0 14px; line-height:1.7; }
+  .offer-box p { font-size:12px; color:#4A473F; margin:8px 0 14px; line-height:1.7; }
   .offer-box.locked { opacity:.55; }
 
   button.primary {
     width:100%; padding:13px; background:#4da3ff; border:none; border-radius:10px;
-    font-size:14.5px; font-weight:800; color:#0f1115; cursor:pointer; font-family:inherit;
+    font-size:14.5px; font-weight:800; color:#FFFFFF; cursor:pointer; font-family:inherit;
     display:flex; align-items:center; justify-content:center; gap:8px;
   }
   button.primary.green { background:#2ecc71; }
-  button.primary:disabled { opacity:.55; cursor:not-allowed; background:#3a3f4c; color:#8a90a0; }
+  button.primary:disabled { opacity:.55; cursor:not-allowed; background:#E2DED5; color:#7A766C; }
   button.ghost {
-    width:100%; padding:11px; background:transparent; border:1px solid #2a2d36; border-radius:10px;
-    font-size:13px; color:#aaa; cursor:pointer; font-family:inherit; margin-top:10px;
+    width:100%; padding:11px; background:transparent; border:1px solid #F1EEE7; border-radius:10px;
+    font-size:13px; color:#4A473F; cursor:pointer; font-family:inherit; margin-top:10px;
   }
-  .hint { font-size:11px; color:#666; margin-top:14px; text-align:center; line-height:1.7; }
+  .hint { font-size:11px; color:#A39E92; margin-top:14px; text-align:center; line-height:1.7; }
 
   .status-banner.grace { background:rgba(240,192,64,.12); border:1px solid rgba(240,192,64,.4); }
   .status-banner.grace .big { color:#f0c040; }
 
-  .pay-panel { border:1px solid #262a35; border-radius:14px; padding:18px; margin-top:14px; background:#0e1017; }
+  .pay-panel { border:1px solid #F1EEE7; border-radius:14px; padding:18px; margin-top:14px; background:#FFFFFF; }
   .pay-panel h4 { margin:0 0 12px; font-size:14px; }
   .method-tabs { display:flex; gap:8px; margin-bottom:14px; }
-  .method-tab { flex:1; text-align:center; padding:9px 4px; border-radius:9px; border:1px solid #2a2d36; font-size:12.5px; color:#aaa; cursor:pointer; }
+  .method-tab { flex:1; text-align:center; padding:9px 4px; border-radius:9px; border:1px solid #F1EEE7; font-size:12.5px; color:#4A473F; cursor:pointer; }
   .method-tab.active { background:var(--accent-soft); border-color:#4f7dfb; color:#bcd0ff; font-weight:700; }
-  .pay-number-box { display:flex; align-items:center; justify-content:space-between; background:#171b24; border:1px dashed #333a48; border-radius:10px; padding:12px 14px; margin-bottom:14px; }
+  .pay-number-box { display:flex; align-items:center; justify-content:space-between; background:#F7F5F0; border:1px dashed #E2DED5; border-radius:10px; padding:12px 14px; margin-bottom:14px; }
   .pay-number-box .num { font-family:'JetBrains Mono',monospace; font-size:17px; font-weight:700; color:#6ab3ff; direction:ltr; }
-  .copy-btn { background:#22242c; border:1px solid #333a48; color:#ddd; border-radius:8px; padding:6px 10px; font-size:11.5px; cursor:pointer; }
-  .field-lbl { font-size:12px; color:#9aa0ac; margin:10px 0 6px; }
+  .copy-btn { background:#F7F5F0; border:1px solid #E2DED5; color:#16181D; border-radius:8px; padding:6px 10px; font-size:11.5px; cursor:pointer; }
+  .field-lbl { font-size:12px; color:#4A473F; margin:10px 0 6px; }
   input.pay-input {
-    width:100%; padding:11px 12px; background:#171b24; border:1px solid #2a2d36; border-radius:9px;
+    width:100%; padding:11px 12px; background:#F7F5F0; border:1px solid #F1EEE7; border-radius:9px;
     color:var(--text); font-size:13.5px; font-family:inherit;
   }
   .pay-msg { font-size:12.5px; margin-top:12px; text-align:center; line-height:1.7; }
   .pay-msg.ok { color:#2ecc71; }
   .pay-msg.err { color:#ff6a6a; }
   .pay-msg.info { color:#f0c040; }
-  .spin { display:inline-block; width:14px; height:14px; border:2px solid rgba(0,0,0,.25); border-top-color:#0f1115; border-radius:50%; animation:spin .7s linear infinite; }
+  .spin { display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,0.25); border-top-color:#FFFFFF; border-radius:50%; animation:spin .7s linear infinite; }
   @keyframes spin { to { transform:rotate(360deg); } }
 
   .topbar{
     position:sticky; top:0; z-index:120;
     display:flex; align-items:center; gap:12px;
     padding:12px clamp(14px,3vw,28px);
-    background:rgba(9,11,15,.86); backdrop-filter:blur(10px);
+    background:rgba(255,255,255,0.86); backdrop-filter:blur(10px);
     border-bottom:1px solid var(--border-soft);
   }
   .icon-btn{
@@ -110,7 +113,7 @@
     background:var(--surface); border:1px solid var(--border); color:var(--text);
     cursor:pointer; transition:.15s; text-decoration:none;
   }
-  .icon-btn:hover{ background:var(--surface-3); border-color:#2c313d; }
+  .icon-btn:hover{ background:var(--surface-3); border-color:#F1EEE7; }
   .icon-btn svg{ width:19px; height:19px; }
   .brand{ font-weight:800; font-size:15px; letter-spacing:.2px; white-space:nowrap; color:var(--text); }
   .brand span{ color:var(--accent-2); }
@@ -119,16 +122,16 @@
 
   /* ===== Unified visual theme: no slider / no bottom navigation ===== */
   :root{
-    --bg:#0b0d12;
-    --bg-soft:#0f1218;
-    --surface:#12161d;
-    --surface-2:#171c24;
-    --surface-3:#1d232d;
-    --border:#252c37;
-    --border-soft:#1b2029;
-    --text:#f3f5f8;
-    --text-dim:#9aa4b3;
-    --text-faint:#687384;
+    --bg:#FFFFFF;
+    --bg-soft:#FFFFFF;
+    --surface:#F7F5F0;
+    --surface-2:#F7F5F0;
+    --surface-3:#F7F5F0;
+    --border:#F1EEE7;
+    --border-soft:#F7F5F0;
+    --text:#16181D;
+    --text-dim:#4A473F;
+    --text-faint:#A39E92;
     --accent:#6d7cff;
     --accent-2:#62d9ff;
     --accent-soft:rgba(109,124,255,.14);
@@ -152,7 +155,7 @@
     z-index:20;
     min-height:58px;
     padding:10px max(16px, env(safe-area-inset-left)) 10px max(16px, env(safe-area-inset-right));
-    background:rgba(11,13,18,.88);
+    background:rgba(255,255,255,0.88);
     border-bottom:1px solid var(--border-soft);
     backdrop-filter:blur(16px);
     -webkit-backdrop-filter:blur(16px);
@@ -162,11 +165,11 @@
   .content{padding:22px 16px 34px;}
   .wrap{max-width:560px;}
   .plan-card{
-    background:linear-gradient(180deg,rgba(23,28,36,.96),rgba(16,19,26,.98));
+    background:linear-gradient(180deg,rgba(247,245,240,0.96),rgba(247,245,240,0.98));
     border:1px solid var(--border);
     border-radius:20px;
     padding:22px;
-    box-shadow:0 18px 50px rgba(0,0,0,.24);
+    box-shadow:0 18px 50px rgba(0,0,0,0.084);
   }
   .plan-card h1{font-size:20px;}
   .plan-card .sub{color:var(--text-dim);line-height:1.8;}
@@ -182,16 +185,16 @@
     background:var(--bg-soft);
     border-color:var(--border);
   }
-  .offer-box .tag{background:var(--good);color:#08110d;}
+  .offer-box .tag{background:var(--good);color:#FFFFFF;}
   .offer-box .price{color:var(--text)}
   .offer-box .price small,.offer-box p,.field-lbl{color:var(--text-dim)}
   .egp-price,.pay-number-box .num{color:var(--accent-2)}
   button.primary{
     background:var(--accent);
-    color:#fff;
-    box-shadow:0 8px 22px rgba(109,124,255,.18);
+    color:#16181D;
+    box-shadow:0 8px 22px rgba(0,0,0,0);
   }
-  button.primary.green{background:var(--good);color:#07110c;box-shadow:none}
+  button.primary.green{background:var(--good);color:#FFFFFF;box-shadow:none}
   button.primary:disabled{background:var(--surface-3);color:var(--text-faint)}
   button.ghost{border-color:var(--border);color:var(--text-dim)}
   .method-tab{border-color:var(--border);color:var(--text-dim)}
@@ -231,6 +234,57 @@
   .receipt-preview img{ max-width:100%; max-height:220px; border-radius:10px; border:1px solid var(--border); }
   .receipt-preview .fname{ font-size:11.5px; color:var(--text-faint); margin-top:6px; direction:ltr; word-break:break-all; }
 </style>
+<style id="mbh-light-clean-sub">
+html[data-theme="light"]{--bg:#F7F5F0;--bg-soft:#F1EEE7;--surface:#fff;--surface-2:#F1EEE7;--surface-3:#ECE8DF;--border:#E2DED5;--border-soft:#E9E5DC;--text:#16181D;--text-dim:#7A766C;--text-faint:#A39E92;--accent:#2446E8;--accent-2:#2446E8;--accent-soft:rgba(36,70,232,.1);--good:#1B6B3A;--bad:#B42318;--mid:#8A5A00;--font-ui:'IBM Plex Sans Arabic','Cairo',system-ui,sans-serif}
+html[data-theme="light"],html[data-theme="light"] body{background:#F7F5F0;color:#16181D}
+html[data-theme="light"] .topbar{background:rgba(247,245,240,.94);border-bottom:1px solid #E2DED5;backdrop-filter:none;-webkit-backdrop-filter:none}
+html[data-theme="light"] .brand span{color:#2446E8}
+html[data-theme="light"] .top-status{color:#8A5A00}
+html[data-theme="light"] .plan-card{background:transparent;border:0;box-shadow:none;padding:0}
+html[data-theme="light"] .plan-card h1{font-size:clamp(28px,7vw,34px);font-weight:700;text-align:start;line-height:1.15;margin-bottom:8px}
+html[data-theme="light"] .plan-card .sub{text-align:start;margin-bottom:16px;font-size:13px;color:#7A766C}
+html[data-theme="light"] .status-banner,html[data-theme="light"] .offer-box,html[data-theme="light"] .pay-panel{background:#fff;border:1px solid #E2DED5;border-radius:18px;padding:16px;margin:12px 0 0;text-align:start;box-shadow:none}
+html[data-theme="light"] .status-banner .big{font-size:15px;color:#16181D}
+html[data-theme="light"] .status-banner.active{border-color:#BFE3CB}
+html[data-theme="light"] .status-banner.active .big{color:#1B6B3A}
+html[data-theme="light"] .status-banner.grace,html[data-theme="light"] .status-banner.pending{background:#FFFBF0;border-color:#F0D9A0}
+html[data-theme="light"] .status-banner.grace .big,html[data-theme="light"] .status-banner.pending .big{color:#8A5A00}
+html[data-theme="light"] .status-banner.expired{background:#FFF6F5;border-color:#F0BDB8}
+html[data-theme="light"] .status-banner.expired .big{color:#B42318}
+html[data-theme="light"] .countdown{font-size:30px;font-weight:700;color:#16181D}
+html[data-theme="light"] .countdown-lbl,html[data-theme="light"] .hint{color:#7A766C}
+html[data-theme="light"] .offer-box{position:static}
+html[data-theme="light"] .offer-box .tag{position:static;display:inline-block;background:#E4E9FD;color:#2446E8;font-size:12px;font-weight:700;padding:4px 10px;border-radius:10px;margin-bottom:6px}
+html[data-theme="light"] .offer-box .price{font-size:40px;line-height:1.1;color:#16181D}
+html[data-theme="light"] .offer-box .price small{color:#A39E92}
+html[data-theme="light"] .offer-box p,html[data-theme="light"] .field-lbl{color:#7A766C}
+html[data-theme="light"] .egp-price{color:#7A766C}
+html[data-theme="light"] .pay-panel h4{font-size:15px;font-weight:700}
+html[data-theme="light"] .method-tabs{padding:4px;border-radius:14px;background:#ECE8DF;gap:4px}
+html[data-theme="light"] .method-tab{border:1px solid transparent;border-radius:10px;padding:10px 4px;font-size:13.5px;font-weight:600;color:#7A766C}
+html[data-theme="light"] .method-tab.active{background:#fff;border-color:#E2DED5;color:#16181D}
+html[data-theme="light"] .pay-number-box{background:#F7F5F0;border:1px solid #E2DED5;border-radius:14px}
+html[data-theme="light"] .pay-number-box .num{color:#16181D;font-size:20px}
+html[data-theme="light"] .copy-btn{min-height:44px;padding:0 16px;border-radius:12px;background:#fff;border:1px solid #E2DED5;color:#16181D;font-size:13.5px;font-weight:700}
+html[data-theme="light"] input.pay-input{min-height:46px;background:#F7F5F0;border:1px solid #E2DED5;border-radius:12px;color:#16181D}
+html[data-theme="light"] input.pay-input:focus{border-color:#2446E8;box-shadow:0 0 0 3px rgba(36,70,232,.1)}
+html[data-theme="light"] .receipt-pick{min-height:84px;border:1.5px dashed #CFC9BC;border-radius:14px;background:#F7F5F0;color:#7A766C;font-weight:600}
+html[data-theme="light"] .receipt-pick:hover{border-color:#2446E8;color:#16181D}
+html[data-theme="light"] .review-notice{background:#FFF1D6;border-color:#F0D9A0;color:#6B4600;border-radius:14px}
+html[data-theme="light"] .review-notice.sending{background:#E4E9FD;border-color:#C9D3FA;color:#2446E8}
+html[data-theme="light"] .mini-spin{border-color:rgba(36,70,232,.25);border-top-color:#2446E8}
+html[data-theme="light"] button.primary{min-height:50px;border-radius:14px;background:#2446E8;color:#fff;box-shadow:none;font-size:15px}
+html[data-theme="light"] button.primary.green{background:#fff;color:#16181D;border:1px solid #E2DED5;font-size:14px;font-weight:700;min-height:46px;border-radius:12px}
+html[data-theme="light"] button.primary:disabled{background:#ECE8DF;color:#A39E92}
+html[data-theme="light"] button.ghost{background:#fff;border:1px solid #E2DED5;border-radius:18px;color:#16181D;min-height:46px;font-weight:700;margin-top:12px}
+html[data-theme="light"] .pay-msg.ok{color:#1B6B3A}html[data-theme="light"] .pay-msg.err{color:#B42318}html[data-theme="light"] .pay-msg.info{color:#8A5A00}
+.content{padding-bottom:calc(110px + env(safe-area-inset-bottom))!important}
+.mbh-pill{position:fixed;z-index:130;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;gap:4px;padding:6px;border-radius:32px;background:var(--surface,#fff);border:1px solid var(--border,#E2DED5);box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.mbh-pill a{height:48px;padding:0 14px;border-radius:24px;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--text-dim,#8A8578);text-decoration:none;font:600 14px/1 var(--font-ui)}
+.mbh-pill a svg{width:22px;height:22px}.mbh-pill a span{display:none}
+.mbh-pill a.active{background:var(--accent,#2446E8);color:#fff;padding:0 18px}.mbh-pill a.active span{display:inline}
+</style>
+<meta name="color-scheme" content="light">
 </head>
 <body>
 <div class="topbar">
@@ -249,11 +303,17 @@
       <div id="offersArea"></div>
       <div id="payArea"></div>
 
-      <button class="ghost" onclick="contactSupport()">📞 تواصل مع الدعم عبر واتساب</button>
+      <button class="ghost" onclick="contactSupport()">تواصل مع الدعم عبر واتساب</button>
       <div class="hint">إذا واجهتك أي مشكلة في التفعيل التلقائي، يمكنك التواصل معنا هنا وسنراجعها يدويًا.</div>
     </div>
   </div>
 </div>
+
+<nav class="mbh-pill" aria-label="التنقل الرئيسي">
+<a href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7v9H4z"/></svg><span>الرئيسية</span></a>
+<a href="insights.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5M4 19h16M7 15l3-4 3 2 5-6"/></svg><span>التحليلات</span></a>
+<a href="settings.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg><span>الإعدادات</span></a>
+</nav>
 
 <script>
 const SUPABASE_URL = 'https://zphepebjpxrzpudncuas.supabase.co';
@@ -420,27 +480,27 @@ function render(){
     const planLabel = s.plan === 'free_trial' ? 'التجربة المجانية' : `الباقة (${currentPriceUsd()}$/شهر)`;
     statusArea.innerHTML = `
       <div class="status-banner active">
-        <div class="big">✅ ${planLabel} مفعّلة الآن</div>
+        <div class="big">${planLabel} مفعّلة الآن</div>
         <div class="countdown num" id="countdownVal">--</div>
         <div class="countdown-lbl">${s.plan === 'free_trial' ? 'الوقت المتبقي من التجربة المجانية' : 'الوقت المتبقي في الباقة'}</div>
       </div>`;
   } else if (isGrace){
     statusArea.innerHTML = `
       <div class="status-banner grace">
-        <div class="big">⚠️ انتهت باقتك — أنت الآن في فترة السماح (${daysLabel(SETTINGS.grace_days)} فقط)</div>
+        <div class="big">انتهت باقتك — أنت الآن في فترة السماح (${daysLabel(SETTINGS.grace_days)} فقط)</div>
         <div class="countdown num" id="countdownVal">--</div>
         <div class="countdown-lbl">إذا انتهى هذا الوقت دون تجديد الاشتراك، سيتم إغلاق الوصول إلى البيانات (البكسل) تلقائيًا وقطع الاتصال.</div>
       </div>`;
   } else if (isExpired){
     statusArea.innerHTML = `
       <div class="status-banner expired">
-        <div class="big">⌛ انتهت باقتك وتم إغلاق الوصول إلى البيانات</div>
+        <div class="big">انتهت باقتك وتم إغلاق الوصول إلى البيانات</div>
         <div class="countdown-lbl">قم بشحن الباقة لإعادة تشغيل البكسل فورًا.</div>
       </div>`;
   } else if (s && s.status === 'pending'){
     statusArea.innerHTML = `
       <div class="status-banner pending">
-        <div class="big">⏳ توجد دفعة قيد المراجعة اليدوية</div>
+        <div class="big">توجد دفعة قيد المراجعة اليدوية</div>
         <div class="countdown-lbl">سيقوم المسؤول بفحص التحويل والتأكد من رقم الهاتف الذي حوّلت منه، وعند التأكد سيتم تفعيل الباقة هنا تلقائيًا دون أي إجراء إضافي منك. وفي حال تبيّن أن التحويل غير صحيح فسيتم حظر حسابك.</div>
       </div>`;
   } else {
@@ -458,7 +518,7 @@ function buildPayPanel(){
   return `
     <div class="offer-box">
       ${isDiscount ? '<span class="tag">عرض أول ' + SETTINGS.discount_months + ' أشهر</span>' : ''}
-      <h3>🚀 شحن الباقة</h3>
+      <h3>شحن الباقة</h3>
       <div class="price">
         $${price}
         ${isDiscount ? `<small style="text-decoration:line-through;margin-right:6px;">$${SETTINGS.full_price_usd}</small>` : '<small>/ شهر</small>'}
@@ -468,7 +528,7 @@ function buildPayPanel(){
     </div>
 
     <div class="pay-panel">
-      <h4>💳 حوّل واشحن الآن</h4>
+      <h4>حوّل واشحن الآن</h4>
       <div class="method-tabs" id="methodTabs">
         <div class="method-tab" data-m="wallet">محفظة</div>
         <div class="method-tab" data-m="fawry">فوري</div>
@@ -487,15 +547,15 @@ function buildPayPanel(){
 
       <div class="field-lbl">صورة إيصال التحويل (لقطة شاشة لعملية التحويل)</div>
       <input class="receipt-input" id="receiptInput" type="file" accept="image/*">
-      <label class="receipt-pick" for="receiptInput" id="receiptPick">📎 اضغط هنا لاختيار صورة الإيصال</label>
+      <label class="receipt-pick" for="receiptInput" id="receiptPick">اضغط هنا لاختيار صورة الإيصال</label>
       <div class="receipt-preview" id="receiptPreview"><img id="receiptImg" alt="معاينة صورة الإيصال"><div class="fname" id="receiptName"></div></div>
 
       <div class="review-notice" id="reviewNotice" aria-live="polite"></div>
 
-      <button class="primary" id="submitPayBtn" style="margin-top:16px;" onclick="submitPayment()">✅ حفظ وتفعيل الباقة</button>
+      <button class="primary" id="submitPayBtn" style="margin-top:16px;" onclick="submitPayment()">حفظ وتفعيل الباقة</button>
       <div class="pay-msg" id="payMsg"></div>
 
-      <button class="primary green" id="quickActivateBtn" style="margin-top:10px;" onclick="quickActivateWhatsapp()">⚡ هل حوّلت بالفعل؟ تواصل مع خدمة العملاء للتفعيل السريع</button>
+      <button class="primary green" id="quickActivateBtn" style="margin-top:10px;" onclick="quickActivateWhatsapp()">هل حوّلت بالفعل؟ تواصل مع خدمة العملاء للتفعيل السريع</button>
       <div class="hint" style="margin-top:6px;">سيفتح واتساب مباشرة ومعه بيانات التحويل التي كتبتها أعلاه، ليتم التفعيل يدويًا خلال دقائق.</div>
     </div>
   `;
@@ -511,7 +571,7 @@ function setReviewNotice(sending){
     el.innerHTML = '<span class="mini-spin"></span><span>جارٍ إرسال البيانات إلى المسؤول…</span>';
   } else {
     el.className = 'review-notice';
-    el.innerHTML = '<span>⚠️</span><span>بعد إرسال البيانات، سيقوم المسؤول بفحص التحويل، وإذا تبيّن أنه غير صحيح فسيتم حظر حسابك.</span>';
+    el.innerHTML = '<span>بعد إرسال البيانات، سيقوم المسؤول بفحص التحويل، وإذا تبيّن أنه غير صحيح فسيتم حظر حسابك.</span>';
   }
 }
 
@@ -534,7 +594,7 @@ function onReceiptChosen(file){
   const img = document.getElementById('receiptImg');
   const pick = document.getElementById('receiptPick');
   RECEIPT_FILE = null;
-  if (!file){ prev.style.display = 'none'; pick.textContent = '📎 اضغط هنا لاختيار صورة الإيصال'; return; }
+  if (!file){ prev.style.display = 'none'; pick.textContent = 'اضغط هنا لاختيار صورة الإيصال'; return; }
   if (!file.type || !file.type.startsWith('image/')){ setPayMsg('الملف المختار ليس صورة. يرجى اختيار صورة الإيصال.', 'err'); prev.style.display = 'none'; return; }
   if (file.size > MAX_RECEIPT_BYTES){ setPayMsg('حجم الصورة كبير. الحد الأقصى 5 ميجابايت.', 'err'); prev.style.display = 'none'; return; }
   RECEIPT_FILE = file;
@@ -542,7 +602,7 @@ function onReceiptChosen(file){
   img.src = URL.createObjectURL(file);
   document.getElementById('receiptName').textContent = file.name;
   prev.style.display = 'block';
-  pick.textContent = '🔄 تغيير الصورة';
+  pick.textContent = 'تغيير الصورة';
 }
 
 async function uploadReceipt(file){
@@ -556,7 +616,7 @@ async function uploadReceipt(file){
 function copyPayNumber(){
   navigator.clipboard.writeText(PAY_NUMBER);
   const el = document.getElementById('payMsg');
-  if (el){ el.className = 'pay-msg ok'; el.textContent = 'تم نسخ الرقم ✅'; }
+  if (el){ el.className = 'pay-msg ok'; el.textContent = 'تم نسخ الرقم'; }
 }
 
 function setPayMsg(msg, type){
@@ -619,7 +679,7 @@ async function submitPayment(){
     if (!res.ok){
       setPayMsg('حدث خطأ: ' + (json.error || res.statusText), 'err');
     } else if (json.status === 'approved'){
-      setPayMsg('تم إرسال البيانات إلى المسؤول وتفعيل الباقة فورًا 🎉 — سيقوم المسؤول بفحص التحويل، وإذا تبيّن أنه غير صحيح فسيتم حظر حسابك.', 'ok');
+      setPayMsg('تم إرسال البيانات إلى المسؤول وتفعيل الباقة فورًا — سيقوم المسؤول بفحص التحويل، وإذا تبيّن أنه غير صحيح فسيتم حظر حسابك.', 'ok');
       await loadSubscription();
       render();
     } else {
