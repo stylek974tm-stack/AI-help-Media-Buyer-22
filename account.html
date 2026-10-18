@@ -3,25 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<script>(function(){var d=document.documentElement;d.dataset.theme="light";try{new MutationObserver(function(){if(d.dataset.theme!=="light")d.dataset.theme="light"}).observe(d,{attributes:true,attributeFilter:["data-theme"]})}catch(e){}})()</script>
+<meta name="theme-color" content="#F7F5F0">
 <title>ربط الحسابات - Media Buyer Hub</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#090b0f;--bg-soft:#0d1016;
-  --surface:#12151c;--surface-2:#171b24;--surface-3:#1c2029;
-  --border:#20242e;--border-soft:#191c24;
-  --text:#eef1f6;--text-dim:#98a2b3;--text-faint:#5c6474;
+  --bg:#FFFFFF;--bg-soft:#FFFFFF;
+  --surface:#F7F5F0;--surface-2:#F7F5F0;--surface-3:#F7F5F0;
+  --border:#F7F5F0;--border-soft:#F7F5F0;
+  --text:#16181D;--text-dim:#4A473F;--text-faint:#A39E92;
   --accent:#4f7dfb;--accent-2:#22d3ee;--accent-soft:rgba(79,125,251,.14);
   --good:#22c55e;--bad:#f43f5e;--mid:#eab308;
   --radius:16px;--radius-sm:10px;
   --font-ui:'Cairo',system-ui,sans-serif;--font-num:'JetBrains Mono','Cairo',monospace;
 }
 html[data-theme="light"]{
-  --bg:#f3f7f9;--bg-soft:#eaf2f5;--surface:#fff;--surface-2:#eef4f7;--surface-3:#e5eef2;
-  --border:#cfe0e7;--border-soft:#dce9ee;--text:#0b2028;--text-dim:#526c76;--text-faint:#78909a;
-  --accent:#3970e8;--accent-2:#089db8;--accent-soft:rgba(57,112,232,.12);
+  --bg:#F7F5F0;--bg-soft:#F1EEE7;--surface:#fff;--surface-2:#F1EEE7;--surface-3:#ECE8DF;
+  --border:#E2DED5;--border-soft:#E9E5DC;--text:#16181D;--text-dim:#7A766C;--text-faint:#A39E92;
+  --accent:#2446E8;--accent-2:#2446E8;--accent-soft:rgba(36,70,232,.1);--good:#1B6B3A;--bad:#B42318;--mid:#8A5A00;
+  --font-ui:'IBM Plex Sans Arabic','Cairo',system-ui,sans-serif;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;min-height:100%;background:var(--bg)}
@@ -47,13 +51,13 @@ a{color:inherit;text-decoration:none}
   position:relative;text-align:start;background:var(--surface);border:1px solid var(--border);
   border-radius:var(--radius);padding:14px 12px 12px;display:flex;flex-direction:column;gap:10px;
   min-height:128px;transition:transform .15s,border-color .15s,box-shadow .15s;
-  box-shadow:0 8px 24px rgba(0,0,0,.08);
+  box-shadow:0 8px 24px rgba(0,0,0,0.028);
 }
 .pcard:hover{transform:translateY(-2px);border-color:var(--accent)}
 .pcard:active{transform:scale(.98)}
 .pcard.on{border-color:color-mix(in srgb,var(--good) 45%,var(--border))}
 .pcard.warn{border-color:color-mix(in srgb,var(--mid) 55%,var(--border))}
-.picon{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;color:#fff;font-weight:800;font-size:20px}
+.picon{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;color:#16181D;font-weight:800;font-size:20px}
 .pname{font-weight:800;font-size:14px}
 .psub{color:var(--text-dim);font-size:11px;line-height:1.5}
 .badge{position:absolute;top:12px;inset-inline-end:12px;font-size:10px;font-weight:700;padding:3px 8px;border-radius:99px;background:var(--surface-3);color:var(--text-faint)}
@@ -74,7 +78,7 @@ html[dir=rtl] .arrow{transform:scaleX(-1)}
 label{display:block;color:var(--text-dim);font-size:12px;margin:10px 0 5px}
 input,select{width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);outline:none;transition:.15s}
 input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
-.primary{width:100%;margin-top:14px;border:0;border-radius:11px;padding:12px 14px;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#061016;font-weight:800;transition:.18s}
+.primary{width:100%;margin-top:14px;border:0;border-radius:11px;padding:12px 14px;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#FFFFFF;font-weight:800;transition:.18s}
 .primary:hover{filter:brightness(1.07)}
 .primary:disabled{opacity:.6;cursor:not-allowed}
 .ghost{border:1px solid var(--border);background:transparent;border-radius:10px;padding:8px 12px;font-size:12px;color:var(--text-dim)}
@@ -94,7 +98,7 @@ input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--a
 
 /* bottom sheet */
 dialog{border:0;padding:0;background:transparent;color:var(--text);width:min(520px,100%);max-width:100%;margin:auto auto 0}
-dialog::backdrop{background:rgba(0,0,0,.55);backdrop-filter:blur(3px)}
+dialog::backdrop{background:rgba(255,255,255,0.55);backdrop-filter:blur(3px)}
 .sheet{background:var(--surface);border:1px solid var(--border);border-radius:22px 22px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));max-height:88dvh;overflow:auto}
 .sheet-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
 .sheet-head b{font-size:16px;flex:1}
@@ -108,6 +112,27 @@ summary{cursor:pointer;color:var(--text-dim);font-size:12px}
   .grid{gap:14px}
 }
 </style>
+<style id="mbh-light-clean-acc">
+html body{font-family:var(--font-ui)}
+.page-head h1{font-size:clamp(28px,7vw,34px);font-weight:700;line-height:1.15}
+.pcard{border-radius:18px;box-shadow:none;padding:14px;gap:10px}
+.pcard:hover{transform:none;border-color:var(--border)}
+.picon{border-radius:12px;color:inherit}
+.badge{position:static;align-self:flex-start;order:3;font-size:11.5px;padding:4px 10px;border-radius:10px}
+.pcard>div:nth-of-type(2){order:2}.pcard>.picon{order:1}
+.pcard .pbtn{order:4;margin-top:auto;display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:12px;border:1px solid var(--border);background:#fff;color:var(--text);font-size:13.5px;font-weight:700}
+.pcard .pbtn.go{background:var(--accent);border-color:var(--accent);color:#fff}
+.badge.on{background:#E3F4E8;color:#1B6B3A}.badge.warn{background:#FFF1D6;color:#8A5A00}
+.primary{background:var(--accent);color:#fff;min-height:46px;border-radius:12px}
+.panel,.sheet,.row{border-radius:18px}.row{border-radius:12px}
+.security{background:#ECE8DF;border-color:#E2DED5;color:#4A473F}
+.content{padding-bottom:calc(110px + env(safe-area-inset-bottom))}
+.mbh-pill{position:fixed;z-index:30;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;gap:4px;padding:6px;border-radius:32px;background:var(--surface);border:1px solid var(--border);box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.mbh-pill a{height:48px;padding:0 14px;border-radius:24px;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--text-dim);font:600 14px/1 var(--font-ui)}
+.mbh-pill a svg{width:22px;height:22px}.mbh-pill a span{display:none}
+.mbh-pill a.active{background:var(--accent);color:#fff;padding:0 18px}.mbh-pill a.active span{display:inline}
+</style>
+<meta name="color-scheme" content="light">
 </head>
 <body>
 <header class="topbar"><div class="brand">Media Buyer <span>Hub</span></div></header>
@@ -141,6 +166,11 @@ summary{cursor:pointer;color:var(--text-dim);font-size:12px}
     <span data-i18n="secText">الربط يتم عبر صفحة موافقة المنصة نفسها. التوكنات تُحفظ وتُستخدم على السيرفر فقط ولا تصل للمتصفح. لا تشارك أي مفتاح أو Secret مع أحد.</span>
   </section>
 </main>
+<nav class="mbh-pill" aria-label="التنقل الرئيسي">
+<a href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7v9H4z"/></svg><span>الرئيسية</span></a>
+<a href="insights.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5M4 19h16M7 15l3-4 3 2 5-6"/></svg><span>التحليلات</span></a>
+<a href="settings.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg><span>الإعدادات</span></a>
+</nav>
 
 <dialog id="sheet"><div class="sheet" id="sheetBody"></div></dialog>
 
@@ -150,7 +180,6 @@ summary{cursor:pointer;color:var(--text-dim);font-size:12px}
   const I18N={
     ar:{
       title:'ربط الحسابات',subtitle:'اختر المنصة واربطها بضغطة واحدة. لا يظهر أي توكن في المتصفح.',
-      autoTitle:'الأتمتة',autoSub:'قواعد الإيقاف والتشغيل والميزانية على حساباتك المربوطة.',
       mcpTitle:'إضافة MCP',mcpSub:'اربط أي خادم MCP واختر المنصة التابع لها. الاتصال والتوكنات تتم من السيرفر فقط.',
       mcpPlatform:'اسم المنصة',mcpName:'اسم الاتصال',mcpAdd:'إضافة MCP',
       secTitle:'ملاحظة أمنية:',secText:'الربط يتم عبر صفحة موافقة المنصة نفسها. التوكنات تُحفظ وتُستخدم على السيرفر فقط ولا تصل للمتصفح. لا تشارك أي مفتاح أو Secret مع أحد.',
@@ -170,7 +199,6 @@ summary{cursor:pointer;color:var(--text-dim);font-size:12px}
     },
     en:{
       title:'Connections',subtitle:'Pick a platform and connect in one tap. No token ever reaches the browser.',
-      autoTitle:'Automation',autoSub:'Pause, resume and budget rules on your connected accounts.',
       mcpTitle:'Add MCP',mcpSub:'Connect any MCP server and pick its platform. Connections and tokens stay server-side.',
       mcpPlatform:'Platform',mcpName:'Connection name',mcpAdd:'Add MCP',
       secTitle:'Security note:',secText:'Connections use the platform’s own approval page. Tokens are stored and used server-side only. Never share keys or secrets.',
@@ -192,7 +220,7 @@ summary{cursor:pointer;color:var(--text-dim);font-size:12px}
   const getLang=()=>localStorage.getItem(langKey)==='en'?'en':'ar';
   const T=k=>I18N[getLang()][k]||I18N.ar[k]||k;
   function applyTheme(){
-    let s=localStorage.getItem(themeKey)||'dark';
+    let s=localStorage.getItem(themeKey)||'light';
     if(s==='system')s=(matchMedia&&matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark';
     document.documentElement.dataset.theme=s;
   }
@@ -219,6 +247,16 @@ summary{cursor:pointer;color:var(--text-dim);font-size:12px}
     {id:'easyorders',name:'EasyOrders',db:'easyorders',kind:'store',icon:'E',color:'#f97316'},
     {id:'snapchat',name:'Snapchat',db:'snapchat',kind:'ad',   icon:'👻',color:'#d9c800',manualOnly:true}
   ];
+  const ICON={
+    meta:'<path d="M12 12c-2-2.8-3.8-4.5-5.8-4.5C3.9 7.5 2.5 9.5 2.5 12s1.4 4.5 3.7 4.5c2 0 3.8-1.7 5.8-4.5s3.8-4.5 5.8-4.5c2.3 0 3.7 2 3.7 4.5s-1.4 4.5-3.7 4.5c-2 0-3.8-1.7-5.8-4.5z"/>',
+    tiktok:'<path d="M14 4v10.5a3.5 3.5 0 1 1-3.5-3.5"/><path d="M14 4c.4 2.4 2 4 4.5 4.2"/>',
+    google:'<path d="M20 8A8.5 8.5 0 1 0 20.5 12H12.5"/>',
+    shopify:'<path d="M6 8h12l1 12H5L6 8z"/><path d="M9 8V7a3 3 0 0 1 6 0v1"/>',
+    easyorders:'<path d="M3 4h2.5l2 10h9.5l2-7H6.5"/><circle cx="9" cy="18.5" r="1.3"/><circle cx="16" cy="18.5" r="1.3"/>',
+    snapchat:'<path d="M12 3C9 3 7 5.2 7 8.2v2.3l-1.8 1L6.6 12.7c-.6 1.4-1.8 2.2-3.1 2.4 1 .9 2.6.9 3.5 1.4.5.8 1.4 1.3 2.5 1.3 1 0 1.4-.6 2.5-.6s1.5.6 2.5.6c1.1 0 2-.5 2.5-1.3.9-.5 2.5-.5 3.5-1.4-1.3-.2-2.5-1-3.1-2.4l1.4-1.2-1.8-1V8.2C17 5.2 15 3 12 3z"/>'
+  };
+  const ICOL={meta:'#0866FF',tiktok:'#16181D',google:'#4285F4',shopify:'#5E8E3E',easyorders:'#F97316',snapchat:'#9A8D00'};
+  const iconHtml=(p,sz)=>`<div class="picon" style="background:color-mix(in srgb,${ICOL[p.id]||p.color} 12%,#fff);${sz?`width:${sz}px;height:${sz}px;`:''}"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="${ICOL[p.id]||p.color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[p.id]||''}</svg></div>`;
   const byId=id=>PLATS.find(p=>p.id===id);
 
   const esc=v=>v==null?'':String(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
@@ -274,10 +312,10 @@ summary{cursor:pointer;color:var(--text-dim);font-size:12px}
       const s=stateOf(p);
       return `<button class="pcard ${s.cls}" type="button" data-p="${p.id}">
         <span class="badge ${s.cls}">${esc(s.label)}</span>
-        <div class="picon" style="background:${p.color}">${esc(p.icon)}</div>
+        ${iconHtml(p)}
         <div><div class="pname">${esc(p.name)}</div>
         <div class="psub">${s.n?s.n+' '+esc(T('accountsN')):esc(T('noneYet'))}</div></div>
-        <span class="pbtn">${s.n?esc(T('manage')):esc(T('connect'))} ›</span></button>`;
+        <span class="pbtn${(!s.n||s.cls==='warn')?' go':''}">${s.n?esc(T('manage')):esc(T('connect'))}</span></button>`;
     }).join('');
     $('grid').querySelectorAll('.pcard').forEach(b=>b.addEventListener('click',()=>openSheet(b.dataset.p)));
   }
@@ -308,7 +346,7 @@ summary{cursor:pointer;color:var(--text-dim);font-size:12px}
       <label>${esc(T('note'))}</label><input id="m_note">
       <button class="primary" id="m_save" type="button">${esc(T('save'))}</button></details>`:'';
     $('sheetBody').innerHTML=`
-      <div class="sheet-head"><div class="picon" style="background:${p.color};width:38px;height:38px;font-size:18px">${esc(p.icon)}</div><b>${esc(p.name)}</b><button class="x" id="sx" type="button">✕</button></div>
+      <div class="sheet-head">${iconHtml(p,40)}<b>${esc(p.name)}</b><button class="x" id="sx" type="button">✕</button></div>
       <div class="sub">${esc(T('d_'+id))}</div>
       ${form}
       ${p.manualOnly?'':`<button class="primary" id="s_go" type="button">${esc(T('connect'))}</button>`}
