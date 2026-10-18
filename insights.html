@@ -3,14 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#090b0f">
+<meta name="theme-color" content="#F7F5F0">
+<script>(function(){var d=document.documentElement;d.dataset.theme="light";try{new MutationObserver(function(){if(d.dataset.theme!=="light")d.dataset.theme="light"}).observe(d,{attributes:true,attributeFilter:["data-theme"]})}catch(e){}})()</script>
 <title>التحليلات — Media Buyer Hub</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#090b0f;--surface:#12151c;--s2:#171b24;--s3:#1c2029;--border:#20242e;--text:#eef1f6;--muted:#98a2b3;--faint:#5c6474;--meta:#4f7dfb;--tt:#f43f5e;--cy:#22d3ee;--good:#22c55e;--warn:#eab308;--bad:#ef4444;--safe-top:env(safe-area-inset-top);--safe-bottom:env(safe-area-inset-bottom)}
+:root{--bg:#FFFFFF;--surface:#F7F5F0;--s2:#F7F5F0;--s3:#F7F5F0;--border:#F7F5F0;--text:#16181D;--muted:#4A473F;--faint:#A39E92;--meta:#4f7dfb;--tt:#f43f5e;--cy:#22d3ee;--good:#22c55e;--warn:#eab308;--bad:#ef4444;--safe-top:env(safe-area-inset-top);--safe-bottom:env(safe-area-inset-bottom)}
+html[data-theme="light"]{--bg:#F7F5F0;--surface:#fff;--s2:#F1EEE7;--s3:#ECE8DF;--border:#E2DED5;--text:#16181D;--muted:#7A766C;--faint:#A39E92;--meta:#2446E8;--tt:#16181D;--cy:#16181D;--good:#1B6B3A;--bad:#B42318}
+html[data-theme="light"] .tabs button.on{background:var(--surface)}
+h1{font-size:clamp(28px,6vw,34px)!important;font-weight:700!important;line-height:1.15}
+html,body{font-family:"IBM Plex Sans Arabic",Cairo,system-ui,sans-serif!important}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:Cairo,system-ui,sans-serif}
 body{padding-top:var(--safe-top);padding-bottom:calc(92px + var(--safe-bottom))}
 button,input,select{font:inherit}a{text-decoration:none;color:inherit}
@@ -41,16 +47,18 @@ th{color:var(--muted);font-weight:700;font-size:10.5px}td.n{font-family:"JetBrai
 .pl{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;padding:2px 8px;border-radius:99px;background:var(--s2)}.pl i{width:6px;height:6px;border-radius:50%}
 .note{font-size:11px;color:var(--faint);line-height:1.9;margin-top:12px}
 .empty{height:100%;display:grid;place-items:center;color:var(--muted);font-size:12px}
-.bottom{position:fixed;z-index:30;left:8px;right:8px;bottom:calc(8px + var(--safe-bottom));background:rgba(13,16,22,.94);backdrop-filter:blur(18px);border:1px solid var(--border);border-radius:20px;padding:6px}
-.nav{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}.nav a{min-height:54px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#7d8797;font-size:9.5px;font-weight:700}.nav a.active{background:var(--s2);color:var(--text)}.nav svg{width:20px;height:20px}.nav a.active svg{color:var(--cy)}
-@media(min-width:720px){.app{padding:28px}.bar{flex-direction:row;align-items:flex-end;flex-wrap:wrap}.tabs{width:330px}.fl{display:flex;flex:1;gap:10px;flex-wrap:wrap}.field{min-width:150px}.kpis{grid-template-columns:repeat(4,1fr)}.grid{grid-template-columns:1fr 1fr}.cv{height:290px}.bottom{width:min(760px,calc(100% - 40px));left:50%;right:auto;transform:translateX(-50%)}}
+@media(min-width:720px){.app{padding:28px}.bar{flex-direction:row;align-items:flex-end;flex-wrap:wrap}.tabs{width:330px}.fl{display:flex;flex:1;gap:10px;flex-wrap:wrap}.field{min-width:150px}.kpis{grid-template-columns:repeat(4,1fr)}.grid{grid-template-columns:1fr 1fr}.cv{height:290px}}
 
 html{height:auto;-webkit-text-size-adjust:100%}body{min-height:100dvh;overflow-x:hidden;overflow-y:auto;touch-action:manipulation}
 .app,.grid>*,.kpis>*,.card,.bar,.fl>*{min-width:0}.cv canvas{max-width:100%!important}.card.wide .tw{max-width:100%}
-.bottom{width:min(420px,calc(100% - 16px));left:50%;right:auto;transform:translateX(-50%)}
-@media(min-width:1000px){body{padding-bottom:40px}.bottom{left:auto;right:16px;top:50%;bottom:auto;transform:translateY(-50%);width:84px}.nav{grid-template-columns:1fr}.app{padding-right:120px}}
 @media(max-width:719px){.kpis{grid-template-columns:repeat(2,1fr)}.k .v{font-size:17px}.cv{height:220px}th,td{padding:9px 6px}}
+.bottom{position:fixed;z-index:30;left:50%;right:auto;top:auto;bottom:calc(14px + var(--safe-bottom));transform:translateX(-50%);width:max-content;max-width:calc(100% - 28px);background:var(--surface);border:1px solid var(--border);border-radius:32px;padding:6px;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.nav{display:flex;gap:4px}.nav a{height:48px;padding:0 14px;border-radius:24px;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--muted);font-size:14px;font-weight:600}.nav a span{display:none}.nav a.active{background:var(--meta);color:#fff;padding:0 18px}.nav a.active span{display:inline}.nav svg{width:22px;height:22px}
+.ch .cn{margin-inline-start:auto;margin-inline-end:8px}
+.ctype{appearance:none;-webkit-appearance:none;border:1px solid var(--border);background:var(--s2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237A766C' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat left 8px center;color:var(--text);border-radius:10px;height:30px;padding:0 10px 0 26px;font-size:12px;font-weight:600;cursor:pointer;outline:none}
+.grid>.card:nth-child(1){order:1}.grid>.card:nth-child(6){order:2}.grid>.card:nth-child(4){order:3}.grid>.card:nth-child(5){order:4}.grid>.card:nth-child(2){order:5}.grid>.card:nth-child(3){order:6}
 </style>
+<meta name="color-scheme" content="light">
 </head>
 <body>
 <main class="app">
@@ -66,11 +74,11 @@ html{height:auto;-webkit-text-size-adjust:100%}body{min-height:100dvh;overflow-x
 </div>
 <div class="kpis" id="kpis"></div>
 <div class="grid">
- <div class="card wide"><div class="ch"><span class="ct" data-t="c1">الإنفاق والإيراد و ROAS</span><span class="cn">يوميًا</span></div><div class="cv"><canvas id="c1"></canvas></div></div>
- <div class="card"><div class="ch"><span class="ct" data-t="c2">النقرات و CTR</span><span class="cn">يوميًا</span></div><div class="cv"><canvas id="c2"></canvas></div></div>
- <div class="card"><div class="ch"><span class="ct">CPM و CPC</span><span class="cn">يوميًا</span></div><div class="cv"><canvas id="c3"></canvas></div></div>
- <div class="card"><div class="ch"><span class="ct" data-t="c4">المشتريات وتكلفة الشراء</span><span class="cn">يوميًا</span></div><div class="cv"><canvas id="c4"></canvas></div></div>
- <div class="card" id="splitCard"><div class="ch"><span class="ct" data-t="c5">توزيع الإنفاق بين المنصات</span><span class="cn">يوميًا</span></div><div class="cv"><canvas id="c5"></canvas></div></div>
+ <div class="card wide"><div class="ch"><span class="ct" data-t="c1">الإنفاق والإيراد و ROAS</span><span class="cn">يوميًا</span><select class="ctype" data-c="c1" aria-label="نوع الرسم"><option value="bar">أعمدة</option><option value="line">خطوط</option><option value="area">مساحة</option></select></div><div class="cv"><canvas id="c1"></canvas></div></div>
+ <div class="card"><div class="ch"><span class="ct" data-t="c2">النقرات و CTR</span><span class="cn">يوميًا</span><select class="ctype" data-c="c2" aria-label="نوع الرسم"><option value="bar">أعمدة</option><option value="line">خطوط</option><option value="area">مساحة</option></select></div><div class="cv"><canvas id="c2"></canvas></div></div>
+ <div class="card"><div class="ch"><span class="ct">CPM و CPC</span><span class="cn">يوميًا</span><select class="ctype" data-c="c3" aria-label="نوع الرسم"><option value="bar">أعمدة</option><option value="line">خطوط</option><option value="area">مساحة</option></select></div><div class="cv"><canvas id="c3"></canvas></div></div>
+ <div class="card"><div class="ch"><span class="ct" data-t="c4">المشتريات وتكلفة الشراء</span><span class="cn">يوميًا</span><select class="ctype" data-c="c4" aria-label="نوع الرسم"><option value="bar">أعمدة</option><option value="line">خطوط</option><option value="area">مساحة</option></select></div><div class="cv"><canvas id="c4"></canvas></div></div>
+ <div class="card" id="splitCard"><div class="ch"><span class="ct" data-t="c5">توزيع الإنفاق بين المنصات</span><span class="cn">يوميًا</span><select class="ctype" data-c="c5" aria-label="نوع الرسم"><option value="bar">أعمدة</option><option value="line">خطوط</option><option value="area">مساحة</option></select></div><div class="cv"><canvas id="c5"></canvas></div></div>
  <div class="card wide"><div class="ch"><span class="ct" data-t="c6">الحملات (مرتبة بالإنفاق)</span><span class="cn" id="campN"></span></div><div class="tw"><table id="camps"></table></div></div>
 </div>
 <div class="note" id="note"></div>
@@ -84,13 +92,14 @@ html{height:auto;-webkit-text-size-adjust:100%}body{min-height:100dvh;overflow-x
 const sb=supabase.createClient('https://zphepebjpxrzpudncuas.supabase.co','sb_publishable_tIG9XDZeHVZpZjz74e-dBA_ui5GIYw7');
 const GRAPH='https://graph.facebook.com/v26.0',$=id=>document.getElementById(id);
 const lang=(localStorage.getItem('mbh_lang')||'ar').startsWith('en')?'en':'ar';
-const EN={title:'Insights',sub:'Meta and TikTok performance in one place',all:'All',range:'Period',acc:'Meta account',ma:'7-day moving average',c1:'Spend, Revenue & ROAS',c2:'Clicks & CTR',c4:'Purchases & CPA',c5:'Spend split by platform',c6:'Campaigns (by spend)',home:'Home',auto:'Automation',ins:'Insights',set:'Settings'};
+const EN={title:'Insights',sub:'Meta and TikTok performance in one place',all:'All',range:'Period',acc:'Meta account',ma:'7-day moving average',c1:'Spend, Revenue & ROAS',c2:'Clicks & CTR',c4:'Purchases & CPA',c5:'Spend split by platform',c6:'Campaigns (by spend)',home:'Home',ins:'Insights',set:'Settings'};
 if(lang==='en'){document.documentElement.lang='en';document.documentElement.dir='ltr';document.querySelectorAll('[data-t]').forEach(e=>{if(EN[e.dataset.t])e.textContent=EN[e.dataset.t]})}
 let user=null,conns=[],platform='all',charts={},FX=null,busy=0;
 const USER_CUR='USD';
 const num=v=>{const n=parseFloat(v);return isNaN(n)?0:n};
 const fmtN=(n,d=0)=>new Intl.NumberFormat('en-US',{maximumFractionDigits:d,minimumFractionDigits:d}).format(n);
-const usd=n=>'$'+fmtN(n,n>=100?0:2);
+const usd=n=>fmtN(n,n>=100?0:2)+' ج.م';
+const usdA=n=>Math.abs(n)>=10000?fmtN(n/1000,0)+'K':fmtN(n,n>=100?0:2);
 const iso=d=>d.toISOString().slice(0,10);
 const setStatus=(s,e)=>{$('status').textContent=s||'';$('status').className='status'+(e?' error':'')};
 const PUR=['purchase','omni_purchase','offsite_conversion.fb_pixel_purchase'];
@@ -104,7 +113,8 @@ function dayList(r){const o=[];for(let d=new Date(r.since);d<=new Date(r.until);
 async function graph(path,p){const res=await fetch(GRAPH+'/'+path+'?'+new URLSearchParams(p));const j=await res.json();if(j.error)throw Error(j.error.message);return j}
 async function loadFx(){try{const c=JSON.parse(localStorage.getItem('mbh_fx')||'null');if(c&&Date.now()-c.t<216e5)return c.r}catch(e){}
  try{const j=await(await fetch('https://open.er-api.com/v6/latest/USD')).json();if(j&&j.rates){try{localStorage.setItem('mbh_fx',JSON.stringify({t:Date.now(),r:j.rates}))}catch(e){}return j.rates}}catch(e){}return null}
-const toUsd=(v,c)=>!c||c==='USD'||!FX||!FX[c]?v:v/FX[c];
+const TARGET='EGP';
+const toUsd=(v,c)=>{c=c||'USD';if(c===TARGET||!FX||!FX[c]||!FX[TARGET])return v;return v/FX[c]*FX[TARGET]};
 const E=()=>({spend:0,rev:0,rsp:0,imp:0,clk:0,pur:0,hasRev:false});
 function acc(m,k,o){const x=m[k]=m[k]||E();x.spend+=o.spend;x.rsp+=o.hasRev?o.spend:0;x.rev+=o.rev||0;x.imp+=o.imp;x.clk+=o.clk;x.pur+=o.pur;if(o.hasRev)x.hasRev=true}
 /* ---------- data ---------- */
@@ -139,37 +149,42 @@ async function ttFetch(r,prev){
 const derive=o=>({...o,roas:o.rsp&&o.hasRev?o.rev/o.rsp:null,cpa:o.pur?o.spend/o.pur:null,ctr:o.imp?o.clk/o.imp*100:null,cpm:o.imp?o.spend/o.imp*1000:null,cpc:o.clk?o.spend/o.clk:null});
 function ma(arr,w=7){return arr.map((_,i)=>{const s=arr.slice(Math.max(0,i-w+1),i+1).filter(x=>x!=null);return s.length?s.reduce((a,b)=>a+b,0)/s.length:null})}
 /* ---------- render ---------- */
-const GRID='#1b1f29',TICK='#6b7385';
-function mk(id,cfg){if(charts[id])charts[id].destroy();const ctx=$(id).getContext('2d');charts[id]=new Chart(ctx,cfg)}
-const cross={id:'cross',afterDraw(c){const a=c.tooltip&&c.tooltip._active;if(!a||!a.length)return;const x=a[0].element.x,{top,bottom}=c.chartArea,g=c.ctx;g.save();g.beginPath();g.moveTo(x,top);g.lineTo(x,bottom);g.lineWidth=1;g.strokeStyle='rgba(255,255,255,.18)';g.setLineDash([4,4]);g.stroke();g.restore()}};
+const LT=document.documentElement.dataset.theme==='light',GRID=LT?'#EEEAE1':'#1b1f29',TICK=LT?'#8A8578':'#6b7385',C_META=LT?'#2446E8':C_META,C_TT=LT?'#16181D':C_TT,C_CY=LT?'#16181D':C_CY;
+const MODE=(()=>{try{return JSON.parse(localStorage.getItem('mbh_ctype')||'{}')}catch(e){return{}}})();
+function applyMode(cfg,m){const hx=c=>/^#[0-9a-f]{6}$/i.test(c||'');cfg.type='bar';cfg.data.datasets.forEach(d=>{const col=hx(d.borderColor)?d.borderColor:(hx(d.backgroundColor)?d.backgroundColor:'#2446E8');const asLine=m!=='bar'||(d.yAxisID&&d.yAxisID!=='y');
+ if(asLine){d.type='line';d.borderColor=col;d.borderWidth=2;d.tension=.35;d.pointRadius=0;d.pointHoverRadius=4;delete d.borderRadius;d.fill=m==='area';d.backgroundColor=col+(m==='area'?'22':'00')}
+ else{d.type='bar';d.borderColor=col;d.backgroundColor=col+'55';d.borderWidth=1;d.borderRadius=4;d.fill=false}})}
+document.querySelectorAll('.ctype').forEach(el=>{el.value=MODE[el.dataset.c]||'bar';el.onchange=()=>{MODE[el.dataset.c]=el.value;try{localStorage.setItem('mbh_ctype',JSON.stringify(MODE))}catch(e){}if(window.__last)render(...window.__last)}});
+function mk(id,cfg){applyMode(cfg,MODE[id]||'bar');if(charts[id])charts[id].destroy();const ctx=$(id).getContext('2d');charts[id]=new Chart(ctx,cfg)}
+const cross={id:'cross',afterDraw(c){const a=c.tooltip&&c.tooltip._active;if(!a||!a.length)return;const x=a[0].element.x,{top,bottom}=c.chartArea,g=c.ctx;g.save();g.beginPath();g.moveTo(x,top);g.lineTo(x,bottom);g.lineWidth=1;g.strokeStyle=LT?'rgba(22,24,29,.25)':'rgba(255,255,255,.18)';g.setLineDash([4,4]);g.stroke();g.restore()}};
 function base(axes,fmts){return{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
- plugins:{legend:{position:'bottom',labels:{color:'#98a2b3',usePointStyle:true,boxWidth:7,font:{family:'Cairo',size:10.5}}},
-  tooltip:{rtl:document.dir==='rtl',backgroundColor:'#0d1016',borderColor:'#262b37',borderWidth:1,padding:10,titleFont:{family:'Cairo'},bodyFont:{family:'Cairo'},callbacks:{label:c=>' '+c.dataset.label+': '+((fmts[c.dataset.yAxisID||'y']||fmtN)(c.parsed.y))}}},
+ plugins:{legend:{position:'bottom',labels:{color:LT?'#7A766C':'#98a2b3',usePointStyle:true,boxWidth:7,font:{family:'Cairo',size:10.5}}},
+  tooltip:{rtl:document.dir==='rtl',backgroundColor:'#fff',borderColor:'#E2DED5',borderWidth:1,padding:10,titleFont:{family:'Cairo'},bodyFont:{family:'Cairo'},callbacks:{label:c=>' '+c.dataset.label+': '+((fmts[c.dataset.yAxisID||'y']||fmtN)(c.parsed.y))}}},
  scales:Object.fromEntries(Object.entries(axes).map(([k,v])=>[k,{position:v.right?'right':'left',beginAtZero:true,grid:{color:v.right?'transparent':GRID,drawOnChartArea:!v.right},border:{display:false},ticks:{color:TICK,font:{size:10},maxTicksLimit:6,callback:x=>(v.f||fmtN)(x)}}]).concat([['x',{grid:{display:false},border:{color:GRID},ticks:{color:TICK,font:{size:10},maxRotation:0,autoSkip:true,maxTicksLimit:8,callback:function(v){const s=this.getLabelForValue(v);return s.slice(5)}}}]]))}}
-function render(D,labels,tot,prv,camps,pf){
+function render(D,labels,tot,prv,camps,pf){window.__last=[D,labels,tot,prv,camps,pf];
  const A=labels.map(d=>derive(D[d]||E())),smooth=$('ma').checked,sm=a=>smooth?ma(a):a;
  const KP=[['spend','الإنفاق',tot.spend,prv.spend,usd,0],['rev','الإيراد',tot.hasRev?tot.rev:null,prv.hasRev?prv.rev:null,usd,1],['roas','ROAS',tot.roas,prv.roas,v=>fmtN(v,2)+'x',1],['pur','المشتريات / التحويلات',tot.pur,prv.pur,v=>fmtN(v),1],['cpa','تكلفة الشراء',tot.cpa,prv.cpa,usd,-1],['ctr','CTR',tot.ctr,prv.ctr,v=>fmtN(v,2)+'%',1],['cpm','CPM',tot.cpm,prv.cpm,usd,-1],['cpc','CPC',tot.cpc,prv.cpc,usd,-1]];
  $('kpis').innerHTML=KP.map(([k,l,v,p,f,g])=>{let d='';if(v!=null&&p){const pc=(v-p)/p*100,up=pc>=0,good=g===0?null:(g>0)===up;d=`<div class="d ${good==null?'':good?'up':'dn'}">${up?'▲':'▼'} ${fmtN(Math.abs(pc),1)}%</div>`}else d='<div class="d">—</div>';return`<div class="k"><div class="l">${l}</div><div class="v">${v==null?'—':f(v)}</div>${d}</div>`}).join('');
- const L=labels,col=pf==='tiktok'?'#f43f5e':'#4f7dfb';
+ const L=labels,col=pf==='tiktok'?C_TT:C_META;
  mk('c1',{type:'bar',data:{labels:L,datasets:[{type:'bar',label:'الإنفاق',data:A.map(x=>x.spend),backgroundColor:col+'55',borderColor:col,borderWidth:1,borderRadius:4,yAxisID:'y',order:3},
-  ...(tot.hasRev?[{type:'line',label:'الإيراد',data:A.map(x=>x.hasRev?x.rev:null),borderColor:'#22d3ee',backgroundColor:'rgba(34,211,238,.1)',fill:true,tension:.35,pointRadius:0,pointHoverRadius:4,borderWidth:2,yAxisID:'y',order:2},
+  ...(tot.hasRev?[{type:'line',label:'الإيراد',data:A.map(x=>x.hasRev?x.rev:null),borderColor:C_CY,backgroundColor:'rgba(34,211,238,.1)',fill:true,tension:.35,pointRadius:0,pointHoverRadius:4,borderWidth:2,yAxisID:'y',order:2},
   {type:'line',label:'ROAS'+(smooth?' (متوسط 7)':''),data:sm(A.map(x=>x.roas)),borderColor:'#eab308',borderDash:[5,4],tension:.35,pointRadius:0,borderWidth:2,yAxisID:'r',order:1}]:[])]},
-  options:base({y:{f:usd},...(tot.hasRev?{r:{right:1,f:v=>fmtN(v,1)+'x'}}:{})},{y:usd,r:v=>fmtN(v,2)+'x'}),plugins:[cross]});
- mk('c2',{type:'bar',data:{labels:L,datasets:[{type:'bar',label:'النقرات',data:A.map(x=>x.clk),backgroundColor:'#4f7dfb55',borderColor:'#4f7dfb',borderWidth:1,borderRadius:4,yAxisID:'y'},{type:'line',label:'CTR'+(smooth?' (متوسط 7)':''),data:sm(A.map(x=>x.ctr)),borderColor:'#22d3ee',tension:.35,pointRadius:0,borderWidth:2,yAxisID:'r'}]},options:base({y:{},r:{right:1,f:v=>fmtN(v,1)+'%'}},{y:v=>fmtN(v),r:v=>fmtN(v,2)+'%'}),plugins:[cross]});
- mk('c3',{type:'line',data:{labels:L,datasets:[{label:'CPM'+(smooth?' (متوسط 7)':''),data:sm(A.map(x=>x.cpm)),borderColor:'#4f7dfb',tension:.35,pointRadius:0,borderWidth:2,yAxisID:'y',spanGaps:true},{label:'CPC'+(smooth?' (متوسط 7)':''),data:sm(A.map(x=>x.cpc)),borderColor:'#22d3ee',tension:.35,pointRadius:0,borderWidth:2,yAxisID:'r',spanGaps:true}]},options:base({y:{f:usd},r:{right:1,f:v=>'$'+fmtN(v,2)}},{y:usd,r:v=>'$'+fmtN(v,2)}),plugins:[cross]});
- mk('c4',{type:'bar',data:{labels:L,datasets:[{type:'bar',label:'المشتريات',data:A.map(x=>x.pur),backgroundColor:'#22c55e55',borderColor:'#22c55e',borderWidth:1,borderRadius:4,yAxisID:'y'},{type:'line',label:'تكلفة الشراء'+(smooth?' (متوسط 7)':''),data:sm(A.map(x=>x.cpa)),borderColor:'#f97316',tension:.35,pointRadius:0,borderWidth:2,yAxisID:'r',spanGaps:true}]},options:base({y:{},r:{right:1,f:usd}},{y:v=>fmtN(v),r:usd}),plugins:[cross]});
+  options:base({y:{f:usdA},...(tot.hasRev?{r:{right:1,f:v=>fmtN(v,1)+'x'}}:{})},{y:usd,r:v=>fmtN(v,2)+'x'}),plugins:[cross]});
+ mk('c2',{type:'bar',data:{labels:L,datasets:[{type:'bar',label:'النقرات',data:A.map(x=>x.clk),backgroundColor:C_META+'55',borderColor:C_META,borderWidth:1,borderRadius:4,yAxisID:'y'},{type:'line',label:'CTR'+(smooth?' (متوسط 7)':''),data:sm(A.map(x=>x.ctr)),borderColor:C_CY,tension:.35,pointRadius:0,borderWidth:2,yAxisID:'r'}]},options:base({y:{},r:{right:1,f:v=>fmtN(v,1)+'%'}},{y:v=>fmtN(v),r:v=>fmtN(v,2)+'%'}),plugins:[cross]});
+ mk('c3',{type:'line',data:{labels:L,datasets:[{label:'CPM'+(smooth?' (متوسط 7)':''),data:sm(A.map(x=>x.cpm)),borderColor:C_META,tension:.35,pointRadius:0,borderWidth:2,yAxisID:'y',spanGaps:true},{label:'CPC'+(smooth?' (متوسط 7)':''),data:sm(A.map(x=>x.cpc)),borderColor:C_CY,tension:.35,pointRadius:0,borderWidth:2,yAxisID:'r',spanGaps:true}]},options:base({y:{f:usdA},r:{right:1,f:usdA}},{y:usd,r:usd}),plugins:[cross]});
+ mk('c4',{type:'bar',data:{labels:L,datasets:[{type:'bar',label:'المشتريات',data:A.map(x=>x.pur),backgroundColor:'#22c55e55',borderColor:'#22c55e',borderWidth:1,borderRadius:4,yAxisID:'y'},{type:'line',label:'تكلفة الشراء'+(smooth?' (متوسط 7)':''),data:sm(A.map(x=>x.cpa)),borderColor:'#f97316',tension:.35,pointRadius:0,borderWidth:2,yAxisID:'r',spanGaps:true}]},options:base({y:{},r:{right:1,f:usdA}},{y:v=>fmtN(v),r:usd}),plugins:[cross]});
  $('splitCard').style.display=pf==='all'?'':'none';
- if(pf==='all')mk('c5',{type:'bar',data:{labels:L,datasets:[{label:'Meta',data:L.map(d=>window.__M[d]?window.__M[d].spend:0),backgroundColor:'#4f7dfb',borderRadius:3},{label:'TikTok',data:L.map(d=>window.__T[d]?window.__T[d].spend:0),backgroundColor:'#f43f5e',borderRadius:3}]},options:{...base({y:{f:usd}},{y:usd}),scales:{...base({y:{f:usd}},{y:usd}).scales,x:{stacked:true,...base({y:{}},{}).scales.x},y:{stacked:true,...base({y:{f:usd}},{}).scales.y}}}});
+ if(pf==='all')mk('c5',{type:'bar',data:{labels:L,datasets:[{label:'Meta',data:L.map(d=>window.__M[d]?window.__M[d].spend:0),backgroundColor:C_META,borderRadius:3},{label:'TikTok',data:L.map(d=>window.__T[d]?window.__T[d].spend:0),backgroundColor:C_TT,borderRadius:3}]},options:{...base({y:{f:usdA}},{y:usd}),scales:{...base({y:{f:usdA}},{y:usd}).scales,x:{stacked:true,...base({y:{}},{}).scales.x},y:{stacked:true,...base({y:{f:usdA}},{}).scales.y}}}});
  const rows=Object.values(camps).map(derive).sort((a,b)=>b.spend-a.spend).slice(0,25);
  $('campN').textContent=rows.length+' حملة';
- $('camps').innerHTML=rows.length?`<tr><th>الحملة</th><th>المنصة</th><th>الإنفاق</th><th>الإيراد</th><th>ROAS</th><th>مشتريات</th><th>تكلفة الشراء</th><th>CTR</th><th>CPM</th></tr>`+rows.map(r=>`<tr><td>${String(r.name||'').replace(/[<>&]/g,'')}</td><td><span class="pl"><i style="background:${r.p==='meta'?'#4f7dfb':'#f43f5e'}"></i>${r.p==='meta'?'Meta':'TikTok'}</span></td><td class="n">${usd(r.spend)}</td><td class="n">${r.hasRev?usd(r.rev):'—'}</td><td class="n" style="color:${r.roas==null?'':r.roas>=1?'var(--good)':'var(--bad)'}">${r.roas==null?'—':fmtN(r.roas,2)+'x'}</td><td class="n">${fmtN(r.pur)}</td><td class="n">${r.cpa==null?'—':usd(r.cpa)}</td><td class="n">${r.ctr==null?'—':fmtN(r.ctr,2)+'%'}</td><td class="n">${r.cpm==null?'—':usd(r.cpm)}</td></tr>`).join(''):'<tr><td style="color:var(--muted)">لا توجد حملات في الفترة</td></tr>';
+ $('camps').innerHTML=rows.length?`<tr><th>الحملة</th><th>المنصة</th><th>الإنفاق</th><th>الإيراد</th><th>ROAS</th><th>مشتريات</th><th>تكلفة الشراء</th><th>CTR</th><th>CPM</th></tr>`+rows.map(r=>`<tr><td>${String(r.name||'').replace(/[<>&]/g,'')}</td><td><span class="pl"><i style="background:${r.p==='meta'?C_META:C_TT}"></i>${r.p==='meta'?'Meta':'TikTok'}</span></td><td class="n">${usd(r.spend)}</td><td class="n">${r.hasRev?usd(r.rev):'—'}</td><td class="n" style="color:${r.roas==null?'':r.roas>=1?'var(--good)':'var(--bad)'}">${r.roas==null?'—':fmtN(r.roas,2)+'x'}</td><td class="n">${fmtN(r.pur)}</td><td class="n">${r.cpa==null?'—':usd(r.cpa)}</td><td class="n">${r.ctr==null?'—':fmtN(r.ctr,2)+'%'}</td><td class="n">${r.cpm==null?'—':usd(r.cpm)}</td></tr>`).join(''):'<tr><td style="color:var(--muted)">لا توجد حملات في الفترة</td></tr>';
 }
 /* ---------- orchestration ---------- */
 async function run(){
  const my=++busy;setStatus('جاري تحميل البيانات…');
  try{
   const r=getRange();if(!r.since||!r.until)return setStatus('اختر فترة صحيحة',true);
-  const p=prevRange(r),labels=dayList(r);FX=FX||await loadFx();
+  const p=prevRange(r),labels=dayList(r);FX=FX||await loadFx();const fxWarn=!FX;
   const want=k=>platform==='all'||platform===k;
   const [M,T]=await Promise.all([want('meta')?metaFetch(r,p).catch(e=>({err:e.message,daily:{},camps:{},ptot:E()})):{daily:{},camps:{},ptot:E()},want('tiktok')?ttFetch(r,p).catch(e=>({err:e.message,daily:{},camps:{},ptot:E()})):{daily:{},camps:{},ptot:E()}]);
   if(my!==busy)return;
@@ -179,8 +194,8 @@ async function run(){
   const prv=derive({spend:M.ptot.spend+T.ptot.spend,rsp:M.ptot.rsp+T.ptot.rsp,rev:M.ptot.rev+T.ptot.rev,imp:M.ptot.imp+T.ptot.imp,clk:M.ptot.clk+T.ptot.clk,pur:M.ptot.pur+T.ptot.pur,hasRev:M.ptot.hasRev||T.ptot.hasRev});
   const camps={...M.camps,...T.camps},totD=derive(tt);
   render(D,labels,totD,prv,camps,platform);
-  const warn=[];if(M.err)warn.push('Meta: '+M.err);if(T.err)warn.push('TikTok: '+T.err);else if(T.status&&T.status!=='ok'&&want('tiktok'))warn.push('TikTok غير متصل أو يحتاج إعادة ربط');
-  const nt=['كل القيم بالدولار (تُحوَّل تلقائيًا بسعر صرف حي إن اختلفت العملة).','المقارنة بنسبة التغير مع فترة سابقة بنفس الطول.'];
+  const warn=[];if(fxWarn)warn.push('تعذّر جلب سعر الصرف: القيم بعملتها الأصلية');if(M.err)warn.push('Meta: '+M.err);if(T.err)warn.push('TikTok: '+T.err);else if(T.status&&T.status!=='ok'&&want('tiktok'))warn.push('TikTok غير متصل أو يحتاج إعادة ربط');
+  const nt=['كل القيم بالجنيه المصري (تُحوَّل تلقائيًا بسعر صرف حي إن اختلفت عملة الحساب).','المقارنة بنسبة التغير مع فترة سابقة بنفس الطول.'];
   if(want('tiktok'))nt.push('TikTok لا يوفّر قيمة الإيراد، لذا ROAS والإيراد من Meta فقط، وتحويلات TikTok تُحسب ضمن المشتريات.');
   if(T.partialPrev)nt.push('المقارنة مع TikTok غير كاملة لأن الفترة السابقة أقدم من ٩٠ يومًا.');
   $('note').innerHTML=nt.join('<br>');setStatus(warn.join(' · '),!!warn.length);
