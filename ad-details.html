@@ -5,14 +5,15 @@
   
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<script>(function(){var d=document.documentElement;d.dataset.theme="light";try{new MutationObserver(function(){if(d.dataset.theme!=="light")d.dataset.theme="light"}).observe(d,{attributes:true,attributeFilter:["data-theme"]})}catch(e){}})()</script>
 <title>تفاصيل الإعلان - Media Buyer Hub</title>
 
 <!-- ====== PWA: manifest + icons + theme color ====== -->
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#090b0f">
+<meta name="theme-color" content="#F7F5F0">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="AI Media Buyer">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="icon" href="/icon-192.png">
@@ -20,17 +21,18 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#000; --bg-soft:#080808;
-    --surface:#0d0d0d; --surface-2:#141414; --surface-3:#1b1b1b;
-    --border:#262626; --border-soft:#1a1a1a;
-    --text:#fff; --text-dim:#b8b8b8; --text-faint:#777;
-    --accent:#fff; --accent-2:#fff; --accent-soft:rgba(255,255,255,.10);
-    --good:#fff; --good-bg:rgba(255,255,255,.10); --good-bd:rgba(255,255,255,.30);
-    --mid:#cfcfcf; --mid-bg:rgba(255,255,255,.07); --mid-bd:rgba(255,255,255,.22);
-    --bad:#fff; --bad-bg:rgba(255,255,255,.06); --bad-bd:rgba(255,255,255,.28);
+    --bg:#FFFFFF; --bg-soft:#FFFFFF;
+    --surface:#FFFFFF; --surface-2:#F7F5F0; --surface-3:#F7F5F0;
+    --border:#F7F5F0; --border-soft:#F7F5F0;
+    --text:#16181D; --text-dim:#4A473F; --text-faint:#7A766C;
+    --accent:#16181D; --accent-2:#16181D; --accent-soft:rgba(22,24,29,0.1);
+    --good:#16181D; --good-bg:rgba(22,24,29,0.1); --good-bd:rgba(22,24,29,0.3);
+    --mid:#16181D; --mid-bg:rgba(22,24,29,0.07); --mid-bd:rgba(22,24,29,0.22);
+    --bad:#16181D; --bad-bg:rgba(22,24,29,0.06); --bad-bd:rgba(22,24,29,0.28);
     --radius:16px; --radius-sm:10px;
     --font-ui:'Cairo',system-ui,sans-serif;
     --font-num:'JetBrains Mono','Cairo',monospace;
@@ -41,9 +43,9 @@
     font-family:var(--font-ui); background:var(--bg); color:var(--text);
     min-height:100vh; -webkit-font-smoothing:antialiased; padding-bottom:env(safe-area-inset-bottom);
   }
-  ::selection{ background:var(--accent-soft); color:#fff; }
+  ::selection{ background:var(--accent-soft); color:#16181D; }
   ::-webkit-scrollbar{ width:8px; height:8px; }
-  ::-webkit-scrollbar-thumb{ background:#242833; border-radius:8px; }
+  ::-webkit-scrollbar-thumb{ background:#F1EEE7; border-radius:8px; }
   a{ color:inherit; }
   button{ font-family:inherit; }
 
@@ -52,7 +54,7 @@
 
   /* Unified monochrome UI + system-language navigation */
   .sidebar,.backdrop{display:none!important;}
-  .topbar{background:rgba(0,0,0,.92);}
+  .topbar{background:rgba(255,255,255,0.92);}
   
 .bottom-nav-item{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:7px 4px;border-radius:12px;color:#777;text-decoration:none;font-size:10px;font-weight:700;}
   .bottom-nav-item svg{width:20px;height:20px;}
@@ -66,7 +68,7 @@
     position:sticky; top:0; z-index:120;
     display:flex; align-items:center; gap:12px;
     padding:12px clamp(14px,3vw,28px);
-    background:rgba(9,11,15,.86); backdrop-filter:blur(10px);
+    background:rgba(255,255,255,0.86); backdrop-filter:blur(10px);
     border-bottom:1px solid var(--border-soft);
   }
   .icon-btn{
@@ -75,7 +77,7 @@
     background:var(--surface); border:1px solid var(--border); color:var(--text);
     cursor:pointer; transition:.15s;
   }
-  .icon-btn:hover{ background:var(--surface-3); border-color:#2c313d; }
+  .icon-btn:hover{ background:var(--surface-3); border-color:#F1EEE7; }
   .icon-btn svg{ width:19px; height:19px; }
   .brand{ font-weight:800; font-size:15px; letter-spacing:.2px; white-space:nowrap; }
   .brand span{ color:var(--accent-2); }
@@ -84,7 +86,7 @@
 
   /* ---------- Sidebar (overlay, hamburger-only) ---------- */
   .backdrop{
-    position:fixed; inset:0; background:rgba(4,5,8,.55); backdrop-filter:blur(2px);
+    position:fixed; inset:0; background:rgba(255,255,255,0.55); backdrop-filter:blur(2px);
     z-index:180; opacity:0; pointer-events:none; transition:opacity .2s ease;
   }
   .backdrop.show{ opacity:1; pointer-events:auto; }
@@ -93,7 +95,7 @@
     background:var(--surface); border-left:1px solid var(--border);
     padding:20px 14px; z-index:190; overflow-y:auto;
     transform:translateX(100%); transition:transform .25s cubic-bezier(.4,0,.2,1);
-    box-shadow:-20px 0 60px rgba(0,0,0,.4);
+    box-shadow:-20px 0 60px rgba(0,0,0,0.14);
   }
   .sidebar.open{ transform:translateX(0); }
   .sidebar-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:22px; padding:0 4px; }
@@ -118,17 +120,17 @@
     display:inline-flex; align-items:center; gap:7px; font-size:12.5px; color:var(--text-dim);
     text-decoration:none; padding:8px 13px; border-radius:10px; border:1px solid var(--border); background:var(--surface);
   }
-  .back-link:hover{ color:var(--text); border-color:#2c313d; }
+  .back-link:hover{ color:var(--text); border-color:#F1EEE7; }
   .back-link svg{ width:15px; height:15px; }
 
   .top-status{ font-size:12px; color:var(--text-dim); margin-bottom:12px; min-height:16px; white-space:pre-wrap; }
   .top-status.error{ color:var(--bad); }
 
-  .section-title{ font-size:14px; color:#d3d8e0; margin:26px 0 12px; display:flex; align-items:center; gap:10px; font-weight:700; }
+  .section-title{ font-size:14px; color:#16181D; margin:26px 0 12px; display:flex; align-items:center; gap:10px; font-weight:700; }
   .section-title svg{ width:16px; height:16px; color:var(--accent-2); }
-  .section-line{ flex:1; height:1px; background:linear-gradient(90deg,#2a2e38,transparent); }
+  .section-line{ flex:1; height:1px; background:linear-gradient(90deg,#F1EEE7,transparent); }
   .placeholder-box{
-    background:var(--surface); border:1px dashed #2a2e38; border-radius:var(--radius);
+    background:var(--surface); border:1px dashed #F1EEE7; border-radius:var(--radius);
     padding:26px; text-align:center; color:var(--text-faint); font-size:13px;
   }
 
@@ -146,7 +148,7 @@
   .ad-head-creative-name{ color:var(--accent-2); font-size:12px; margin-bottom:6px; }
   .ad-head-sub{ color:var(--text-faint); font-size:11.5px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
   .status-dot{ width:6px; height:6px; border-radius:50%; display:inline-block; }
-  .status-dot.on{ background:var(--good); } .status-dot.off{ background:#5c6474; }
+  .status-dot.on{ background:var(--good); } .status-dot.off{ background:#A39E92; }
   .acc-tag{ font-size:10.5px; color:var(--text-faint); background:var(--bg-soft); border:1px dashed var(--border); border-radius:20px; padding:2px 8px; display:inline-block; }
   .verdict-badge{
     display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:20px;
@@ -158,7 +160,7 @@
 
   /* ---------- Chart card ---------- */
   .chart-card{
-    background:linear-gradient(180deg,#12151c,#0d1016);
+    background:linear-gradient(180deg,#F7F5F0,#FFFFFF);
     border:1px solid var(--border); border-radius:var(--radius); padding:18px 16px 10px;
     margin-bottom:18px;
   }
@@ -201,12 +203,12 @@
     font-family:inherit; font-size:12px; font-weight:700; padding:8px 13px; border-radius:9px;
     border:1px solid var(--border); background:var(--surface-3); color:var(--text); cursor:pointer; transition:.15s;
   }
-  .mini-btn:hover{ background:var(--surface-2); border-color:#333844; }
+  .mini-btn:hover{ background:var(--surface-2); border-color:#F1EEE7; }
   .mini-btn.danger{ border-color:var(--bad-bd); color:var(--bad); }
   .mini-btn.go{ border-color:var(--accent); color:var(--accent-2); }
 
   /* ---------- Modal (budget) ---------- */
-  .modal-backdrop{ position:fixed; inset:0; background:rgba(4,5,8,.6); z-index:210; opacity:0; pointer-events:none; transition:.2s; }
+  .modal-backdrop{ position:fixed; inset:0; background:rgba(255,255,255,0.6); z-index:210; opacity:0; pointer-events:none; transition:.2s; }
   .modal-backdrop.show{ opacity:1; pointer-events:auto; }
   .modal{
     position:fixed; top:50%; left:50%; transform:translate(-50%,-46%); width:min(380px,90vw);
@@ -221,10 +223,10 @@
   .modal input{ font-family:var(--font-num); }
   .modal .modal-actions{ display:flex; gap:8px; margin-top:18px; }
   .btn{ padding:9px 16px; border-radius:10px; border:1px solid var(--border); background:var(--surface-3); color:var(--text); font-size:12.5px; font-weight:700; cursor:pointer; }
-  .btn.primary{ background:var(--accent); border-color:var(--accent); color:#fff; flex:1; }
+  .btn.primary{ background:var(--accent); border-color:var(--accent); color:#16181D; flex:1; }
   .btn.ghost{ background:transparent; }
 
-  .intel-card{margin:14px 0;padding:18px;border:1px solid var(--border);background:linear-gradient(180deg,var(--surface),var(--surface-2));border-radius:16px;box-shadow:0 10px 28px rgba(0,0,0,.16)}
+  .intel-card{margin:14px 0;padding:18px;border:1px solid var(--border);background:linear-gradient(180deg,var(--surface),var(--surface-2));border-radius:16px;box-shadow:0 10px 28px rgba(0,0,0,0.056)}
   .intel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}
   .intel-title{font-size:16px;font-weight:900;letter-spacing:-.2px}.intel-sub{margin-top:5px;color:var(--text-dim);font-size:11.5px;line-height:1.7}
   .intel-confidence{min-width:88px;text-align:center;border:1px solid var(--border);border-radius:12px;padding:8px 10px;background:var(--surface-3)}
@@ -239,6 +241,7 @@
   .intel-actions{display:grid;gap:7px}.intel-action{padding:10px 11px;border:1px solid var(--border);border-radius:11px;background:var(--surface-3);font-size:11.5px;line-height:1.65}
   @media(max-width:520px){.intel-head{flex-direction:column}.intel-confidence{width:100%;display:flex;align-items:center;justify-content:center;gap:8px}.intel-grid{grid-template-columns:1fr 1fr}}
 </style>
+<meta name="color-scheme" content="light">
 </head>
 <body>
 
@@ -260,7 +263,6 @@
   <a class="nav-item" href="account.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18"/></svg>ربط الحسابات الإعلانية</a>
   <a class="nav-item active" href="dashboard.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>تحليل البيانات</a>
   <a class="nav-item" href="insights.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="4" width="3" height="14"/></svg>الرسوم البيانية</a>
-  <a class="nav-item" href="automation-rules.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>قواعد الأتمتة</a>
   <a class="nav-item" href="team-quality.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>أداء الموظفين</a>
   <a class="nav-item" href="subscription.html"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>الاشتراك والدفع</a>
   <div class="nav-divider"></div>
@@ -279,6 +281,8 @@
   <div class="top-status" id="topStatus"></div>
 
   <div id="adHeadWrap"></div>
+
+  <div id="focusWrap"></div>
 
   <div class="chart-card" id="chartCard" style="display:none;">
     <div class="chart-card-head">
@@ -300,6 +304,11 @@
 
   <div id="actionsWrap"></div>
 </main>
+<nav class="mbh-pill" aria-label="التنقل الرئيسي">
+<a href="dashboard.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7v9H4z"/></svg><span>الرئيسية</span></a>
+<a href="insights.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5M4 19h16M7 15l3-4 3 2 5-6"/></svg><span>التحليلات</span></a>
+<a href="settings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg><span>الإعدادات</span></a>
+</nav>
 
 <div class="modal-backdrop" id="budgetBackdrop" onclick="closeBudgetModal()"></div>
 <div class="modal" id="budgetModal">
@@ -507,13 +516,14 @@ async function init(){
     PARAMS = {
       adId: qs.get('ad'),
       campaignId: qs.get('campaign'),
+      adsetId: qs.get('adset'),
       actId: qs.get('act'),
       token: qs.get('token'),
       accLabel: qs.get('acc') || '',
       since: qs.get('since'),
       until: qs.get('until')
     };
-    if ((!PARAMS.adId && !PARAMS.campaignId) || !PARAMS.actId || !PARAMS.token){
+    if ((!PARAMS.adId && !PARAMS.campaignId && !PARAMS.adsetId) || !PARAMS.actId || !PARAMS.token){
       setTopStatus('مفيش إعلان محدد — ارجع لصفحة تحليل البيانات واختار إعلان.', true);
       return;
     }
@@ -524,8 +534,10 @@ async function init(){
       PARAMS.until = fmt(today);
     }
 
-    window.CAMP_MODE = !!PARAMS.campaignId && !PARAMS.adId;
-    if(window.CAMP_MODE){ if(typeof loadCampaignDetails!=='function') await new Promise(r=>window.addEventListener('load',r,{once:true})); await loadCampaignDetails(); } else { await loadAdDetails(); }
+    window.ADSET_MODE = !!PARAMS.adsetId && !PARAMS.adId;
+    window.CAMP_MODE = window.ADSET_MODE || (!!PARAMS.campaignId && !PARAMS.adId);
+    document.documentElement.classList.toggle('adset-mode', window.ADSET_MODE);
+    if(window.CAMP_MODE){ if(typeof loadCampaignDetails!=='function') await new Promise(r=>window.addEventListener('load',r,{once:true})); await (window.ADSET_MODE ? loadAdsetDetails() : loadCampaignDetails()); } else { await loadAdDetails(); }
     document.getElementById('lastUpdate').textContent = t('now');
   } catch(err){
     setTopStatus(t('errorLoad') + err.message, true);
@@ -640,7 +652,7 @@ function renderIntelligence(){
     <div class="intel-verdict"><div class="label">${x.verdict}</div><div class="desc">${x.desc}</div></div>
     <div class="intel-grid">${metric(t('efficiency'),m.roas?`ROAS ${m.roas.toFixed(2)}x`:'—')}${metric(t('funnel'),m.clicks?`${m.purchases.toFixed(0)} / ${m.clicks.toFixed(0)}`:'—')}${metric(t('trend'),x.trend?.secondCpa&&x.trend?.firstCpa?`${money(x.trend.firstCpa)} → ${money(x.trend.secondCpa)}`:'—')}${metric(t('volatility'),x.signals?.some(s=>s.title===t('unstable'))?t('unstable'):t('stable'))}</div>
     <div class="intel-block"><h4>${t('signals')}</h4><div class="intel-list">${(x.signals||[]).map(s=>`<div class="intel-item ${s.level}"><i class="intel-dot"></i><div><strong>${esc(s.title)}</strong><span>${esc(s.detail)}</span></div></div>`).join('')}</div></div>
-    <div class="intel-block"><h4>${t('actionPlan')}</h4><div class="intel-actions">${(x.actions||[]).map(a=>`<div class="intel-action">${esc(a)}</div>`).join('')}</div></div>
+    
     ${x.bestDay||x.worstDay?`<div class="intel-block"><h4>${t('dailyPattern')}</h4><div class="intel-grid">${x.bestDay?metric(t('bestDay'),`${x.bestDay.date} · ${money(x.bestDay.spend)}`):''}${x.worstDay?metric(t('worstDay'),`${x.worstDay.date} · ${money(x.worstDay.spend)}`):''}</div></div>`:''}
   </section>`;
 }
@@ -817,6 +829,7 @@ function renderQuality(){
 }
 
 function renderActions(){
+  return; /* تنبيهات وتحليل فقط — لا أزرار تنفيذ */
   document.getElementById('actionsWrap').innerHTML = `
     <div class="ad-actions">
       ${AD.adset_id ? `<button class="mini-btn go" onclick="openBudgetModal()">زوّد الميزانية</button>` : ''}
@@ -896,7 +909,7 @@ init();
 .v-tile.b{border-color:rgba(248,113,113,.4)}.v-tile.b .v-a,.v-tile.b b{color:#f87171}
 .v-tile.m{border-color:rgba(251,191,36,.35)}.v-tile.m .v-a,.v-tile.m b{color:#fbbf24}
 .p-row{display:flex;flex-wrap:wrap;gap:8px}.p-chip{display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:99px;border:1px solid var(--border);background:var(--surface);font-size:12.5px}
-.p-chip span{color:var(--text-faint)}.p-dot{width:8px;height:8px;border-radius:50%;background:#555}.p-dot.ok{background:#34d399;box-shadow:0 0 8px #34d39988}.p-dot.warn{background:#fbbf24}.p-chip.off{border-style:dashed}
+.p-chip span{color:var(--text-faint)}.p-dot{width:8px;height:8px;border-radius:50%;background:#A39E92}.p-dot.ok{background:#34d399;box-shadow:0 0 8px rgba(0,0,0,0)}.p-dot.warn{background:#fbbf24}.p-chip.off{border-style:dashed}
 #actionsWrap,.intel-verdict,.intel-block:has(.intel-actions),.intel-confidence{display:none!important}
 .content{display:flex;flex-direction:column;gap:14px}
 .content>*{order:50}.back-row{order:0}.top-status{order:1}#adHeadWrap{order:2}#realWrap{order:3}#funnelWrap{order:4}#intelligenceWrap{order:5}#creativeWrap{order:6}#campaignWrap{order:7}#summaryWrap{order:8}#metricsWrap{order:9}#chartCard{order:10}#qualityWrap{order:11}#platformsWrap{order:12}
@@ -906,9 +919,9 @@ init();
 .x-box{background:var(--surface-2);border-radius:12px;padding:10px;text-align:center}.x-box span{display:block;font-size:10.5px;color:var(--text-faint);margin-bottom:3px}.x-box b{font-size:15px}
 .x-note{font-size:11.5px;color:var(--text-faint);line-height:1.8;margin-top:8px}
 .x-step{display:grid;grid-template-columns:110px 1fr 74px;gap:10px;align-items:center;padding:7px 0;font-size:12px}
-.x-bar{height:8px;border-radius:6px;background:var(--surface-3);overflow:hidden}.x-bar i{display:block;height:100%;background:var(--accent-2,#aaa)}
+.x-bar{height:8px;border-radius:6px;background:var(--surface-3);overflow:hidden}.x-bar i{display:block;height:100%;background:var(--accent-2,#4A473F)}
 .x-t{width:100%;border-collapse:collapse;font-size:12px}.x-t th,.x-t td{padding:8px 6px;border-bottom:1px solid var(--border);text-align:right;white-space:nowrap}.x-t tr.me td{background:var(--surface-2);font-weight:700}
-.x-wrap{overflow-x:auto}.x-row{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--border-soft,#222);font-size:12.5px}.x-row:last-child{border:0}
+.x-wrap{overflow-x:auto}.x-row{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--border-soft,#F7F5F0);font-size:12.5px}.x-row:last-child{border:0}
 .x-rate{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:12px;color:var(--text-dim)}.x-rate input{width:80px;padding:6px;border-radius:8px;border:1px solid var(--border);background:var(--bg-soft);color:var(--text)}
 @media(max-width:560px){.x-step{grid-template-columns:90px 1fr 62px}}
 </style>
@@ -1066,7 +1079,7 @@ renderAll=function(){
 };
 function renderCampHead(){
  const c=CAMP,on=c.status==='ACTIVE',bud=c.daily_budget?money(num(c.daily_budget)/100)+' / يوم':c.lifetime_budget?money(num(c.lifetime_budget)/100)+' إجمالي':(CADSETS.some(a=>a.daily_budget)?'على مستوى المجموعات':'—');
- document.getElementById('adHeadWrap').innerHTML=`<div class="ad-head-card"><div class="ad-head-body"><div class="x-pill">حملة</div><div class="ad-head-title">${esc(c.name)}</div>
+ document.getElementById('adHeadWrap').innerHTML=`<div class="ad-head-card"><div class="ad-head-body"><div class="x-pill">${window.ADSET_MODE?'مجموعة إعلانية':'حملة'}</div><div class="ad-head-title">${esc(c.name)}</div>
  <div class="ad-head-sub"><span class="status-dot ${on?'on':'off'}"></span>${on?'شغّالة':'متوقفة'}${PARAMS.accLabel?`<span class="acc-tag">${esc(PARAMS.accLabel)}</span>`:''}<span>· ${PARAMS.since} → ${PARAMS.until}</span></div>
  <div class="ad-head-sub"><span>الهدف: ${esc(c.objective||'—')}</span><span>· الميزانية: ${bud}</span>${c.created_time?`<span>· عمر الحملة: ${Math.max(0,Math.round((Date.now()-new Date(c.created_time))/864e5))} يوم</span>`:''}<span>· ${CADSETS.length} مجموعة · ${CADS.length} إعلان</span></div></div></div>`;
 }
@@ -1082,9 +1095,9 @@ function renderCampMode(){
  const c1=cp(A),c2=cp(B),trend=(c1&&c2)?(c2-c1)/c1*100:null;
  const wastePct=tot?waste/tot*100:null,conc=top&&tot?top.sp/tot*100:null;
  const nAct=CADS.filter(a=>a.status==='ACTIVE').length;
- const adsetRows=CADSETS.map(s=>{const r=CADSET_INS.find(x=>x.adset_id===s.id)||{},p=res(r),spd=num(r.spend);return`<tr><td>${esc(s.name)}</td><td><span class="x-pill">${s.status==='ACTIVE'?'شغّال':'متوقف'}</span></td><td class="num">${money(spd)}</td><td class="num">${p.toFixed(0)}</td><td class="num">${p?money(spd/p):'—'}</td><td class="num">${num(r.ctr).toFixed(2)}%</td><td class="num">${num(r.frequency)?num(r.frequency).toFixed(2):'—'}</td><td class="num">${s.daily_budget?money(num(s.daily_budget)/100):'—'}</td></tr>`}).join('');
+ const adsetRows=CADSETS.map(s=>{const r=CADSET_INS.find(x=>x.adset_id===s.id)||{},p=res(r),spd=num(r.spend);return`<tr class="x-link" onclick="location.href='ad-details.html?'+new URLSearchParams({adset:'${s.id}',act:PARAMS.actId,token:PARAMS.token,acc:PARAMS.accLabel||'',since:PARAMS.since,until:PARAMS.until})"><td>${esc(s.name)}</td><td><span class="x-pill">${s.status==='ACTIVE'?'شغّال':'متوقف'}</span></td><td class="num">${money(spd)}</td><td class="num">${p.toFixed(0)}</td><td class="num">${p?money(spd/p):'—'}</td><td class="num">${num(r.ctr).toFixed(2)}%</td><td class="num">${num(r.frequency)?num(r.frequency).toFixed(2):'—'}</td><td class="num">${s.daily_budget?money(num(s.daily_budget)/100):'—'}</td></tr>`}).join('');
  const adRows=rows.sort((a,b)=>b.sp-a.sp).map(r=>`<tr class="x-link" onclick="location.href='ad-details.html?'+new URLSearchParams({ad:'${r.id}',act:PARAMS.actId,token:PARAMS.token,acc:PARAMS.accLabel||'',since:PARAMS.since,until:PARAMS.until})"><td>${esc(r.a.name)}</td><td><span class="x-pill">${r.a.status==='ACTIVE'?'شغّال':'متوقف'}</span></td><td class="num">${money(r.sp)}</td><td class="num">${tot?(r.sp/tot*100).toFixed(0)+'%':'—'}</td><td class="num">${r.p.toFixed(0)}</td><td class="num">${r.p?money(r.sp/r.p):'—'}</td><td class="num">${r.ctr.toFixed(2)}%</td><td class="num">${r.hasV?em(r.hook,30,15)+' '+r.hook.toFixed(0)+'%':'—'}</td><td class="num">${r.fr?r.fr.toFixed(2):'—'}</td></tr>`).join('');
- el.innerHTML=`<div class="x-card"><h3>صحة الحملة <small>مؤشرات على مستوى الحملة</small></h3><div class="x-grid">
+ el.innerHTML=`<div class="x-card"><h3>${window.ADSET_MODE?'صحة المجموعة':'صحة الحملة'} <small>مؤشرات على مستوى الحملة</small></h3><div class="x-grid">
  ${box('صرف بلا نتائج',wastePct==null?'—':wastePct.toFixed(0)+'%',em(wastePct,15,35,false))}
  ${box('تركّز الصرف في إعلان واحد',conc==null?'—':conc.toFixed(0)+'%',em(conc,60,80,false))}
  ${pace!=null?box('استهلاك الميزانية اليومية',pace.toFixed(0)+'%',em(pace,70,40)):''}
@@ -1096,5 +1109,73 @@ function renderCampMode(){
  <div class="x-card" style="margin-top:14px"><h3>المجموعات الإعلانية</h3><div class="x-wrap"><table class="x-t"><tr><th>المجموعة</th><th>الحالة</th><th>الصرف</th><th>مبيعات</th><th>التكلفة</th><th>CTR</th><th>التكرار</th><th>الميزانية</th></tr>${adsetRows||'<tr><td colspan="8">لا توجد مجموعات</td></tr>'}</table></div></div>
  <div class="x-card" style="margin-top:14px"><h3>الإعلانات <small>اضغط على إعلان لفتح تفاصيله</small></h3><div class="x-wrap"><table class="x-t"><tr><th>الإعلان</th><th>الحالة</th><th>الصرف</th><th>نصيبه</th><th>مبيعات</th><th>التكلفة</th><th>CTR</th><th>Hook</th><th>التكرار</th></tr>${adRows||'<tr><td colspan="9">لا توجد بيانات</td></tr>'}</table></div></div>`;
 }
-</script></body>
+</script><style id="mbh-light-clean-ad">
+html[data-theme="light"]:not(#_){--bg:#F7F5F0;--bg-soft:#F1EEE7;--surface:#fff;--surface-2:#F1EEE7;--surface-3:#ECE8DF;--border:#E2DED5;--border-soft:#E9E5DC;--text:#16181D;--text-dim:#7A766C;--text-faint:#A39E92;--accent:#2446E8;--accent-2:#2446E8;--accent-soft:rgba(36,70,232,.1);--good:#1B6B3A;--good-bg:#E3F4E8;--good-bd:#BFE3CB;--mid:#8A5A00;--mid-bg:#FFF1D6;--mid-bd:#F0D9A0;--bad:#B42318;--bad-bg:#FBE6E4;--bad-bd:#F0BDB8;--font-ui:'IBM Plex Sans Arabic','Cairo',system-ui,sans-serif}
+html[data-theme="light"]:not(#_) body{background:#F7F5F0!important;color:#16181D!important}
+html[data-theme="light"]:not(#_) .topbar{background:rgba(247,245,240,.94)!important;border-bottom:1px solid #E2DED5!important;box-shadow:none!important}
+html[data-theme="light"]:not(#_) .intel-card,html[data-theme="light"]:not(#_) .x-card,html[data-theme="light"]:not(#_) .chart-card,html[data-theme="light"]:not(#_) .ad-head-card,html[data-theme="light"]:not(#_) .summary-box,html[data-theme="light"]:not(#_) .metric-box,html[data-theme="light"]:not(#_) .quality-card,html[data-theme="light"]:not(#_) .v-tile,html[data-theme="light"]:not(#_) .modal{background:#fff!important;border:1px solid #E2DED5!important;box-shadow:none!important;color:#16181D!important}
+html[data-theme="light"]:not(#_) .intel-verdict,html[data-theme="light"]:not(#_) .intel-mini,html[data-theme="light"]:not(#_) .intel-confidence,html[data-theme="light"]:not(#_) .x-box{background:#F7F5F0!important;border-color:#E9E5DC!important}
+html[data-theme="light"]:not(#_) .x-bar{background:#ECE8DF!important}html[data-theme="light"]:not(#_) .x-bar i{background:#2446E8!important}
+html[data-theme="light"]:not(#_) .summary-box.profit .val,html[data-theme="light"]:not(#_) .metric-box.good .metric-value,html[data-theme="light"]:not(#_) .quality-card.good .qval{color:#1B6B3A!important}
+html[data-theme="light"]:not(#_) .summary-box.loss .val,html[data-theme="light"]:not(#_) .metric-box.bad .metric-value,html[data-theme="light"]:not(#_) .quality-card.bad .qval{color:#B42318!important}
+html[data-theme="light"]:not(#_) .metric-box.mid .metric-value,html[data-theme="light"]:not(#_) .quality-card.mid .qval{color:#8A5A00!important}
+html[data-theme="light"]:not(#_) .btn.primary{background:#2446E8!important;border-color:#2446E8!important;color:#fff!important}
+html[data-theme="light"] .back-link{color:#7A766C!important}
+html body{font-family:var(--font-ui)!important}
+main.content{display:flex!important;flex-direction:column}main.content>*{order:20}
+main.content>.back-row{order:1}main.content>#topStatus{order:2}main.content>#adHeadWrap{order:3}main.content>#focusWrap{order:4}main.content>#intelligenceWrap{order:5}main.content>#summaryWrap{order:6}main.content>#chartCard{order:7}main.content>#metricsWrap{order:8}main.content>#creativeWrap{order:9}main.content>#funnelWrap{order:10}main.content>#qualityWrap{order:11}main.content>#realWrap{order:12}main.content>#campaignWrap{order:13}main.content>#platformsWrap{order:14}
+#actionsWrap{display:none!important}
+.adset-mode #campaignWrap .x-card:nth-child(2){display:none}
+.fc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.fc-box{padding:12px;border-radius:14px;background:var(--bg-soft,#F7F5F0);border:1px solid var(--border-soft,#E9E5DC)}
+.fc-box span{display:block;font-size:11.5px;color:var(--text-dim,#7A766C)}.fc-box b{display:block;margin-top:3px;font-size:18px;font-weight:700}
+.fc-box.g b{color:#1B6B3A}.fc-box.m b{color:#8A5A00}.fc-box.b b{color:#B42318}
+.focus-card h3{margin:0 0 10px;font-size:14px}.focus-card{margin:12px 0}
+.mbh-pill{position:fixed;z-index:1300;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;gap:4px;padding:6px;border-radius:32px;background:var(--surface,#fff);border:1px solid var(--border,#E2DED5);box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.mbh-pill a{height:48px;padding:0 14px;border-radius:24px;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--text-dim,#8A8578);text-decoration:none;font:600 14px/1 var(--font-ui)}
+.mbh-pill a svg{width:22px;height:22px}.mbh-pill a span{display:none}
+.mbh-pill a.active{background:var(--accent,#2446E8);color:#fff;padding:0 18px}.mbh-pill a.active span{display:inline}
+.content{padding-bottom:110px!important}
+</style>
+<script id="mbh-focus-js">
+async function loadAdsetDetails(){
+ setTopStatus(t('loading'));
+ const tr=JSON.stringify({since:PARAMS.since,until:PARAMS.until}),id=PARAMS.adsetId,tk=PARAMS.token;
+ const flt=JSON.stringify([{field:'adset.id',operator:'EQUAL',value:id}]);
+ const F='impressions,reach,clicks,spend,ctr,cpc,cpm,conversions,actions,action_values,frequency,outbound_clicks,video_thruplay_watched_actions,video_p25_watched_actions,video_p50_watched_actions,video_p75_watched_actions,video_p100_watched_actions,video_avg_time_watched_actions,video_play_actions';
+ const Fs='spend,impressions,clicks,ctr,reach,frequency,actions,action_values,conversions';
+ const [s,ins,daily,ads,aIns]=await Promise.all([
+  gget(id,{fields:'id,name,status,effective_status,campaign_id,daily_budget,lifetime_budget,optimization_goal,created_time,campaign{id,name,objective}',access_token:tk}),
+  gget(id+'/insights',{fields:F,time_range:tr,access_token:tk}).catch(()=>({data:[]})),
+  gget(id+'/insights',{fields:'spend,actions,action_values,impressions,clicks',time_range:tr,time_increment:1,access_token:tk}).catch(()=>({data:[]})),
+  gget(id+'/ads',{fields:'id,name,status,adset_id,creative{thumbnail_url,image_url}',limit:200,access_token:tk}).catch(()=>({data:[]})),
+  gget(PARAMS.actId+'/insights',{level:'ad',fields:'ad_id,'+Fs+',quality_ranking,engagement_rate_ranking,conversion_rate_ranking',filtering:flt,time_range:tr,limit:200,access_token:tk}).catch(()=>({data:[]}))
+ ]);
+ CAMP={id:s.id,name:s.name,status:s.status,effective_status:s.effective_status,objective:(s.campaign&&s.campaign.objective)||s.optimization_goal,daily_budget:s.daily_budget,lifetime_budget:s.lifetime_budget,created_time:s.created_time};
+ CADSETS=[s];CADS=ads.data||[];CAD_INS=aIns.data||[];CADSET_INS=[];
+ AD={id:s.id,name:s.name,status:s.status,effective_status:s.effective_status,campaign_id:s.campaign_id,adset_id:null,created_time:s.created_time,creative:{}};
+ ADSET=null;INS=(ins.data&&ins.data[0])||null;DAILY=daily.data||[];
+ setTopStatus('');renderAll();
+}
+(function(){
+ const X=window.XH||{},$=id=>document.getElementById(id);
+ function renderFocus(){
+  const el=$('focusWrap');if(!el||!INS)return;
+  const I=INS,A=I.actions||[],a=re=>X.act?X.act(A,re):0,m=metricBoxes(I),cls=r=>r==='good'?'g':r==='mid'?'m':'b',fm=v=>X.fm?X.fm(v):v;
+  const lv=window.ADSET_MODE?'adset':(window.CAMP_MODE?'camp':'ad');
+  const title=lv==='ad'?'بيانات الكريتف':lv==='adset'?'بيانات المجموعة كاملة':'بيانات الحملة كاملة';
+  const likes=a(/^post_reaction$/)||a(/^like$/),com=a(/^comment$/),shr=a(/^post$/),imp=num(I.impressions),pe=a(/^post_engagement$/);
+  const eng=imp?(pe||likes+com+shr)/imp*100:0;
+  const b=(l,v,c)=>`<div class="fc-box ${c||''}"><span>${l}</span><b class="num">${v}</b></div>`;
+  el.innerHTML=`<div class="x-card focus-card"><h3>${title}</h3><div class="fc-grid">${b('CTR',m.ctr.toFixed(2)+'%',cls(m.ctrRate))}${b('CPM',money(m.cpm),cls(m.cpmRate))}${b('CPC',money(m.cpc),cls(m.cpcRate))}${b('لايكات',fm(likes))}${b('تعليقات',fm(com))}${b('مشاركات',fm(shr))}${b('معدل التفاعل',eng.toFixed(2)+'%')}${b('الظهور',fm(imp))}</div></div>`;
+ }
+ const _re=window.renderExtras;
+ window.renderExtras=function(){if(_re)_re();try{renderFocus()}catch(e){console.warn('focus',e)}};
+})();
+</script>
+<style id="mbh-light-clean-fix">
+html[data-theme="light"]:not(#_) .bottom-nav-item.active{background:#ECE8DF!important;color:#16181D!important}
+html[data-theme="light"]:not(#_) .intel-dot,html[data-theme="light"]:not(#_) .x-bar i{background:#2446E8!important}
+</style>
+</body>
 </html>
